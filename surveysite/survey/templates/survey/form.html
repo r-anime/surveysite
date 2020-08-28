@@ -1,7 +1,7 @@
 <h1>{{ survey }}!</h1>
-{% if survey.anime_set.all%}
+{% if survey.anime.all %}
     <ul>
-    {% for anime in survey.anime_set.all %}
+    {% for anime in survey.anime.all %}
         <li>{{ anime }}</li>
     {% endfor %}
     </ul>
