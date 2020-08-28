@@ -1,4 +1,4 @@
-<h1>{{ survey }}</h1>
+<h1>{{ survey }}!</h1>
 {% if survey.anime_set.all%}
     <ul>
     {% for anime in survey.anime_set.all %}
@@ -8,3 +8,4 @@
 {% else %}
     <p>Survey has no anime!</p>
 {% endif %}
+<a href="{% url 'survey:index' %}">Back to index.</a>

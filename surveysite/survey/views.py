@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
 #from django.template import loader
 from .models import Survey
@@ -11,7 +11,7 @@ def index(request):
 
     return render(request, 'survey/index.html', context)
 
-def form(request, year_season, pre_or_post):
+def survey(request, year_season, pre_or_post):
     if pre_or_post == 'pre':
         is_preseason = True
     elif pre_or_post == 'post':
@@ -20,23 +20,19 @@ def form(request, year_season, pre_or_post):
         raise Http404("Survey does not exist!")
 
     survey = get_object_or_404(Survey, year_season=year_season, is_preseason=is_preseason)
+    if survey.is_ongoing:
+        return form(request, survey)
+    else:
+        return results(request, survey)
+
+def form(request, survey):
     context = {
         'survey': survey,
     }
-
     return render(request, 'survey/form.html', context)
 
-def results(request, year_season, pre_or_post):
-    if pre_or_post == 'pre':
-        is_preseason = True
-    elif pre_or_post == 'post':
-        is_preseason = False
-    else:
-        raise Http404("Survey does not exist!")
-
-    survey = get_object_or_404(Survey, year_season=year_season, is_preseason=is_preseason)
+def results(request, survey):
     context = {
         'survey': survey,
     }
-
     return render(request, 'survey/results.html', context)

@@ -1,7 +1,7 @@
 {% if survey_list %}
     <ul>
     {% for survey in survey_list %}
-        <li><a href="{% url 'form' survey.year_season survey.is_preseason|yesno:'pre,post' %}">{{ survey }}</a></li>
+        <li><a href="{% url 'survey:survey' survey.year_season survey.is_preseason|yesno:'pre,post' %}">{{ survey }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

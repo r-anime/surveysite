@@ -110,6 +110,9 @@ class Image(models.Model):
 class Survey(models.Model):
     # Fields
     is_preseason = models.BooleanField()
+    is_ongoing = models.BooleanField(
+        default=False,
+    )
     year_season = models.CharField(
         max_length=6,
     )
