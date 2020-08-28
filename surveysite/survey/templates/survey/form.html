@@ -1,0 +1,10 @@
+<h1>{{ survey }}</h1>
+{% if survey.anime_set.all%}
+    <ul>
+    {% for anime in survey.anime_set.all %}
+        <li>{{ anime }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Survey has no anime!</p>
+{% endif %}

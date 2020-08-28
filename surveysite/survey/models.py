@@ -110,7 +110,7 @@ class Image(models.Model):
 class Survey(models.Model):
     # Fields
     is_preseason = models.BooleanField()
-    season = models.CharField(
+    year_season = models.CharField(
         max_length=6,
     )
 
@@ -120,7 +120,23 @@ class Survey(models.Model):
     )
 
     def __str__(self):
-        return self.season + ' (' + ('pre-season' if self.is_preseason else 'post-season') + ')'
+        try:
+            year_str = self.year_season.split('.')[0]
+            season = self.year_season.split('.')[1]
+            if season == '1':
+                season_str = 'Winter'
+            elif season == '2':
+                season_str = 'Spring'
+            elif season == '3':
+                season_str = 'Summer'
+            elif season == '4':
+                season_str = 'Fall'
+            else:
+                season_str = '!!INVALID SEASON!!'
+        except:
+            season_str = '!!NO SEASON!!'
+
+        return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + season_str + ' ' + year_str + ' Survey'
     
 
 
