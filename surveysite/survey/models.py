@@ -20,61 +20,55 @@ class Anime(models.Model):
     )
     flags = models.CharField(
         max_length=4,
+        blank=True,
     )
     note = models.CharField(
         max_length=50,
+        blank=True,
     )
 
-    # Relation fields
-    names = models.OneToOneField(
-        to='AnimeNames',
-        on_delete=models.PROTECT,
-    )
-    seasons = models.OneToOneField(
-        to="AnimeSeasons",
-        on_delete=models.PROTECT,
-    )
-    
-
-
-class AnimeNames(models.Model):
-    # Fields
     japanese_name = models.CharField(
         max_length=128,
+        blank=True,
     )
     english_name = models.CharField(
         max_length=128,
+        blank=True,
     )
     short_name = models.CharField(
         max_length=32,
+        blank=True,
     )
-
-    # Relation fields
-    anime = models.OneToOneField(
-        to='Anime',
-        on_delete=models.CASCADE,
-    )
-
-
-
-class AnimeSeasons(models.Model):
-    # Fields
-    start = models.CharField(
+    
+    start_season = models.CharField(
         max_length=6,
+        blank=True,
     )
-    end = models.CharField(
+    end_season = models.CharField(
         max_length=6,
+        blank=True,
     )
-    subbed_in = models.CharField(
+    subbed_season = models.CharField(
         max_length=6,
+        blank=True,
     )
 
-    # Relation fields
-    anime = models.OneToOneField(
-        to='Anime',
-        on_delete=models.CASCADE,
-    )
+    def __str__(self):
+        result = ''
+        if len(self.japanese_name) > 0 and len(self.english_name) > 0:
+            result += self.japanese_name + ' / ' + self.english_name
+        elif len(self.japanese_name) == 0 and len(self.english_name) == 0:
+            result = '!!NO NAME!!'
+        elif len(self.japanese_name) > 0:
+            result = self.japanese_name
+        else:
+            result = self.english_name
+        
+        if len(self.short_name) > 0:
+            result += ' (' + self.short_name + ')'
 
+        return result
+    
 
 
 class Video(models.Model):
@@ -90,6 +84,9 @@ class Video(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def __str__(self):
+        return self.name
+    
 
 
 class Image(models.Model):
@@ -105,6 +102,9 @@ class Image(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def __str__(self):
+        return self.name
+
 
 
 class Survey(models.Model):
@@ -119,6 +119,10 @@ class Survey(models.Model):
         to='Anime',
     )
 
+    def __str__(self):
+        return self.season + ' (' + ('pre-season' if self.is_preseason else 'post-season') + ')'
+    
+
 
 
 class Response(models.Model):
@@ -132,10 +136,13 @@ class Response(models.Model):
     timestamp = models.DateTimeField(
         auto_now=True,
     )
-    age = models.IntegerField(blank=True)
+    age = models.IntegerField(
+        blank=True
+    )
     gender = models.CharField(
         max_length=1,
         choices=Gender.choices,
+        blank=True,
     )
 
     # Relation fields
@@ -154,11 +161,14 @@ class ResponseAnime(models.Model):
         __empty__ =           _('N/A')
     
     # Fields
-    score = models.IntegerField(blank=True)
+    score = models.IntegerField(
+        blank=True
+    )
     underwatched = models.BooleanField()
     expectations = models.CharField(
         max_length=1,
         choices=Expectations.choices,
+        blank=True,
     )
 
     # Relation fields
