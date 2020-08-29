@@ -1,11 +1,55 @@
 <h1>{{ survey }}!</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
 {% if survey.anime.all %}
-    <ul>
+    <form action="{% url 'survey:submit' survey.year_season survey.is_preseason|yesno:'pre,post' %}" method="post">
+    {% csrf_token %}
+
+    <ol>
     {% for anime in survey.anime.all %}
-        <li>{{ anime }}</li>
+        <li>{{ anime }}<br>
+            <ul>
+                <li>
+                    <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
+                    <label for="{{ anime.id }}-watched">Watched?</label>
+                </li>
+
+                {% if not survey.is_preseason %}
+                <li>
+                    <input type="checkbox" name="{{ anime.id }}-underwatched" label="{{ anime.id }}-underwatched" value="true">
+                    <label for="{{ anime.id }}-underwatched">Underwatched?</label>
+                </li>
+                {% endif %}
+
+                <li>
+                    <input type="number" name="{{ anime.id }}-score" label="{{ anime.id }}-score" min=1 max=5>
+                    <label for="{{ anime.id }}-score">Score</label>
+                </li>
+
+                {% if not survey.is_preseason %}
+                <li>
+                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-surprise" value="surprise">
+                    <label for="{{ anime.id }}-expectations-surprise">Surprise</label>
+
+                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-disappointment" value="disappointment">
+                    <label for="{{ anime.id }}-expectations-disappointment">Disappointment</label>
+
+                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-none" value="none" checked="checked">
+                    <label for="{{ anime.id }}-expectations-none">Neither</label>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
     {% endfor %}
-    </ul>
+    </ol>
+
+
+
 {% else %}
     <p>Survey has no anime!</p>
 {% endif %}
+
+
 <a href="{% url 'survey:index' %}">Back to index.</a>
