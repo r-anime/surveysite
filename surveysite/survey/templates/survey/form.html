@@ -4,7 +4,7 @@
 
 
 {% if survey.anime.all %}
-    <form action="{% url 'survey:submit' survey.year_season survey.is_preseason|yesno:'pre,post' %}" method="post">
+    <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
     <ol>

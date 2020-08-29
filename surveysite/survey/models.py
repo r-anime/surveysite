@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import datetime
 
 class Anime(models.Model):
     # Enums
@@ -11,6 +13,12 @@ class Anime(models.Model):
         TV_SPECIAL   = 'TVSP', _('TV special')
         ONA_SERIES   = 'ONAS', _('ONA series')
         BULK_RELEASE = 'BULK', _('Bulk-released series')
+
+    class AnimeSeason(models.IntegerChoices):
+        WINTER = 0
+        SPRING = 1
+        SUMMER = 2
+        FALL = 3
 
     # Fields
     anime_type = models.CharField(
@@ -39,18 +47,47 @@ class Anime(models.Model):
         max_length=32,
         blank=True,
     )
-    
-    start_season = models.CharField(
-        max_length=6,
+
+    def get_year(): return datetime.now().year
+    def get_season(): return Anime.AnimeSeason(datetime.now().month // 4)
+
+    start_year = models.SmallIntegerField(
         blank=True,
+        null=True,
+        validators=[MinValueValidator(1960), MaxValueValidator(2040)],
+        default=get_year,
     )
-    end_season = models.CharField(
-        max_length=6,
+    start_season = models.SmallIntegerField(
         blank=True,
+        null=True,
+        choices=AnimeSeason.choices,
+        default=get_season,
     )
-    subbed_season = models.CharField(
-        max_length=6,
+
+    end_year = models.SmallIntegerField(
         blank=True,
+        null=True,
+        validators=[MinValueValidator(1960), MaxValueValidator(2040)],
+        default=None,
+    )
+    end_season = models.SmallIntegerField(
+        blank=True,
+        null=True,
+        choices=AnimeSeason.choices,
+        default=None,
+    )
+
+    subbed_year = models.SmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1960), MaxValueValidator(2040)],
+        default=None,
+    )
+    subbed_season = models.SmallIntegerField(
+        blank=True,
+        null=True,
+        choices=AnimeSeason.choices,
+        default=None,
     )
 
     def __str__(self):
@@ -74,7 +111,7 @@ class Anime(models.Model):
 class Video(models.Model):
     # Fields
     name = models.CharField(
-        max_length=50
+        max_length=50,
     )
     url = models.URLField()
 
@@ -113,8 +150,17 @@ class Survey(models.Model):
     is_ongoing = models.BooleanField(
         default=False,
     )
-    year_season = models.CharField(
-        max_length=6,
+
+    def get_relevant_year(): return datetime.now().year + (1 if datetime.now().month // 4 + 1 == 4 else 0),
+    def get_relevant_season(): return Anime.AnimeSeason((datetime.now().month // 4 + 1) % 4)
+
+    year = models.SmallIntegerField(
+        validators=[MinValueValidator(1960), MaxValueValidator(2040)],
+        default=get_relevant_year,
+    )
+    season = models.SmallIntegerField(
+        choices=Anime.AnimeSeason.choices,
+        default=get_relevant_season,
     )
 
     # Relation fields
@@ -123,23 +169,7 @@ class Survey(models.Model):
     )
 
     def __str__(self):
-        try:
-            year_str = self.year_season.split('.')[0]
-            season = self.year_season.split('.')[1]
-            if season == '1':
-                season_str = 'Winter'
-            elif season == '2':
-                season_str = 'Spring'
-            elif season == '3':
-                season_str = 'Summer'
-            elif season == '4':
-                season_str = 'Fall'
-            else:
-                season_str = '!!INVALID SEASON!!'
-        except:
-            season_str = '!!NO SEASON!!'
-
-        return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + season_str + ' ' + year_str + ' Survey'
+        return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + Anime.AnimeSeason.labels[self.season] + ' ' + str(self.year) + ' Survey'
     
 
 
