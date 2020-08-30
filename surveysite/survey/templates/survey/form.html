@@ -3,12 +3,12 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 
-{% if survey.anime.all %}
+{% if anime_list %}
     <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
     <ol>
-    {% for anime in survey.anime.all %}
+    {% for anime in anime_list %}
         <li>{{ anime }}<br>
             <ul>
                 <li>
