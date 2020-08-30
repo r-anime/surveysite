@@ -7,6 +7,18 @@
     <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
+    <label for="age">How old are you?</label>
+    <input type="number" name="age" label="age" min=10 max=80>
+    <br>
+
+    <label for="gender">Which gender do you identify as?</label>
+    <select name="gender" value="male">
+        <option value=""></option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+        <option value="O">Other</option>
+    </select>
+
     <ol>
     {% for anime in anime_list %}
         <li>{{ anime }}<br>
@@ -24,28 +36,45 @@
                 {% endif %}
 
                 <li>
-                    <input type="number" name="{{ anime.id }}-score" label="{{ anime.id }}-score" min=1 max=5>
-                    <label for="{{ anime.id }}-score">Score</label>
+                    <table style="text-align: center;"><!--
+                        <tr style="visibility: hidden;">
+                            <th><label for="{{ anime.id }}-score-1">1</label></th>
+                            <th><label for="{{ anime.id }}-score-2">2</label></th>
+                            <th><label for="{{ anime.id }}-score-3">3</label></th>
+                            <th><label for="{{ anime.id }}-score-4">4</label></th>
+                            <th><label for="{{ anime.id }}-score-5">5</label></th>
+                        </tr>-->
+                        <tr>
+                            <td>Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1"></td>
+                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2"></td>
+                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3"></td>
+                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4"></td>
+                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great</td>
+                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="">None</td>
+                        </tr>
+                    </table>
                 </li>
 
                 {% if not survey.is_preseason %}
                 <li>
-                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-surprise" value="surprise">
+                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-surprise" value="S">
                     <label for="{{ anime.id }}-expectations-surprise">Surprise</label>
 
-                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-disappointment" value="disappointment">
+                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-disappointment" value="D">
                     <label for="{{ anime.id }}-expectations-disappointment">Disappointment</label>
 
-                    <input type="radio" name="{{ anime.id }}-expectations" label="{{ anime.id }}-expectations-none" value="none" checked="checked">
+                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-none" value="" checked="checked">
                     <label for="{{ anime.id }}-expectations-none">Neither</label>
                 </li>
                 {% endif %}
             </ul>
         </li>
+        <br>
     {% endfor %}
     </ol>
 
-
+    <input type="submit" value="Submit">
+    </form>
 
 {% else %}
     <p>Survey has no anime!</p>

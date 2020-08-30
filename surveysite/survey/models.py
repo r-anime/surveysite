@@ -211,7 +211,8 @@ class ResponseAnime(models.Model):
     
     # Fields
     score = models.IntegerField(
-        blank=True
+        blank=True,
+        null=True,
     )
     underwatched = models.BooleanField()
     expectations = models.CharField(
@@ -225,7 +226,7 @@ class ResponseAnime(models.Model):
         to='Response',
         on_delete=models.CASCADE,
     )
-    anime = models.OneToOneField(
+    anime = models.ForeignKey(
         to='Anime',
         on_delete=models.CASCADE,
     )
