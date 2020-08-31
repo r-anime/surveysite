@@ -76,10 +76,13 @@ def get_survey_anime(survey):
     anime_list = Anime.objects.annotate(
         start_year_season = F('start_year') * 10 + F('start_season'),
         end_year_season   = F('end_year')   * 10 + F('end_season'),
-    )
-    anime_list = anime_list.filter(
+    ).filter(
         start_year_season__lte=survey.year*10+survey.season,
         end_year_season__gte=survey.year*10+survey.season,
+    ).order_by(
+        'japanese_name',
+        'english_name',
+        'short_name',
     )
     return anime_list
 
