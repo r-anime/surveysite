@@ -44,8 +44,8 @@ def results(request, survey):
 
 # POST requests will be sent here
 def submit(request, year, season, pre_or_post):
-    if request.method == 'POST':
-        survey = get_survey_or_404(year, season, pre_or_post)
+    survey = get_survey_or_404(year, season, pre_or_post)
+    if request.method == 'POST' and survey.is_ongoing:
         anime_list, _, _ = get_survey_anime(survey)
 
         response = Response(
@@ -58,15 +58,17 @@ def submit(request, year, season, pre_or_post):
 
         response_anime_list = []
         for anime in anime_list:
-            if str(anime.id) + '-watched' in request.POST.keys():
-                response_anime = ResponseAnime(
-                    response=response,
-                    anime=anime,
-                    score=try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
-                    underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
-                    expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: ResponseAnime.Expectations(x), ''),
-                )
-                response_anime_list.append(response_anime)
+            if survey.is_ongoing and str(anime.id) + '-watched' not in request.POST.keys():
+                continue
+            response_anime = ResponseAnime(
+                response=response,
+                anime=anime,
+                watching=try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
+                score=try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
+                underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
+                expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: ResponseAnime.Expectations(x), ''),
+            )
+            response_anime_list.append(response_anime)
         
         ResponseAnime.objects.bulk_create(response_anime_list)
         

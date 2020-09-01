@@ -214,6 +214,7 @@ class ResponseAnime(models.Model):
         blank=True,
         null=True,
     )
+    watching = models.BooleanField()
     underwatched = models.BooleanField()
     expectations = models.CharField(
         max_length=1,
