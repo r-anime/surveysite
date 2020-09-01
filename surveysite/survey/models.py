@@ -6,7 +6,7 @@ from datetime import datetime
 class Anime(models.Model):
     # Enums
     class AnimeType(models.TextChoices):
-        TV           = 'TV',   _('TV series')
+        TV_SERIES    = 'TV',   _('TV series')
         MOVIE        = 'MV',   _('Movie')
         ONA          = 'ONA',  _('Original Net Animation (ONA)')
         OVA          = 'OVA',  _('Original Video Animation (OVA)')

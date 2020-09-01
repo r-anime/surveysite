@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
-from django.db.models import F
+from django.db.models import F, Q
 #from django.template import loader
 from .models import Survey, Anime, Response, ResponseAnime
 from datetime import datetime
@@ -73,12 +73,14 @@ def submit(request, year, season, pre_or_post):
 
 # ======= HELPER METHODS =======
 def get_survey_anime(survey):
+    year_season_filter = Q(start_year_season__lte=survey.year*10+survey.season) & \
+        (Q(end_year_season__gte=survey.year*10+survey.season) | Q(end_year_season=None))
+
     anime_list = Anime.objects.annotate(
         start_year_season = F('start_year') * 10 + F('start_season'),
-        end_year_season   = F('end_year')   * 10 + F('end_season'),
+        end_year_season   = F('end_year')   * 10 + F('end_season')  ,
     ).filter(
-        start_year_season__lte=survey.year*10+survey.season,
-        end_year_season__gte=survey.year*10+survey.season,
+        year_season_filter
     ).order_by(
         'japanese_name',
         'english_name',
