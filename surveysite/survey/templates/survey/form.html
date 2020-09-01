@@ -36,23 +36,12 @@
                 {% endif %}
 
                 <li>
-                    <table style="text-align: center;"><!--
-                        <tr style="visibility: hidden;">
-                            <th><label for="{{ anime.id }}-score-1">1</label></th>
-                            <th><label for="{{ anime.id }}-score-2">2</label></th>
-                            <th><label for="{{ anime.id }}-score-3">3</label></th>
-                            <th><label for="{{ anime.id }}-score-4">4</label></th>
-                            <th><label for="{{ anime.id }}-score-5">5</label></th>
-                        </tr>-->
-                        <tr>
-                            <td>Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1"></td>
-                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2"></td>
-                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3"></td>
-                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4"></td>
-                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great</td>
-                            <td><input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None</td>
-                        </tr>
-                    </table>
+                    Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
                 </li>
 
                 {% if not survey.is_preseason %}

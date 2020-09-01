@@ -54,6 +54,7 @@ def submit(request, year, season, pre_or_post):
         )
         response.save()
 
+        response_anime_list = []
         for anime in anime_list:
             if str(anime.id) + '-watched' in request.POST.keys():
                 response_anime = ResponseAnime(
@@ -63,7 +64,9 @@ def submit(request, year, season, pre_or_post):
                     underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
                     expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: ResponseAnime.Expectations(x), ''),
                 )
-                response_anime.save()
+                response_anime_list.append(response_anime)
+        
+        ResponseAnime.objects.bulk_create(response_anime_list)
         
         return redirect('survey:index')
     else:
