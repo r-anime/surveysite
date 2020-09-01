@@ -3,7 +3,7 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 
-{% if anime_list %}
+{% if survey.is_ongoing %}
     <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
@@ -18,9 +18,11 @@
         <option value="F">Female</option>
         <option value="O">Other</option>
     </select>
+    <br>
 
+    <h2>Anime Series</h2>
     <ol>
-    {% for anime in anime_list %}
+    {% for anime in anime_series_list %}
         <li>{{ anime }}<br>
             <ul>
                 <li>
@@ -61,12 +63,38 @@
         <br>
     {% endfor %}
     </ol>
+    <br>
+
+    <h2>Anime Movies/ONAs/OVAs/Specials</h2>
+    <ol>
+    {% for anime in special_anime_list %}
+        <li>{{ anime }}<br>
+            <ul>
+                <li>
+                    <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
+                    <label for="{{ anime.id }}-watched">Watched?</label>
+                </li>
+
+                <li>
+                    Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
+                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
+                </li>
+            </ul>
+        </li>
+        <br>
+    {% endfor %}
+    </ol>
+    <br>
 
     <input type="submit" value="Submit">
     </form>
 
 {% else %}
-    <p>Survey has no anime!</p>
+    <p>Survey is closed!</p>
 {% endif %}
 
 

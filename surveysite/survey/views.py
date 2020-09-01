@@ -26,9 +26,11 @@ def survey(request, year, season, pre_or_post):
         return results(request, survey)
 
 def form(request, survey):
+    _, anime_series_list, special_anime_list = get_survey_anime(survey)
     context = {
         'survey': survey,
-        'anime_list': get_survey_anime(survey),
+        'anime_series_list': anime_series_list,
+        'special_anime_list': special_anime_list,
     }
     return render(request, 'survey/form.html', context)
 
@@ -44,7 +46,7 @@ def results(request, survey):
 def submit(request, year, season, pre_or_post):
     if request.method == 'POST':
         survey = get_survey_or_404(year, season, pre_or_post)
-        anime_list = get_survey_anime(survey)
+        anime_list, _, _ = get_survey_anime(survey)
 
         response = Response(
             survey=survey,
@@ -76,12 +78,14 @@ def submit(request, year, season, pre_or_post):
 
 # ======= HELPER METHODS =======
 def get_survey_anime(survey):
-    year_season_filter = Q(start_year_season__lte=survey.year*10+survey.season) & \
-        (Q(end_year_season__gte=survey.year*10+survey.season) | Q(end_year_season=None))
+    current_year_season = survey.year * 10 + survey.season
+    year_season_filter = Q(start_year_season__lte=current_year_season) & \
+        (Q(end_year_season__gte=current_year_season) | Q(end_year_season=None))
 
     anime_list = Anime.objects.annotate(
-        start_year_season = F('start_year') * 10 + F('start_season'),
-        end_year_season   = F('end_year')   * 10 + F('end_season')  ,
+        start_year_season  = F('start_year')  * 10 + F('start_season') ,
+        end_year_season    = F('end_year')    * 10 + F('end_season')   ,
+        subbed_year_season = F('subbed_year') * 10 + F('subbed_season'),
     ).filter(
         year_season_filter
     ).order_by(
@@ -89,7 +93,21 @@ def get_survey_anime(survey):
         'english_name',
         'short_name',
     )
-    return anime_list
+
+    anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
+    special_anime_filter = ~anime_series_filter & \
+        (Q(end_year_season=current_year_season) | Q(subbed_year_season=current_year_season))
+    
+    anime_series_list = anime_list.filter(
+        anime_series_filter
+    )
+    special_anime_list = anime_list.filter(
+        special_anime_filter
+    )
+    combined_anime_list = anime_list.filter(
+        anime_series_filter | special_anime_filter
+    )
+    return combined_anime_list, anime_series_list, special_anime_list
 
 def get_survey_or_404(year, season, pre_or_post):
     if pre_or_post == 'pre':
