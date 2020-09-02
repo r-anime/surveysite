@@ -20,81 +20,93 @@
     </select>
     <br>
 
+
+
     <h2>Anime Series</h2>
-    <ol>
-    {% for anime in anime_series_list %}
-        <li>{{ anime }}<br>
-            <ul>
-                <li>
-                    <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
-                    <label for="{{ anime.id }}-watched">Watched?</label>
-                </li>
+    {% if anime_series_list %}
+        <ol>
+        {% for anime in anime_series_list %}
+            <li>{{ anime }}<br>
+                <ul>
+                    <li>
+                        <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
+                        <label for="{{ anime.id }}-watched">Watched?</label>
+                    </li>
 
-                {% if not survey.is_preseason %}
-                <li>
-                    <input type="checkbox" name="{{ anime.id }}-underwatched" label="{{ anime.id }}-underwatched" value="true">
-                    <label for="{{ anime.id }}-underwatched">Underwatched?</label>
-                </li>
-                {% endif %}
+                    {% if not survey.is_preseason %}
+                    <li>
+                        <input type="checkbox" name="{{ anime.id }}-underwatched" label="{{ anime.id }}-underwatched" value="true">
+                        <label for="{{ anime.id }}-underwatched">Underwatched?</label>
+                    </li>
+                    {% endif %}
 
-                <li>
-                    Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
-                </li>
+                    <li>
+                        Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
+                    </li>
 
-                {% if not survey.is_preseason %}
-                <li>
-                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-surprise" value="S">
-                    <label for="{{ anime.id }}-expectations-surprise">Surprise</label>
+                    {% if not survey.is_preseason %}
+                    <li>
+                        <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-surprise" value="S">
+                        <label for="{{ anime.id }}-expectations-surprise">Surprise</label>
 
-                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-disappointment" value="D">
-                    <label for="{{ anime.id }}-expectations-disappointment">Disappointment</label>
+                        <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-disappointment" value="D">
+                        <label for="{{ anime.id }}-expectations-disappointment">Disappointment</label>
 
-                    <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-none" value="" checked="checked">
-                    <label for="{{ anime.id }}-expectations-none">Neither</label>
-                </li>
-                {% endif %}
-            </ul>
-        </li>
-        <br>
-    {% endfor %}
-    </ol>
+                        <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-none" value="" checked="checked">
+                        <label for="{{ anime.id }}-expectations-none">Neither</label>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            <br>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <p>No anime found!</p>
+    {% endif %}
     <br>
 
-    <h2>Anime Movies/ONAs/OVAs/Specials</h2>
-    <ol>
-    {% for anime in special_anime_list %}
-        <li>{{ anime }}<br>
-            <ul>
-                <li>
-                    <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
-                    <label for="{{ anime.id }}-watched">Watched?</label>
-                </li>
 
-                <li>
-                    Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
-                    <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
-                </li>
-            </ul>
-        </li>
-        <br>
-    {% endfor %}
-    </ol>
+
+    <h2>Anime Movies/ONAs/OVAs/Specials</h2>
+    {% if special_anime_list %}
+        <ol>
+        {% for anime in special_anime_list %}
+            <li>{{ anime }}<br>
+                <ul>
+                    <li>
+                        <input type="checkbox" name="{{ anime.id }}-watched" label="{{ anime.id }}-watched" value="true">
+                        <label for="{{ anime.id }}-watched">Watched?</label>
+                    </li>
+
+                    <li>
+                        Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
+                        <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
+                    </li>
+                </ul>
+            </li>
+            <br>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <p>No anime found!</p>
+    {% endif %}
     <br>
 
     <input type="submit" value="Submit">
     </form>
 
 {% else %}
-    <p>Survey is closed!</p>
+    <p>The survey is closed!</p>
 {% endif %}
 
 

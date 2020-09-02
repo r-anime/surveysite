@@ -97,8 +97,7 @@ def get_survey_anime(survey):
     )
 
     anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
-    special_anime_filter = ~anime_series_filter & \
-        (Q(end_year_season=current_year_season) | Q(subbed_year_season=current_year_season))
+    special_anime_filter = ~anime_series_filter & Q(subbed_year_season=current_year_season)
     
     anime_series_list = anime_list.filter(
         anime_series_filter
