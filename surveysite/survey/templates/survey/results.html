@@ -1,2 +1,37 @@
 <h1>{{ survey }} Results!</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
+{% if not survey.is_ongoing %}
+    {% for table in table_list %}
+        <h2>{{ table.title }}</h2>
+
+        <table>
+            <tr>
+                <th>#</th>
+            {% for header in table.headers %}
+                <th>{{ header }}</th>
+            {% endfor %}
+            </tr>
+            {% for row in table.data|dictsortreversed:1 %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                {% for entry in row %}
+                    {% if forloop.first %}
+                        <td>{{ entry }}</td>
+                    {% else %}
+                        <td>{{ entry|floatformat:1 }}%</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+{% else %}
+    <p>The survey is still open!</p>
+{% endif %}
+
+
+
 <a href="{% url 'survey:index' %}">Back to index.</a>

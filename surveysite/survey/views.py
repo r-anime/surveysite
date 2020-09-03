@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
-from django.db.models import F, Q
+from django.db.models import F, Q, Avg
 #from django.template import loader
 from .models import Survey, Anime, Response, ResponseAnime
 from datetime import datetime
@@ -35,8 +35,31 @@ def form(request, survey):
     return render(request, 'survey/form.html', context)
 
 def results(request, survey):
+    response_anime_list = ResponseAnime.objects.filter(response__survey=survey)
+    response_list = Response.objects.filter(survey=survey)
+    response_count = response_list.count()
+
+    _, anime_series_list, special_anime_list = get_survey_anime(survey)
+
+    popularity_data = [(anime, response_anime_list.filter(anime=anime, watching=True).count() / response_count * 100.0) for anime in anime_series_list]
+    popularity_table = {
+        "title": "Most Popular Anime",
+        "headers": ["Anime", "%"],
+        "data": popularity_data,
+    }
+
+    score_data = [(anime, response_anime_list.filter(anime=anime, watching=True, score__isnull=False).aggregate(Avg('score'))['score__avg']) for anime in anime_series_list]
+    score_data = [(anime, 0.0 if score is None else score) for (anime, score) in score_data]
+    score_table = {
+        "title": "Most Anticipated Anime" if survey.is_preseason else "Best Anime",
+        "headers": ["Anime", "%"],
+        "data": score_data,
+    }
+
+    table_list = [popularity_table, score_table]
     context = {
         'survey': survey,
+        'table_list': table_list,
     }
     return render(request, 'survey/results.html', context)
 
