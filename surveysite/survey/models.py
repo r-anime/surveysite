@@ -163,11 +163,6 @@ class Survey(models.Model):
         default=get_relevant_season,
     )
 
-    # Relation fields
-    anime = models.ManyToManyField(
-        to='Anime',
-    )
-
     def __str__(self):
         return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + Anime.AnimeSeason.labels[self.season] + ' ' + str(self.year) + ' Survey'
     
