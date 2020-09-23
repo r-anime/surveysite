@@ -1,3 +1,7 @@
+{% extends "survey/base.html" %}
+
+{% block content %}
+
 <h1>{{ survey }} Results!</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
@@ -35,3 +39,5 @@
 
 
 <a href="{% url 'survey:index' %}">Back to index.</a>
+
+{% endblock content %}

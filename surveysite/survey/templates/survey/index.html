@@ -1,3 +1,7 @@
+{% extends "survey/base.html" %}
+
+{% block content %}
+
 {% if survey_list %}
     <ul>
     {% for survey in survey_list %}
@@ -7,3 +11,5 @@
 {% else %}
     <p>No surveys available.</p>
 {% endif %}
+
+{% endblock content %}
