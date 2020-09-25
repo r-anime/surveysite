@@ -1,4 +1,5 @@
 {% extends "survey/base.html" %}
+{% load static %}
 
 {% block content %}
 
@@ -41,7 +42,7 @@
                     </div>
 
                     <div class="col-4">
-                        <img class="img-fluid" src="https://cdn.myanimelist.net/images/anime/1627/107552l.jpg" alt="[[REPLACE THIS]]">
+                        <img class="img-fluid" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
                     </div>
                     <div class="col-8">
                         <div class="form-group form-check">
