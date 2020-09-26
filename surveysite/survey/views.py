@@ -113,10 +113,6 @@ def get_survey_anime(survey):
         subbed_year_season = F('subbed_year') * 10 + F('subbed_season'),
     ).filter(
         year_season_filter
-    ).order_by(
-        'japanese_name',
-        'english_name',
-        'short_name',
     )
 
     anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
