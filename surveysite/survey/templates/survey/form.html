@@ -32,72 +32,55 @@
 
     <h3>Anime Series</h3>
     {% if anime_series_list %}
-        <div class="row">
+        <div class="row row-cols-md-2">
 
         {% for anime in anime_series_list %}
-            <div class="col-md-6">
-                <div class="row">
-                    <div class="col-md-12" style="text-align:center;background-color:#e0e0e0">
-                        <h6>{{ anime }}</h6>
-                    </div>
-
-                    <div class="col-4">
-                        <img class="img-fluid" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
-                    </div>
-                    <div class="col-8">
-                        <div class="form-group form-check">
-                            <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
-                            <label class="form-check-label" for="{{ anime.id }}-watched">Watched?</label>
+            <div class="col-md mb-4">
+                <div class="card">
+                    <div class="row no-gutters">
+                        <div class="col-4" style="background-color:#eaeaea;border-radius:3px;">
+                            <img class="card-img" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
                         </div>
+                        <div class="col-8">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ anime }}</h4>
 
-                        {% if not survey.is_preseason %}
-                        <div class="form-group form-check">
-                            <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
-                            <label class="form-check-label" for="{{ anime.id }}-underwatched">Underwatched?</label>
+                                <div class="form-group form-check">
+                                    <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
+                                    <label class="form-check-label" for="{{ anime.id }}-watched">Watched?</label>
+                                </div>
+
+                                {% if not survey.is_preseason %}
+                                <div class="form-group form-check">
+                                    <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
+                                    <label class="form-check-label" for="{{ anime.id }}-underwatched">Underwatched?</label>
+                                </div>
+                                {% endif %}
+
+                                <div class="form-group">
+                                    <label for="{{ anime.id }}-score">Score</label>
+                                    <select name="{{ anime.id }}-score" class="form-control">
+                                        <option value=""></option>
+                                        <option value="5">5 - Great</option>
+                                        <option value="4">4</option>
+                                        <option value="3">3 - Average</option>
+                                        <option value="2">2</option>
+                                        <option value="1">1 - Bad</option>
+                                    </select>
+                                </div>
+
+                                {% if not survey.is_preseason %}
+                                <div class="form-group">
+                                    <label for="{{ anime.id }}-expectations">Expectations</label>
+                                    <select name="{{ anime.id }}-expectations" class="form-control">
+                                        <option value=""></option>
+                                        <option value="S">Surprise</option>
+                                        <option value="D">Disappointment</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% endif %}
-
-                        <div class="form-group">
-                            <label for="{{ anime.id }}-score">Score</label>
-                            <select name="{{ anime.id }}-score" class="form-control">
-                                <option value=""></option>
-                                <option value="5">5 - Great</option>
-                                <option value="4">4</option>
-                                <option value="3">3 - Average</option>
-                                <option value="2">2</option>
-                                <option value="1">1 - Bad</option>
-                            </select>
-                            <!--
-                            Bad<input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-1" value="1">
-                            <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-2" value="2">
-                            <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-3" value="3">
-                            <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-4" value="4">
-                            <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-5" value="5">Great
-                            <input type="radio" name="{{ anime.id }}-score" id="{{ anime.id }}-score-none" value="" checked="checked">None
-                            -->
-                        </div>
-
-                        {% if not survey.is_preseason %}
-                        <div class="form-group">
-                            <label for="{{ anime.id }}-expectations">Expectations</label>
-                            <select name="{{ anime.id }}-expectations" class="form-control">
-                                <option value=""></option>
-                                <option value="S">Surprise</option>
-                                <option value="D">Disappointment</option>
-                            </select>
-
-                            <!--
-                            <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-surprise" value="S">
-                            <label for="{{ anime.id }}-expectations-surprise">Surprise</label>
-
-                            <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-disappointment" value="D">
-                            <label for="{{ anime.id }}-expectations-disappointment">Disappointment</label>
-
-                            <input type="radio" name="{{ anime.id }}-expectations" id="{{ anime.id }}-expectations-none" value="" checked="checked">
-                            <label for="{{ anime.id }}-expectations-none">Neither</label>
-                            -->
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
