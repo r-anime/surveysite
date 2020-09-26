@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
+from django.db.models.query import EmptyQuerySet
 #from django.template import loader
-from .models import Survey, Anime, Response, ResponseAnime
+from .models import Survey, Anime, AnimeName, Response, ResponseAnime
 from datetime import datetime
 
 
@@ -27,6 +28,18 @@ def survey(request, year, season, pre_or_post):
 
 def form(request, survey):
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
+
+    def modify(anime):
+        names = anime.animename_set.all()
+
+        anime.japanese_name = names.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME, official=True).first()
+        anime.english_name  = names.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME , official=True).first()
+        anime.short_name    = names.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME   , official=True).first()
+
+        return anime
+
+    anime_series_list = [modify(anime) for anime in anime_series_list]
+
     context = {
         'survey': survey,
         'anime_series_list': anime_series_list,

@@ -43,7 +43,17 @@
                         </div>
                         <div class="col-8">
                             <div class="card-body">
-                                <h4 class="card-title">{{ anime }}</h4>
+                                <div class="card-title">
+                                    <h5 class="mb-1">
+                                        {{ anime.japanese_name.name }}
+                                        {% if anime.short_name %}
+                                        <span style="font-size:60%;"> ({{ anime.short_name.name }})</span>
+                                        {% endif %}
+                                    </h5>
+                                    {% if anime.english_name %}
+                                    <h6>{{ anime.english_name.name }}</h6>
+                                    {% endif %}
+                                </div>
 
                                 <div class="form-group form-check">
                                     <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
