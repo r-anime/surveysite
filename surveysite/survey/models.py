@@ -35,19 +35,6 @@ class Anime(models.Model):
         blank=True,
     )
 
-    japanese_name = models.CharField(
-        max_length=128,
-        blank=True,
-    )
-    english_name = models.CharField(
-        max_length=128,
-        blank=True,
-    )
-    short_name = models.CharField(
-        max_length=32,
-        blank=True,
-    )
-
     def get_year(): return datetime.now().year
     def get_season(): return Anime.AnimeSeason(datetime.now().month // 4)
 
@@ -91,20 +78,37 @@ class Anime(models.Model):
     )
 
     def __str__(self):
-        result = ''
-        if len(self.japanese_name) > 0 and len(self.english_name) > 0:
-            result += self.japanese_name + ' / ' + self.english_name
-        elif len(self.japanese_name) == 0 and len(self.english_name) == 0:
-            result = '!!NO NAME!!'
-        elif len(self.japanese_name) > 0:
-            result = self.japanese_name
-        else:
-            result = self.english_name
-        
-        if len(self.short_name) > 0:
-            result += ' (' + self.short_name + ')'
+        return ' / '.join([str(animename) for animename in self.animename_set.all()])
 
-        return result
+
+
+class AnimeName(models.Model):
+    # Enums
+    class AnimeNameType(models.TextChoices):
+        JAPANESE_NAME = 'JP', _('Japanese name')
+        ENGLISH_NAME  = 'EN', _('English name')
+        SHORT_NAME    = 'SH', _('Short name')
+    
+    # Fields
+    anime_name_type = models.CharField(
+        max_length=2,
+        choices=AnimeNameType.choices,
+    )
+    name = models.CharField(
+        max_length=128,
+    )
+    official = models.BooleanField(
+        default=True,
+    )
+
+    # Relation fields
+    anime = models.ForeignKey(
+        to='Anime',
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return self.name + ' (' + AnimeName.AnimeNameType(self.anime_name_type) + ')' + ('' if self.official else ' (unofficial)')
     
 
 
@@ -123,7 +127,7 @@ class Video(models.Model):
 
     def __str__(self):
         return str(self.anime) + ' - ' + self.name
-    
+
 
 
 class Image(models.Model):
@@ -166,7 +170,6 @@ class Survey(models.Model):
     def __str__(self):
         return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + Anime.AnimeSeason.labels[self.season] + ' ' + str(self.year) + ' Survey'
     
-
 
 
 class Response(models.Model):
