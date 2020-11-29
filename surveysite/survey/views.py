@@ -54,9 +54,9 @@ def results(request, survey):
 
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
-    response_anime_list_per_anime = {anime: response_anime_list.filter(anime=anime, watching=True) for anime in anime_series_list}
+    response_anime_list_per_anime = {anime: (response_anime_list.filter(anime=anime) if survey.is_preseason else response_anime_list.filter(anime=anime, watching=True)) for anime in anime_series_list}
 
-    popularity_data = [(anime, response_anime_list_per_anime[anime].count() / response_count * 100.0) for anime in anime_series_list]
+    popularity_data = [(anime, response_anime_list_per_anime[anime].filter(watching=True).count() / response_count * 100.0) for anime in anime_series_list]
     popularity_table = {
         "title": "Most Popular Anime",
         "headers": ["Anime", "%"],
