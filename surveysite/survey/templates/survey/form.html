@@ -58,7 +58,13 @@
 
                         <div class="form-group form-check">
                             <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
-                            <label class="form-check-label" for="{{ anime.id }}-watched">Watched?</label>
+                            <label class="form-check-label" for="{{ anime.id }}-watched">
+                                {% if survey.is_preseason %}
+                                Will watch?
+                                {% else %}
+                                Watched?
+                                {% endif %}
+                            </label>
                         </div>
 
                         {% if not survey.is_preseason %}

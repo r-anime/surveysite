@@ -50,26 +50,35 @@ def form(request, survey):
 def results(request, survey):
     response_anime_list = ResponseAnime.objects.filter(response__survey=survey)
     response_list = Response.objects.filter(survey=survey)
-    response_count = response_list.count()
+    response_count = max(response_list.count(), 1)
 
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
-    popularity_data = [(anime, response_anime_list.filter(anime=anime, watching=True).count() / response_count * 100.0) for anime in anime_series_list]
+    response_anime_list_per_anime = {anime: response_anime_list.filter(anime=anime, watching=True) for anime in anime_series_list}
+
+    popularity_data = [(anime, response_anime_list_per_anime[anime].count() / response_count * 100.0) for anime in anime_series_list]
     popularity_table = {
         "title": "Most Popular Anime",
         "headers": ["Anime", "%"],
         "data": popularity_data,
     }
 
-    score_data = [(anime, response_anime_list.filter(anime=anime, watching=True, score__isnull=False).aggregate(Avg('score'))['score__avg']) for anime in anime_series_list]
+    gender_popularity_disparity_data = [(anime, response_anime_list_per_anime[anime].filter(response__gender=Response.Gender.MALE).count() / max(1.0, response_anime_list.filter(anime=anime, watching=True, response__gender=Response.Gender.FEMALE).count())) for anime in anime_series_list]
+    gender_popularity_disparity_table = {
+        "title": "Biggest Gender Popularity Disparity",
+        "headers": ["Anime", "M:F Ratio"],
+        "data": gender_popularity_disparity_data,
+    }
+
+    score_data = [(anime, response_anime_list_per_anime[anime].filter(score__isnull=False).aggregate(Avg('score'))['score__avg']) for anime in anime_series_list]
     score_data = [(anime, 0.0 if score is None else score) for (anime, score) in score_data]
     score_table = {
         "title": "Most Anticipated Anime" if survey.is_preseason else "Best Anime",
-        "headers": ["Anime", "%"],
+        "headers": ["Anime", "Score"],
         "data": score_data,
     }
 
-    table_list = [popularity_table, score_table]
+    table_list = [popularity_table, gender_popularity_disparity_table, score_table]
     context = {
         'survey': survey,
         'table_list': table_list,
