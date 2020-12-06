@@ -13,21 +13,15 @@
 
         <table>
             <tr>
-                <th>#</th>
             {% for header in table.headers %}
                 <th>{{ header }}</th>
             {% endfor %}
             </tr>
-            {% for row in table.data|dictsortreversed:1 %}
+            {% for row in table.data %}
             <tr>
-                <td>{{ forloop.counter }}</td>
-                {% for entry in row %}
-                    {% if forloop.first %}
-                        <td>{{ entry }}</td>
-                    {% else %}
-                        <td>{{ entry|floatformat:1 }}%</td>
-                    {% endif %}
-                {% endfor %}
+            {% for entry in row %}
+                <td>{{ entry }}</td>
+            {% endfor %}
             </tr>
             {% endfor %}
         </table>

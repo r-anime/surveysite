@@ -54,31 +54,65 @@ def results(request, survey):
 
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
-    response_anime_list_per_anime = {anime: (response_anime_list.filter(anime=anime) if survey.is_preseason else response_anime_list.filter(anime=anime, watching=True)) for anime in anime_series_list}
+    response_anime_list_per_anime = {
+        anime: (response_anime_list.filter(anime=anime) if survey.is_preseason else response_anime_list.filter(anime=anime, watching=True)) for anime in anime_series_list
+    }
 
-    popularity_data = [(anime, response_anime_list_per_anime[anime].filter(watching=True).count() / response_count * 100.0) for anime in anime_series_list]
+    # Returns a dict of data values for an anime
+    def get_data_for_anime(anime):
+        responses_for_anime = response_anime_list_per_anime[anime]
+        male_response_count = responses_for_anime.filter(response__gender=Response.Gender.MALE).count()
+        female_response_count = responses_for_anime.filter(response__gender=Response.Gender.FEMALE).count()
+
+        return {
+            'popularity': responses_for_anime.filter(watching=True).count() / response_count * 100.0,
+            'score': responses_for_anime.filter(score__isnull=False).aggregate(Avg('score'))['score__avg'] or 0, # returns 0 if score is None (no scores)
+            'gender_popularity_ratio': male_response_count / female_response_count if female_response_count > 0 else float('inf'),
+        }
+
+    # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
+    data = {
+        anime: get_data_for_anime(anime) for anime in response_anime_list_per_anime.keys()
+    }
+
+    # Generate table data as a list of rows
+    def generate_table_data(column_name_list, sorting_column=0, descending=True):
+        table_data = []
+
+        for anime in data.keys():
+            row = [str(anime)]
+
+            for column_name in column_name_list:
+                row.append(data[anime][column_name])
+            
+            table_data.append(row)
+        
+        table_data.sort(
+            key=lambda row: 0 if row[1+sorting_column] == float('inf') else row[1+sorting_column],
+            reverse=descending
+        )
+        for i in range(len(table_data)):
+            table_data[i].insert(0, i+1)
+        
+        return table_data
+
     popularity_table = {
-        "title": "Most Popular Anime",
-        "headers": ["Anime", "%"],
-        "data": popularity_data,
+        'title': 'Most Popular Anime',
+        'headers': ['#', 'Anime', '%'],
+        'data': generate_table_data(['popularity'])
     }
-
-    gender_popularity_disparity_data = [(anime, response_anime_list_per_anime[anime].filter(response__gender=Response.Gender.MALE).count() / max(1.0, response_anime_list.filter(anime=anime, watching=True, response__gender=Response.Gender.FEMALE).count())) for anime in anime_series_list]
-    gender_popularity_disparity_table = {
-        "title": "Biggest Gender Popularity Disparity",
-        "headers": ["Anime", "M:F Ratio"],
-        "data": gender_popularity_disparity_data,
+    gender_popularity_ratio_table = {
+        'title': 'Biggest Gender Popularity Disparity',
+        'headers': ['#', 'Anime', 'M:F Ratio'],
+        'data': generate_table_data(['gender_popularity_ratio'])
     }
-
-    score_data = [(anime, response_anime_list_per_anime[anime].filter(score__isnull=False).aggregate(Avg('score'))['score__avg']) for anime in anime_series_list]
-    score_data = [(anime, 0.0 if score is None else score) for (anime, score) in score_data]
     score_table = {
-        "title": "Most Anticipated Anime" if survey.is_preseason else "Best Anime",
-        "headers": ["Anime", "Score"],
-        "data": score_data,
+        'title': 'Most Anticipated Anime' if survey.is_preseason else 'Best Anime',
+        'headers': ['#', 'Anime', 'Score'],
+        'data': generate_table_data(['score'])
     }
 
-    table_list = [popularity_table, gender_popularity_disparity_table, score_table]
+    table_list = [popularity_table, gender_popularity_ratio_table, score_table]
     context = {
         'survey': survey,
         'table_list': table_list,
