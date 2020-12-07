@@ -3,7 +3,7 @@ from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
 #from django.template import loader
-from .models import Survey, Anime, AnimeName, Response, ResponseAnime
+from .models import Survey, Anime, AnimeName, Response, AnimeResponse
 from datetime import datetime
 
 
@@ -48,7 +48,7 @@ def form(request, survey):
     return render(request, 'survey/form.html', context)
 
 def results(request, survey):
-    response_anime_list = ResponseAnime.objects.filter(response__survey=survey)
+    response_anime_list = AnimeResponse.objects.filter(response__survey=survey)
     response_list = Response.objects.filter(survey=survey)
     response_count = max(response_list.count(), 1)
 
@@ -139,17 +139,17 @@ def submit(request, year, season, pre_or_post):
         for anime in anime_list:
             if survey.is_ongoing and str(anime.id) + '-watched' not in request.POST.keys():
                 continue
-            response_anime = ResponseAnime(
+            response_anime = AnimeResponse(
                 response=response,
                 anime=anime,
                 watching=try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
                 score=try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
                 underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
-                expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: ResponseAnime.Expectations(x), ''),
+                expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
             )
             response_anime_list.append(response_anime)
         
-        ResponseAnime.objects.bulk_create(response_anime_list)
+        AnimeResponse.objects.bulk_create(response_anime_list)
         
         return redirect('survey:index')
     else:

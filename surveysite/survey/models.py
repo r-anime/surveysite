@@ -200,7 +200,7 @@ class Response(models.Model):
 
 
 
-class ResponseAnime(models.Model):
+class AnimeResponse(models.Model):
     # Enums
     class Expectations(models.TextChoices):
         SURPRISE =       'S', _('Surprise')
