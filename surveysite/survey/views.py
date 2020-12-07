@@ -48,19 +48,19 @@ def form(request, survey):
     return render(request, 'survey/form.html', context)
 
 def results(request, survey):
-    response_anime_list = AnimeResponse.objects.filter(response__survey=survey)
+    anime_response_list = AnimeResponse.objects.filter(response__survey=survey)
     response_list = Response.objects.filter(survey=survey)
     response_count = max(response_list.count(), 1)
 
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
-    response_anime_list_per_anime = {
-        anime: (response_anime_list.filter(anime=anime) if survey.is_preseason else response_anime_list.filter(anime=anime, watching=True)) for anime in anime_series_list
+    anime_response_list_per_anime = {
+        anime: (anime_response_list.filter(anime=anime) if survey.is_preseason else anime_response_list.filter(anime=anime, watching=True)) for anime in anime_series_list
     }
 
     # Returns a dict of data values for an anime
     def get_data_for_anime(anime):
-        responses_for_anime = response_anime_list_per_anime[anime]
+        responses_for_anime = anime_response_list_per_anime[anime]
         male_response_count = responses_for_anime.filter(response__gender=Response.Gender.MALE).count()
         female_response_count = responses_for_anime.filter(response__gender=Response.Gender.FEMALE).count()
 
@@ -72,7 +72,7 @@ def results(request, survey):
 
     # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
     data = {
-        anime: get_data_for_anime(anime) for anime in response_anime_list_per_anime.keys()
+        anime: get_data_for_anime(anime) for anime in anime_response_list_per_anime.keys()
     }
 
     # Generate table data as a list of rows
@@ -135,11 +135,11 @@ def submit(request, year, season, pre_or_post):
         )
         response.save()
 
-        response_anime_list = []
+        anime_response_list = []
         for anime in anime_list:
             if survey.is_ongoing and str(anime.id) + '-watched' not in request.POST.keys():
                 continue
-            response_anime = AnimeResponse(
+            anime_response = AnimeResponse(
                 response=response,
                 anime=anime,
                 watching=try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
@@ -147,9 +147,9 @@ def submit(request, year, season, pre_or_post):
                 underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
                 expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
             )
-            response_anime_list.append(response_anime)
+            anime_response_list.append(anime_response)
         
-        AnimeResponse.objects.bulk_create(response_anime_list)
+        AnimeResponse.objects.bulk_create(anime_response_list)
         
         return redirect('survey:index')
     else:
