@@ -5,7 +5,7 @@ from django.db.models.query import EmptyQuerySet
 #from django.template import loader
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse
 from datetime import datetime
-from enum import Enum
+from enum import Enum, auto
 
 
 # ======= VIEWS =======
@@ -64,10 +64,13 @@ def results(request, survey):
     # | GET ANIME DATA |
     # +----------------+
     class DataType(Enum):
-        POPULARITY              = 'popularity'
-        GENDER_POPULARITY_RATIO = 'gender_popularity_ratio'
-        SCORE                   = 'score'
-        GENDER_SCORE_DIFFERENCE = 'gender_score_difference'
+        POPULARITY              = auto()
+        GENDER_POPULARITY_RATIO = auto()
+        UNDERWATCHED            = auto()
+        SCORE                   = auto()
+        GENDER_SCORE_DIFFERENCE = auto()
+        SURPRISE                = auto()
+        DISAPPOINTMENT          = auto()
     
     # Returns a dict of data values for an anime
     def get_data_for_anime(anime):
@@ -81,11 +84,16 @@ def results(request, survey):
         male_average_score = responses_with_score.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
         female_average_score = responses_with_score.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
+        watchers_count = responses_for_anime.filter(watching=True).count()
+
         return {
-            DataType.POPULARITY:              responses_for_anime.filter(watching=True).count() / response_count * 100.0,
+            DataType.POPULARITY:              watchers_count / response_count * 100.0 if response_count > 0 else float('NaN'),
             DataType.GENDER_POPULARITY_RATIO: male_response_count / female_response_count if female_response_count > 0 else float('inf'),
+            DataType.UNDERWATCHED:            responses_with_score.filter(underwatched=True).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
             DataType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
-            DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN')
+            DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
+            DataType.SURPRISE:                responses_for_anime.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
+            DataType.DISAPPOINTMENT:          responses_for_anime.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
         }
 
     # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
@@ -129,12 +137,18 @@ def results(request, survey):
     gender_popularity_ratio_data = generate_table_data(anime_series_data, [DataType.GENDER_POPULARITY_RATIO, DataType.POPULARITY])
     gender_popularity_ratio_table = {
         'title': 'Biggest Gender Popularity Disparity',
-        'headers': ['#', 'Anime', 'M:F Ratio', '% Watching'],
+        'headers': ['#', 'Anime', 'M:F Ratio', 'Popularity'],
         'data': gender_popularity_ratio_data[:3] + [['', '...', '...', '...']] + gender_popularity_ratio_data[-3:]
     }
+    underwatched_table = {
+        'title': 'Most Underwatched Anime',
+        'headers': ['#', 'Anime', '%', 'Popularity'],
+        'data': generate_table_data(anime_series_data, [DataType.UNDERWATCHED, DataType.POPULARITY])[:5]
+    }
+
     score_data = generate_table_data(anime_series_data, [DataType.SCORE])
     score_table = {
-        'title': 'Most Anticipated Anime' if survey.is_preseason else 'Best Anime',
+        'title': 'Most Anticipated Anime' if survey.is_preseason else 'Best/Worst Anime',
         'headers': ['#', 'Anime', 'Score'],
         'data': score_data[:10] + [['', '...', '...']] + score_data[-5:]
     }
@@ -143,6 +157,17 @@ def results(request, survey):
         'title': 'Biggest Gender Score Disparity',
         'headers': ['#', 'Anime', 'M-F Score', 'Score'],
         'data': gender_score_difference_data[:3] + [['', '...', '...', '...']] + gender_score_difference_data[-3:]
+    }
+
+    surprise_table = {
+        'title': 'Most Surprising Anime',
+        'headers': ['#', 'Anime', '%', 'Score'],
+        'data': generate_table_data(anime_series_data, [DataType.SURPRISE, DataType.SCORE])[:5]
+    }
+    disappointment_table = {
+        'title': 'Most Disappointing Anime',
+        'headers': ['#', 'Anime', '%', 'Score'],
+        'data': generate_table_data(anime_series_data, [DataType.DISAPPOINTMENT, DataType.SCORE])[:5]
     }
     
     special_popularity_table = {
@@ -157,8 +182,9 @@ def results(request, survey):
     }
 
     table_list = [
-        popularity_table, gender_popularity_ratio_table,
+        popularity_table, gender_popularity_ratio_table, underwatched_table,
         score_table, gender_score_difference_table,
+        surprise_table, disappointment_table,
         special_popularity_table, special_score_table]
     context = {
         'survey': survey,
