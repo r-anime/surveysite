@@ -5,6 +5,7 @@ from django.db.models.query import EmptyQuerySet
 #from django.template import loader
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse
 from datetime import datetime
+from enum import Enum
 
 
 # ======= VIEWS =======
@@ -52,38 +53,62 @@ def results(request, survey):
     response_list = Response.objects.filter(survey=survey)
     response_count = max(response_list.count(), 1)
 
-    _, anime_series_list, special_anime_list = get_survey_anime(survey)
+    anime_list, anime_series_list, special_anime_list = get_survey_anime(survey)
 
     anime_response_list_per_anime = {
-        anime: (anime_response_list.filter(anime=anime) if survey.is_preseason else anime_response_list.filter(anime=anime, watching=True)) for anime in anime_series_list
+        anime: (anime_response_list.filter(anime=anime) if survey.is_preseason else anime_response_list.filter(anime=anime, watching=True)) for anime in anime_list
     }
 
+
+    # +----------------+
+    # | GET ANIME DATA |
+    # +----------------+
+    class DataType(Enum):
+        POPULARITY              = 'popularity'
+        GENDER_POPULARITY_RATIO = 'gender_popularity_ratio'
+        SCORE                   = 'score'
+        GENDER_SCORE_DIFFERENCE = 'gender_score_difference'
+    
     # Returns a dict of data values for an anime
     def get_data_for_anime(anime):
         responses_for_anime = anime_response_list_per_anime[anime]
+
         male_response_count = responses_for_anime.filter(response__gender=Response.Gender.MALE).count()
         female_response_count = responses_for_anime.filter(response__gender=Response.Gender.FEMALE).count()
 
+        responses_with_score = responses_for_anime.filter(score__isnull=False)
+        # Becomes 0 if there are no scores (default behavior is None, hence this being necessary)
+        male_average_score = responses_with_score.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
+        female_average_score = responses_with_score.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
+
         return {
-            'popularity': responses_for_anime.filter(watching=True).count() / response_count * 100.0,
-            'score': responses_for_anime.filter(score__isnull=False).aggregate(Avg('score'))['score__avg'] or 0, # returns 0 if score is None (no scores)
-            'gender_popularity_ratio': male_response_count / female_response_count if female_response_count > 0 else float('inf'),
+            DataType.POPULARITY:              responses_for_anime.filter(watching=True).count() / response_count * 100.0,
+            DataType.GENDER_POPULARITY_RATIO: male_response_count / female_response_count if female_response_count > 0 else float('inf'),
+            DataType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
+            DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN')
         }
 
     # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
-    data = {
-        anime: get_data_for_anime(anime) for anime in anime_response_list_per_anime.keys()
+    anime_series_data = {
+        anime: get_data_for_anime(anime) for anime in anime_series_list
+    }
+    special_anime_data = {
+        anime: get_data_for_anime(anime) for anime in special_anime_list
     }
 
+
+    # +-----------------+
+    # | GENERATE TABLES |
+    # +-----------------+
     # Generate table data as a list of rows
-    def generate_table_data(column_name_list, sorting_column=0, descending=True):
+    def generate_table_data(anime_data, column_name_list, sorting_column=0, descending=True):
         table_data = []
 
-        for anime in data.keys():
+        for anime in anime_data.keys():
             row = [str(anime)]
 
             for column_name in column_name_list:
-                row.append(data[anime][column_name])
+                row.append(anime_data[anime][column_name])
             
             table_data.append(row)
         
@@ -99,20 +124,42 @@ def results(request, survey):
     popularity_table = {
         'title': 'Most Popular Anime',
         'headers': ['#', 'Anime', '%'],
-        'data': generate_table_data(['popularity'])
+        'data': generate_table_data(anime_series_data, [DataType.POPULARITY])[:10]
     }
+    gender_popularity_ratio_data = generate_table_data(anime_series_data, [DataType.GENDER_POPULARITY_RATIO, DataType.POPULARITY])
     gender_popularity_ratio_table = {
         'title': 'Biggest Gender Popularity Disparity',
-        'headers': ['#', 'Anime', 'M:F Ratio'],
-        'data': generate_table_data(['gender_popularity_ratio'])
+        'headers': ['#', 'Anime', 'M:F Ratio', '% Watching'],
+        'data': gender_popularity_ratio_data[:3] + [['', '...', '...', '...']] + gender_popularity_ratio_data[-3:]
     }
+    score_data = generate_table_data(anime_series_data, [DataType.SCORE])
     score_table = {
         'title': 'Most Anticipated Anime' if survey.is_preseason else 'Best Anime',
         'headers': ['#', 'Anime', 'Score'],
-        'data': generate_table_data(['score'])
+        'data': score_data[:10] + [['', '...', '...']] + score_data[-5:]
+    }
+    gender_score_difference_data = generate_table_data(anime_series_data, [DataType.GENDER_SCORE_DIFFERENCE, DataType.SCORE])
+    gender_score_difference_table = {
+        'title': 'Biggest Gender Score Disparity',
+        'headers': ['#', 'Anime', 'M-F Score', 'Score'],
+        'data': gender_score_difference_data[:3] + [['', '...', '...', '...']] + gender_score_difference_data[-3:]
+    }
+    
+    special_popularity_table = {
+        'title': 'Most Popular Anime OVAs/ONAs/Movies/Specials',
+        'headers': ['#', 'Anime', '%'],
+        'data': generate_table_data(special_anime_data, [DataType.POPULARITY])[:5]
+    }
+    special_score_table = {
+        'title': 'Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials',
+        'headers': ['#', 'Anime', 'Score'],
+        'data': generate_table_data(special_anime_data, [DataType.SCORE])[:5]
     }
 
-    table_list = [popularity_table, gender_popularity_ratio_table, score_table]
+    table_list = [
+        popularity_table, gender_popularity_ratio_table,
+        score_table, gender_score_difference_table,
+        special_popularity_table, special_score_table]
     context = {
         'survey': survey,
         'table_list': table_list,
