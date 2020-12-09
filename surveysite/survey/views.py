@@ -40,6 +40,7 @@ def form(request, survey):
         return anime
 
     anime_series_list = [modify(anime) for anime in anime_series_list]
+    special_anime_list = [modify(anime) for anime in special_anime_list]
 
     context = {
         'survey': survey,
@@ -232,29 +233,41 @@ def submit(request, year, season, pre_or_post):
 
 # ======= HELPER METHODS =======
 def get_survey_anime(survey):
+    # Express current year/season as one number
     current_year_season = survey.year * 10 + survey.season
-    year_season_filter = Q(start_year_season__lte=current_year_season) & \
+    # All current anime have to be ongoing (anime start season <= current season <= anime end season)
+    is_ongoing_filter = Q(start_year_season__lte=current_year_season) & \
         (Q(end_year_season__gte=current_year_season) | Q(end_year_season=None))
 
+    # Get the ongoing anime
     anime_list = Anime.objects.annotate(
         start_year_season  = F('start_year')  * 10 + F('start_season') ,
         end_year_season    = F('end_year')    * 10 + F('end_season')   ,
         subbed_year_season = F('subbed_year') * 10 + F('subbed_season'),
     ).filter(
-        year_season_filter
+        is_ongoing_filter
     )
 
+    # Split ongoing anime into anime series and special anime
     anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
-    special_anime_filter = ~anime_series_filter & Q(subbed_year_season=current_year_season)
+    special_anime_filter = ~anime_series_filter
+
+
+    # Special anime in post-season surveys have to end in the survey's season
+    # because I cba to track when/whether individual parts of irregularly-released stuff releases
+    if survey.is_preseason:
+        combined_anime_list = anime_list
+    else:
+        special_anime_filter = special_anime_filter & Q(subbed_year_season=current_year_season)
+        combined_anime_list = anime_list.filter(
+            anime_series_filter | special_anime_filter
+        )
     
     anime_series_list = anime_list.filter(
         anime_series_filter
     )
     special_anime_list = anime_list.filter(
         special_anime_filter
-    )
-    combined_anime_list = anime_list.filter(
-        anime_series_filter | special_anime_filter
     )
     return combined_anime_list, anime_series_list, special_anime_list
 
