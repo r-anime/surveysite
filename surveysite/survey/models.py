@@ -7,12 +7,12 @@ class Anime(models.Model):
     # Enums
     class AnimeType(models.TextChoices):
         TV_SERIES    = 'TV',   _('TV series')
+        ONA_SERIES   = 'ONAS', _('ONA series')
+        BULK_RELEASE = 'BULK', _('Bulk-released series')
         MOVIE        = 'MV',   _('Movie')
         ONA          = 'ONA',  _('Original Net Animation (ONA)')
         OVA          = 'OVA',  _('Original Video Animation (OVA)')
         TV_SPECIAL   = 'TVSP', _('TV special')
-        ONA_SERIES   = 'ONAS', _('ONA series')
-        BULK_RELEASE = 'BULK', _('Bulk-released series')
 
     class AnimeSeason(models.IntegerChoices):
         WINTER = 0
@@ -78,7 +78,10 @@ class Anime(models.Model):
     )
 
     def __str__(self):
-        return ' / '.join([str(animename) for animename in self.animename_set.all()])
+        if self.animename_set.all():
+            return ' / '.join([str(animename) for animename in self.animename_set.all()])
+        else:
+            return '__NO_NAMES__'
 
 
 

@@ -3,9 +3,11 @@ from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
 #from django.template import loader
-from .models import Survey, Anime, AnimeName, Response, AnimeResponse
 from datetime import datetime
 from enum import Enum, auto
+
+from .models import Survey, Anime, AnimeName, Response, AnimeResponse
+from .util import AnimeUtil
 
 
 # ======= VIEWS =======
@@ -233,25 +235,17 @@ def submit(request, year, season, pre_or_post):
 
 # ======= HELPER METHODS =======
 def get_survey_anime(survey):
-    # Express current year/season as one number
-    current_year_season = survey.year * 10 + survey.season
-    # All current anime have to be ongoing (anime start season <= current season <= anime end season)
-    is_ongoing_filter = Q(start_year_season__lte=current_year_season) & \
-        (Q(end_year_season__gte=current_year_season) | Q(end_year_season=None))
+    current_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
 
-    # Get the ongoing anime
-    anime_list = Anime.objects.annotate(
-        start_year_season  = F('start_year')  * 10 + F('start_season') ,
-        end_year_season    = F('end_year')    * 10 + F('end_season')   ,
-        subbed_year_season = F('subbed_year') * 10 + F('subbed_season'),
+    anime_list = AnimeUtil.annotate_year_season(
+        Anime.objects
     ).filter(
-        is_ongoing_filter
+        AnimeUtil.is_ongoing_filter_func(current_year_season)
     )
 
-    # Split ongoing anime into anime series and special anime
-    anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
-    special_anime_filter = ~anime_series_filter
 
+    anime_series_filter = AnimeUtil.anime_series_filter
+    special_anime_filter = AnimeUtil.special_anime_filter
 
     # Special anime in post-season surveys have to end in the survey's season
     # because I cba to track when/whether individual parts of irregularly-released stuff releases
@@ -262,6 +256,7 @@ def get_survey_anime(survey):
         combined_anime_list = anime_list.filter(
             anime_series_filter | special_anime_filter
         )
+    
     
     anime_series_list = anime_list.filter(
         anime_series_filter
