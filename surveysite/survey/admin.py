@@ -68,11 +68,23 @@ class AnimeNameInline(admin.TabularInline):
 
 class ImageInline(admin.TabularInline):
     model = Image
-    extra = 1
+    
+    def get_extra(self, request, obj=None, **kwargs):
+        extra = 1
+        if obj:
+            return max(0, extra - obj.image_set.count())
+        else:
+            return extra
 
 class VideoInline(admin.TabularInline):
     model = Video
-    extra = 1
+    
+    def get_extra(self, request, obj=None, **kwargs):
+        extra = 1
+        if obj:
+            return max(0, extra - obj.video_set.count())
+        else:
+            return extra
 
 class AnimeAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -156,6 +168,9 @@ class SurveyAdmin(admin.ModelAdmin):
     ordering = ['year', 'season', 'is_preseason']
     list_display = [
         '__str__',
+        'is_ongoing',
+    ]
+    list_editable = [
         'is_ongoing',
     ]
 
