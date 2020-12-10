@@ -134,6 +134,18 @@ class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['timestamp', 'survey']
     radio_fields = {'gender': admin.HORIZONTAL}
     inlines = [AnimeResponseInline]
+    list_display = [
+        'survey',
+        'timestamp',
+        'age',
+        'gender',
+        'get_anime_response_count',
+    ]
+
+    def get_anime_response_count(self, response):
+        return response.animeresponse_set.count()
+    get_anime_response_count.short_description = 'Response Count'
+
 
 class SurveyAdmin(admin.ModelAdmin):
     fields = [
