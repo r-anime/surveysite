@@ -213,8 +213,16 @@ def submit(request, year, season, pre_or_post):
 
         anime_response_list = []
         for anime in anime_list:
-            if survey.is_ongoing and str(anime.id) + '-watched' not in request.POST.keys():
+            # Check if the response contains the current anime
+            has_anime = False
+            for key in request.POST.keys():
+                # The key has to both exist in the POST request, and its accompanying value has to be something (in case of score/expectations)
+                if key.startswith(str(anime.id)) and request.POST[key]:
+                    has_anime = True
+                    break
+            if not has_anime:
                 continue
+
             anime_response = AnimeResponse(
                 response=response,
                 anime=anime,
