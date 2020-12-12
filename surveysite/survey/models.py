@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
+from django_resized import ResizedImageField
+import uuid
 
 class Anime(models.Model):
     # Enums
@@ -133,12 +135,22 @@ class Video(models.Model):
 
 
 
+def generate_unique_file_path_func(folder):
+    return lambda instance, filename: folder + str(uuid.uuid4()) + '.' + filename.split('.')[-1]
+
+
+
 class Image(models.Model):
     # Fields
     name = models.CharField(
         max_length=20,
     )
-    url = models.URLField()
+    file = ResizedImageField(
+        size=[300, 600],
+        force_format='JPEG',
+        quality=80,
+        upload_to=generate_unique_file_path_func('images/'),
+    )
 
     # Relation fields
     anime = models.ForeignKey(

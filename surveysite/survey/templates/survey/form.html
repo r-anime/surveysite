@@ -38,8 +38,12 @@
             <div class="col-md mb-4"><div class="card">
                 <div class="row no-gutters">
                     <!-- Card image -->
-                    <div class="col-4" style="background-color:#eaeaea;border-radius:3px;">
+                    <div class="col-4" style="border-radius:3px;">
+                        {% if anime.img %}
+                        <img class="card-img" src="{{ anime.img.file.url }}" alt="{{ anime.img.name }}">
+                        {% else %}
                         <img class="card-img" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
+                        {% endif %}
                     </div>
 
                     <!-- Card info -->
