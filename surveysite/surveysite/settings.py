@@ -121,5 +121,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# Media files
+
 MEDIA_ROOT = BASE_DIR / 'files/'
 MEDIA_URL = '/files/'
+
+
+# django_resized settings
+# https://github.com/un1t/django-resized
+
+DJANGORESIZED_DEFAULT_KEEP_META = False
+DJANGORESIZED_DEFAULT_FORMAT_EXTENSIONS = {
+    'PNG': '.png',
+    'JPEG': '.jpg',
+}
