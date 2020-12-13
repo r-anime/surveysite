@@ -1,0 +1,70 @@
+{% load static %}
+
+<div class="card">
+    <div class="row no-gutters">
+        <!-- Card image -->
+        <div class="col-4" style="border-radius:3px;">
+            {% if anime.img %}
+            <img class="card-img" src="{{ anime.img.file.url }}" alt="{{ anime.img.name }}">
+            {% else %}
+            <img class="card-img" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
+            {% endif %}
+        </div>
+
+        <!-- Card info -->
+        <div class="col-8"><div class="card-body">
+            <div class="card-title">
+                <h5 class="mb-1">
+                    {{ anime.japanese_name.name }}
+                    {% if anime.short_name %}
+                    <span style="font-size:60%;">({{ anime.short_name.name }})</span>
+                    {% endif %}
+                </h5>
+                {% if anime.english_name %}
+                <h6 style="color:#777777;">{{ anime.english_name.name }}</h6>
+                {% endif %}
+            </div>
+
+            <div class="form-group form-check">
+                <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
+                <label class="form-check-label" for="{{ anime.id }}-watched">
+                    {% if is_preseason %}
+                    Will watch?
+                    {% else %}
+                    Watched?
+                    {% endif %}
+                </label>
+            </div>
+
+            {% if not is_preseason and is_series %}
+            <div class="form-group form-check">
+                <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
+                <label class="form-check-label" for="{{ anime.id }}-underwatched">Underwatched?</label>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ anime.id }}-score">Score</label>
+                <select name="{{ anime.id }}-score" class="form-control">
+                    <option value=""></option>
+                    <option value="5">5 - Great</option>
+                    <option value="4">4</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2</option>
+                    <option value="1">1 - Bad</option>
+                </select>
+            </div>
+
+            {% if not is_preseason and is_series %}
+            <div class="form-group">
+                <label for="{{ anime.id }}-expectations">Expectations</label>
+                <select name="{{ anime.id }}-expectations" class="form-control">
+                    <option value=""></option>
+                    <option value="S">Surprise</option>
+                    <option value="D">Disappointment</option>
+                </select>
+            </div>
+            {% endif %}
+        </div></div>
+    </div>
+</div>

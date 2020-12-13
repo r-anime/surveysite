@@ -1,5 +1,5 @@
 {% extends "survey/base.html" %}
-{% load static %}
+{% load form_card %}
 
 {% block content %}
 
@@ -33,78 +33,11 @@
     <h3>Anime Series</h3>
     {% if anime_series_list %}
         <div class="row row-cols-md-2">
-
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
-            <div class="col-md mb-4"><div class="card">
-                <div class="row no-gutters">
-                    <!-- Card image -->
-                    <div class="col-4" style="border-radius:3px;">
-                        {% if anime.img %}
-                        <img class="card-img" src="{{ anime.img.file.url }}" alt="{{ anime.img.name }}">
-                        {% else %}
-                        <img class="card-img" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
-                        {% endif %}
-                    </div>
-
-                    <!-- Card info -->
-                    <div class="col-8"><div class="card-body">
-                        <div class="card-title">
-                            <h5 class="mb-1">
-                                {{ anime.japanese_name.name }}
-                                {% if anime.short_name %}
-                                <span style="font-size:60%;">({{ anime.short_name.name }})</span>
-                                {% endif %}
-                            </h5>
-                            {% if anime.english_name %}
-                            <h6 style="color:#777777;">{{ anime.english_name.name }}</h6>
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group form-check">
-                            <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
-                            <label class="form-check-label" for="{{ anime.id }}-watched">
-                                {% if survey.is_preseason %}
-                                Will watch?
-                                {% else %}
-                                Watched?
-                                {% endif %}
-                            </label>
-                        </div>
-
-                        {% if not survey.is_preseason %}
-                        <div class="form-group form-check">
-                            <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
-                            <label class="form-check-label" for="{{ anime.id }}-underwatched">Underwatched?</label>
-                        </div>
-                        {% endif %}
-
-                        <div class="form-group">
-                            <label for="{{ anime.id }}-score">Score</label>
-                            <select name="{{ anime.id }}-score" class="form-control">
-                                <option value=""></option>
-                                <option value="5">5 - Great</option>
-                                <option value="4">4</option>
-                                <option value="3">3 - Average</option>
-                                <option value="2">2</option>
-                                <option value="1">1 - Bad</option>
-                            </select>
-                        </div>
-
-                        {% if not survey.is_preseason %}
-                        <div class="form-group">
-                            <label for="{{ anime.id }}-expectations">Expectations</label>
-                            <select name="{{ anime.id }}-expectations" class="form-control">
-                                <option value=""></option>
-                                <option value="S">Surprise</option>
-                                <option value="D">Disappointment</option>
-                            </select>
-                        </div>
-                        {% endif %}
-                    </div></div>
-                </div>
-            </div></div>
+            <div class="col-md mb-4">
+                {% create_form_card anime survey.is_preseason True %}
+            </div>
         {% endfor %}
-
         </div>
     {% else %}
         <p>No anime found!</p>
@@ -115,12 +48,13 @@
 
     <h3>Anime Movies/ONAs/OVAs/Specials</h3>
     {% if special_anime_list %}
-        <ol>
-        {% for anime in special_anime_list %}
-            <li>{{ anime }}</li>
-            <!-- TODO -->
+        <div class="row row-cols-md-2">
+        {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
+            <div class="col-md mb-4">
+                {% create_form_card anime survey.is_preseason False %}
+            </div>
         {% endfor %}
-        </ol>
+        </div>
     {% else %}
         <p>No anime found!</p>
     {% endif %}
@@ -133,7 +67,7 @@
     <p>The survey is closed!</p>
 {% endif %}
 
-
+<br>
 <a href="{% url 'survey:index' %}">Back to index.</a>
 
 {% endblock content %}
