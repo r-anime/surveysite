@@ -257,15 +257,12 @@ def get_survey_anime(survey):
     anime_series_filter = AnimeUtil.anime_series_filter
     special_anime_filter = AnimeUtil.special_anime_filter
 
-    # Special anime in post-season surveys have to end in the survey's season
+    # Special anime in pre-season surveys have to start in the survey's season and in post-season surveys have to end in that season,
     # because I cba to track when/whether individual parts of irregularly-released stuff releases
     if survey.is_preseason:
-        combined_anime_list = anime_list
+        special_anime_filter = special_anime_filter & Q(start_year_season=current_year_season)
     else:
         special_anime_filter = special_anime_filter & Q(subbed_year_season=current_year_season)
-        combined_anime_list = anime_list.filter(
-            anime_series_filter | special_anime_filter
-        )
     
     
     anime_series_list = anime_list.filter(
@@ -273,6 +270,9 @@ def get_survey_anime(survey):
     )
     special_anime_list = anime_list.filter(
         special_anime_filter
+    )
+    combined_anime_list = anime_list.filter(
+        anime_series_filter | special_anime_filter
     )
     return combined_anime_list, anime_series_list, special_anime_list
 
