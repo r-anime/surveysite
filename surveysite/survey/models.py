@@ -135,12 +135,13 @@ class Video(models.Model):
 
 
 
-def generate_unique_file_path_func(folder):
-    return lambda instance, filename: folder + str(uuid.uuid4()) + '.' + filename.split('.')[-1]
 
 
 
 class Image(models.Model):
+    def generate_unique_file_path(self):
+        return lambda instance, filename: 'images/' + str(uuid.uuid4()) + '.' + filename.split('.')[-1]
+    
     # Fields
     name = models.CharField(
         max_length=20,
@@ -149,7 +150,7 @@ class Image(models.Model):
         size=[300, 600],
         force_format='JPEG',
         quality=80,
-        upload_to=generate_unique_file_path_func('images/'),
+        upload_to=generate_unique_file_path,
     )
 
     # Relation fields
@@ -157,6 +158,8 @@ class Image(models.Model):
         to='Anime',
         on_delete=models.CASCADE,
     )
+
+    
 
     def __str__(self):
         return str(self.anime) + ' - ' + self.name
@@ -184,7 +187,25 @@ class Survey(models.Model):
 
     def __str__(self):
         return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + Anime.AnimeSeason.labels[self.season] + ' ' + str(self.year) + ' Survey'
-    
+
+
+class SurveyAdditionRemoval(models.Model):
+    # Fields
+    timestamp = models.DateTimeField(
+        auto_now=True,
+    )
+    is_addition = models.BooleanField()
+    response_count = models.SmallIntegerField()
+
+    # Relation fields
+    survey = models.ForeignKey(
+        to='Survey',
+        on_delete=models.CASCADE,
+    )
+    anime = models.ForeignKey(
+        to='Anime',
+        on_delete=models.CASCADE,
+    )
 
 
 class Response(models.Model):

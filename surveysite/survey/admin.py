@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Q
 from django.db.models.functions import Concat
 from datetime import datetime
-from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse
+from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil
 
 
@@ -86,12 +86,18 @@ class VideoInline(admin.TabularInline):
         else:
             return extra
 
+class SurveyAdditionRemovalInline(admin.TabularInline):
+    model = SurveyAdditionRemoval
+    readonly_fields = ['timestamp', 'survey', 'anime', 'is_addition', 'response_count']
+    extra = 0
+    ordering = ['survey__year', 'survey__season', 'anime__id', 'response_count']
+
 class AnimeAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,         {'fields': ['anime_type', 'note', ('start_year', 'start_season'), ('end_year', 'end_season'), ('subbed_year', 'subbed_season')]}),
         ('Deprecated', {'fields': ['flags'], 'classes': ['collapse']}),
     ]
-    inlines = [AnimeNameInline, ImageInline, VideoInline]
+    inlines = [AnimeNameInline, ImageInline, VideoInline, SurveyAdditionRemovalInline]
     search_fields = ['animename__name']
     list_filter = [
         CondensedAnimeTypeFilter,
@@ -179,11 +185,25 @@ class AnimeAdmin(admin.ModelAdmin):
 
             # If anime was removed from survey
             if was_included and not is_included:
-                print('Anime "%s" removed from survey "%s"' % (str(anime), str(survey)))
+                survey_response_count = survey.response_set.count()
+                SurveyAdditionRemoval(
+                    survey=survey,
+                    anime=anime,
+                    response_count=survey_response_count,
+                    is_addition=False,
+                ).save()
+                print('Anime "%s" removed from survey "%s" at %i responses' % (str(anime), str(survey), survey_response_count))
 
             # If anime was added to survey
             elif not was_included and is_included:
-                print('Anime "%s" added to survey "%s"' % (str(anime), str(survey)))
+                survey_response_count = survey.response_set.count()
+                SurveyAdditionRemoval(
+                    survey=survey,
+                    anime=anime,
+                    response_count=survey_response_count,
+                    is_addition=True,
+                ).save()
+                print('Anime "%s" added to survey "%s" at %i responses' % (str(anime), str(survey), survey_response_count))
 
         super().save_model(request, anime, form, change)
 
@@ -214,7 +234,6 @@ class ResponseAdmin(admin.ModelAdmin):
         return response.animeresponse_set.count()
     get_anime_response_count.short_description = 'Response Count'
 
-
 class SurveyAdmin(admin.ModelAdmin):
     fields = [
         'is_preseason',
@@ -229,6 +248,7 @@ class SurveyAdmin(admin.ModelAdmin):
     list_editable = [
         'is_ongoing',
     ]
+    inlines = [SurveyAdditionRemovalInline]
 
 
 admin.site.register(Anime, AnimeAdmin)
