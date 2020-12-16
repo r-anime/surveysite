@@ -131,6 +131,62 @@ class AnimeAdmin(admin.ModelAdmin):
     get_subbed_year_season.short_description = 'Subbed'
     get_subbed_year_season.admin_order_field = Concat('subbed_year', 'subbed_season')
 
+    def get_survey_validity_list(self, anime):
+        survey_validity_list = []
+
+        # Only get if start year/season is something
+        if anime.start_year is not None and anime.start_season is not None:
+            start_year_season = AnimeUtil.combine_year_season(anime.start_year, anime.start_season)
+            
+            # If previous anime is series, go from start to end
+            if AnimeUtil.anime_is_series(anime):
+                # Get end year/season (if it's nothing, then ~2 years from now)
+                if anime.end_year is not None and anime.end_season is not None:
+                    end_year_season = AnimeUtil.combine_year_season(anime.end_year, anime.end_season)
+                else:
+                    end_year_season = AnimeUtil.combine_year_season(datetime.now().year + 2, anime.start_season)
+                
+                i = start_year_season
+                while i <= end_year_season:
+                    survey_validity_list += [(i, True), (i, False)]
+                    i = AnimeUtil.increment_year_season(i)
+            
+            # If previous anime is special, only add start and (if it exists) subbed
+            else:
+                survey_validity_list.append((start_year_season, True))
+                if anime.subbed_year is not None and anime.subbed_season is not None:
+                    subbed_year_season = AnimeUtil.combine_year_season(anime.subbed_year, anime.subbed_season)
+                    survey_validity_list.append((subbed_year_season, False))
+        
+        return survey_validity_list
+
+    def save_model(self, request, anime, form, change):
+        survey_validity_list = self.get_survey_validity_list(anime)
+
+        prev_anime_query = Anime.objects.filter(pk=anime.id)
+        if prev_anime_query:
+            prev_anime = prev_anime_query[0]
+            prev_survey_validity_list = self.get_survey_validity_list(prev_anime)
+        else:
+            prev_survey_validity_list = []
+        
+        ongoing_survey_queryset = Survey.objects.filter(is_ongoing=True)
+        for survey in ongoing_survey_queryset:
+            survey_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
+            
+            was_included = (survey_year_season, survey.is_preseason) in prev_survey_validity_list
+            is_included = (survey_year_season, survey.is_preseason) in survey_validity_list
+
+            # If anime was removed from survey
+            if was_included and not is_included:
+                print('Anime "%s" removed from survey "%s"' % (str(anime), str(survey)))
+
+            # If anime was added to survey
+            elif not was_included and is_included:
+                print('Anime "%s" added to survey "%s"' % (str(anime), str(survey)))
+
+        super().save_model(request, anime, form, change)
+
 
 class AnimeResponseInline(admin.TabularInline):
     autocomplete_fields = ['anime']

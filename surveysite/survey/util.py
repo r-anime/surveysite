@@ -24,3 +24,14 @@ class AnimeUtil():
             end_year_season    = AnimeUtil.combine_year_season(F('end_year')   , F('end_season')   ),
             subbed_year_season = AnimeUtil.combine_year_season(F('subbed_year'), F('subbed_season')),
         )
+
+    @staticmethod
+    def anime_is_series(anime):
+        return anime.anime_type == Anime.AnimeType.TV_SERIES or anime.anime_type == Anime.AnimeType.ONA_SERIES or anime.anime_type == Anime.AnimeType.BULK_RELEASE
+    
+    @staticmethod
+    def increment_year_season(year_season):
+        result = year_season + 1
+        if result % 10 == 4:
+            result = result + 10 - 4
+        return result
