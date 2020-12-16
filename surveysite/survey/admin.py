@@ -108,24 +108,24 @@ class AnimeAdmin(admin.ModelAdmin):
     ]
 
     def get_start_year_season(self, anime):
-        if anime.start_year and anime.start_season:
-            return str(anime.start_year) + ' Q' + str(anime.start_season)
+        if anime.start_year is not None and anime.start_season is not None:
+            return str(anime.start_year) + ' Q' + str(anime.start_season + 1)
         else:
             return None
     get_start_year_season.short_description = 'Start'
     get_start_year_season.admin_order_field = Concat('start_year', 'start_season')
 
     def get_end_year_season(self, anime):
-        if anime.end_year and anime.end_season:
-            return str(anime.end_year) + ' Q' + str(anime.end_season)
+        if anime.end_year is not None and anime.end_season is not None:
+            return str(anime.end_year) + ' Q' + str(anime.end_season + 1)
         else:
             return None
     get_end_year_season.short_description = 'End'
     get_end_year_season.admin_order_field = Concat('end_year', 'end_season')
 
     def get_subbed_year_season(self, anime):
-        if anime.subbed_year and anime.subbed_season:
-            return str(anime.subbed_year) + ' Q' + str(anime.subbed_season)
+        if anime.subbed_year is not None and anime.subbed_season is not None:
+            return str(anime.subbed_year) + ' Q' + str(anime.subbed_season + 1)
         else:
             return None
     get_subbed_year_season.short_description = 'Subbed'
