@@ -6,7 +6,7 @@ from django.db.models.query import EmptyQuerySet
 from datetime import datetime
 from enum import Enum, auto
 
-from .models import Survey, Anime, AnimeName, Response, AnimeResponse
+from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil
 
 
@@ -57,7 +57,8 @@ def results(request, survey):
     anime_response_queryset = AnimeResponse.objects.filter(response__survey=survey)
     response_count = Response.objects.filter(survey=survey).count()
 
-    anime_list, anime_series_list, special_anime_list = get_survey_anime(survey)
+    _, anime_series_list, special_anime_list = get_survey_anime(survey)
+    survey_additions_removals = SurveyAdditionRemoval.objects.filter(survey=survey)
 
 
     # +----------------+
@@ -72,31 +73,64 @@ def results(request, survey):
         SURPRISE                = auto()
         DISAPPOINTMENT          = auto()
     
+    def get_adjusted_response_count(addition_removal_list, response_count):
+        i = 0
+        last_count = 0
+        adjusted_response_count = response_count
+        while i < len(addition_removal_list):
+            # If addition, addition's count - last count, and move index one up
+            if addition_removal_list[i].is_addition:
+                addition_count = addition_removal_list[i].response_count
+                removal_count = last_count
+
+                adjusted_response_count -= addition_count - removal_count
+                last_count = addition_count
+                i += 1
+            
+            # If removal, next addition's count - this removal's count, move index to after addition
+            else:
+                removal_count = addition_removal_list[i].response_count
+                addition_count = response_count
+                i += 1
+                
+                # Try to find index of next addition
+                while i < len(addition_removal_list) and not addition_removal_list[i].is_addition:
+                    i += 1
+                addition_count = addition_removal_list[i] if i < len(addition_removal_list) else response_count
+
+                adjusted_response_count -= addition_count - removal_count
+                last_count = addition_count
+                i += 1
+
+        return adjusted_response_count
+
     # Returns a dict of data values for an anime
     def get_data_for_anime(anime):
-        if survey.is_preseason:
-            responses_for_anime = anime_response_queryset.filter(anime=anime)
-        else:
-            responses_for_anime = anime_response_queryset.filter(anime=anime, watching=True)
+        responses_for_anime = anime_response_queryset.filter(anime=anime)
+        responses_by_watchers = responses_for_anime.filter(watching=True)
 
-        male_response_count = responses_for_anime.filter(response__gender=Response.Gender.MALE).count()
-        female_response_count = responses_for_anime.filter(response__gender=Response.Gender.FEMALE).count()
+        # Adjust response count for this anime taking into account the times the anime was added/removed to the survey
+        addition_removal_list = list(survey_additions_removals.filter(anime=anime))
+        adjusted_response_count = get_adjusted_response_count(addition_removal_list, response_count)
 
-        responses_with_score = responses_for_anime.filter(score__isnull=False)
+        # Amount of people watching
+        watcher_count = responses_by_watchers.count()
+        male_response_count = responses_by_watchers.filter(response__gender=Response.Gender.MALE).count()
+        female_response_count = responses_by_watchers.filter(response__gender=Response.Gender.FEMALE).count()
+
+        responses_with_score = responses_for_anime.filter(score__isnull=False) if survey.is_preseason else responses_by_watchers.filter(score__isnull=False)
         # Becomes NaN if there are no scores (default behavior is None which causes errors, hence "or NaN" being necessary)
         male_average_score = responses_with_score.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
         female_average_score = responses_with_score.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
-        watchers_count = responses_for_anime.filter(watching=True).count()
-
         return {
-            DataType.POPULARITY:              watchers_count / response_count * 100.0 if response_count > 0 else float('NaN'),
+            DataType.POPULARITY:              watcher_count / adjusted_response_count * 100.0 if adjusted_response_count > 0 else float('NaN'),
             DataType.GENDER_POPULARITY_RATIO: male_response_count / female_response_count if female_response_count > 0 else float('inf'),
-            DataType.UNDERWATCHED:            responses_with_score.filter(underwatched=True).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
+            DataType.UNDERWATCHED:            responses_with_score.filter(underwatched=True).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
             DataType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
             DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
-            DataType.SURPRISE:                responses_for_anime.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
-            DataType.DISAPPOINTMENT:          responses_for_anime.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count() / watchers_count * 100.0 if watchers_count > 0 else float('NaN'),
+            DataType.SURPRISE:                responses_by_watchers.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
+            DataType.DISAPPOINTMENT:          responses_by_watchers.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
         }
 
     # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
