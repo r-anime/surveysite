@@ -13,9 +13,9 @@ from .util import AnimeUtil
 # ======= VIEWS =======
 # Index
 def index(request):
-    survey_list = Survey.objects.order_by('year', 'season', 'is_preseason')
+    survey_queryset = Survey.objects.order_by('year', 'season', 'is_preseason')
     context = {
-        'survey_list': survey_list,
+        'survey_list': survey_queryset,
     }
 
     return render(request, 'survey/index.html', context)
@@ -54,15 +54,10 @@ def form(request, survey):
     return render(request, 'survey/form.html', context)
 
 def results(request, survey):
-    anime_response_list = AnimeResponse.objects.filter(response__survey=survey)
-    response_list = Response.objects.filter(survey=survey)
-    response_count = max(response_list.count(), 1)
+    anime_response_queryset = AnimeResponse.objects.filter(response__survey=survey)
+    response_count = Response.objects.filter(survey=survey).count()
 
     anime_list, anime_series_list, special_anime_list = get_survey_anime(survey)
-
-    anime_response_list_per_anime = {
-        anime: (anime_response_list.filter(anime=anime) if survey.is_preseason else anime_response_list.filter(anime=anime, watching=True)) for anime in anime_list
-    }
 
 
     # +----------------+
@@ -79,13 +74,16 @@ def results(request, survey):
     
     # Returns a dict of data values for an anime
     def get_data_for_anime(anime):
-        responses_for_anime = anime_response_list_per_anime[anime]
+        if survey.is_preseason:
+            responses_for_anime = anime_response_queryset.filter(anime=anime)
+        else:
+            responses_for_anime = anime_response_queryset.filter(anime=anime, watching=True)
 
         male_response_count = responses_for_anime.filter(response__gender=Response.Gender.MALE).count()
         female_response_count = responses_for_anime.filter(response__gender=Response.Gender.FEMALE).count()
 
         responses_with_score = responses_for_anime.filter(score__isnull=False)
-        # Becomes 0 if there are no scores (default behavior is None, hence this being necessary)
+        # Becomes NaN if there are no scores (default behavior is None which causes errors, hence "or NaN" being necessary)
         male_average_score = responses_with_score.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
         female_average_score = responses_with_score.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
@@ -247,7 +245,7 @@ def submit(request, year, season, pre_or_post):
 def get_survey_anime(survey):
     current_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
 
-    anime_list = AnimeUtil.annotate_year_season(
+    anime_queryset = AnimeUtil.annotate_year_season(
         Anime.objects
     ).filter(
         AnimeUtil.is_ongoing_filter_func(current_year_season)
@@ -265,16 +263,16 @@ def get_survey_anime(survey):
         special_anime_filter = special_anime_filter & Q(subbed_year_season=current_year_season)
     
     
-    anime_series_list = anime_list.filter(
+    anime_series_queryset = anime_queryset.filter(
         anime_series_filter
     )
-    special_anime_list = anime_list.filter(
+    special_anime_queryset = anime_queryset.filter(
         special_anime_filter
     )
-    combined_anime_list = anime_list.filter(
+    combined_anime_queryset = anime_queryset.filter(
         anime_series_filter | special_anime_filter
     )
-    return combined_anime_list, anime_series_list, special_anime_list
+    return combined_anime_queryset, anime_series_queryset, special_anime_queryset
 
 def get_survey_or_404(year, season, pre_or_post):
     if pre_or_post == 'pre':
