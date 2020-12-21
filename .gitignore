@@ -3,8 +3,10 @@
 *.pot
 *.pyc
 __pycache__
-db.sqlite3
+*.sqlite3
 media
+
+startserver.ps1
 
 # Backup files # 
 *.bak 

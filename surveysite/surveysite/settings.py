@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -38,7 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.reddit',
 ]
+
+SIDE_ID = 2
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,6 +77,23 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'reddit': {
+        'APP': {
+            'client_id': 'bItmnw61GhPTQw',
+            'secret': os.environ.get('WEBSITE_REDDIT_OAUTH_SECRET'),
+            'key': '',
+        },
+        'SCOPE': ['identity'],
+        'USER_AGENT': 'django:animesurvey:1.0 (by /u/DragonsOnOurMountain)',
+    }
+}
 
 WSGI_APPLICATION = 'surveysite.wsgi.application'
 

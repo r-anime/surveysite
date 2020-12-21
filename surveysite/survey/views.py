@@ -229,7 +229,8 @@ def results(request, survey):
     }
     return render(request, 'survey/results.html', context)
 
-
+# https://www.reddit.com/wiki/api
+# https://django-allauth.readthedocs.io/en/latest/overview.html
 
 # POST requests will be sent here
 def submit(request, year, season, pre_or_post):
