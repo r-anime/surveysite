@@ -92,8 +92,14 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         'SCOPE': ['identity'],
         'USER_AGENT': 'django:animesurvey:1.0 (by /u/DragonsOnOurMountain)',
+        'AUTH_PARAMS': {
+            'duration': 'permanent',
+        },
     }
 }
+
+LOGIN_REDIRECT_URL = 'survey:index'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'survey:index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
 
 WSGI_APPLICATION = 'surveysite.wsgi.application'
 

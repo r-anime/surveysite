@@ -2,9 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
+from django.contrib.auth.decorators import user_passes_test
 #from django.template import loader
 from datetime import datetime
 from enum import Enum, auto
+import allauth
 
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil
@@ -29,6 +31,13 @@ def survey(request, year, season, pre_or_post):
     else:
         return results(request, survey)
 
+def reddit_check(user):
+    if not user.is_authenticated: return False
+
+    reddit_accounts = user.socialaccount_set.filter(provider='reddit')
+    return len(reddit_accounts) > 0
+
+@user_passes_test(reddit_check)
 def form(request, survey):
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
@@ -233,6 +242,7 @@ def results(request, survey):
 # https://django-allauth.readthedocs.io/en/latest/overview.html
 
 # POST requests will be sent here
+@user_passes_test(reddit_check)
 def submit(request, year, season, pre_or_post):
     survey = get_survey_or_404(year, season, pre_or_post)
     if request.method == 'POST' and survey.is_ongoing:
@@ -272,7 +282,7 @@ def submit(request, year, season, pre_or_post):
         
         return redirect('survey:index')
     else:
-        raise Http404()
+        return redirect('survey:survey', survey.year, survey.season, 'pre' if survey.is_preseason else 'post')
 
 
 
