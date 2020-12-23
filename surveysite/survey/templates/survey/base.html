@@ -22,7 +22,11 @@
             {% if user.is_authenticated %}
             <div class="container-fluid justify-content-end">
                 <span class="navbar-text" style="padding-right:12px;">Authenticated as {{ user }}</span>
-                <a href="" class="btn btn-secondary">Log out</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" id="logoutNext" value=""/>
+                    <button type="submit" class="btn btn-secondary">Log Out</button>
+                </form>
             </div>
             {% else %}
             <a href="{% url 'login' %}" class="btn btn-primary">Log in</a>
@@ -47,6 +51,9 @@
     </nav>
     <!-- end footer -->
 
+    <script>
+        document.getElementById("logoutNext").setAttribute("value", window.location.href);
+    </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>

@@ -1,19 +1,13 @@
 {% extends "survey/base.html" %}
 {% load account socialaccount %}
 
-{% block style %}
-html, body, .content {
-    height: 100%;
-}
-{% endblock %}
-
 {% block content %}
 
 {% get_providers as socialaccount_providers %}
 {% if socialaccount_providers %}
 {% for provider in socialaccount_providers %}
 {% if provider.id == "reddit" %}
-<div class="row h-100 justify-content-center align-items-center">
+<div class="row pt-5 justify-content-center">
     <div class="col-md-6">
         <div class="card">
             <h5 class="card-header">
@@ -21,8 +15,7 @@ html, body, .content {
             </h5>
             <div class="card-body">
                 <p class="card-text">
-                    To continue, you must be logged in with a Reddit account.<br>
-                    No data filled in on the survey will be linked to your account.
+                    To fill in surveys, you must be logged in with a {{ provider.name }} account.
                 </p>
                 <a title="{{ provider.name }}" class="btn btn-primary" href="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}">
                     Log in via {{ provider.name }}

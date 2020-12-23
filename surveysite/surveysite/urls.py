@@ -17,11 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from survey.accountviews import survey_login_view
+from survey.accountviews import survey_login_view, survey_logout_view
 
 urlpatterns = [
     path('survey/', include('survey.urls')),
     path('admin/', admin.site.urls),
     path('accounts/login/', view=survey_login_view, name='login'),
+    path('accounts/logout/', view=survey_logout_view, name='logout'),
     path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
