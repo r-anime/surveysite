@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 #from django.template import loader
 from datetime import datetime
 from enum import Enum, auto
@@ -18,6 +18,7 @@ def index(request):
     survey_queryset = Survey.objects.order_by('year', 'season', 'is_preseason')
     context = {
         'survey_list': survey_queryset,
+        'user': request.user,
     }
 
     return render(request, 'survey/index.html', context)
@@ -37,7 +38,8 @@ def reddit_check(user):
     reddit_accounts = user.socialaccount_set.filter(provider='reddit')
     return len(reddit_accounts) > 0
 
-@user_passes_test(reddit_check)
+#@user_passes_test(reddit_check)
+@login_required
 def form(request, survey):
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
@@ -59,6 +61,7 @@ def form(request, survey):
         'survey': survey,
         'anime_series_list': anime_series_list,
         'special_anime_list': special_anime_list,
+        'user': request.user,
     }
     return render(request, 'survey/form.html', context)
 
@@ -235,6 +238,7 @@ def results(request, survey):
     context = {
         'survey': survey,
         'table_list': table_list,
+        'user': request.user,
     }
     return render(request, 'survey/results.html', context)
 
@@ -244,7 +248,8 @@ def results(request, survey):
 # https://github.com/pennersr/django-allauth/tree/master/allauth/templates/account
 
 # POST requests will be sent here
-@user_passes_test(reddit_check)
+#@user_passes_test(reddit_check)
+@login_required
 def submit(request, year, season, pre_or_post):
     survey = get_survey_or_404(year, season, pre_or_post)
     if request.method == 'POST' and survey.is_ongoing:

@@ -22,6 +22,6 @@ from survey.accountviews import survey_login_view
 urlpatterns = [
     path('survey/', include('survey.urls')),
     path('admin/', admin.site.urls),
-    path('accounts/login/', view=survey_login_view),
+    path('accounts/login/', view=survey_login_view, name='login'),
     path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
