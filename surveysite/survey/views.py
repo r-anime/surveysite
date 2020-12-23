@@ -240,6 +240,8 @@ def results(request, survey):
 
 # https://www.reddit.com/wiki/api
 # https://django-allauth.readthedocs.io/en/latest/overview.html
+# https://tech.serhatteker.com/post/2020-06/custom-signup-view-in-django-allauth/
+# https://github.com/pennersr/django-allauth/tree/master/allauth/templates/account
 
 # POST requests will be sent here
 @user_passes_test(reddit_check)
