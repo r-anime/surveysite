@@ -19,9 +19,9 @@
     <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'survey:index' %}">/r/anime Seasonal Surveys</a>
-            {% if user.is_authenticated %}
+            {% if username %}
             <div class="container-fluid justify-content-end">
-                <span class="navbar-text" style="padding-right:12px;">Authenticated as {{ user }}</span>
+                <span class="navbar-text" style="padding-right:12px;">Authenticated as {{ username }}</span>
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <input type="hidden" name="next" id="logoutNext" value=""/>

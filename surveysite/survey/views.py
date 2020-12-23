@@ -18,7 +18,7 @@ def index(request):
     survey_queryset = Survey.objects.order_by('year', 'season', 'is_preseason')
     context = {
         'survey_list': survey_queryset,
-        'user': request.user,
+        'username': get_username(request.user),
     }
 
     return render(request, 'survey/index.html', context)
@@ -37,6 +37,15 @@ def reddit_check(user):
 
     reddit_accounts = user.socialaccount_set.filter(provider='reddit')
     return len(reddit_accounts) > 0
+
+# Returns None if not authenticated
+def get_username(user):
+    if not user.is_authenticated: return None
+
+    if len(user.socialaccount_set.all()) > 0:
+        return user.socialaccount_set.all()[0].uid
+    else:
+        return user.username
 
 #@user_passes_test(reddit_check)
 @login_required
@@ -61,7 +70,7 @@ def form(request, survey):
         'survey': survey,
         'anime_series_list': anime_series_list,
         'special_anime_list': special_anime_list,
-        'user': request.user,
+        'username': get_username(request.user),
     }
     return render(request, 'survey/form.html', context)
 
@@ -238,7 +247,7 @@ def results(request, survey):
     context = {
         'survey': survey,
         'table_list': table_list,
-        'user': request.user,
+        'username': get_username(request.user),
     }
     return render(request, 'survey/results.html', context)
 
