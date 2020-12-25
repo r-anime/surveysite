@@ -5,7 +5,7 @@
 {% if survey_list %}
 <div class="list-group">
     {% for survey in survey_list %}
-    <a href="{% url 'survey:survey' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="list-group-item list-group-item-action {% if not survey.is_ongoing %}list-group-item-light{% endif %}">
+    <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action {% if not survey.is_ongoing %}list-group-item-light{% endif %}">
         <div class="d-flex align-items-center">
             <h5 class="mr-2 mb-1">{{ survey }}</h5>
             {% if survey.is_ongoing %}

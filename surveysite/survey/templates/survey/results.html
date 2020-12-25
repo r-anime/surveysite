@@ -7,28 +7,24 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 
-{% if not survey.is_ongoing %}
-    {% for table in table_list %}
-        <h2>{{ table.title }}</h2>
+{% for table in table_list %}
+<h2>{{ table.title }}</h2>
 
-        <table>
-            <tr>
-            {% for header in table.headers %}
-                <th>{{ header }}</th>
-            {% endfor %}
-            </tr>
-            {% for row in table.data %}
-            <tr>
-            {% for entry in row %}
-                <td>{{ entry }}</td>
-            {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
+<table>
+    <tr>
+        {% for header in table.headers %}
+        <th>{{ header }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in table.data %}
+    <tr>
+        {% for entry in row %}
+        <td>{{ entry }}</td>
+        {% endfor %}
+    </tr>
     {% endfor %}
-{% else %}
-    <p>The survey is still open!</p>
-{% endif %}
+</table>
+{% endfor %}
 
 
 

@@ -24,14 +24,6 @@ def index(request):
     return render(request, 'survey/index.html', context)
 
 
-# Survey page, use form() if survey active, otherwise use results()
-def survey(request, year, season, pre_or_post):
-    survey = get_survey_or_404(year, season, pre_or_post)
-    if survey.is_ongoing:
-        return form(request, survey)
-    else:
-        return results(request, survey)
-
 def reddit_check(user):
     if not user.is_authenticated: return False
 
@@ -49,7 +41,8 @@ def get_username(user):
 
 #@user_passes_test(reddit_check)
 @login_required
-def form(request, survey):
+def form(request, year, season, pre_or_post):
+    survey = get_survey_or_404(year, season, pre_or_post)
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
 
     def modify(anime):
@@ -74,7 +67,12 @@ def form(request, survey):
     }
     return render(request, 'survey/form.html', context)
 
-def results(request, survey):
+def results(request, year, season, pre_or_post):
+    survey = get_survey_or_404(year, season, pre_or_post)
+    # Only display results if the survey is not ongoing, or if the user is staff
+    if survey.is_ongoing and not request.user.is_staff:
+        return redirect('survey:form', survey.year, survey.season, pre_or_post)
+
     anime_response_queryset = AnimeResponse.objects.filter(response__survey=survey)
     response_count = Response.objects.filter(survey=survey).count()
 
@@ -298,7 +296,7 @@ def submit(request, year, season, pre_or_post):
         
         return redirect('survey:index')
     else:
-        return redirect('survey:survey', survey.year, survey.season, 'pre' if survey.is_preseason else 'post')
+        return redirect('survey:form', survey.year, survey.season, pre_or_post)
 
 
 
