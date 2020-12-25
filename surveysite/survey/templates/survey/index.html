@@ -3,13 +3,37 @@
 {% block content %}
 
 {% if survey_list %}
-    <ul>
+<div class="list-group">
     {% for survey in survey_list %}
-        <li><a href="{% url 'survey:survey' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">{{ survey }}</a></li>
+    <a href="{% url 'survey:survey' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="list-group-item list-group-item-action {% if not survey.is_ongoing %}list-group-item-light{% endif %}">
+        <div class="d-flex align-items-center">
+            <h5 class="mr-2 mb-1">{{ survey }}</h5>
+            {% if survey.is_ongoing %}
+            <span class="badge badge-primary badge-pill">Ongoing</span>
+            {% else %}
+            <small class="text-muted">Finished</small>
+            {% endif %}
+        </div>
+        <p class="mb-1">
+            {% if survey.is_ongoing %}
+            {% if survey.is_preseason %}
+            Vote on your what you think will be the best anime of {{ survey.year }} Q{{ survey.season|add:1 }}!
+            {% else %}
+            Vote on what your favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
+            {% endif %}
+            {% else %}
+            {% if survey.is_preseason %}
+            Check out what people's expectations were of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
+            {% else %}
+            Check out what people's favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
+            {% endif %}
+            {% endif %}
+        </p>
+    </a>
     {% endfor %}
-    </ul>
+</div>
 {% else %}
-    <p>No surveys available.</p>
+<p>No surveys available.</p>
 {% endif %}
 
 {% endblock content %}

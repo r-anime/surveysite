@@ -15,7 +15,7 @@ from .util import AnimeUtil
 # ======= VIEWS =======
 # Index
 def index(request):
-    survey_queryset = Survey.objects.order_by('year', 'season', 'is_preseason')
+    survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
     context = {
         'survey_list': survey_queryset,
         'username': get_username(request.user),
