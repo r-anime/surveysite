@@ -189,7 +189,7 @@ def results(request, year, season, pre_or_post):
         table_data = generate_table_data(anime_data, data_types_to_display)
         
         table_data.sort(
-            key=lambda row: 0 if row[data_type_to_sort_by.name] == float('inf') or row[data_type_to_sort_by.name] == float('nan') else row[data_type_to_sort_by.name],
+            key=lambda row: -1 if row[data_type_to_sort_by.name] == float('inf') or row[data_type_to_sort_by.name] != row[data_type_to_sort_by.name] else row[data_type_to_sort_by.name],
             reverse=reverse_sort
         )
         for i in range(len(table_data)):
