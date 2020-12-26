@@ -22,7 +22,7 @@
                 }, {% endfor %}
             ],
             items: [{% for row in table.data %}{
-                    {% for key, value in row.items %}{{ key }}: '{{ value }}', {% endfor %}
+                    {% for key, value in row.items %}{{ key }}: '{{ value|safe|escapejs }}', {% endfor %}
                 }, {% endfor %}
             ],
         }
