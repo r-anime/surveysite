@@ -6,24 +6,28 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-
 {% for table in table_list %}
 <h2>{{ table.title }}</h2>
 
-<table>
-    <tr>
-        {% for header in table.headers %}
-        <th>{{ header }}</th>
-        {% endfor %}
-    </tr>
-    {% for row in table.data %}
-    <tr>
-        {% for entry in row %}
-        <td>{{ entry }}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
+<div id="results-table-{{ forloop.counter0 }}">
+    <b-table striped hover small :items="items" :fields="fields"></b-table>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#results-table-{{ forloop.counter0 }}',
+        data: {
+            fields: [{% for column in table.columns %}{
+                    {% for key, value in column.items %}{{ key }}: '{{ value }}', {% endfor %}
+                }, {% endfor %}
+            ],
+            items: [{% for row in table.data %}{
+                    {% for key, value in row.items %}{{ key }}: '{{ value }}', {% endfor %}
+                }, {% endfor %}
+            ],
+        }
+    })
+</script>
 {% endfor %}
 
 

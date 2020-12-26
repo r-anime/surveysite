@@ -84,13 +84,13 @@ def results(request, year, season, pre_or_post):
     # | GET ANIME DATA |
     # +----------------+
     class DataType(Enum):
-        POPULARITY              = auto()
-        GENDER_POPULARITY_RATIO = auto()
-        UNDERWATCHED            = auto()
-        SCORE                   = auto()
-        GENDER_SCORE_DIFFERENCE = auto()
-        SURPRISE                = auto()
-        DISAPPOINTMENT          = auto()
+        POPULARITY              = "Popularity (%)"
+        GENDER_POPULARITY_RATIO = "Gender Ratio (M:F)"
+        UNDERWATCHED            = "Underwatched (%)"
+        SCORE                   = "Score (x/5)"
+        GENDER_SCORE_DIFFERENCE = "Gender Score Difference (M-F)"
+        SURPRISE                = "Surprise (%)"
+        DISAPPOINTMENT          = "Disappointment (%)"
     
     def get_adjusted_response_count(addition_removal_list, response_count):
         i = 0
@@ -161,87 +161,120 @@ def results(request, year, season, pre_or_post):
     }
 
 
-    # +-----------------+
-    # | GENERATE TABLES |
-    # +-----------------+
+    # +----------------------------+
+    # | TABLE GENERATION FUNCTIONS |
+    # +----------------------------+
     # Generate table data as a list of rows
-    def generate_table_data(anime_data, column_name_list, sorting_column=0, descending=True):
+    def generate_table_data(anime_data, data_types_to_display):
         table_data = []
 
         for anime in anime_data.keys():
-            row = [str(anime)]
-
-            for column_name in column_name_list:
-                row.append(anime_data[anime][column_name])
-            
+            row = {"anime": str(anime)}
+            for data_type in data_types_to_display:
+                row[data_type.name] = anime_data[anime][data_type]
             table_data.append(row)
+    
+        return table_data
+    
+    def generate_table(anime_data, table_name, data_types_to_display, data_type_to_sort_by=None, reverse_sort=True):
+        if not data_type_to_sort_by:
+            data_type_to_sort_by = data_types_to_display[0]
+        
+        table = {
+            'title': table_name,
+            'data': None,
+            'columns': None,
+        }
+
+        table_data = generate_table_data(anime_data, data_types_to_display)
         
         table_data.sort(
-            key=lambda row: 0 if row[1+sorting_column] == float('inf') else row[1+sorting_column],
-            reverse=descending
+            key=lambda row: 0 if row[data_type_to_sort_by.name] == float('inf') else row[data_type_to_sort_by.name],
+            reverse=reverse_sort
         )
         for i in range(len(table_data)):
-            table_data[i].insert(0, i+1)
+            table_data[i]['rank'] = i+1
         
-        return table_data
+        table['data'] = table_data
+        table['columns'] = [{
+                'key': data_type.name,
+                'label': data_type.value,
+                'sortable': True,
+            } for data_type in data_types_to_display
+        ]
+        table['columns'] = [{
+                'key': 'rank',
+                'label': '#',
+                'sortable': True,
+            }, {
+                'key': 'anime',
+                'label': 'Anime',
+                'sortable': True,
+            }
+        ] + table['columns']
+            
+        return table
 
-    popularity_table = {
-        'title': 'Most Popular Anime',
-        'headers': ['#', 'Anime', '%'],
-        'data': generate_table_data(anime_series_data, [DataType.POPULARITY])[:10]
-    }
-    gender_popularity_ratio_data = generate_table_data(anime_series_data, [DataType.GENDER_POPULARITY_RATIO, DataType.POPULARITY])
-    gender_popularity_ratio_table = {
-        'title': 'Biggest Gender Popularity Disparity',
-        'headers': ['#', 'Anime', 'M:F Ratio', 'Popularity'],
-        'data': gender_popularity_ratio_data[:3] + [['', '...', '...', '...']] + gender_popularity_ratio_data[-3:]
-    }
-    underwatched_table = {
-        'title': 'Most Underwatched Anime',
-        'headers': ['#', 'Anime', '%', 'Popularity'],
-        'data': generate_table_data(anime_series_data, [DataType.UNDERWATCHED, DataType.POPULARITY])[:5]
-    }
 
-    score_data = generate_table_data(anime_series_data, [DataType.SCORE])
-    score_table = {
-        'title': 'Most Anticipated Anime' if survey.is_preseason else 'Best/Worst Anime',
-        'headers': ['#', 'Anime', 'Score'],
-        'data': score_data[:10] + [['', '...', '...']] + score_data[-5:]
-    }
-    gender_score_difference_data = generate_table_data(anime_series_data, [DataType.GENDER_SCORE_DIFFERENCE, DataType.SCORE])
-    gender_score_difference_table = {
-        'title': 'Biggest Gender Score Disparity',
-        'headers': ['#', 'Anime', 'M-F Score', 'Score'],
-        'data': gender_score_difference_data[:3] + [['', '...', '...', '...']] + gender_score_difference_data[-3:]
-    }
+    # +--------+
+    # | TABLES |
+    # +--------+
+    popularity_table = generate_table(
+        anime_series_data,
+        'Most Popular Anime',
+        [DataType.POPULARITY],
+    )
+    gender_popularity_ratio_table = generate_table(
+        anime_series_data,
+        'Biggest Gender Popularity Disparity',
+        [DataType.GENDER_POPULARITY_RATIO, DataType.POPULARITY],
+    )
+    underwatched_table = generate_table(
+        anime_series_data,
+        'Most Underwatched Anime',
+        [DataType.UNDERWATCHED, DataType.POPULARITY],
+    )
 
-    surprise_table = {
-        'title': 'Most Surprising Anime',
-        'headers': ['#', 'Anime', '%', 'Score'],
-        'data': generate_table_data(anime_series_data, [DataType.SURPRISE, DataType.SCORE])[:5]
-    }
-    disappointment_table = {
-        'title': 'Most Disappointing Anime',
-        'headers': ['#', 'Anime', '%', 'Score'],
-        'data': generate_table_data(anime_series_data, [DataType.DISAPPOINTMENT, DataType.SCORE])[:5]
-    }
+    score_table = generate_table(
+        anime_series_data,
+        'Most Anticipated Anime' if survey.is_preseason else 'Best Anime of the Season',
+        [DataType.SCORE],
+    )
+    gender_score_difference_table = generate_table(
+        anime_series_data,
+        'Biggest Gender Score Disparity',
+        [DataType.GENDER_SCORE_DIFFERENCE, DataType.SCORE],
+    )
+
+    surprise_table = generate_table(
+        anime_series_data,
+        'Most Surprising Anime',
+        [DataType.SURPRISE, DataType.SCORE],
+    )
+    disappointment_table = generate_table(
+        anime_series_data,
+        'Most Disappointing Anime',
+        [DataType.DISAPPOINTMENT, DataType.SCORE],
+    )
     
-    special_popularity_table = {
-        'title': 'Most Popular Anime OVAs/ONAs/Movies/Specials',
-        'headers': ['#', 'Anime', '%'],
-        'data': generate_table_data(special_anime_data, [DataType.POPULARITY])[:5]
-    }
-    special_score_table = {
-        'title': 'Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials',
-        'headers': ['#', 'Anime', 'Score'],
-        'data': generate_table_data(special_anime_data, [DataType.SCORE])[:5]
-    }
+    special_popularity_table = generate_table(
+        special_anime_data,
+        'Most Popular Anime OVAs/ONAs/Movies/Specials',
+        [DataType.POPULARITY],
+    )
+    special_score_table = generate_table(
+        special_anime_data,
+        'Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials',
+        [DataType.SCORE],
+    )
 
     table_list = [
         popularity_table, gender_popularity_ratio_table, underwatched_table,
         score_table, gender_score_difference_table,
         surprise_table, disappointment_table,
-        special_popularity_table, special_score_table]
+        special_popularity_table, special_score_table
+    ]
+    
     context = {
         'survey': survey,
         'table_list': table_list,
