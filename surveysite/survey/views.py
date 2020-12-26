@@ -84,13 +84,21 @@ def results(request, year, season, pre_or_post):
     # | GET ANIME DATA |
     # +----------------+
     class DataType(Enum):
-        POPULARITY              = "Popularity (%)"
-        GENDER_POPULARITY_RATIO = "Gender Ratio (M:F)"
-        UNDERWATCHED            = "Underwatched (%)"
-        SCORE                   = "Score (x/5)"
-        GENDER_SCORE_DIFFERENCE = "Gender Score Difference (M-F)"
-        SURPRISE                = "Surprise (%)"
-        DISAPPOINTMENT          = "Disappointment (%)"
+        POPULARITY              = "Popularity"
+        GENDER_POPULARITY_RATIO = "Gender Ratio (♂:♀)"
+        UNDERWATCHED            = "Underwatched"
+        SCORE                   = "Score"
+        GENDER_SCORE_DIFFERENCE = "Gender Score Difference (♂-♀)"
+        SURPRISE                = "Surprise"
+        DISAPPOINTMENT          = "Disappointment"
+
+        def get_formatter(self):
+            if self is DataType.GENDER_POPULARITY_RATIO:
+                return 'genderRatioFormatter'
+            elif self is DataType.SCORE or self is DataType.GENDER_SCORE_DIFFERENCE:
+                return 'scoreFormatter'
+            else:
+                return 'percentageFormatter'
     
     def get_adjusted_response_count(addition_removal_list, response_count):
         i = 0
@@ -200,6 +208,7 @@ def results(request, year, season, pre_or_post):
                 'key': data_type.name,
                 'label': data_type.value,
                 'sortable': True,
+                'formatter': data_type.get_formatter(),
             } for data_type in data_types_to_display
         ]
         table['columns'] = [{

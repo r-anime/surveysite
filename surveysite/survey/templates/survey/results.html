@@ -6,6 +6,31 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
+<script>
+    function genericNumberFormatter(value, validFormatter) {
+        switch (value) {
+            case 'nan':
+                return 'NaN';
+            case 'inf':
+                return '\u221e';
+            default:
+                return validFormatter(value)
+        }
+    }
+
+    function percentageFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(1) + '%');
+    }
+
+    function genderRatioFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+
+    function scoreFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2) + '/5');
+    }
+</script>
+
 {% for table in table_list %}
 <h2>{{ table.title }}</h2>
 
@@ -18,7 +43,7 @@
         el: '#results-table-{{ forloop.counter0 }}',
         data: {
             fields: [{% for column in table.columns %}{
-                    {% for key, value in column.items %}{{ key }}: '{{ value }}', {% endfor %}
+                    {% for key, value in column.items %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
                 }, {% endfor %}
             ],
             items: [{% for row in table.data %}{
