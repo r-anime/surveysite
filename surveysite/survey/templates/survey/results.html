@@ -35,7 +35,7 @@
 <h2>{{ table.title }}</h2>
 
 <div id="results-table-{{ forloop.counter0 }}">
-    <b-table striped hover small :items="items" :fields="fields"></b-table>
+    <b-table-lite striped hover small bordered sticky-header :items="items" :fields="fields"></b-table>
 </div>
 
 <script>

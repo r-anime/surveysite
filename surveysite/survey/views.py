@@ -207,18 +207,20 @@ def results(request, year, season, pre_or_post):
         table['columns'] = [{
                 'key': data_type.name,
                 'label': data_type.value,
-                'sortable': True,
+                #'sortable': True,
                 'formatter': data_type.get_formatter(),
+                'tdClass': 'text-right',
+                'thClass': 'text-right',
             } for data_type in data_types_to_display
         ]
         table['columns'] = [{
                 'key': 'rank',
                 'label': '#',
-                'sortable': True,
+                #'sortable': True,
             }, {
                 'key': 'anime',
                 'label': 'Anime',
-                'sortable': True,
+                #'sortable': True,
             }
         ] + table['columns']
             
