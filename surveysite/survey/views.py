@@ -75,6 +75,8 @@ def results(request, year, season, pre_or_post):
 
     anime_response_queryset = AnimeResponse.objects.filter(response__survey=survey)
     response_count = Response.objects.filter(survey=survey).count()
+    male_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.MALE).count()
+    female_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.FEMALE).count()
 
     _, anime_series_list, special_anime_list = get_survey_anime(survey)
     survey_additions_removals = SurveyAdditionRemoval.objects.filter(survey=survey)
@@ -142,8 +144,8 @@ def results(request, year, season, pre_or_post):
 
         # Amount of people watching
         watcher_count = responses_by_watchers.count()
-        male_response_count = responses_by_watchers.filter(response__gender=Response.Gender.MALE).count()
-        female_response_count = responses_by_watchers.filter(response__gender=Response.Gender.FEMALE).count()
+        male_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.MALE).count()
+        female_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.FEMALE).count()
 
         responses_with_score = responses_for_anime.filter(score__isnull=False) if survey.is_preseason else responses_by_watchers.filter(score__isnull=False)
         # Becomes NaN if there are no scores (default behavior is None which causes errors, hence "or NaN" being necessary)
@@ -152,7 +154,7 @@ def results(request, year, season, pre_or_post):
 
         return {
             DataType.POPULARITY:              watcher_count / adjusted_response_count * 100.0 if adjusted_response_count > 0 else float('NaN'),
-            DataType.GENDER_POPULARITY_RATIO: male_response_count / female_response_count if female_response_count > 0 else float('inf'),
+            DataType.GENDER_POPULARITY_RATIO: (male_anime_response_count / male_response_count) / (female_anime_response_count / female_response_count) if female_anime_response_count > 0 else float('inf'),
             DataType.UNDERWATCHED:            responses_with_score.filter(underwatched=True).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
             DataType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
             DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
@@ -197,7 +199,7 @@ def results(request, year, season, pre_or_post):
         table_data = generate_table_data(anime_data, data_types_to_display)
         
         table_data.sort(
-            key=lambda row: -1 if row[data_type_to_sort_by.name] == float('inf') or row[data_type_to_sort_by.name] != row[data_type_to_sort_by.name] else row[data_type_to_sort_by.name],
+            key=lambda row: float('-inf') if row[data_type_to_sort_by.name] == float('inf') or row[data_type_to_sort_by.name] != row[data_type_to_sort_by.name] else row[data_type_to_sort_by.name],
             reverse=reverse_sort
         )
         for i in range(len(table_data)):
@@ -279,12 +281,19 @@ def results(request, year, season, pre_or_post):
         [DataType.SCORE],
     )
 
-    table_list = [
-        popularity_table, gender_popularity_ratio_table, underwatched_table,
-        score_table, gender_score_difference_table,
-        surprise_table, disappointment_table,
-        special_popularity_table, special_score_table
-    ]
+    if survey.is_preseason:
+        table_list = [
+            popularity_table, gender_popularity_ratio_table,
+            score_table, gender_score_difference_table,
+            special_popularity_table
+        ]
+    else:
+        table_list = [
+            popularity_table, gender_popularity_ratio_table, underwatched_table,
+            score_table, gender_score_difference_table,
+            surprise_table, disappointment_table,
+            special_popularity_table, special_score_table
+        ]
     
     context = {
         'survey': survey,

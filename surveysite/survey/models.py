@@ -220,12 +220,14 @@ class Response(models.Model):
         auto_now=True,
     )
     age = models.IntegerField(
-        blank=True
+        blank=True,
+        null=True,
     )
     gender = models.CharField(
         max_length=1,
         choices=Gender.choices,
         blank=True,
+        null=True,
     )
 
     # Relation fields
