@@ -1,9 +1,14 @@
 from django.contrib import admin
+from django.forms.models import BaseInlineFormSet
 from django.db.models import Q
 from django.db.models.functions import Concat
+from django.core.files.base import ContentFile
 from datetime import datetime
 from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil
+from io import StringIO, BytesIO
+import uuid
+import PIL
 
 
 class YearSeasonListFilter(admin.SimpleListFilter):
@@ -66,8 +71,42 @@ class AnimeNameInline(admin.TabularInline):
     model = AnimeName
     extra = 1
 
+class ImageInlineFormSet(BaseInlineFormSet):
+    def save_new(self, form, commit=True):
+        image = super().save_new(form, False)
+
+        image_org = PIL.Image.open(image.file_large)
+        image_large = image_org.copy()
+        image_medium = image_org.copy()
+        image_small = image_org.copy()
+
+        image_large.thumbnail((450, 900))
+        image_medium.thumbnail((300, 600))
+        image_small.thumbnail((150, 300))
+
+        content_large = BytesIO()
+        content_medium = BytesIO()
+        content_small = BytesIO()
+
+        image_large.save(fp=content_large, format="PNG")
+        image_medium.save(fp=content_medium, format="PNG")
+        image_small.save(fp=content_small, format="PNG")
+
+        image_base_name = str(uuid.uuid4()).split('-')[0]
+        image_large_name = image_base_name + '.png'
+        image_medium_name = image_base_name + '-medium.png'
+        image_small_name = image_base_name + '-small.png'
+
+        image.file_large.save(image_large_name, ContentFile(content_large.getvalue()))
+        image.file_medium.save(image_medium_name, ContentFile(content_medium.getvalue()))
+        image.file_small.save(image_small_name, ContentFile(content_small.getvalue()))
+
+        return image
+
 class ImageInline(admin.TabularInline):
     model = Image
+    formset = ImageInlineFormSet
+    readonly_fields = ['file_medium', 'file_small']
     
     def get_extra(self, request, obj=None, **kwargs):
         extra = 1
@@ -75,6 +114,11 @@ class ImageInline(admin.TabularInline):
             return max(0, extra - obj.image_set.count())
         else:
             return extra
+    
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        formset.request = request
+        return formset
 
 class VideoInline(admin.TabularInline):
     model = Video

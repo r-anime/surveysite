@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 from django_resized import ResizedImageField
+from django.core.files import File
 import uuid
 
 class Anime(models.Model):
@@ -137,29 +138,43 @@ class Video(models.Model):
 
 
 
+def generate_unique_image_file_path(instance, filename):
+    return 'survey/images/anime/' + str(instance.anime.id) + '/' + filename
 
 class Image(models.Model):
-    def generate_unique_file_path(self):
-        return lambda instance, filename: 'images/' + str(uuid.uuid4()) + '.' + filename.split('.')[-1]
+    @staticmethod
+    def generate_unique_file_path(instance, filename):
+        return 'survey/images/anime/' + str(self.anime) + '/' + str(uuid.uuid4().split('-')[0]) + '.' + filename.split('.')[-1]
     
     # Fields
     name = models.CharField(
         max_length=20,
     )
-    file = ResizedImageField(
-        size=[300, 600],
-        force_format='JPEG',
-        quality=80,
-        upload_to=generate_unique_file_path,
+    file_small = models.ImageField(
+        editable=False,
+        null=True,
+        upload_to=generate_unique_image_file_path,
     )
+    file_medium = models.ImageField(
+        editable=False,
+        null=True,
+        upload_to=generate_unique_image_file_path,
+    )
+    file_large = models.ImageField(
+        upload_to=generate_unique_image_file_path,
+    )
+    # file = ResizedImageField(
+    #     size=[300, 600],
+    #     force_format='JPEG',
+    #     quality=80,
+    #     upload_to=generate_unique_file_path,
+    # )
 
     # Relation fields
     anime = models.ForeignKey(
         to='Anime',
         on_delete=models.CASCADE,
     )
-
-    
 
     def __str__(self):
         return str(self.anime) + ' - ' + self.name
