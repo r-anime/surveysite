@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if survey_list %}
-<div class="list-group">
+<div class="list-group mt-5">
     {% for survey in survey_list %}
     <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action {% if not survey.is_ongoing %}list-group-item-light{% endif %}">
         <div class="d-flex align-items-center">
@@ -22,10 +22,11 @@
             Vote on what your favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
             {% endif %}
             {% else %}
+            Anime of the season:<br>{{ survey.aots }}<br>
             {% if survey.is_preseason %}
-            Check out what people's expectations were of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
+            Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
             {% else %}
-            Check out what people's favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
+            Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
             {% endif %}
             {% endif %}
         </p>

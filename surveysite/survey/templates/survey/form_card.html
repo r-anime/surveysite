@@ -29,9 +29,9 @@
                 <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
                 <label class="form-check-label" for="{{ anime.id }}-watched">
                     {% if is_preseason %}
-                    Will watch?
+                    Will you watch this?
                     {% else %}
-                    Watched?
+                    Did you watch this?
                     {% endif %}
                 </label>
             </div>
@@ -39,14 +39,20 @@
             {% if not is_preseason and is_series %}
             <div class="form-group form-check">
                 <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
-                <label class="form-check-label" for="{{ anime.id }}-underwatched">Underwatched?</label>
+                <label class="form-check-label" for="{{ anime.id }}-underwatched">Did you find this underwatched?</label>
             </div>
             {% endif %}
 
             <div class="form-group">
-                <label for="{{ anime.id }}-score">Score</label>
+                <label for="{{ anime.id }}-score">
+                {% if is_preseason %}
+                How good will this be?
+                {% else %}
+                How was this?
+                {% endif %}
+                </label>
                 <select name="{{ anime.id }}-score" class="form-control">
-                    <option value=""></option>
+                    <option value="">-----</option>
                     <option value="5">5 - Great</option>
                     <option value="4">4</option>
                     <option value="3">3 - Average</option>
@@ -57,9 +63,9 @@
 
             {% if not is_preseason and is_series %}
             <div class="form-group">
-                <label for="{{ anime.id }}-expectations">Expectations</label>
+                <label for="{{ anime.id }}-expectations">Was this a surprise or disappointment?</label>
                 <select name="{{ anime.id }}-expectations" class="form-control">
-                    <option value=""></option>
+                    <option value="">Neither</option>
                     <option value="S">Surprise</option>
                     <option value="D">Disappointment</option>
                 </select>

@@ -1,11 +1,6 @@
 {% extends "survey/base.html" %}
 
-{% block content %}
-
-<h1>{{ survey }} Results!</h1>
-
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
+{% block head %}
 <script>
     function genericNumberFormatter(value, validFormatter) {
         switch (value) {
@@ -27,9 +22,17 @@
     }
 
     function scoreFormatter(value) {
-        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2) + '/5');
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2) + '<small>/5</small>');
     }
 </script>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-3">{{ survey }} Results!</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
 
 {% for table in table_list %}
 <h2>{{ table.title }}</h2>

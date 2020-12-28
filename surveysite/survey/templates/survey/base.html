@@ -20,10 +20,8 @@
     <!-- Load the following for BootstrapVueIcons support -->
     <script src="//unpkg.com/bootstrap-vue@2.21.1/dist/bootstrap-vue-icons.min.js"></script>
 
-    <style>
-    {% block style %}
-    {% endblock %}
-    </style>
+    {% block head %}
+    {% endblock head %}
 
     <title>{% block title %}/r/anime Surveys{% endblock %}</title>
 </head>
@@ -51,7 +49,7 @@
     </nav>
     <!-- end header -->
 
-    <div class="content container-md mb-5 mt-5">
+    <div class="content container-md mb-5">
         {% block content %}
         {% endblock %}
     </div>

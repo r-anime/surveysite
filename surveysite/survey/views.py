@@ -16,6 +16,21 @@ from .util import AnimeUtil
 # Index
 def index(request):
     survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
+
+    for survey in survey_queryset:
+        survey_response_queryset = Response.objects.filter(survey=survey)
+        animeresponse_queryset = AnimeResponse.objects.filter(response__in=survey_response_queryset, score__isnull=False)
+
+        aots = None
+        aots_score = -2
+        for anime in get_survey_anime(survey)[0]:
+            anime_score = animeresponse_queryset.filter(anime=anime).aggregate(Avg('score'))['score__avg'] or -1
+            if anime_score > aots_score:
+                aots = anime
+                aots_score = anime_score
+        
+        survey.aots = aots
+
     context = {
         'survey_list': survey_queryset,
         'username': get_username(request.user),
