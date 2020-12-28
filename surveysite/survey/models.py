@@ -7,6 +7,9 @@ from django.core.files import File
 import uuid
 
 class Anime(models.Model):
+    class Meta:
+        verbose_name_plural = "anime"
+
     # Enums
     class AnimeType(models.TextChoices):
         TV_SERIES    = 'TV',   _('TV series')
@@ -205,6 +208,10 @@ class Survey(models.Model):
 
 
 class SurveyAdditionRemoval(models.Model):
+    class Meta:
+        verbose_name = 'survey addition/removal'
+        verbose_name_plural = 'survey additions & removals'
+
     # Fields
     timestamp = models.DateTimeField(
         auto_now=True,
