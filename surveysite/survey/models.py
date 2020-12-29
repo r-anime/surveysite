@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
-from django_resized import ResizedImageField
 from django.core.files import File
 import uuid
 
@@ -166,12 +165,6 @@ class Image(models.Model):
     file_large = models.ImageField(
         upload_to=generate_unique_image_file_path,
     )
-    # file = ResizedImageField(
-    #     size=[300, 600],
-    #     force_format='JPEG',
-    #     quality=80,
-    #     upload_to=generate_unique_file_path,
-    # )
 
     # Relation fields
     anime = models.ForeignKey(
