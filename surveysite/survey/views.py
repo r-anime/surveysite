@@ -21,15 +21,14 @@ def index(request):
         survey_response_queryset = Response.objects.filter(survey=survey)
         animeresponse_queryset = AnimeResponse.objects.filter(response__in=survey_response_queryset, score__isnull=False)
 
-        aots = None
-        aots_score = -2
+        score_ranking = []
         for anime in get_survey_anime(survey)[0]:
             anime_score = animeresponse_queryset.filter(anime=anime).aggregate(Avg('score'))['score__avg'] or -1
-            if anime_score > aots_score:
-                aots = anime
-                aots_score = anime_score
+            score_ranking.append((anime, anime_score))
         
-        survey.aots = aots
+        score_ranking.sort(key=lambda item: item[1], reverse=True)
+        
+        survey.score_ranking = score_ranking
 
     context = {
         'survey_list': survey_queryset,

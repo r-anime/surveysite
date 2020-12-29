@@ -1,14 +1,10 @@
-{% load static %}
+{% load anime_util %}
 
 <div class="card">
     <div class="row no-gutters">
         <!-- Card image -->
         <div class="col-4" style="border-radius:3px;">
-            {% if anime.image_set.count %}{% with anime_image=anime.image_set.first %}
-            <img class="card-img" src="{{ anime_image.file_large.url }}" alt="{{ anime_image.name }}">
-            {% endwith %}{% else %}
-            <img class="card-img" src="{% static 'survey/image-unavailable.png' %}" alt="{{ anime }} visual">
-            {% endif %}
+            {% get_anime_image anime css_class='card-img' %}
         </div>
 
         <!-- Card info -->

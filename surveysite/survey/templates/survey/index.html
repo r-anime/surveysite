@@ -1,11 +1,12 @@
 {% extends "survey/base.html" %}
+{% load anime_util %}
 
 {% block content %}
 
 {% if survey_list %}
-<div class="list-group mt-5">
+<div class="list-group mt-5 ml-4 mr-4">
     {% for survey in survey_list %}
-    <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action {% if not survey.is_ongoing %}list-group-item-light{% endif %}">
+    <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action">
         <div class="d-flex align-items-center">
             <h5 class="mr-2 mb-1">{{ survey }}</h5>
             {% if survey.is_ongoing %}
@@ -22,12 +23,65 @@
             Vote on what your favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
             {% endif %}
             {% else %}
-            Anime of the season:<br>{{ survey.aots }}<br>
-            {% if survey.is_preseason %}
-            Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
-            {% else %}
-            Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
-            {% endif %}
+            <div class="row">
+                <div class="col-8">
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <b>#1</b>
+                        </div>
+                        <div class="col-2">
+                            {% get_anime_image survey.score_ranking.0.0 css_class='img-fluid' variant='s' %}
+                        </div>
+                        <div class="col-7">
+                            {{ survey.score_ranking.0.0 }}
+                        </div>
+                        <div class="col-2 text-right">
+                            <b>{{ survey.score_ranking.0.1|floatformat:2 }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <b>#2</b>
+                        </div>
+                        <div class="col-2">
+                            {% get_anime_image survey.score_ranking.1.0 css_class='img-fluid' variant='s' %}
+                        </div>
+                        <div class="col-7">
+                            {{ survey.score_ranking.1.0 }}
+                        </div>
+                        <div class="col-2 text-right">
+                            <b>{{ survey.score_ranking.1.1|floatformat:2 }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <b>#3</b>
+                        </div>
+                        <div class="col-2">
+                            {% get_anime_image survey.score_ranking.2.0 css_class='img-fluid' variant='s' %}
+                        </div>
+                        <div class="col-7">
+                            {{ survey.score_ranking.2.0 }}
+                        </div>
+                        <div class="col-2 text-right">
+                            <b>{{ survey.score_ranking.2.1|floatformat:2 }}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    {% if survey.is_preseason %}
+                    Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
+                    {% else %}
+                    Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
+                    {% endif %}
+                </div>
+            </div>
             {% endif %}
         </p>
     </a>
