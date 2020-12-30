@@ -1,4 +1,5 @@
 from django import template
+from ..models import Anime
 
 register = template.Library()
 
@@ -24,3 +25,11 @@ def get_anime_image(anime, css_class='', variant='l'):
         'image_alt': image_alt,
         'css_class': css_class,
     }
+
+@register.simple_tag
+def get_season_name(season_idx, start_with_capital=True):
+    season_name = Anime.AnimeSeason(season_idx).name
+    if start_with_capital:
+        return season_name[0] + season_name[1:].lower()
+    else:
+        return season_name.lower()

@@ -15,75 +15,78 @@
             <small class="text-muted">Finished</small>
             {% endif %}
         </div>
+        {% if survey.is_ongoing %}
         <p class="mb-1">
-            {% if survey.is_ongoing %}
             {% if survey.is_preseason %}
             Vote on your what you think will be the best anime of {{ survey.year }} Q{{ survey.season|add:1 }}!
             {% else %}
             Vote on what your favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
             {% endif %}
-            {% else %}
-            <div class="row">
-                <div class="col-8">
-                    <div class="row align-items-center">
-                        <div class="col-1">
-                            <b>#1</b>
-                        </div>
-                        <div class="col-2">
-                            {% get_anime_image survey.score_ranking.0.0 css_class='img-fluid' variant='s' %}
-                        </div>
-                        <div class="col-7">
-                            {{ survey.score_ranking.0.0 }}
-                        </div>
-                        <div class="col-2 text-right">
-                            <b>{{ survey.score_ranking.0.1|floatformat:2 }}</b>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="row align-items-center">
-                        <div class="col-1">
-                            <b>#2</b>
-                        </div>
-                        <div class="col-2">
-                            {% get_anime_image survey.score_ranking.1.0 css_class='img-fluid' variant='s' %}
-                        </div>
-                        <div class="col-7">
-                            {{ survey.score_ranking.1.0 }}
-                        </div>
-                        <div class="col-2 text-right">
-                            <b>{{ survey.score_ranking.1.1|floatformat:2 }}</b>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="row align-items-center">
-                        <div class="col-1">
-                            <b>#3</b>
-                        </div>
-                        <div class="col-2">
-                            {% get_anime_image survey.score_ranking.2.0 css_class='img-fluid' variant='s' %}
-                        </div>
-                        <div class="col-7">
-                            {{ survey.score_ranking.2.0 }}
-                        </div>
-                        <div class="col-2 text-right">
-                            <b>{{ survey.score_ranking.2.1|floatformat:2 }}</b>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    {% if survey.is_preseason %}
-                    Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
-                    {% else %}
-                    Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
         </p>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <h6>{% get_season_name survey.season %} {{ survey.year }}'s Best Anime!</h6>
+            </div>
+            <div class="col-8">
+                <div class="row align-items-center">
+                    <div class="col-1">
+                        <b>#1</b>
+                    </div>
+                    <div class="col-2">
+                        {% get_anime_image survey.score_ranking.0.0 css_class='img-fluid' variant='s' %}
+                    </div>
+                    <div class="col-7">
+                        {{ survey.score_ranking.0.0 }}
+                    </div>
+                    <div class="col-2 text-right">
+                        <b>{{ survey.score_ranking.0.1|floatformat:2 }}</b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="row align-items-center">
+                    <div class="col-1">
+                        <b>#2</b>
+                    </div>
+                    <div class="col-2">
+                        {% get_anime_image survey.score_ranking.1.0 css_class='img-fluid' variant='s' %}
+                    </div>
+                    <div class="col-7">
+                        {{ survey.score_ranking.1.0 }}
+                    </div>
+                    <div class="col-2 text-right">
+                        <b>{{ survey.score_ranking.1.1|floatformat:2 }}</b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="row align-items-center">
+                    <div class="col-1">
+                        <b>#3</b>
+                    </div>
+                    <div class="col-2">
+                        {% get_anime_image survey.score_ranking.2.0 css_class='img-fluid' variant='s' %}
+                    </div>
+                    <div class="col-7">
+                        {{ survey.score_ranking.2.0 }}
+                    </div>
+                    <div class="col-2 text-right">
+                        <b>{{ survey.score_ranking.2.1|floatformat:2 }}</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                {% if survey.is_preseason %}
+                Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
+                {% else %}
+                Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </a>
     {% endfor %}
 </div>
