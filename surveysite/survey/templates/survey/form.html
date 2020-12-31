@@ -9,24 +9,27 @@
 
 
 {% if survey.is_ongoing %}
-    <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
+<form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
-    <div class="form-group">
-        <label for="age">How old are you?</label>
-        <input class="form-control" type="number" name="age" label="age" min=10 max=80>
+    <div class="row">
+        <div class="col-4 form-group">
+            <label for="age">How old are you?</label>
+            <input class="form-control" type="number" name="age" label="age" min=10 max=80>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="gender">Which gender do you identify as?</label>
-        <select class="form-control" name="gender">
-            <option value=""></option>
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-            <option value="O">Other</option>
-        </select>
+    <div class="row">
+        <div class="col-4 form-group">
+            <label for="gender">Which gender do you identify as?</label>
+            <select class="form-control" name="gender">
+                <option value="">-----</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+        </div>
     </div>
-    <br>
 
 
 
@@ -60,14 +63,18 @@
     {% endif %}
     <br>
 
-    <input class="btn btn-primary" type="submit" value="Submit">
-    </form>
+    <div class="row justify-content-between">
+        <div class="col-auto">
+            <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index.</a>
+        </div>
+        <div class="col-auto">
+            <input class="btn btn-primary" type="submit" value="Submit">
+        </div>
+    </div>
+</form>
 
 {% else %}
-    <p>The survey is closed!</p>
+<p>The survey is closed!</p>
 {% endif %}
-
-<br>
-<a href="{% url 'survey:index' %}">Back to index.</a>
 
 {% endblock content %}

@@ -22,7 +22,7 @@
     }
 
     function scoreFormatter(value) {
-        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2) + '<small>/5</small>');
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2) + '/5');
     }
 </script>
 {% endblock %}
@@ -59,7 +59,12 @@
 {% endfor %}
 
 
-
-<a href="{% url 'survey:index' %}">Back to index.</a>
+<div class="row justify-content-between">
+    <div class="col-auto">
+        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index.</a>
+    </div>
+    <div class="col-auto">
+    </div>
+</div>
 
 {% endblock content %}

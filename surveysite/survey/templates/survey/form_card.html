@@ -44,16 +44,16 @@
                 {% if is_preseason %}
                 How good will this be?
                 {% else %}
-                How was this?
+                What did you think of this?
                 {% endif %}
                 </label>
                 <select name="{{ anime.id }}-score" class="form-control">
                     <option value="">-----</option>
-                    <option value="5">5 - Great</option>
-                    <option value="4">4</option>
-                    <option value="3">3 - Average</option>
-                    <option value="2">2</option>
-                    <option value="1">1 - Bad</option>
+                    <option value="5">5/5 - Great</option>
+                    <option value="4">4/5</option>
+                    <option value="3">3/5 - Average</option>
+                    <option value="2">2/5</option>
+                    <option value="1">1/5 - Bad</option>
                 </select>
             </div>
 
@@ -61,7 +61,7 @@
             <div class="form-group">
                 <label for="{{ anime.id }}-expectations">Was this a surprise or disappointment?</label>
                 <select name="{{ anime.id }}-expectations" class="form-control">
-                    <option value="">Neither</option>
+                    <option value="">Neither / no answer</option>
                     <option value="S">Surprise</option>
                     <option value="D">Disappointment</option>
                 </select>
