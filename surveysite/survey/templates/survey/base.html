@@ -28,25 +28,36 @@
 
 <body>
     <!-- header -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'survey:index' %}">/r/anime Seasonal Surveys</a>
-            {% if username %}
-            <div class="container-fluid justify-content-end">
-                <span class="navbar-text" style="padding-right:12px;">Authenticated as {{ username }}</span>
-                <form method="post" action="{% url 'logout' %}">
+    <b-navbar toggleable="md" type="light" variant="light" id="navbar">
+        <b-navbar-brand href="{% url 'survey:index' %}">/r/anime Seasonal Surveys</b-navbar-brand>
+
+        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+        <b-collapse id="nav-collapse" is-nav>
+            <b-navbar-nav class="ml-auto">
+                {% if username %}
+                <b-nav-text class="mr-3">
+                    Authenticated as {{ username }}
+                </b-nav-text>
+
+                <b-nav-form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <input type="hidden" name="next" id="logoutNext" value=""/>
-                    <button type="submit" class="btn btn-secondary">Log Out</button>
-                </form>
-            </div>
-            {% else %}
-            <a href="{% url 'login' %}" class="btn btn-primary">Log in</a>
-            {% endif %}
-            {% block navbar %}
-            {% endblock %}
-        </div>
-    </nav>
+                    <b-button size="md" type="submit" variant="secondary">Log Out</b-button>
+                </b-nav-form>
+
+                {% else %}
+
+                <b-nav-form method="get" action="{% url 'login' %}">
+                    <b-button size="md" type="submit" variant="primary">Log In</b-button>
+                </b-nav-form>
+                {% endif %}
+                
+                {% block navbar%}
+                {% endblock %}
+            </b-navbar-nav>
+        </b-collapse>
+    </b-navbar>
     <!-- end header -->
 
     <div class="content container-md mb-5">
@@ -64,10 +75,14 @@
     <!-- end footer -->
 
     <script>
-        const logoutButton = document.getElementById("logoutNext");
-        if (logoutButton) {
-            logoutButton.setAttribute("value", window.location.href);
+        const logoutNext = document.getElementById("logoutNext");
+        if (logoutNext) {
+            logoutNext.setAttribute("value", window.location.href);
         }
+
+        var app = new Vue({
+            el: '#navbar',
+        })
     </script>
 </body>
 </html>
