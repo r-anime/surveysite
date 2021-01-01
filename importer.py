@@ -78,13 +78,6 @@ def import_anime(file_path):
         english_name_str = split[1].strip()
 
         if japanese_name_str and not japanese_name_str.isspace():
-            # japanese_name = AnimeName(
-            #     anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME,
-            #     name=japanese_name_str,
-            #     official=True,
-            #     anime=anime,
-            # )
-            # japanese_name.save()
             animename_pair_list.append({
                 'anime_idx': counter,
                 'name': japanese_name_str,
@@ -92,13 +85,6 @@ def import_anime(file_path):
             })
 
         if english_name_str and not english_name_str.isspace():
-            # english_name = AnimeName(
-            #     anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME,
-            #     name=english_name_str,
-            #     official=True,
-            #     anime=anime,
-            # )
-            # english_name.save()
             animename_pair_list.append({
                 'anime_idx': counter,
                 'name': english_name_str,
@@ -114,10 +100,11 @@ def import_anime(file_path):
     if len(anime_list) > 0:
         Anime.objects.bulk_create(anime_list)
     
+    # This is why all the Anime objects need to be deleted first
+    # All Anime objects created before are cached and do not contain IDs, so they have I get all the anime from the DB again
     saved_anime_list = list(Anime.objects.all().order_by('id'))
-    for anime in saved_anime_list[:50]:
-        print('Anime "%s" id: %s' % (str(anime), anime.id))
     animename_list = [AnimeName(anime_name_type=pair['type'], name=pair['name'], official=True, anime=saved_anime_list[pair['anime_idx']]) for pair in animename_pair_list]
+
     while len(animename_list) > 0:
         AnimeName.objects.bulk_create(animename_list[:900])
         animename_list = animename_list[900:]
