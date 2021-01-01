@@ -28,7 +28,7 @@
 
 <body>
     <!-- header -->
-    <b-navbar toggleable="md" type="light" variant="light" id="navbar">
+    <b-navbar toggleable="md" type="light" variant="light" id="navbar" sticky>
         <b-navbar-brand href="{% url 'survey:index' %}">/r/anime Seasonal Surveys</b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -52,7 +52,7 @@
                     <b-button size="md" type="submit" variant="primary">Log In</b-button>
                 </b-nav-form>
                 {% endif %}
-                
+
                 {% block navbar%}
                 {% endblock %}
             </b-navbar-nav>
