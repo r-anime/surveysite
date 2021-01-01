@@ -2,11 +2,20 @@ from survey.models import Anime, AnimeName, Survey, Response, AnimeResponse
 from django.db.models import Q
 from datetime import datetime
 
-def perform(file_path):
+def import_anime(file_path):
+    a = Anime.objects.all()
+    answer = input('All Anime objects need to be deleted first, continue? (Y/N)')
+    if answer.lower() == 'y':
+        a.delete()
+    else:
+        return
+
     f = open(file_path, 'r', encoding='utf8')
     f.readline()
 
     anime_list = []
+    animename_pair_list = []
+    counter = 0
 
     for line in f:
         split = line.split('\t')
@@ -52,9 +61,6 @@ def perform(file_path):
         subbed_year, subbed_season = get_year_season(split[7])
 
         anime = Anime(
-            japanese_name=split[0],
-            english_name=split[1],
-            short_name='',
             anime_type=anime_type,
             flags=flags,
             note=split[8],
@@ -65,15 +71,56 @@ def perform(file_path):
             subbed_year=subbed_year,
             subbed_season=subbed_season,
         )
-
         anime_list.append(anime)
 
-        if len(anime_list) >= 900: # SQLite can only handle a max of 999 variables per query
+
+        japanese_name_str = split[0].strip()
+        english_name_str = split[1].strip()
+
+        if japanese_name_str and not japanese_name_str.isspace():
+            # japanese_name = AnimeName(
+            #     anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME,
+            #     name=japanese_name_str,
+            #     official=True,
+            #     anime=anime,
+            # )
+            # japanese_name.save()
+            animename_pair_list.append({
+                'anime_idx': counter,
+                'name': japanese_name_str,
+                'type': AnimeName.AnimeNameType.JAPANESE_NAME,
+            })
+
+        if english_name_str and not english_name_str.isspace():
+            # english_name = AnimeName(
+            #     anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME,
+            #     name=english_name_str,
+            #     official=True,
+            #     anime=anime,
+            # )
+            # english_name.save()
+            animename_pair_list.append({
+                'anime_idx': counter,
+                'name': english_name_str,
+                'type': AnimeName.AnimeNameType.ENGLISH_NAME,
+            })
+
+        if len(anime_list) > 800: # SQLite can only handle a max of 999 variables per query
             Anime.objects.bulk_create(anime_list)
             anime_list.clear()
+        
+        counter += 1
     
     if len(anime_list) > 0:
         Anime.objects.bulk_create(anime_list)
+    
+    saved_anime_list = list(Anime.objects.all().order_by('id'))
+    for anime in saved_anime_list[:50]:
+        print('Anime "%s" id: %s' % (str(anime), anime.id))
+    animename_list = [AnimeName(anime_name_type=pair['type'], name=pair['name'], official=True, anime=saved_anime_list[pair['anime_idx']]) for pair in animename_pair_list]
+    while len(animename_list) > 0:
+        AnimeName.objects.bulk_create(animename_list[:900])
+        animename_list = animename_list[900:]
 
 DEBUG = False
 def find_accompanying_anime(animename_str_list):
