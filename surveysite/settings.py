@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'zt&)dicxjf0t*=007cy&*708ku(de63@c_vh-ivw9f^*j$%z!7'
+SECRET_KEY = os.environ.get('WEBSITE_SECRET')
+REDDIT_OAUTH_SECRET = os.environ.get('WEBSITE_REDDIT_OAUTH_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,8 +47,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.reddit',
 ]
-
-SIDE_ID = 2
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +86,7 @@ SOCIALACCOUNT_PROVIDERS = {
     'reddit': {
         'APP': {
             'client_id': 'bItmnw61GhPTQw',
-            'secret': os.environ.get('WEBSITE_REDDIT_OAUTH_SECRET'),
+            'secret': REDDIT_OAUTH_SECRET,
             'key': '',
         },
         'SCOPE': ['identity'],
