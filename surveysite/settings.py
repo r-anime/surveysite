@@ -21,13 +21,16 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('WEBSITE_SECRET')
-REDDIT_OAUTH_SECRET = os.environ.get('WEBSITE_REDDIT_OAUTH_SECRET')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.environ.get('WEBSITE_SECRET')
 
-ALLOWED_HOSTS = []
+REDDIT_OAUTH_SECRET = os.environ.get('WEBSITE_REDDIT_OAUTH_SECRET')
+REDDIT_OAUTH_CLIENT_ID = os.environ.get('WEBSITE_REDDIT_OAUTH_CLIENT_ID')
+
+DEBUG = True if os.environ.get('WEBSITE_DEBUG') else False
+
+allowed_hosts_env = os.environ.get('WEBSITE_ALLOWED_HOSTS')
+ALLOWED_HOSTS = allowed_hosts_env.split(';') if allowed_hosts_env else []
 
 
 # Application definition
@@ -85,7 +88,7 @@ AUTHENTICATION_BACKENDS = [
 SOCIALACCOUNT_PROVIDERS = {
     'reddit': {
         'APP': {
-            'client_id': 'bItmnw61GhPTQw',
+            'client_id': REDDIT_OAUTH_CLIENT_ID,
             'secret': REDDIT_OAUTH_SECRET,
             'key': '',
         },
