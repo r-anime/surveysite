@@ -11,13 +11,15 @@ Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/
 
 ## Requirements
 
-* Python 3.6+
-* django_allauth 0.44.0
-* Django 3.1
-* Pillow 8.0.1
+* Python `3.6+`
+* django_allauth `0.44.0`
+* Django `3.1`
+* Pillow `8.0.1`
 
 ## Setup
 
-* Create the website's database: `python manage.py migrate`
+* Add a strong, secure secure [secret key](https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key) value as environment variable `WEBSITE_SECRET`.
+* Add the OAuth secret of the accompanying Reddit app as environment variable `WEBSITE_REDDIT_OAUTH_SECRET`.
+* Create the website's database: `python manage.py migrate`.
 * To the `django_site` table of the generated database, add your hostname.
-* Create a superuser for the website: `python manage.py createsuperuser`
+* Create a superuser for the website: `python manage.py createsuperuser`.
