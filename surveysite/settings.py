@@ -34,6 +34,7 @@ ALLOWED_HOSTS = allowed_hosts_env.split(';') if allowed_hosts_env else []
 
 use_https = True if os.environ.get('WEBSITE_USE_HTTPS') else False
 SESSION_COOKIE_SECURE = use_https
+CSRF_COOKIE_SECURE = use_https
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if use_https else 'http'
 
 
