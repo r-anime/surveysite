@@ -172,6 +172,12 @@ class Image(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def delete(self, *args, **kwargs):
+        for storage, path in [(f.storage, f.path) for f in [self.file_large, self.file_medium, self.file_small]]:
+            storage.delete(path)
+
+        super().delete(*args, **kwargs)
+
     def __str__(self):
         return str(self.anime) + ' - ' + self.name
 
