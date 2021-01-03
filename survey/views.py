@@ -137,7 +137,7 @@ def results(request, year, season, pre_or_post):
                 # Try to find index of next addition
                 while i < len(addition_removal_list) and not addition_removal_list[i].is_addition:
                     i += 1
-                addition_count = addition_removal_list[i] if i < len(addition_removal_list) else response_count
+                addition_count = addition_removal_list[i].response_count if i < len(addition_removal_list) else response_count
 
                 adjusted_response_count -= addition_count - removal_count
                 last_count = addition_count

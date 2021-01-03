@@ -219,6 +219,8 @@ class AnimeAdmin(admin.ModelAdmin):
             prev_survey_validity_list = self.get_survey_validity_list(prev_anime)
         else:
             prev_survey_validity_list = []
+            
+        super().save_model(request, anime, form, change)
         
         ongoing_survey_queryset = Survey.objects.filter(is_ongoing=True)
         for survey in ongoing_survey_queryset:
@@ -249,7 +251,6 @@ class AnimeAdmin(admin.ModelAdmin):
                 ).save()
                 print('Anime "%s" added to survey "%s" at %i responses' % (str(anime), str(survey), survey_response_count))
 
-        super().save_model(request, anime, form, change)
 
 
 class AnimeResponseInline(admin.TabularInline):
