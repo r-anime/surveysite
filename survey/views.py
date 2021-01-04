@@ -167,7 +167,7 @@ def results(request, year, season, pre_or_post):
         return {
             DataType.POPULARITY:              watcher_count / adjusted_response_count * 100.0 if adjusted_response_count > 0 else float('NaN'),
             DataType.GENDER_POPULARITY_RATIO: (male_anime_response_count / male_response_count) / (female_anime_response_count / female_response_count) if female_anime_response_count > 0 else float('inf'),
-            DataType.UNDERWATCHED:            responses_with_score.filter(underwatched=True).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
+            DataType.UNDERWATCHED:            responses_by_watchers.filter(underwatched=True).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
             DataType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
             DataType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
             DataType.SURPRISE:                responses_by_watchers.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
