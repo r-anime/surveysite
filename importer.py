@@ -1,6 +1,8 @@
-from survey.models import Anime, AnimeName, Survey, Response, AnimeResponse
+from survey.models import Anime, AnimeName, Survey, Response, AnimeResponse, SurveyAdditionRemoval
 from django.db.models import Q
 from datetime import datetime
+import re
+import os
 
 def import_anime(file_path):
     a = Anime.objects.all()
@@ -109,8 +111,75 @@ def import_anime(file_path):
         AnimeName.objects.bulk_create(animename_list[:900])
         animename_list = animename_list[900:]
 
+
+
+
+
+
+def add_multiple_surveys(folder_path):
+    # Reads multiple surveys from a folder
+    # File names have to be formatted the following way:
+    #   (yyyy)-(s)-(pre/post).tsv
+    #   (yyyy)-(s)-(pre/post)-anime.tsv
+    #   (yyyy)-(s)-(pre/post)-lateadds.tsv
+    # e.g. 2020-3-post.tsv for the post-summer 2020 survey
+
+    file_name_list = [file_name for file_name in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file_name))]
+    file_name_list.sort()
+    
+    while len(file_name_list) >= 2:
+        match_list = re.findall(r'^(\d{4})-([0123])-(pre|post)-anime\.tsv', file_name_list[0])
+        if match_list:
+            group_list = match_list[0] # Should only be 1 match, but multiple groups
+            year = int(group_list[0])
+            quarter = int(group_list[1])
+            is_preseason = group_list[2] == 'pre'
+
+            survey_anime_file_path = os.path.join(folder_path, file_name_list[0])
+            if len(file_name_list) >= 3 and file_name_list[1] == '%s-%s-%s-lateadds.tsv' % group_list:
+                survey_late_adds_file_path = os.path.join(folder_path, file_name_list[1])
+                survey_file_path = os.path.join(folder_path, file_name_list[2])
+                file_name_list = file_name_list[3:]
+            else:
+                survey_late_adds_file_path = None
+                survey_file_path = os.path.join(folder_path, file_name_list[1])
+                file_name_list = file_name_list[2:]
+            
+            print('Found survey %i Q%i %s' % (year, quarter+1, 'pre' if is_preseason else 'post'))
+
+            add_survey(survey_file_path, survey_anime_file_path, survey_late_adds_file_path, year, quarter, is_preseason)
+        else:
+            print('Could not match file: %s' % file_name_list[0])
+            file_name_list = file_name_list[1:]
+    
+    if file_name_list:
+        print('Could not import these files:', file_name_list)
+
+
+
+
+def get_anime_by_id():
+    answer = input('- Please type in an Anime ID or "N" to cancel')
+    if answer.isdigit():
+        try:
+            anime = Anime.objects.get(id=int(answer))
+        except:
+            return get_anime_by_id()
+
+        answer = input('- Is "%s" correct? (Y/N)' % str(anime))
+        if answer.lower() == 'y':
+            return anime
+        else:
+            return get_anime_by_id()
+
+    elif answer.lower() == 'n':
+        return None
+
+    else:
+        return get_anime_by_id()
+
 DEBUG = False
-def find_accompanying_anime(animename_str_list):
+def find_accompanying_anime(animename_str_list, is_series):
     animename_str_list = [animename_str.strip() for animename_str in animename_str_list]
     animename_str_list = [(animename_str if animename_str.find('(') < 0 else animename_str[:animename_str.find('(')].strip()) for animename_str in animename_str_list]
 
@@ -118,6 +187,14 @@ def find_accompanying_anime(animename_str_list):
     queryset_filter = Q(name__startswith=animename_str_list[0])
     for animename in animename_str_list[1:]:
         queryset_filter = queryset_filter | Q(name__startswith=animename)
+    
+    
+    anime_series_filter = Q(anime__anime_type=Anime.AnimeType.TV_SERIES) | Q(anime__anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime__anime_type=Anime.AnimeType.BULK_RELEASE)
+    special_anime_filter = ~anime_series_filter
+    if is_series:
+        queryset_filter = queryset_filter & anime_series_filter
+    else:
+        queryset_filter = queryset_filter & special_anime_filter
 
     animename_queryset = AnimeName.objects.filter(queryset_filter)
     anime_list = [i[0] for i in animename_queryset.values_list('anime')]
@@ -126,38 +203,28 @@ def find_accompanying_anime(animename_str_list):
     if DEBUG:
         anime_list = anime_list[:1]
 
-    if len(anime_list) == 1:
-        print('Found "%s"' % anime_list[0])
-        return anime_list[0]
-    elif len(anime_list) > 1:
-        print('Multiple matching anime found! Please pick one (or type IDxxx to manually type in an Anime ID):')
-        for i in range(len(anime_list)):
-            print('%i: %s' % (i, str(anime_list[i])))
-        answer = input()
-        try:
-            answer = int(answer)
-            print('Found "%s"' % anime_list[answer])
-            return anime_list[answer]
-        except ValueError:
-            answer = int(answer[2:])
-            anime = Anime.objects.get(id=answer)
-            print('Found "%s"' % anime)
-            return anime
-    else:
-        print('No matching anime found! Please type in an Anime ID or "N" to cancel')
-        if DEBUG:
-            answer = 'N'
-        else:
-            answer = input()
 
-        try:
+
+    if len(anime_list) == 1:
+        print('- Found "%s"' % anime_list[0])
+        return anime_list[0]
+
+    elif len(anime_list) > 1:
+        print('- Multiple matching anime found! Please pick one (or type "N" to search for an Anime by ID):')
+        for i in range(len(anime_list)):
+            print('- %i: %s' % (i, str(anime_list[i])))
+
+        answer = input()
+        if answer.isdigit():
             answer = int(answer)
-            anime = Anime.objects.get(id=answer)
-            print('Found "%s"' % anime)
-            return anime
-        except ValueError:
-            print('Returning None')
-            return None
+            print('- Selected "%s"' % anime_list[answer])
+            return anime_list[answer]
+        else:
+            return get_anime_by_id()
+
+    else:
+        print('- No matching anime found!')
+        return get_anime_by_id()
 
 # Converts e.g. what was originally a "watching" table cell into a list of Anime objects
 def parse_anime_strlist(anime_strlist, str_to_anime_map):
@@ -188,11 +255,19 @@ def parse_anime_strlist(anime_strlist, str_to_anime_map):
     
     return anime_list
 
-def add_survey(survey_file_path, survey_anime_file_path, year, quarter, is_preseason):
+def add_survey(survey_file_path, survey_anime_file_path, survey_late_adds_file_path, year, quarter, is_preseason):
     survey_queryset = Survey.objects.filter(year=year, season=quarter, is_preseason=is_preseason)
     if len(survey_queryset) > 0:
         survey = survey_queryset[0]
-        print('Found survey: "%s"' % survey)
+        print('Found pre-existing survey: "%s"' % str(survey))
+
+        answer = input('Delete this survey and continue? (Y/N)').lower()
+        while answer != 'y' and answer != 'n':
+            answer = input('Delete this survey and continue? (Y/N)').lower()
+        
+        if answer == 'n':
+            return
+
         deletion_count, deletion_dict = Response.objects.filter(survey=survey).delete()
         print('Deleted %i responses: %s' % (deletion_count, str(deletion_dict)))
     else:
@@ -219,15 +294,50 @@ def add_survey(survey_file_path, survey_anime_file_path, year, quarter, is_prese
         split = line.split('\t')
         series_str = split[0].strip()
         if series_str and not series_str.isspace():
-            anime_series = find_accompanying_anime(series_str.split(' | '))
+            anime_series = find_accompanying_anime(series_str.split(' | '), True)
             anime_series_map[series_str] = anime_series
         
         special_str = split[1].strip()
         if special_str and not special_str.isspace():
-            special_anime = find_accompanying_anime(special_str.split(' | '))
+            special_anime = find_accompanying_anime(special_str.split(' | '), False)
             special_anime_map[special_str] = special_anime
 
     
+    # +---------------+
+    # | GET LATE ADDS |
+    # +---------------+
+    if survey_late_adds_file_path:
+        print('Reading late adds')
+        fl = open(survey_late_adds_file_path, 'r', encoding='utf8')
+        fl.readline()
+
+        for line in fl:
+            split = line.split('\t')
+            anime_str_maybe = split[0].strip()
+            add_response_count_str_maybe = split[1].strip()
+            search_int = re.search(r'\d+', add_response_count_str_maybe)
+
+            if search_int:
+                add_response_count = int(search_int.group())
+                if anime_str_maybe in anime_series_map.keys():
+                    anime = anime_series_map[anime_str_maybe]
+                elif anime_str_maybe in special_anime_map.keys():
+                    anime = special_anime_map[anime_str_maybe]
+                else:
+                    continue
+                
+                if not anime:
+                    continue
+
+                sar = SurveyAdditionRemoval(
+                    anime=anime,
+                    is_addition=True,
+                    response_count=add_response_count,
+                    survey=survey,
+                )
+                sar.save()
+                print('Found late add: "%s" added at %i responses' % (str(anime), add_response_count))
+
     # +---------------------+
     # | READ SURVEY RESULTS |
     # +---------------------+
@@ -304,14 +414,14 @@ def add_survey(survey_file_path, survey_anime_file_path, year, quarter, is_prese
 
         # Get anime scores
         while headers[header_idx].startswith('How good '):
-            header = headers[header_idx]
+            header = headers[header_idx].strip()
 
             start = header.index('[')
             end = header.rindex(']')
             anime_str = header[start+1:end].strip()
             anime = anime_series_map[anime_str]
 
-            anime_score_str = split[header_idx]
+            anime_score_str = split[header_idx].strip()
             if anime and anime_score_str and not anime_score_str.isspace() and anime_score_str != 'N/A':
                 anime_score = int(anime_score_str[0])
                 animeresponse_map[anime].score = anime_score
@@ -320,14 +430,14 @@ def add_survey(survey_file_path, survey_anime_file_path, year, quarter, is_prese
         
         # Get surprises/disappointments
         while headers[header_idx].startswith('What are your '):
-            header = headers[header_idx]
+            header = headers[header_idx].strip()
 
             start = header.index('[')
             end = header.rindex(']')
-            anime_str = header[start+1:end]
-            anime = anime_series_map[anime_str].strip()
+            anime_str = header[start+1:end].strip()
+            anime = anime_series_map[anime_str]
 
-            expectations_str = split[header_idx]
+            expectations_str = split[header_idx].strip()
             if anime and expectations_str and not expectations_str.isspace() and expectations_str != 'N/A':
                 expectations = AnimeResponse.Expectations.SURPRISE if expectations_str == 'Surprise' else AnimeResponse.Expectations.DISAPPOINTMENT
                 animeresponse_map[anime].expectations = expectations
@@ -341,17 +451,18 @@ def add_survey(survey_file_path, survey_anime_file_path, year, quarter, is_prese
         for anime in watching_special_anime_list:
             animeresponse_map[anime].watching = True
         
-        
+        header_idx += 1
+
         # Get special anime scores
-        while headers[header_idx].startswith('How good '):
-            header = headers[header_idx]
+        while header_idx < len(headers) and headers[header_idx].startswith('How good '):
+            header = headers[header_idx].strip()
 
             start = header.index('[')
             end = header.rindex(']')
-            anime_str = header[start+1:end]
-            anime = special_anime_map[anime_str].strip()
+            anime_str = header[start+1:end].strip()
+            anime = special_anime_map[anime_str]
 
-            anime_score_str = split[header_idx]
+            anime_score_str = split[header_idx].strip()
             if anime and anime_score_str and not anime_score_str.isspace() and anime_score_str != 'N/A':
                 anime_score = int(anime_score_str[0])
                 animeresponse_map[anime].score = anime_score
