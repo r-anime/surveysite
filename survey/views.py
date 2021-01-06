@@ -80,6 +80,8 @@ def form(request, year, season, pre_or_post):
     return render(request, 'survey/form.html', context)
 
 def results(request, year, season, pre_or_post):
+    ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
+
     survey = get_survey_or_404(year, season, pre_or_post)
     # Only display results if the survey is not ongoing, or if the user is staff
     if survey.is_ongoing and not request.user.is_staff:
@@ -187,10 +189,13 @@ def results(request, year, season, pre_or_post):
     # | TABLE GENERATION FUNCTIONS |
     # +----------------------------+
     # Generate table data as a list of rows
-    def generate_table_data(anime_data, data_types_to_display):
+    def generate_table_data(anime_data, data_types_to_display, ignore_below_threshold):
         table_data = []
 
         for anime in anime_data.keys():
+            if ignore_below_threshold and anime_data[anime][DataType.POPULARITY] < ANIME_POPULARITY_THRESHOLD:
+                continue
+
             row = {"anime": str(anime)}
             for data_type in data_types_to_display:
                 row[data_type.name] = anime_data[anime][data_type]
@@ -198,7 +203,7 @@ def results(request, year, season, pre_or_post):
     
         return table_data
     
-    def generate_table(anime_data, table_name, data_types_to_display, data_type_to_sort_by=None, reverse_sort=True):
+    def generate_table(anime_data, table_name, data_types_to_display, data_type_to_sort_by=None, reverse_sort=True, ignore_below_threshold=True):
         if not data_type_to_sort_by:
             data_type_to_sort_by = data_types_to_display[0]
         
@@ -208,7 +213,7 @@ def results(request, year, season, pre_or_post):
             'columns': None,
         }
 
-        table_data = generate_table_data(anime_data, data_types_to_display)
+        table_data = generate_table_data(anime_data, data_types_to_display, ignore_below_threshold)
         
         table_data.sort(
             key=lambda row: float('-inf') if row[data_type_to_sort_by.name] == float('inf') or row[data_type_to_sort_by.name] != row[data_type_to_sort_by.name] else row[data_type_to_sort_by.name],
