@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib.messages import constants as message_constants
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -104,6 +105,15 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'primary',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'danger',
+}
+MESSAGE_LEVEL = message_constants.DEBUG if DEBUG else message_constants.INFO
 
 LOGIN_REDIRECT_URL = 'survey:index'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'survey:index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?

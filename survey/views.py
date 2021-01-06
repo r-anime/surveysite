@@ -3,6 +3,7 @@ from django.http import Http404 # HttpResponse
 from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 #from django.template import loader
 from datetime import datetime
 from enum import Enum, auto
@@ -364,6 +365,7 @@ def submit(request, year, season, pre_or_post):
         
         AnimeResponse.objects.bulk_create(anime_response_list)
         
+        messages.success(request, "Successfully filled in %s!" % str(survey))
         return redirect('survey:index')
     else:
         return redirect('survey:form', survey.year, survey.season, pre_or_post)

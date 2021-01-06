@@ -60,6 +60,19 @@
     </b-navbar>
     <!-- end header -->
 
+    <!-- messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <b-alert show dismissible fade variant="{{ message.tags }}" id="message-{{ forloop.counter0 }}">{{ message }}</b-alert>
+    <script>
+        var app = new Vue({
+            el: "#message-{{ forloop.counter0 }}",
+        })
+    </script>
+    {% endfor %}
+    {% endif %}
+    <!-- end messages -->
+
     <div class="content container-md mb-5">
         {% block content %}
         {% endblock %}
