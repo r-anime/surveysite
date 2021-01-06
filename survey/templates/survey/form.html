@@ -72,6 +72,14 @@
 
 {% else %}
 <p>The survey is closed!</p>
+
+<div class="row justify-content-between">
+    <div class="col-auto">
+        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index.</a>
+    </div>
+    <div class="col-auto">
+    </div>
+</div>
 {% endif %}
 
 {% endblock content %}
