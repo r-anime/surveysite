@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from django.db.models import Avg
 from django.shortcuts import redirect
+from django.core.cache import cache
 from enum import Enum
 from collections import OrderedDict
 import inspect
@@ -16,7 +17,7 @@ class ResultsView(TemplateView):
     http_method_names = ['get']
     context_object_name = 'survey'
 
-    def get_object(self):
+    def get_survey(self):
         return get_survey_or_404(
             year=self.kwargs['year'],
             season=self.kwargs['season'],
@@ -24,7 +25,7 @@ class ResultsView(TemplateView):
         )
     
     def get(self, request, *args, **kwargs):
-        survey = self.get_object()
+        survey = self.get_survey()
 
         # Only display results if the survey is not ongoing, or if the user is staff
         if survey.is_ongoing and not request.user.is_staff:
@@ -34,7 +35,21 @@ class ResultsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        survey = self.get_object()
+        survey = self.get_survey()
+
+        if survey.is_ongoing:
+            anime_series_data, special_anime_data = self.__get_anime_results_data()
+        else:
+            anime_series_data, special_anime_data = cache.get_or_set('survey-%i' % survey.id, self.__get_anime_results_data, version=1)
+
+        context['table_list'] = self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
+        context['username'] = get_username(self.request.user)
+        return context
+    
+
+
+    def __get_anime_results_data(self):
+        survey = self.get_survey()
 
         _, anime_series_list, special_anime_list = get_survey_anime(survey)
         animeresponse_queryset = AnimeResponse.objects.filter(response__survey=survey)
@@ -46,20 +61,14 @@ class ResultsView(TemplateView):
 
         # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
         anime_series_data = {
-            anime: self.get_data_for_anime(survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in anime_series_list
+            anime: self.__get_data_for_anime(survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in anime_series_list
         }
         special_anime_data = {
-            anime: self.get_data_for_anime(survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in special_anime_list
+            anime: self.__get_data_for_anime(survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in special_anime_list
         }
+        return anime_series_data, special_anime_data
 
-
-        context['table_list'] = self.generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
-        context['username'] = get_username(self.request.user)
-        return context
-    
-
-
-    def generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
+    def __generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
         popularity_table = ResultsTable('Most Popular Anime', anime_series_data)
         popularity_table.generate([ResultsType.POPULARITY])
         
@@ -102,7 +111,7 @@ class ResultsView(TemplateView):
                 special_popularity_table, special_score_table
             ]
 
-    def get_adjusted_response_count(self, addition_removal_list, response_count):
+    def __get_adjusted_response_count(self, addition_removal_list, response_count):
         i = 0
         last_count = 0
         adjusted_response_count = response_count
@@ -134,13 +143,13 @@ class ResultsView(TemplateView):
         return adjusted_response_count
 
     # Returns a dict of data values for an anime
-    def get_data_for_anime(self, survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count):
+    def __get_data_for_anime(self, survey, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count):
         responses_for_anime = animeresponse_queryset.filter(anime=anime)
         responses_by_watchers = responses_for_anime.filter(watching=True)
 
         # Adjust response count for this anime taking into account the times the anime was added/removed to the survey
         addition_removal_list = list(surveyadditionsremovals_queryset.filter(anime=anime))
-        adjusted_response_count = self.get_adjusted_response_count(addition_removal_list, response_count)
+        adjusted_response_count = self.__get_adjusted_response_count(addition_removal_list, response_count)
 
         # Amount of people watching
         watcher_count = responses_by_watchers.count()
