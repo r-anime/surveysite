@@ -10,22 +10,16 @@ from .util import SurveyUtil, get_username
 
 
 class ResultsView(TemplateView):
+    """Class-based results view."""
     ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
 
     template_name = 'survey/results.html'
     model = Survey
     http_method_names = ['get']
     context_object_name = 'survey'
-
-    def get_survey(self):
-        return SurveyUtil.get_survey_or_404(
-            year=self.kwargs['year'],
-            season=self.kwargs['season'],
-            pre_or_post=self.kwargs['pre_or_post'],
-        )
     
     def get(self, request, *args, **kwargs):
-        survey = self.get_survey()
+        survey = self.__get_survey()
 
         # Only display results if the survey is not ongoing, or if the user is staff
         if survey.is_ongoing and not request.user.is_staff:
@@ -35,7 +29,7 @@ class ResultsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        survey = self.get_survey()
+        survey = self.__get_survey()
 
         results_generator = ResultsGenerator(survey)
         if survey.is_ongoing:
@@ -46,7 +40,14 @@ class ResultsView(TemplateView):
         context['table_list'] = self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
         context['username'] = get_username(self.request.user)
         return context
-    
+
+
+    def __get_survey(self):
+        return SurveyUtil.get_survey_or_404(
+            year=self.kwargs['year'],
+            season=self.kwargs['season'],
+            pre_or_post=self.kwargs['pre_or_post'],
+        )
 
     def __generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
         popularity_table = ResultsTable('Most Popular Anime', anime_series_data)
@@ -94,15 +95,32 @@ class ResultsView(TemplateView):
 
 
 class ResultsGenerator:
+    """Class for generating survey results."""
+
     def __init__(self, survey):
+        """Creates a survey results generator.
+
+        Parameters
+        ----------
+        survey : Survey
+            The survey for which results have to be generated.
+        """
         self.survey = survey
 
     def get_anime_results_data(self):
+        """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
+
+        Returns
+        -------
+        ({Anime: {ResultsType: any}}, {Anime: {ResultsType: any}})
+            A dict for anime series and one for special anime, where each anime has an associated dict of result values.
+        """
         if self.survey.is_ongoing:
             return self.__get_anime_results_data_internal()
         else:
             return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=60*30)
 
+    # Please refactor this sometime
     def __get_anime_results_data_internal(self):
         survey = self.survey
 
@@ -187,6 +205,7 @@ class ResultsGenerator:
 
 
 class ResultsTable:
+    """Table with anime results"""
     ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
 
     def __init__(self, title, anime_data, ignore_anime_below_threshold=True):
@@ -271,6 +290,7 @@ class ResultsTable:
 
 
 class ResultsType(Enum):
+    """Enum representing all types of result values."""
     POPULARITY              = "Popularity"
     GENDER_POPULARITY_RATIO = "Gender Ratio (♂:♀)"
     UNDERWATCHED            = "Underwatched"

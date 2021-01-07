@@ -15,21 +15,11 @@ from .resultview import ResultsGenerator, ResultsType
 
 
 # ======= VIEWS =======
-# Index
 def index(request):
+    """Generates the index view, containing a list of current and past surveys."""
     survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
 
     for survey in survey_queryset:
-        # survey_response_queryset = Response.objects.filter(survey=survey)
-        # animeresponse_queryset = AnimeResponse.objects.filter(response__in=survey_response_queryset, score__isnull=False)
-
-        # score_ranking = []
-        # for anime in get_survey_anime(survey)[0]:
-        #     anime_score = animeresponse_queryset.filter(anime=anime).aggregate(Avg('score'))['score__avg'] or -1
-        #     score_ranking.append((anime, anime_score))
-        
-        # score_ranking.sort(key=lambda item: item[1], reverse=True)
-
         anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
         score_ranking = sorted(
             [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
@@ -47,16 +37,10 @@ def index(request):
     return render(request, 'survey/index.html', context)
 
 
-def reddit_check(user):
-    if not user.is_authenticated: return False
-
-    reddit_accounts = user.socialaccount_set.filter(provider='reddit')
-    return len(reddit_accounts) > 0
-
-
-#@user_passes_test(reddit_check)
+#@user_passes_test(__reddit_check)
 @login_required
 def form(request, year, season, pre_or_post):
+    """Generates the form view, where users can respond to a survey. Requires the user being logged in."""
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
     _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
 
@@ -80,24 +64,21 @@ def form(request, year, season, pre_or_post):
     }
     return render(request, 'survey/form.html', context)
 
-# https://www.reddit.com/wiki/api
-# https://django-allauth.readthedocs.io/en/latest/overview.html
-# https://tech.serhatteker.com/post/2020-06/custom-signup-view-in-django-allauth/
-# https://github.com/pennersr/django-allauth/tree/master/allauth/templates/account
 
-# POST requests will be sent here
-#@user_passes_test(reddit_check)
+#@user_passes_test(__reddit_check)
 @login_required
 def submit(request, year, season, pre_or_post):
+    """A view saving a user's response to a survey to a database, and redirecting them back to the index. Requires the user being logged in."""
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
+
     if request.method == 'POST' and survey.is_ongoing:
         anime_list, _, _ = SurveyUtil.get_survey_anime(survey)
 
         response = Response(
             survey=survey,
             timestamp=datetime.now(),
-            age=try_get_response(request, 'age', lambda x: int(x), 0),
-            gender=try_get_response(request, 'gender', lambda x: Response.Gender(x), ''),
+            age=__try_get_response(request, 'age', lambda x: int(x), 0),
+            gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x), ''),
         )
         response.save()
 
@@ -116,10 +97,10 @@ def submit(request, year, season, pre_or_post):
             anime_response = AnimeResponse(
                 response=response,
                 anime=anime,
-                watching=try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
-                score=try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
-                underwatched=try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
-                expectations=try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
+                watching=__try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
+                score=__try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
+                underwatched=__try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
+                expectations=__try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
             )
             anime_response_list.append(anime_response)
         
@@ -133,7 +114,26 @@ def submit(request, year, season, pre_or_post):
 
 
 # ======= HELPER METHODS =======
-def try_get_response(request, item, conversion=None, value_if_none=None):
+def __try_get_response(request, item, conversion=None, value_if_none=None):
+    """Tries to get the specified value of an item from the POST request.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The request sent by the user. Must be a POST request.
+    item : str
+        The item (key) you want to get the value of.
+    conversion : lambda, optional
+        Converts the item's value (if it exists), by default None (no conversion).
+    value_if_none : any, optional
+        Value that gets returned if the item or value doesn't exist or is empty, by default None.
+
+    Returns
+    -------
+    any
+        The value of the item.
+    """
+
     if item not in request.POST.keys() or request.POST[item] == '':
         return value_if_none
     else:
@@ -141,3 +141,11 @@ def try_get_response(request, item, conversion=None, value_if_none=None):
             return None
         else:
             return conversion(request.POST[item])
+
+# Forgot why I stopped using this
+def __reddit_check(user):
+    """Returns True if the user is authenticated via Reddit."""
+    if not user.is_authenticated: return False
+
+    reddit_accounts = user.socialaccount_set.filter(provider='reddit')
+    return len(reddit_accounts) > 0
