@@ -6,7 +6,7 @@ from enum import Enum
 from collections import OrderedDict
 import inspect
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval
-from .views import get_survey_or_404, get_username, get_survey_anime
+from .util import SurveyUtil, get_username
 
 
 class ResultsView(TemplateView):
@@ -18,7 +18,7 @@ class ResultsView(TemplateView):
     context_object_name = 'survey'
 
     def get_survey(self):
-        return get_survey_or_404(
+        return SurveyUtil.get_survey_or_404(
             year=self.kwargs['year'],
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
@@ -98,9 +98,15 @@ class ResultsGenerator:
         self.survey = survey
 
     def get_anime_results_data(self):
+        if self.survey.is_ongoing:
+            return self.__get_anime_results_data_internal()
+        else:
+            return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=60*30)
+
+    def __get_anime_results_data_internal(self):
         survey = self.survey
 
-        _, anime_series_list, special_anime_list = get_survey_anime(survey)
+        _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
         animeresponse_queryset = AnimeResponse.objects.filter(response__survey=survey)
         surveyadditionsremovals_queryset = SurveyAdditionRemoval.objects.filter(survey=survey)
 

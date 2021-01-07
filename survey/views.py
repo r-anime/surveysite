@@ -10,7 +10,8 @@ from enum import Enum, auto
 import allauth
 
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
-from .util import AnimeUtil
+from .util import AnimeUtil, SurveyUtil, get_username
+from .resultview import ResultsGenerator, ResultsType
 
 
 # ======= VIEWS =======
@@ -19,15 +20,22 @@ def index(request):
     survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
 
     for survey in survey_queryset:
-        survey_response_queryset = Response.objects.filter(survey=survey)
-        animeresponse_queryset = AnimeResponse.objects.filter(response__in=survey_response_queryset, score__isnull=False)
+        # survey_response_queryset = Response.objects.filter(survey=survey)
+        # animeresponse_queryset = AnimeResponse.objects.filter(response__in=survey_response_queryset, score__isnull=False)
 
-        score_ranking = []
-        for anime in get_survey_anime(survey)[0]:
-            anime_score = animeresponse_queryset.filter(anime=anime).aggregate(Avg('score'))['score__avg'] or -1
-            score_ranking.append((anime, anime_score))
+        # score_ranking = []
+        # for anime in get_survey_anime(survey)[0]:
+        #     anime_score = animeresponse_queryset.filter(anime=anime).aggregate(Avg('score'))['score__avg'] or -1
+        #     score_ranking.append((anime, anime_score))
         
-        score_ranking.sort(key=lambda item: item[1], reverse=True)
+        # score_ranking.sort(key=lambda item: item[1], reverse=True)
+
+        anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+        score_ranking = sorted(
+            [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
+            key=lambda item: item[1],
+            reverse=True,
+        )
         
         survey.score_ranking = score_ranking
 
@@ -45,20 +53,12 @@ def reddit_check(user):
     reddit_accounts = user.socialaccount_set.filter(provider='reddit')
     return len(reddit_accounts) > 0
 
-# Returns None if not authenticated
-def get_username(user):
-    if not user.is_authenticated: return None
-
-    if len(user.socialaccount_set.all()) > 0:
-        return user.socialaccount_set.all()[0].uid
-    else:
-        return user.username
 
 #@user_passes_test(reddit_check)
 @login_required
 def form(request, year, season, pre_or_post):
-    survey = get_survey_or_404(year, season, pre_or_post)
-    _, anime_series_list, special_anime_list = get_survey_anime(survey)
+    survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
+    _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
 
     def modify(anime):
         names = anime.animename_set.all()
@@ -89,9 +89,9 @@ def form(request, year, season, pre_or_post):
 #@user_passes_test(reddit_check)
 @login_required
 def submit(request, year, season, pre_or_post):
-    survey = get_survey_or_404(year, season, pre_or_post)
+    survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
     if request.method == 'POST' and survey.is_ongoing:
-        anime_list, _, _ = get_survey_anime(survey)
+        anime_list, _, _ = SurveyUtil.get_survey_anime(survey)
 
         response = Response(
             survey=survey,
@@ -133,49 +133,6 @@ def submit(request, year, season, pre_or_post):
 
 
 # ======= HELPER METHODS =======
-def get_survey_anime(survey):
-    current_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
-
-    anime_queryset = AnimeUtil.annotate_year_season(
-        Anime.objects
-    ).filter(
-        AnimeUtil.is_ongoing_filter_func(current_year_season)
-    )
-
-
-    anime_series_filter = AnimeUtil.anime_series_filter
-    special_anime_filter = AnimeUtil.special_anime_filter
-
-    # Special anime in pre-season surveys have to start in the survey's season and in post-season surveys have to end in that season,
-    # because I cba to track when/whether individual parts of irregularly-released stuff releases
-    if survey.is_preseason:
-        special_anime_filter = special_anime_filter & Q(start_year_season=current_year_season)
-    else:
-        special_anime_filter = special_anime_filter & Q(subbed_year_season=current_year_season)
-    
-    
-    anime_series_queryset = anime_queryset.filter(
-        anime_series_filter
-    )
-    special_anime_queryset = anime_queryset.filter(
-        special_anime_filter
-    )
-    combined_anime_queryset = anime_queryset.filter(
-        anime_series_filter | special_anime_filter
-    )
-    return combined_anime_queryset, anime_series_queryset, special_anime_queryset
-
-def get_survey_or_404(year, season, pre_or_post):
-    if pre_or_post == 'pre':
-        is_preseason = True
-    elif pre_or_post == 'post':
-        is_preseason = False
-    else:
-        raise Http404("Survey does not exist!")
-
-    survey = get_object_or_404(Survey, year=year, season=season, is_preseason=is_preseason)
-    return survey
-
 def try_get_response(request, item, conversion=None, value_if_none=None):
     if item not in request.POST.keys() or request.POST[item] == '':
         return value_if_none
