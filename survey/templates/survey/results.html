@@ -46,10 +46,10 @@
         el: '#results-table-{{ forloop.counter0 }}',
         data: {
             fields: [{% for column in table.columns %}{
-                    {% for key, value in column.items %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
+                    {% for key, value in column.as_keyvalue %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
                 }, {% endfor %}
             ],
-            items: [{% for row in table.data %}{
+            items: [{% for row in table.data.values %}{
                     {% for key, value in row.items %}{{ key }}: '{{ value|safe|escapejs }}', {% endfor %}
                 }, {% endfor %}
             ],
