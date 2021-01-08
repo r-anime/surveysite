@@ -28,62 +28,15 @@
             <div class="col-12">
                 <h6>{% get_season_name survey.season %} {{ survey.year }}'s Best Anime!</h6>
             </div>
+            {% for row in survey.score_ranking %}
             <div class="col-lg-8">
-                <div class="row align-items-center">
-                    <div class="col-1">
-                        <b>#1</b>
-                    </div>
-                    <div class="col-2">
-                        {% get_anime_image survey.score_ranking.0.0 css_class='img-fluid' variant='s' %}
-                    </div>
-                    <div class="col-7">
-                        {{ survey.score_ranking.0.0 }}
-                    </div>
-                    <div class="col-2 text-right">
-                        <b>{{ survey.score_ranking.0.1|floatformat:2 }}</b>
-                    </div>
-                </div>
+                {% include 'survey/index_ranking_row.html' with rank=forloop.counter anime=row.0 value=row.1|floatformat:2 only %}
             </div>
-            <div class="col-lg-8">
-                <div class="row align-items-center">
-                    <div class="col-1">
-                        <b>#2</b>
-                    </div>
-                    <div class="col-2">
-                        {% get_anime_image survey.score_ranking.1.0 css_class='img-fluid' variant='s' %}
-                    </div>
-                    <div class="col-7">
-                        {{ survey.score_ranking.1.0 }}
-                    </div>
-                    <div class="col-2 text-right">
-                        <b>{{ survey.score_ranking.1.1|floatformat:2 }}</b>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="row align-items-center">
-                    <div class="col-1">
-                        <b>#3</b>
-                    </div>
-                    <div class="col-2">
-                        {% get_anime_image survey.score_ranking.2.0 css_class='img-fluid' variant='s' %}
-                    </div>
-                    <div class="col-7">
-                        {{ survey.score_ranking.2.0 }}
-                    </div>
-                    <div class="col-2 text-right">
-                        <b>{{ survey.score_ranking.2.1|floatformat:2 }}</b>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         <div class="row mt-2">
             <div class="col-md-12">
-                {% if survey.is_preseason %}
-                Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }}'s anime!
-                {% else %}
-                Check out what else people thought of {{ survey.year }} Q{{ survey.season|add:1 }} were!
-                {% endif %}
+                Check out how well other anime did in {{ survey.year }} Q{{ survey.season|add:1 }}!
             </div>
         </div>
         {% endif %}

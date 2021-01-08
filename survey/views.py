@@ -20,14 +20,17 @@ def index(request):
     survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
 
     for survey in survey_queryset:
-        anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
-        score_ranking = sorted(
-            [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
-            key=lambda item: item[1],
-            reverse=True,
-        )
+        if survey.is_ongoing:
+            score_ranking = []
+        else:
+            anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+            score_ranking = sorted(
+                [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
+                key=lambda item: item[1],
+                reverse=True,
+            )
         
-        survey.score_ranking = score_ranking
+        survey.score_ranking = score_ranking[:3]
 
     context = {
         'survey_list': survey_queryset,
