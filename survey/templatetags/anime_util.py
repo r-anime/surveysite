@@ -1,5 +1,5 @@
 from django import template
-from ..models import Anime
+from ..models import Anime, AnimeName
 
 register = template.Library()
 
@@ -33,3 +33,16 @@ def get_season_name(season_idx, start_with_capital=True):
         return season_name[0] + season_name[1:].lower()
     else:
         return season_name.lower()
+
+@register.inclusion_tag('survey/anime_names.html')
+def get_official_names(anime, tag=None):
+    name_queryset = anime.animename_set.filter(official=True)
+    japanese_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
+    english_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
+    short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
+
+    anime_name_list = list(japanese_names) + list(english_names) + list(short_names)
+    return {
+        'anime_name_list': [name.name for name in anime_name_list],
+        'tag': tag,
+    }

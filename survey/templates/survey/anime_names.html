@@ -1,0 +1,5 @@
+{% for name in anime_name_list %}
+{% if tag %}<{{ tag }}>{% endif %}
+    {{ name }}{% if not tag %}<br>{% endif %}
+{% if tag %}</{{ tag }}>{% endif %}
+{% endfor %}
