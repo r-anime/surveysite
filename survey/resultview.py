@@ -14,9 +14,7 @@ class ResultsView(TemplateView):
     ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
 
     template_name = 'survey/results.html'
-    model = Survey
     http_method_names = ['get']
-    context_object_name = 'survey'
     
     def get(self, request, *args, **kwargs):
         survey = self.__get_survey()
@@ -39,6 +37,7 @@ class ResultsView(TemplateView):
 
         context['table_list'] = self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
         context['username'] = get_username(self.request.user)
+        context['survey'] = survey
         return context
 
 
