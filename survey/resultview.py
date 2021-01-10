@@ -65,11 +65,15 @@ class ResultsView(TemplateView):
         special_popularity_table = ResultsTable('Most Popular Anime OVAs/ONAs/Movies/Specials', special_anime_data)
         special_popularity_table.generate([ResultsType.POPULARITY])
 
+        age_table = ResultsTable('Average Age Per Viewer', anime_series_data)
+        age_table.generate([ResultsType.AGE])
+
         if is_preseason:
             return [
                 popularity_table, gender_popularity_ratio_table,
                 score_table, gender_score_difference_table,
-                special_popularity_table
+                age_table,
+                special_popularity_table,
             ]
         else:
             underwatched_table = ResultsTable('Most Underwatched Anime', anime_series_data)
@@ -88,7 +92,8 @@ class ResultsView(TemplateView):
                 popularity_table, gender_popularity_ratio_table, underwatched_table,
                 score_table, gender_score_difference_table,
                 surprise_table, disappointment_table,
-                special_popularity_table, special_score_table
+                age_table,
+                special_popularity_table, special_score_table,
             ]
     
 
@@ -169,6 +174,7 @@ class ResultsGenerator:
             ResultsType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
             ResultsType.SURPRISE:                responses_by_watchers.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
             ResultsType.DISAPPOINTMENT:          responses_by_watchers.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
+            ResultsType.AGE:                     responses_by_watchers.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
         }
 
     def __get_adjusted_response_count(self, addition_removal_list, response_count):
@@ -297,12 +303,13 @@ class ResultsType(Enum):
     GENDER_SCORE_DIFFERENCE = "Gender Score Difference (♂-♀)"
     SURPRISE                = "Surprise"
     DISAPPOINTMENT          = "Disappointment"
+    AGE                     = "Average Viewer Age"
     NAME                    = "Anime" # Only used to be able to sort by this column
 
     def get_formatter_name(self):
         if self is ResultsType.GENDER_POPULARITY_RATIO:
             return 'genderRatioFormatter'
-        elif self is ResultsType.SCORE or self is ResultsType.GENDER_SCORE_DIFFERENCE:
+        elif self is ResultsType.SCORE or self is ResultsType.GENDER_SCORE_DIFFERENCE or self is ResultsType.AGE:
             return 'scoreFormatter'
         else:
             return 'percentageFormatter'
