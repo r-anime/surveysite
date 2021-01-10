@@ -37,12 +37,12 @@
 
 
 {% for table in table_list %}
-<h2>{{ table.title }}</h2>
+<h2 class="mb-3">{{ table.title }}</h2>
 
-<div class="row mb-3">
-    <div class="col-4 text-center font-weight-bolder">
+<div class="row mb-3 justify-content-center">
+    <div class="col-md-4 col-8 text-center font-weight-bolder">
         {% with anime_list=table.data.keys|listify %}
-        <div class="row justify-content-center mb-3">
+        <div class="row justify-content-center mb-4">
             <div class="col-8">
                 {% get_anime_image anime_list.0 css_class='img-fluid' variant='l' %}
             </div>
@@ -74,7 +74,7 @@
         </div>
         {% endwith %}
     </div>
-    <div class="col" id="results-table-{{ forloop.counter0 }}">
+    <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
         <b-table-lite striped hover small bordered sticky-header="600px" :items="items" :fields="fields"></b-table>
     </div>
 </div>
