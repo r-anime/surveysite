@@ -33,7 +33,12 @@
 
 <h1 class="mb-3">{{ survey }} Results!</h1>
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<p>
+    Thanks everyone for filling in this survey! There were {{ response_count }} responses, and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
+</p>
+<p>{% for gender, value in gender_distribution.items %}
+{{ gender.name.lower|capfirst }}: {{ value|floatformat:1 }}%<br>
+{% endfor %}</p>
 
 
 {% for table in table_list %}

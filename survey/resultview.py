@@ -38,6 +38,16 @@ class ResultsView(TemplateView):
         context['table_list'] = self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
         context['username'] = get_username(self.request.user)
         context['survey'] = survey
+
+        survey_responses = Response.objects.filter(survey=survey)
+        response_count = survey_responses.count()
+        context['response_count'] = response_count
+        context['average_age'] = survey_responses.aggregate(avg_age=Avg('age'))['avg_age'] or float('NaN')
+        context['gender_distribution'] = OrderedDict([
+            (Response.Gender.MALE,   survey_responses.filter(gender=Response.Gender.MALE  ).count() / response_count * 100),
+            (Response.Gender.FEMALE, survey_responses.filter(gender=Response.Gender.FEMALE).count() / response_count * 100),
+            (Response.Gender.OTHER,  survey_responses.filter(gender=Response.Gender.OTHER ).count() / response_count * 100),
+        ])
         return context
 
 
