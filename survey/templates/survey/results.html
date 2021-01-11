@@ -27,18 +27,25 @@
         return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
 {% endblock %}
 
 {% block content %}
 
 <h1 class="mb-3">{{ survey }} Results!</h1>
 
-<p>
-    Thanks everyone for filling in this survey! There were {{ response_count }} responses, and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
-</p>
-<p>{% for gender, value in gender_distribution.items %}
-{{ gender.name.lower|capfirst }}: {{ value|floatformat:1 }}%<br>
-{% endfor %}</p>
+<div class="row">
+    <div class="col-8">
+        <p>
+            Thanks everyone for filling in this survey! There were {{ response_count }} responses,
+            and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
+        </p>
+    </div>
+    <div class="col-4">
+        <canvas id="gender-distribution-chart"></canvas>
+    </div>
+</div>
 
 
 {% for table in table_list %}
@@ -111,5 +118,42 @@
         }
     })
     {% endfor %}
+    
+    var ctx = document.getElementById('gender-distribution-chart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
+            datasets: [{
+                label: 'Percentage of responders',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [{% for value in gender_distribution.values %}{{ value|floatformat:1 }}, {% endfor %}],
+            }],
+        },
+        options: {
+            legend: {
+                display: false,
+            },
+            plugins: {
+                datalabels: {
+                    align: 'top',
+                    anchor: 'end',
+                    color: 'rgb(54, 162, 235)',
+                    formatter: function(value) {
+                        return value + '%';
+                    },
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        max: 100,
+                    },
+                }]
+            },
+        },
+    });
 </script>
 {% endblock content %}
