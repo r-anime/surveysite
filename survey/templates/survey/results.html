@@ -52,10 +52,10 @@
 <h2 class="mb-3">{{ table.title }}</h2>
 
 <div class="row mb-3 justify-content-center">
-    <div class="col-md-4 col-8 text-center font-weight-bolder">
+    <div class="col-md-4 col-8 text-center">
         {% with anime_list=table.data.keys|listify %}
         <div class="row justify-content-center mb-4">
-            <div class="col-8">
+            <div class="col-8 mb-2">
                 {% get_anime_image anime_list.0 css_class='img-fluid' variant='l' %}
             </div>
             <div class="col-12">
@@ -65,7 +65,7 @@
         <div class="row" style="font-size:75%;">
             <div class="col-6">
                 <div class="row justify-content-center">
-                    <div class="col-10">
+                    <div class="col-10 mb-1">
                         {% get_anime_image anime_list.1 css_class='img-fluid' variant='m' %}
                     </div>
                     <div class="col-12">
@@ -75,7 +75,7 @@
             </div>
             <div class="col-6">
                 <div class="row justify-content-center">
-                    <div class="col-10">
+                    <div class="col-10 mb-1">
                         {% get_anime_image anime_list.2 css_class='img-fluid' variant='m' %}
                     </div>
                     <div class="col-12">
