@@ -48,8 +48,9 @@
 </div>
 
 
-{% for table in table_list %}
-<h2 class="mb-3">{{ table.title }}</h2>
+{% for segment in segment_list %}
+{% with table=segment.table %}
+<h2 class="mb-3">{{ segment.title }}</h2>
 
 <div class="row mb-3 justify-content-center">
     <div class="col-md-4 col-8 text-center">
@@ -87,9 +88,11 @@
         {% endwith %}
     </div>
     <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
-        <b-table-lite striped hover small bordered sticky-header="600px" :items="items" :fields="fields"></b-table>
+        <b-table-lite striped hover small bordered sticky-header="400px" :items="items" :fields="fields"></b-table>
+        <!--<canvas id="results-chart-{{ forloop.counter0 }}"></canvas>-->
     </div>
 </div>
+{% endwith %}
 {% endfor %}
 
 
@@ -103,7 +106,9 @@
 
 
 <script>
-    {% for table in table_list %}
+    
+    {% for segment in segment_list %}
+    {% with table=segment.table %}
     var app = new Vue({
         el: '#results-table-{{ forloop.counter0 }}',
         data: {
@@ -117,10 +122,63 @@
             ],
         }
     })
+    {% endwith %}
     {% endfor %}
     
-    var ctx = document.getElementById('gender-distribution-chart').getContext('2d');
-    var chart = new Chart(ctx, {
+    /*
+    var results{{ forloop.counter0 }}Ctx = document.getElementById('results-chart-{{ forloop.counter0 }}');
+    var results{{ forloop.counter0 }}Chart = new Chart(results{{ forloop.counter0 }}Ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: [{% for anime in chart.anime %}'{{ anime|safe|escapejs }}', {% endfor %}],
+            datasets: [{
+                label: 'Value',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [{% for datum in chart.data %}{{ datum }}, {% endfor %}],
+            }],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        display: false,
+                    },
+                }],
+            },
+            legend: {
+                display: false,
+            },
+            plugins: {
+                datalabels: {
+                    //align: 'right',
+                    //anchor: 'end',
+                    //color: 'rgb(54, 162, 235)',
+                    //formatter: scoreFormatter,
+                    labels: {
+                        title: {
+                            align: 'right',
+                            anchor: 'start',
+                            color: 'black',
+                            formatter: function(value, context) {
+                                return context.chart.data.labels[context.dataIndex];
+                            },
+                        },
+                        value: {
+                            align: 'right',
+                            anchor: 'end',
+                            color: 'rgb(54, 162, 235)',
+                            formatter: scoreFormatter,
+                        },
+                    },
+                },
+            },
+        },
+    });
+    */
+    
+    var gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
+    var gdcChart = new Chart(gdcCtx, {
         type: 'bar',
         data: {
             labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
@@ -132,6 +190,7 @@
             }],
         },
         options: {
+            events: [],
             legend: {
                 display: false,
             },
@@ -148,6 +207,9 @@
             scales: {
                 yAxes: [{
                     ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        },
                         min: 0,
                         max: 100,
                     },
