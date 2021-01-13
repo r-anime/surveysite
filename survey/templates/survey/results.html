@@ -36,13 +36,16 @@
 <h1 class="mb-3">{{ survey }} Results!</h1>
 
 <div class="row">
-    <div class="col-8">
-        <p>
+    <div class="col-md-8">
+        <div class="row"><div class="col">
             Thanks everyone for filling in this survey! There were {{ response_count }} responses,
             and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
-        </p>
+        </div></div>
+        <div class="row mt-2"><div class="col">
+            <canvas id="age-distribution-chart"></canvas>
+        </div></div>
     </div>
-    <div class="col-4">
+    <div class="col-md-4">
         <canvas id="gender-distribution-chart"></canvas>
     </div>
 </div>
@@ -177,6 +180,9 @@
     });
     */
     
+    var distributionChartColor = 'rgb(54, 162, 235)';
+    var distributionChartDatalabelColor = 'rgb(96, 96, 96)';
+
     var gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
     var gdcChart = new Chart(gdcCtx, {
         type: 'bar',
@@ -184,13 +190,28 @@
             labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
             datasets: [{
                 label: 'Percentage of responders',
-                backgroundColor: 'rgb(54, 162, 235)',
-                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: distributionChartColor,
+                borderColor: distributionChartColor,
                 data: [{% for value in gender_distribution.values %}{{ value|floatformat:1 }}, {% endfor %}],
             }],
         },
         options: {
-            events: [],
+            title: {
+                display: true,
+                text: 'Gender Distribution',
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                        if (label) {
+                            label += ': ' + tooltipItem.yLabel + '%';
+                        }
+                        return label;
+                    },
+                },
+            },
             legend: {
                 display: false,
             },
@@ -198,7 +219,8 @@
                 datalabels: {
                     align: 'top',
                     anchor: 'end',
-                    color: 'rgb(54, 162, 235)',
+                    color: distributionChartDatalabelColor,
+                    offset: -2,
                     formatter: function(value) {
                         return value + '%';
                     },
@@ -212,6 +234,68 @@
                         },
                         min: 0,
                         max: 100,
+                    },
+                }]
+            },
+        },
+    });
+
+    var adcCtx = document.getElementById('age-distribution-chart').getContext('2d');
+    var adcChart = new Chart(adcCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for age in age_distribution.keys %}{{ age }}, {% endfor %}],
+            datasets: [{
+                label: 'Percentage of responders',
+                backgroundColor: distributionChartColor,
+                borderColor: distributionChartColor,
+                data: [{% for value in age_distribution.values %}{{ value|floatformat:2 }}, {% endfor %}],
+            }],
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Age Distribution',
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                        if (label) {
+                            label += ': ' + tooltipItem.yLabel + '%';
+                        }
+                        return label;
+                    },
+                },
+            },
+            legend: {
+                display: false,
+            },
+            plugins: {
+                datalabels: {
+                    align: 'top',
+                    anchor: 'end',
+                    color: distributionChartDatalabelColor,
+                    offset: -2,
+                    formatter: function(value, context) {
+                        if (context.dataIndex % 2 == 0 && value > 0.1) {
+                            return value + '%';
+                        }
+                        else {
+                            return '';
+                        }
+                    },
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        min: 0,
+                        max: Math.round({{ age_distribution_max }} * 1.1 + 0.5),
                     },
                 }]
             },

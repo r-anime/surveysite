@@ -51,6 +51,25 @@ class ResultsView(TemplateView):
             (Response.Gender.FEMALE, survey_responses.filter(gender=Response.Gender.FEMALE).count() / response_count * 100),
             (Response.Gender.OTHER,  survey_responses.filter(gender=Response.Gender.OTHER ).count() / response_count * 100),
         ])
+
+        age_distribution = [0]*81
+        age_list = survey_responses.filter(age__isnull=False, age__gt=0).values_list('age', flat=True)
+        age_count = len(age_list)
+        age_max = 0
+
+        for age in age_list:
+            if age > 0 and age <= 80:
+                age_distribution[int(age)] += 1
+        for i in range(len(age_distribution)):
+            age_distribution[i] /= age_count / 100.0
+            if age_distribution[i] > age_max:
+                age_max = age_distribution[i]
+        age_distribution = OrderedDict([
+            (idx, age_distribution[idx]) for idx in range(5, 81)
+        ])
+            
+        context['age_distribution'] = age_distribution
+        context['age_distribution_max'] = age_max
         return context
 
 
