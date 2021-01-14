@@ -5,7 +5,7 @@ from django.core.cache import cache
 from enum import Enum
 from collections import OrderedDict
 import inspect
-from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval
+from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
 from .util import SurveyUtil, get_username
 
 
@@ -309,32 +309,42 @@ class ResultsTable:
                 continue
             self.data[anime] = {}
 
-    def generate(self, ordered_datatype_list, datatype_to_sort_by=None, is_descending=True, display_rank=True):
-        self.__add_anime_column()
+    def generate(self, ordered_datatype_list, datatype_to_sort_by=None, is_descending=True, display_rank=False):
+        self.__add_name_column()
 
         for datatype in ordered_datatype_list:
             for anime in self.data.keys():
                 self.data[anime][datatype.name] = self.anime_data[anime][datatype]
+            css_class = 'text-right table-col-other'
             self.columns.append(ResultsTable.Column(
                 key=datatype.name,
                 label=datatype.value,
                 formatter=datatype.get_formatter_name(),
-                td_class='text-right',
-                th_class='text-right',
+                td_class=css_class,
+                th_class=css_class,
             ))
 
         if datatype_to_sort_by is None:
             datatype_to_sort_by = ordered_datatype_list[0]
         self.__sort(datatype_to_sort_by, is_descending, display_rank)
 
-    def __add_anime_column(self):
+    def __add_name_column(self):
         datatype = ResultsType.NAME
 
         for anime in self.data.keys():
-            self.data[anime][datatype.name] = str(anime)
+            name_queryset = anime.animename_set.filter(official=True)
+            japanese_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
+            english_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
+            short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
+
+            name_list = list(japanese_names) + list(english_names) + list(short_names)
+            self.data[anime][datatype.name] = [name.name for name in name_list]
+        css_class = 'table-col-name'
         self.columns.append(ResultsTable.Column(
             key=datatype.name,
             label=datatype.value,
+            td_class=css_class,
+            th_class=css_class,
         ))
 
     def __add_rank_column(self):

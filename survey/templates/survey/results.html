@@ -29,6 +29,26 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+<style>
+    /*th {
+        display: none;
+    }*/
+    .table-col-index {
+        width: 5%!important;
+    }
+    .table-col-image {
+        width: 15%!important;
+    }
+    .table-col-name {
+        width: auto!important;
+    }
+    .table-col-other {
+        width: 10%!important
+    }
+    td {
+        vertical-align: middle!important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -91,7 +111,19 @@
         {% endwith %}
     </div>
     <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
-        <b-table-lite striped hover small bordered sticky-header="400px" :items="items" :fields="fields"></b-table>
+        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+            <template #cell(index)="data">
+                #{$ data.index + 1 $}
+            </template>
+            <template #cell(image)="data">
+                <img :src="data.value" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div v-for="name in data.value">
+                    {$ name $}
+                </div>
+            </template>
+        </b-table>
         <!--<canvas id="results-chart-{{ forloop.counter0 }}"></canvas>-->
     </div>
 </div>
@@ -109,18 +141,19 @@
 
 
 <script>
-    
     {% for segment in segment_list %}
     {% with table=segment.table %}
     var app = new Vue({
         el: '#results-table-{{ forloop.counter0 }}',
+        delimiters: ['{$', '$}'],
         data: {
-            fields: [{% for column in table.columns %}{
+            fields: [{key: 'index', label: '', tdClass: 'table-col-index', thClass: 'table-col-index'}, {key: 'image', label: '', tdClass: 'table-col-image', thClass: 'table-col-image'}, {% for column in table.columns %}{
                     {% for key, value in column.as_keyvalue %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
                 }, {% endfor %}
             ],
-            items: [{% for row in table.data.values %}{
-                    {% for key, value in row.items %}{{ key }}: '{{ value|safe|escapejs }}', {% endfor %}
+            items: [{% for anime, row in table.data.items %}{
+                    image: '{% get_anime_image_url anime variant="m" %}',
+                    {% for key, value in row.items %}{{ key }}: {% if key == 'NAME' %}{{ value|safe }}{% else %}'{{ value|safe|escapejs }}'{% endif %}, {% endfor %}
                 }, {% endfor %}
             ],
         }
