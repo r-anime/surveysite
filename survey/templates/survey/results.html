@@ -72,6 +72,7 @@
 
 
 {% for segment in segment_list %}
+{% if segment.table %}
 {% with table=segment.table %}
 <h2 class="mb-3">{{ segment.title }}</h2>
 
@@ -127,6 +128,44 @@
     </div>
 </div>
 {% endwith %}
+
+{% else %}
+
+<h3 class="mb-3">{{ segment.title }}</h3>
+
+<div class="row mb-3 justify-content-center">
+    <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-0">
+        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+            <template #cell(index)="data">
+                #{$ data.index + 1 $}
+            </template>
+            <template #cell(image)="data">
+                <img :src="data.value" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div v-for="name in data.value">
+                    {$ name $}
+                </div>
+            </template>
+        </b-table>
+    </div>
+    <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-1">
+        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+            <template #cell(index)="data">
+                #{$ data.index + 1 $}
+            </template>
+            <template #cell(image)="data">
+                <img :src="data.value" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div v-for="name in data.value">
+                    {$ name $}
+                </div>
+            </template>
+        </b-table>
+    </div>
+</div>
+{% endif %}
 {% endfor %}
 
 
@@ -141,6 +180,7 @@
 
 <script>
     {% for segment in segment_list %}
+    {% if segment.table %}
     {% with table=segment.table %}
     var app = new Vue({
         el: '#results-table-{{ forloop.counter0 }}',
@@ -158,6 +198,27 @@
         }
     })
     {% endwith %}
+    {% else %}
+    {% with table_list=segment.table_list segment_idx=forloop.counter0 %}
+    {% for table in table_list %}
+    var app = new Vue({
+        el: '#results-table-{{ segment_idx }}-{{ forloop.counter0 }}',
+        delimiters: ['{$', '$}'],
+        data: {
+            fields: [{key: 'index', label: '', tdClass: 'table-col-index', thClass: 'table-col-index'}, {key: 'image', label: '', tdClass: 'table-col-image', thClass: 'table-col-image'}, {% for column in table.columns %}{
+                    {% for key, value in column.as_keyvalue %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
+                }, {% endfor %}
+            ],
+            items: [{% for anime, row in table.data.items %}{
+                    image: '{% get_anime_image_url anime variant="m" %}',
+                    {% for key, value in row.items %}{{ key }}: {% if key == 'NAME' %}{{ value|safe }}{% else %}'{{ value|safe|escapejs }}'{% endif %}, {% endfor %}
+                }, {% endfor %}
+            ],
+        }
+    })
+    {% endfor %}
+    {% endwith %}
+    {% endif %}
     {% endfor %}
 
 
