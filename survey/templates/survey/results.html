@@ -124,7 +124,6 @@
                 </div>
             </template>
         </b-table>
-        <!--<canvas id="results-chart-{{ forloop.counter0 }}"></canvas>-->
     </div>
 </div>
 {% endwith %}
@@ -160,59 +159,8 @@
     })
     {% endwith %}
     {% endfor %}
-    
-    /*
-    var results{{ forloop.counter0 }}Ctx = document.getElementById('results-chart-{{ forloop.counter0 }}');
-    var results{{ forloop.counter0 }}Chart = new Chart(results{{ forloop.counter0 }}Ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: [{% for anime in chart.anime %}'{{ anime|safe|escapejs }}', {% endfor %}],
-            datasets: [{
-                label: 'Value',
-                backgroundColor: 'rgb(54, 162, 235)',
-                borderColor: 'rgb(54, 162, 235)',
-                data: [{% for datum in chart.data %}{{ datum }}, {% endfor %}],
-            }],
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        display: false,
-                    },
-                }],
-            },
-            legend: {
-                display: false,
-            },
-            plugins: {
-                datalabels: {
-                    //align: 'right',
-                    //anchor: 'end',
-                    //color: 'rgb(54, 162, 235)',
-                    //formatter: scoreFormatter,
-                    labels: {
-                        title: {
-                            align: 'right',
-                            anchor: 'start',
-                            color: 'black',
-                            formatter: function(value, context) {
-                                return context.chart.data.labels[context.dataIndex];
-                            },
-                        },
-                        value: {
-                            align: 'right',
-                            anchor: 'end',
-                            color: 'rgb(54, 162, 235)',
-                            formatter: scoreFormatter,
-                        },
-                    },
-                },
-            },
-        },
-    });
-    */
-    
+
+
     var distributionChartColor = 'rgb(54, 162, 235)';
     var distributionChartDatalabelColor = 'rgb(96, 96, 96)';
 

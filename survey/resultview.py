@@ -83,34 +83,22 @@ class ResultsView(TemplateView):
     def __generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
         popularity_table = ResultsTable('Most Popular Anime', anime_series_data)
         popularity_table.generate([ResultsType.POPULARITY])
-        # popularity_chart = ResultsChart(anime_series_data)
-        # popularity_chart.generate(ResultsType.POPULARITY)
-        
+
         gender_popularity_ratio_table = ResultsTable('Biggest Gender Popularity Disparity', anime_series_data)
         gender_popularity_ratio_table.generate([ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY])
-        # gender_popularity_ratio_chart = ResultsChart(anime_series_data)
-        # gender_popularity_ratio_chart.generate(ResultsType.GENDER_POPULARITY_RATIO)
 
 
         score_table = ResultsTable('Most Anticipated Anime' if is_preseason else 'Best Anime of the Season', anime_series_data)
         score_table.generate([ResultsType.SCORE])
-        # score_chart = ResultsChart(anime_series_data)
-        # score_chart.generate(ResultsType.SCORE)
 
         gender_score_difference_table = ResultsTable('Biggest Gender Score Disparity', anime_series_data)
         gender_score_difference_table.generate([ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE])
-        # gender_score_difference_chart = ResultsChart(anime_series_data)
-        # gender_score_difference_chart.generate(ResultsType.GENDER_SCORE_DIFFERENCE)
         
         special_popularity_table = ResultsTable('Most Popular Anime OVAs/ONAs/Movies/Specials', special_anime_data)
         special_popularity_table.generate([ResultsType.POPULARITY])
-        # special_popularity_chart = ResultsChart(special_anime_data)
-        # special_popularity_chart.generate(ResultsType.POPULARITY)
 
         age_table = ResultsTable('Average Age Per Viewer', anime_series_data)
         age_table.generate([ResultsType.AGE])
-        # age_chart = ResultsChart(anime_series_data)
-        # age_chart.generate(ResultsType.AGE)
 
         if is_preseason:
             return [
@@ -118,32 +106,19 @@ class ResultsView(TemplateView):
                 score_table, gender_score_difference_table,
                 age_table,
                 special_popularity_table,
-            ]#, [
-            #     popularity_chart, gender_popularity_ratio_chart,
-            #     score_chart, gender_score_difference_chart,
-            #     age_chart,
-            #     special_popularity_chart,
-            # ]
+            ]
         else:
             underwatched_table = ResultsTable('Most Underwatched Anime', anime_series_data)
             underwatched_table.generate([ResultsType.UNDERWATCHED, ResultsType.POPULARITY])
-            # underwatched_chart = ResultsChart(anime_series_data)
-            # underwatched_chart.generate(ResultsType.UNDERWATCHED)
 
             surprise_table = ResultsTable('Most Surprising Anime', anime_series_data)
             surprise_table.generate([ResultsType.SURPRISE, ResultsType.SCORE])
-            # surprise_chart = ResultsChart(anime_series_data)
-            # surprise_chart.generate(ResultsType.SURPRISE)
 
             disappointment_table = ResultsTable('Most Disappointing Anime', anime_series_data)
             disappointment_table.generate([ResultsType.DISAPPOINTMENT, ResultsType.SCORE])
-            # disappointment_chart = ResultsChart(anime_series_data)
-            # disappointment_chart.generate(ResultsType.DISAPPOINTMENT)
 
             special_score_table = ResultsTable('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', special_anime_data)
             special_score_table.generate([ResultsType.SCORE])
-            # special_score_chart = ResultsChart(special_anime_data)
-            # special_score_chart.generate(ResultsType.SCORE)
 
             return [
                 popularity_table, gender_popularity_ratio_table, underwatched_table,
@@ -151,13 +126,7 @@ class ResultsView(TemplateView):
                 surprise_table, disappointment_table,
                 age_table,
                 special_popularity_table, special_score_table,
-            ]#, [
-            #     popularity_chart, gender_popularity_ratio_chart, underwatched_chart,
-            #     score_chart, gender_score_difference_chart,
-            #     surprise_chart, disappointment_chart,
-            #     age_chart,
-            #     special_popularity_chart, special_score_chart,
-            # ]
+            ]
     
 
 
@@ -272,27 +241,6 @@ class ResultsGenerator:
         return adjusted_response_count
 
 
-
-class ResultsChart:
-    """Chart with anime results."""
-    ANIME_POPULARITY_THRESHOLD = 2.0
-
-    def __init__(self, anime_data, ignore_anime_below_threshold=True):
-        self.anime_data = anime_data
-        self.anime = []
-        self.data = []
-        self.ignore_anime_below_threshold = ignore_anime_below_threshold
-
-    def generate(self, datatype_to_display, is_descending=True):
-        items = []
-        for anime in self.anime_data.keys():
-            if self.ignore_anime_below_threshold and self.anime_data[anime][ResultsType.POPULARITY] < self.ANIME_POPULARITY_THRESHOLD:
-                continue
-
-            items.append((anime, self.anime_data[anime][datatype_to_display]))
-
-        items.sort(key=lambda item: item[1], reverse=is_descending)
-        self.anime, self.data = zip(*items)
 
 class ResultsTable:
     """Table with anime results."""
