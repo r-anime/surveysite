@@ -77,7 +77,7 @@
 <h2 class="mb-3">{{ segment.title }}</h2>
 
 <div class="row mb-3 justify-content-center">
-    <div class="col-md-4 col-8 text-center">
+    <div class="col-md-5 col-8 text-center">
         {% with anime_list=table.data.keys|listify %}
         <div class="row justify-content-center mb-4">
             <div class="col-8 mb-2">
@@ -112,7 +112,7 @@
         {% endwith %}
     </div>
     <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
-        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+        <b-table-lite hover small borderless :items="items" :fields="fields">
             <template #cell(index)="data">
                 #{$ data.index + 1 $}
             </template>
@@ -135,7 +135,7 @@
 
 <div class="row mb-3 justify-content-center">
     <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-0">
-        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+        <b-table-lite hover small borderless :items="items" :fields="fields">
             <template #cell(index)="data">
                 #{$ data.index + 1 $}
             </template>
@@ -150,7 +150,7 @@
         </b-table>
     </div>
     <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-1">
-        <b-table-lite hover small borderless sticky-header="400px" :items="items" :fields="fields">
+        <b-table-lite hover small borderless :items="items" :fields="fields">
             <template #cell(index)="data">
                 #{$ data.index + 1 $}
             </template>
