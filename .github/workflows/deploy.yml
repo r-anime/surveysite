@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Start SSH agent
-      uses: webfactory/ssh-agent@v0.4.0
+      uses: webfactory/ssh-agent@v0.4.1
       with:
         ssh-private-key: ${{ secrets.SURVEYSITE_SSH_KEY }}
     - name: Pull latest changes to server
