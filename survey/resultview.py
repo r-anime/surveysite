@@ -5,6 +5,7 @@ from django.core.cache import cache
 from enum import Enum
 from collections import OrderedDict
 import inspect
+import json
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
 from .util import SurveyUtil, get_username
 
@@ -82,27 +83,27 @@ class ResultsView(TemplateView):
 
     def __generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
         popularity_table = ResultsTable('Most Popular Anime', anime_series_data)
-        popularity_table.generate([ResultsType.POPULARITY], row_count=10)
+        popularity_table.generate(ResultsType.POPULARITY, row_count=10)
 
         gender_popularity_ratio_table = ResultsTable('Biggest Gender Popularity Disparity', anime_series_data)
-        gender_popularity_ratio_table.generate([ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY], row_count=3)
+        gender_popularity_ratio_table.generate(ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3)
         gender_popularity_ratio_table_inv = ResultsTable('Biggest Gender Popularity Disparity', anime_series_data)
-        gender_popularity_ratio_table_inv.generate([ResultsType.GENDER_POPULARITY_RATIO_INV, ResultsType.POPULARITY], row_count=3)
+        gender_popularity_ratio_table_inv.generate(ResultsType.GENDER_POPULARITY_RATIO_INV, ResultsType.POPULARITY, row_count=3)
 
 
         score_table = ResultsTable('Most Anticipated Anime' if is_preseason else 'Best Anime of the Season', anime_series_data)
-        score_table.generate([ResultsType.SCORE], row_count=10)
+        score_table.generate(ResultsType.SCORE, row_count=10)
 
         gender_score_difference_table = ResultsTable('Biggest Gender Score Disparity', anime_series_data)
-        gender_score_difference_table.generate([ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE], row_count=3)
+        gender_score_difference_table.generate(ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3)
         gender_score_difference_table_inv = ResultsTable('Biggest Gender Score Disparity', anime_series_data)
-        gender_score_difference_table_inv.generate([ResultsType.GENDER_SCORE_DIFFERENCE_INV, ResultsType.SCORE], row_count=3)
+        gender_score_difference_table_inv.generate(ResultsType.GENDER_SCORE_DIFFERENCE_INV, ResultsType.SCORE, row_count=3)
         
         special_popularity_table = ResultsTable('Most Popular Anime OVAs/ONAs/Movies/Specials', special_anime_data)
-        special_popularity_table.generate([ResultsType.POPULARITY], row_count=5)
+        special_popularity_table.generate(ResultsType.POPULARITY, row_count=5)
 
         age_table = ResultsTable('Average Age Per Viewer', anime_series_data)
-        age_table.generate([ResultsType.AGE], row_count=5)
+        age_table.generate(ResultsType.AGE, row_count=5)
 
         if is_preseason:
             return [
@@ -113,16 +114,16 @@ class ResultsView(TemplateView):
             ]
         else:
             underwatched_table = ResultsTable('Most Underwatched Anime', anime_series_data)
-            underwatched_table.generate([ResultsType.UNDERWATCHED, ResultsType.POPULARITY], row_count=5)
+            underwatched_table.generate(ResultsType.UNDERWATCHED, ResultsType.POPULARITY, row_count=5)
 
             surprise_table = ResultsTable('Most Surprising Anime', anime_series_data)
-            surprise_table.generate([ResultsType.SURPRISE, ResultsType.SCORE], row_count=5)
+            surprise_table.generate(ResultsType.SURPRISE, ResultsType.SCORE, row_count=5)
 
             disappointment_table = ResultsTable('Most Disappointing Anime', anime_series_data)
-            disappointment_table.generate([ResultsType.DISAPPOINTMENT, ResultsType.SCORE], row_count=5)
+            disappointment_table.generate(ResultsType.DISAPPOINTMENT, ResultsType.SCORE, row_count=5)
 
             special_score_table = ResultsTable('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', special_anime_data)
-            special_score_table.generate([ResultsType.SCORE], row_count=5)
+            special_score_table.generate(ResultsType.SCORE, row_count=5)
 
             return [
                 popularity_table, [gender_popularity_ratio_table, gender_popularity_ratio_table_inv], underwatched_table,
@@ -265,30 +266,53 @@ class ResultsTable:
                 continue
             self.data[anime] = {}
 
-    def generate(self, ordered_datatype_list, datatype_to_sort_by=None, is_descending=True, display_rank=False, row_count=0):
-        self.__add_name_column()
+    def generate(self, datatype, extra_datatype=None, is_descending=True, row_count=0):
+        image_css_class = 'table-col-image-small' if datatype in [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.GENDER_POPULARITY_RATIO_INV, ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.GENDER_SCORE_DIFFERENCE_INV] else 'table-col-image'
+        self.columns.append(ResultsTable.Column(
+            key='image',
+            label='',
+            td_class=image_css_class,
+            th_class=image_css_class,
+        ))
 
-        for datatype in ordered_datatype_list:
-            for anime in self.data.keys():
-                self.data[anime][datatype.name] = self.anime_data[anime][datatype]
-            css_class = 'text-right table-col-other'
+        self.__add_name_column()
+        value_key = 'value'
+        extra_key = 'extra'
+        css_class = 'text-right table-col-other'
+
+        for anime in self.data.keys():
+            self.data[anime][value_key] = self.anime_data[anime][datatype]
+
+            if extra_datatype:
+                self.data[anime]['extra'] = self.anime_data[anime][extra_datatype]
+        
+        self.columns.append(ResultsTable.Column(
+            key=value_key,
+            label=datatype.value,
+            formatter=datatype.get_formatter_name(),
+            td_class=css_class,
+            th_class=css_class,
+        ))
+
+        if extra_datatype:
             self.columns.append(ResultsTable.Column(
-                key=datatype.name,
-                label=datatype.value,
+                key=extra_key,
+                label=extra_datatype.value,
                 formatter=datatype.get_formatter_name(),
                 td_class=css_class,
                 th_class=css_class,
             ))
 
-        if datatype_to_sort_by is None:
-            datatype_to_sort_by = ordered_datatype_list[0]
-        self.__sort(datatype_to_sort_by, is_descending, display_rank)
+        self.__sort(value_key, is_descending, True)
         if row_count:
             self.__limit_rows(row_count)
 
+        self.__add_progressbar_width(datatype)
+
 
     def __add_name_column(self):
-        datatype = ResultsType.NAME
+        key = 'name'
+        label = 'Anime'
 
         for anime in self.data.keys():
             name_queryset = anime.animename_set.filter(official=True)
@@ -297,11 +321,11 @@ class ResultsTable:
             short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
 
             name_list = list(japanese_names) + list(english_names) + list(short_names)
-            self.data[anime][datatype.name] = [name.name for name in name_list]
+            self.data[anime][key] = [name.name for name in name_list]
         css_class = 'table-col-name'
         self.columns.append(ResultsTable.Column(
-            key=datatype.name,
-            label=datatype.value,
+            key=key,
+            label=label,
             td_class=css_class,
             th_class=css_class,
         ))
@@ -312,14 +336,17 @@ class ResultsTable:
             row['rank'] = i
             i += 1
         
+        css_class = 'table-col-index'
         self.columns.insert(0, ResultsTable.Column(
             key='rank',
-            label='#'
+            label='',
+            td_class=css_class,
+            th_class=css_class,
         ))
 
-    def __sort(self, datatype_to_sort_by, is_descending, display_rank):
+    def __sort(self, key, is_descending, display_rank):
         def get_sort_key(item):
-            value = item[1][datatype_to_sort_by.name]
+            value = item[1][key]
             if value == float('inf') or value != value:
                 return float('-inf')
             else:
@@ -344,6 +371,23 @@ class ResultsTable:
             idx += 1
         self.data = OrderedDict(result)
 
+    def __add_progressbar_width(self, datatype):
+        if datatype == ResultsType.SCORE:
+            max_value = 5.0
+            min_value = 3.0
+        elif datatype in [ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.GENDER_SCORE_DIFFERENCE_INV]:
+            max_value = 1.5
+            min_value = 0.0
+        elif datatype in [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.GENDER_POPULARITY_RATIO_INV]:
+            max_value = 10.0
+            min_value = 0.0
+        else:
+            max_value = 85.0
+            min_value = 0.0
+
+        for anime in self.data.keys():
+            self.data[anime]['pbwidth'] = (min(self.data[anime]['value'], max_value) - min_value) / (max_value - min_value) * 100.0
+
 
     class Column:
         def __init__(self, key, label, formatter=None, td_class='', th_class=''):
@@ -355,7 +399,7 @@ class ResultsTable:
         
         def as_keyvalue(self):
             attributes = inspect.getmembers(self, lambda member: not inspect.isroutine(member))
-            return [attribute for attribute in attributes if attribute[1] and not attribute[0].startswith('__')]
+            return [attribute for attribute in attributes if (attribute[1] or isinstance(attribute[1], str)) and not attribute[0].startswith('__')]
 
 
 class ResultsType(Enum):
