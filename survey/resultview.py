@@ -31,10 +31,7 @@ class ResultsView(TemplateView):
         survey = self.__get_survey()
 
         results_generator = ResultsGenerator(survey)
-        if survey.is_ongoing:
-            anime_series_data, special_anime_data = results_generator.get_anime_results_data()
-        else:
-            anime_series_data, special_anime_data = cache.get_or_set('survey-%i' % survey.id, results_generator.get_anime_results_data, version=1)
+        anime_series_data, special_anime_data = results_generator.get_anime_results_data()
 
         context['segment_list'] = [
             {'title': table.title, 'table': table} if isinstance(table, ResultsTable) else {'title': table[0].title, 'table_list': table}
@@ -159,7 +156,7 @@ class ResultsGenerator:
         if self.survey.is_ongoing:
             return self.__get_anime_results_data_internal()
         else:
-            return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=60*30)
+            return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=2, timeout=60*30)
 
     # Please refactor this sometime
     def __get_anime_results_data_internal(self):
