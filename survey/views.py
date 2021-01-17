@@ -26,7 +26,7 @@ def index(request):
             anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
             score_ranking = sorted(
                 [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
-                key=lambda item: item[1],
+                key=lambda item: item[1] if item[1] == item[1] else -1,
                 reverse=True,
             )
         
