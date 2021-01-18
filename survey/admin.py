@@ -73,35 +73,41 @@ class AnimeNameInline(admin.TabularInline):
 
 class ImageInlineFormSet(BaseInlineFormSet):
     def save_new(self, form, commit=True):
-        image = super().save_new(form, False)
+        model = super().save_new(form, False)
 
-        image_org = PIL.Image.open(image.file_large)
-        image_large = image_org.copy()
-        image_medium = image_org.copy()
-        image_small = image_org.copy()
+        image_org = PIL.Image.open(model.file_large)
 
-        image_large.thumbnail((450, 900))
-        image_medium.thumbnail((300, 600))
-        image_small.thumbnail((150, 300))
-
-        content_large = BytesIO()
-        content_medium = BytesIO()
-        content_small = BytesIO()
-
-        image_large.save(fp=content_large, format="PNG")
-        image_medium.save(fp=content_medium, format="PNG")
-        image_small.save(fp=content_small, format="PNG")
-
+        image_types = {
+            'large': {
+                'width': 600,
+                'model_field': model.file_large,
+            },
+            'medium': {
+                'width': 375,
+                'model_field': model.file_medium,
+            },
+            'small': {
+                'width': 150,
+                'model_field': model.file_small,
+            },
+        }
+        image_format = 'JPEG'
+        image_extension = '.jpg'
         image_base_name = str(uuid.uuid4()).split('-')[0]
-        image_large_name = image_base_name + '.png'
-        image_medium_name = image_base_name + '-medium.png'
-        image_small_name = image_base_name + '-small.png'
 
-        image.file_large.save(image_large_name, ContentFile(content_large.getvalue()))
-        image.file_medium.save(image_medium_name, ContentFile(content_medium.getvalue()))
-        image.file_small.save(image_small_name, ContentFile(content_small.getvalue()))
+        for image_type, image_values in image_types.items():
+            image = image_org.copy()
 
-        return image
+            image_width = image_values['width']
+            image.thumbnail((image_width, image_width * 2))
+
+            content = BytesIO()
+            image.save(fp=content, format=image_format, quality=80)
+
+            image_name = image_base_name + '-' + image_type + image_extension
+            image_values['model_field'].save(image_name, ContentFile(content.getvalue()))
+
+        return model
 
 class ImageInline(admin.TabularInline):
     model = Image
