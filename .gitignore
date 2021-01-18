@@ -7,6 +7,7 @@ __pycache__
 media
 files/
 static/
+!*/static/
 log/
 
 startserver.ps1
