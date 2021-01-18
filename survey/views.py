@@ -80,8 +80,8 @@ def submit(request, year, season, pre_or_post):
         response = Response(
             survey=survey,
             timestamp=datetime.now(),
-            age=__try_get_response(request, 'age', lambda x: int(x), 0),
-            gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x), ''),
+            age=__try_get_response(request, 'age', lambda x: int(x)),
+            gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x)),
         )
         response.save()
 
