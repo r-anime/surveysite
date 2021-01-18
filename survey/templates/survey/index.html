@@ -24,12 +24,18 @@
             {% endif %}
         </p>
         {% else %}
-        <div class="row">
+        <div class="row mt-2">
             <div class="col-12">
-                <h6>{% get_season_name survey.season %} {{ survey.year }}'s Best Anime!</h6>
+                <h6>
+                    {% if survey.is_preseason %}
+                    {% get_season_name survey.season %} {{ survey.year }}'s Most Anticipated Anime
+                    {% else %}
+                    {% get_season_name survey.season %} {{ survey.year }}'s Best Anime
+                    {% endif %}
+                </h6>
             </div>
             {% for row in survey.score_ranking %}
-            <div class="col-lg-8">
+            <div class="col-lg-8 mb-1">
                 {% include 'survey/index_ranking_row.html' with rank=forloop.counter anime=row.0 value=row.1|floatformat:2 only %}
             </div>
             {% endfor %}

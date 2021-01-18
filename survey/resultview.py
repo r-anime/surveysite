@@ -7,7 +7,7 @@ from collections import OrderedDict
 import inspect
 import json
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
-from .util import SurveyUtil, get_username
+from .util import SurveyUtil, get_username, AnimeUtil
 
 
 class ResultsView(TemplateView):
@@ -312,13 +312,8 @@ class ResultsTable:
         label = 'Anime'
 
         for anime in self.data.keys():
-            name_queryset = anime.animename_set.filter(official=True)
-            japanese_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
-            english_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
-            short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
+            self.data[anime][key] = AnimeUtil.get_name_list(anime)
 
-            name_list = list(japanese_names) + list(english_names) + list(short_names)
-            self.data[anime][key] = [name.name for name in name_list]
         css_class = 'table-col-name'
         self.columns.append(ResultsTable.Column(
             key=key,

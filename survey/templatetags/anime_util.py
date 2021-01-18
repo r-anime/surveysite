@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from ..models import Anime, AnimeName
+from ..util import AnimeUtil
 
 register = template.Library()
 
@@ -56,22 +57,7 @@ def get_season_name(season_idx, start_with_capital=True):
 
 @register.inclusion_tag('survey/anime_names.html')
 def get_official_names(anime, tag=None):
-    name_queryset = anime.animename_set.filter(official=True)
-    japanese_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
-    english_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
-    short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
-
-    anime_name_list = list(japanese_names) + list(english_names) + list(short_names)
     return {
-        'anime_name_list': [name.name for name in anime_name_list],
+        'anime_name_list': AnimeUtil.get_name_list(anime),
         'tag': tag,
     }
-
-@register.simple_tag
-def get_official_name_list(anime):
-    name_queryset = anime.animename_set.filter(official=True)
-    japanese_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
-    english_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
-    short_names = name_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
-
-    return list(japanese_names) + list(english_names) + list(short_names)

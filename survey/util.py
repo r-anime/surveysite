@@ -1,7 +1,7 @@
 from django.db.models import Q, F
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from .models import Anime, Survey
+from .models import Anime, Survey, AnimeName
 
 
 class AnimeUtil:
@@ -44,6 +44,16 @@ class AnimeUtil:
         if result % 10 == 4:
             result = result + 10 - 4
         return result
+
+    @staticmethod
+    def get_name_list(anime, official_names_only=True):
+        animename_queryset = anime.animename_set.filter(official=official_names_only)
+        japanese_names = animename_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
+        english_names = animename_queryset.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME)
+        short_names = animename_queryset.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME)
+
+        animename_list = list(japanese_names) + list(english_names) + list(short_names)
+        return [animename.name for animename in animename_list]
 
 
 class SurveyUtil:

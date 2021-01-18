@@ -9,7 +9,7 @@
         {% get_anime_image anime css_class='img-fluid' variant='s' %}
     </div>
     <div class="col-7">
-        {{ anime }}
+        {% get_official_names anime 'div class="mb-1"'%}
     </div>
     <div class="col-2 text-right">
         <b>{{ value }}</b>
