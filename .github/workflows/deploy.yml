@@ -34,6 +34,9 @@ jobs:
           # Run migrations, pulling environment variables from the .env file
           eval $(cat .env) python manage.py migrate
 
+          # Collect all static files into STATIC_ROOT
+          eval $(cat .env) python manage.py collectstatic --noinput
+
           # Restart the service to make the new stuff go live
           sudo systemctl restart surveysite.service
         EOF
