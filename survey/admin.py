@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.forms.models import BaseInlineFormSet
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db.models.functions import Concat
 from django.core.files.base import ContentFile
 from datetime import datetime
@@ -63,6 +63,24 @@ class CondensedAnimeTypeFilter(admin.SimpleListFilter):
             return queryset.filter(AnimeUtil.anime_series_filter)
         elif self.value() == 'special':
             return queryset.filter(AnimeUtil.special_anime_filter)
+        else:
+            return queryset
+
+class HasImageFilter(admin.SimpleListFilter):
+    title = 'image existence'
+    parameter_name = 'hasimage'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('true', 'Has image'),
+            ('false', 'No images'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'true':
+            return queryset.annotate(image_count=Count('image')).filter(image_count__gt=0)
+        if self.value() == 'false':
+            return queryset.annotate(image_count=Count('image')).filter(image_count=0)
         else:
             return queryset
 
@@ -152,6 +170,7 @@ class AnimeAdmin(admin.ModelAdmin):
     list_filter = [
         CondensedAnimeTypeFilter,
         'anime_type',
+        HasImageFilter,
         YearSeasonEmptyFilter,
         YearSeasonListFilter,
     ]
@@ -161,6 +180,7 @@ class AnimeAdmin(admin.ModelAdmin):
         'get_start_year_season',
         'get_end_year_season',
         'get_subbed_year_season',
+        'has_image',
     ]
 
     def get_start_year_season(self, anime):
@@ -186,6 +206,10 @@ class AnimeAdmin(admin.ModelAdmin):
             return None
     get_subbed_year_season.short_description = 'Subbed'
     get_subbed_year_season.admin_order_field = Concat('subbed_year', 'subbed_season')
+
+    def has_image(self, anime):
+        return 'Yes' if anime.image_set.count() > 0 else None
+    has_image.short_description = 'Has image'
 
     def get_survey_validity_list(self, anime):
         survey_validity_list = []
