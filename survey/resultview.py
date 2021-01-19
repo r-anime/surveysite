@@ -46,10 +46,11 @@ class ResultsView(TemplateView):
         response_count = survey_responses.count()
         context['response_count'] = response_count
         context['average_age'] = survey_responses.aggregate(avg_age=Avg('age'))['avg_age'] or float('NaN')
+
         context['gender_distribution'] = OrderedDict([
-            (Response.Gender.MALE,   survey_responses.filter(gender=Response.Gender.MALE  ).count() / response_count * 100),
-            (Response.Gender.FEMALE, survey_responses.filter(gender=Response.Gender.FEMALE).count() / response_count * 100),
-            (Response.Gender.OTHER,  survey_responses.filter(gender=Response.Gender.OTHER ).count() / response_count * 100),
+            (Response.Gender.MALE,   survey_responses.filter(gender=Response.Gender.MALE  ).count() / max(response_count, 1) * 100),
+            (Response.Gender.FEMALE, survey_responses.filter(gender=Response.Gender.FEMALE).count() / max(response_count, 1) * 100),
+            (Response.Gender.OTHER,  survey_responses.filter(gender=Response.Gender.OTHER ).count() / max(response_count, 1) * 100),
         ])
 
         age_distribution = [0]*81
@@ -61,7 +62,7 @@ class ResultsView(TemplateView):
             if age > 0 and age <= 80:
                 age_distribution[int(age)] += 1
         for i in range(len(age_distribution)):
-            age_distribution[i] /= age_count / 100.0
+            age_distribution[i] /= max(age_count, 1) / 100.0
             if age_distribution[i] > age_max:
                 age_max = age_distribution[i]
         age_distribution = OrderedDict([
