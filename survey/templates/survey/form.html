@@ -12,19 +12,23 @@
 <form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
-    <div class="row">
-        <div class="col-lg-4 form-group">
-            <label for="age">How old are you?</label>
-            <input class="form-control" type="number" name="age" label="age" min=10 max=80>
-        </div>
-        <div class="col-lg-4 offset-lg-2 form-group">
-            <label for="gender">Which gender do you identify as?</label>
-            <select class="form-control" name="gender">
-                <option value="">-----</option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-                <option value="O">Other</option>
-            </select>
+    <div class="row mb-2">
+        <div class="col-lg-4">
+            <div class="row">
+                <div class="col-12 form-group">
+                    <label for="age">How old are you?</label>
+                    <input class="form-control" type="number" name="age" label="age" min=10 max=80>
+                </div>
+                <div class="col-12 form-group">
+                    <label for="gender">Which gender do you identify as?</label>
+                    <select class="form-control" name="gender">
+                        <option value="">-----</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Other</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -48,9 +52,9 @@
 
     <h3>Anime Movies/ONAs/OVAs/Specials</h3>
     {% if special_anime_list %}
-        <div class="row row-cols-lg-2">
+        <div class="row row-cols-md-2">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
-            <div class="col mb-4">
+            <div class="col-md mb-4">
                 {% create_form_card anime survey.is_preseason False %}
             </div>
         {% endfor %}
