@@ -4,7 +4,7 @@
 {% block content %}
 
 {% if survey_list %}
-<div class="list-group mt-5 ml-4 mr-4">
+<div class="list-group mt-5">
     {% for survey in survey_list %}
     <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action">
         <div class="d-flex align-items-center">
