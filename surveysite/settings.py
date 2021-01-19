@@ -186,9 +186,12 @@ LOGGING = {
             'formatter': 'file',
         },
     },
+    'root': {
+        'handlers': ['file'],
+    },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
         },
     },
 }
