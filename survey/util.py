@@ -46,6 +46,16 @@ class AnimeUtil:
         return result
 
     @staticmethod
+    def calc_season_difference(year_season_a, year_season_b):
+        """Calculate how many seasons there are between two year-season values (a-b)."""
+        def convert(year_season):
+            season = year_season % 10
+            return year_season + season * 1.5
+
+        diff = convert(year_season_a) - convert(year_season_b)
+        return diff * 4 / 10
+
+    @staticmethod
     def get_name_list(anime, official_names_only=True):
         animename_queryset = anime.animename_set.filter(official=official_names_only)
         japanese_names = animename_queryset.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME)
