@@ -206,8 +206,11 @@ class ResultsGenerator:
         watcher_count = responses_by_watchers.count()
         male_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.MALE).count()
         female_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.FEMALE).count()
-        gender_popularity_ratio = (male_anime_response_count / male_response_count) / (female_anime_response_count / female_response_count) if female_anime_response_count > 0 else float('inf')
-        gender_popularity_ratio_inv = 1.0 / gender_popularity_ratio if male_anime_response_count > 0 else float('inf')
+
+        male_popularity = male_anime_response_count / male_response_count if male_response_count > 0 else float('NaN')
+        female_popularity = female_anime_response_count / female_response_count if female_response_count > 0 else float('NaN')
+        gender_popularity_ratio = male_popularity / female_popularity if female_popularity > 0 else float('inf')
+        gender_popularity_ratio_inv = female_popularity / male_popularity if male_anime_response_count > 0 else float('inf')
 
         responses_with_score = responses_for_anime.filter(score__isnull=False) if survey.is_preseason else responses_by_watchers.filter(score__isnull=False)
         # Becomes NaN if there are no scores (default behavior is None which causes errors, hence "or NaN" being necessary)
