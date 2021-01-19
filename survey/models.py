@@ -243,6 +243,7 @@ class Response(models.Model):
     age = models.IntegerField(
         blank=True,
         null=True,
+        validators=[MinValueValidator(5), MaxValueValidator(80)],
     )
     gender = models.CharField(
         max_length=1,
@@ -270,6 +271,7 @@ class AnimeResponse(models.Model):
     score = models.IntegerField(
         blank=True,
         null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
     watching = models.BooleanField()
     underwatched = models.BooleanField()

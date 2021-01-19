@@ -4,10 +4,12 @@ from django.db.models import F, Q, Avg
 from django.db.models.query import EmptyQuerySet
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 #from django.template import loader
 from datetime import datetime
 from enum import Enum, auto
 import allauth
+import logging
 
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil, SurveyUtil, get_username
@@ -77,13 +79,25 @@ def submit(request, year, season, pre_or_post):
     if request.method == 'POST' and survey.is_ongoing:
         anime_list, _, _ = SurveyUtil.get_survey_anime(survey)
 
-        response = Response(
-            survey=survey,
-            timestamp=datetime.now(),
-            age=__try_get_response(request, 'age', lambda x: int(x)),
-            gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x)),
-        )
-        response.save()
+        try:
+            response = Response(
+                survey=survey,
+                timestamp=datetime.now(),
+                age=__try_get_response(request, 'age', lambda x: int(x)),
+                gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x)),
+            )
+            response.clean_fields()
+        except (ValueError, ValidationError) as e:
+            messages.error(request, 'Submitted an invalid age or gender not one of the possible options')
+            logging.warning('User sent one or more invalid values:\n  %s: "%s"\n  %s: "%s"' % ('age', request.POST.get('age', None), 'gender', request.POST.get('gender', None)))
+            return redirect('survey:form', survey.year, survey.season, pre_or_post)
+        except Exception as e:
+            messages.error(request, 'Something went wrong during response submission')
+            logging.error('Unknown exception occurred during response validation:\nPOST values:\n%s\n\nException:\n%s' % (str(request.POST), str(e)))
+            return redirect('survey:form', survey.year, survey.season, pre_or_post)
+        else:
+            response.save()
+
 
         anime_response_list = []
         for anime in anime_list:
@@ -91,21 +105,34 @@ def submit(request, year, season, pre_or_post):
             has_anime = False
             for key in request.POST.keys():
                 # The key has to both exist in the POST request, and its accompanying value has to be something (in case of score/expectations)
-                if key.startswith(str(anime.id)) and request.POST[key]:
+                if key.startswith(str(anime.id)) and request.POST.get(key, None):
                     has_anime = True
                     break
             if not has_anime:
                 continue
 
-            anime_response = AnimeResponse(
-                response=response,
-                anime=anime,
-                watching=__try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
-                score=__try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
-                underwatched=__try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
-                expectations=__try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
-            )
-            anime_response_list.append(anime_response)
+            anime_str = ' / '.join(AnimeUtil.get_name_list(anime))
+            try:
+                anime_response = AnimeResponse(
+                    response=response,
+                    anime=anime,
+                    watching=__try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
+                    score=__try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
+                    underwatched=__try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
+                    expectations=__try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
+                )
+                anime_response.clean_fields()
+            except (ValueError, ValidationError) as e:
+                messages.error(request, 'Submitted invalid score or expectation for anime "%s"' % anime_str)
+                logging.warning('User sent one or more invalid values for anime "%i":\n  %s: "%s"\n  %s: "%s"' % (anime.id, 'score', request.POST.get(str(anime.id) + '-score', None), 'expectations', request.POST.get(str(anime.id) + '-expectations', None)))
+                response.delete()
+                return redirect('survey:form', survey.year, survey.season, pre_or_post)
+            except Exception as e:
+                messages.error(request, 'Something went wrong during submitting your response for anime "%s"' % anime_str)
+                logging.error('Unknown exception occurred during response validation for anime %i:\nPOST values:\n%s\n\nException:\n%s' % (anime.id, str(request.POST), str(e)))
+                return redirect('survey:form', survey.year, survey.season, pre_or_post)
+            else:
+                anime_response_list.append(anime_response)
         
         AnimeResponse.objects.bulk_create(anime_response_list)
         
@@ -117,7 +144,7 @@ def submit(request, year, season, pre_or_post):
 
 
 # ======= HELPER METHODS =======
-def __try_get_response(request, item, conversion=None, value_if_none=None):
+def __try_get_response(request, item, conversion, value_if_none=None):
     """Tries to get the specified value of an item from the POST request.
 
     Parameters
@@ -126,8 +153,8 @@ def __try_get_response(request, item, conversion=None, value_if_none=None):
         The request sent by the user. Must be a POST request.
     item : str
         The item (key) you want to get the value of.
-    conversion : lambda, optional
-        Converts the item's value (if it exists), by default None (no conversion).
+    conversion : lambda
+        Converts the item's value (if it exists).
     value_if_none : any, optional
         Value that gets returned if the item or value doesn't exist or is empty, by default None.
 
@@ -137,13 +164,10 @@ def __try_get_response(request, item, conversion=None, value_if_none=None):
         The value of the item.
     """
 
-    if item not in request.POST.keys() or request.POST[item] == '':
+    if item not in request.POST.keys() or request.POST.get(item, '') == '':
         return value_if_none
     else:
-        if conversion is None:
-            return None
-        else:
-            return conversion(request.POST[item])
+        return conversion(request.POST.get(item, None))
 
 # Forgot why I stopped using this
 def __reddit_check(user):
