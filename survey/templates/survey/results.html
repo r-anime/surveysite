@@ -209,7 +209,7 @@
     {% for segment in segment_list %}
     {% if segment.table %}
     {% with table=segment.table %}
-    var app = new Vue({
+    new Vue({
         el: '#results-table-{{ forloop.counter0 }}',
         delimiters: ['{$', '$}'],
         data: {
@@ -228,7 +228,7 @@
     {% else %}
     {% with table_list=segment.table_list segment_idx=forloop.counter0 %}
     {% for table in table_list %}
-    var app = new Vue({
+    new Vue({
         el: '#results-table-{{ segment_idx }}-{{ forloop.counter0 }}',
         delimiters: ['{$', '$}'],
         data: {

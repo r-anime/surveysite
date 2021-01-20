@@ -10,7 +10,7 @@
 
 
 {% if survey.is_ongoing %}
-<form action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
+<form id="form" action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
     <div class="row mb-2">
@@ -90,4 +90,7 @@
 </div>
 {% endif %}
 
+
+<script>
+</script>
 {% endblock content %}

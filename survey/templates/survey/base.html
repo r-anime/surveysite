@@ -70,7 +70,7 @@
     {% for message in messages %}
     <b-alert show dismissible fade variant="{{ message.tags }}" id="message-{{ forloop.counter0 }}">{{ message }}</b-alert>
     <script>
-        var app = new Vue({
+        new Vue({
             el: "#message-{{ forloop.counter0 }}",
         })
     </script>
@@ -84,14 +84,10 @@
     </div>
 
     <script>
-        const logoutNext = document.getElementById("logoutNext");
-        if (logoutNext) {
-            logoutNext.setAttribute("value", window.location.href);
-        }
-
-        var app = new Vue({
+        new Vue({
             el: '#navbar',
         })
     </script>
+    <script src="{% static 'survey/js/logout-button.js' %}"></script>
 </body>
 </html>

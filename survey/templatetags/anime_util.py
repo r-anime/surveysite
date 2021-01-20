@@ -44,7 +44,7 @@ def get_anime_image_url(anime, variant='l', default=''):
         image_url = None
 
     if not default:
-        default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/image-unavailable.png'
+        default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
     return image_url if image_url else default
 
 @register.simple_tag
