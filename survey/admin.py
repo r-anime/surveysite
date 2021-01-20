@@ -268,7 +268,6 @@ class AnimeAdmin(admin.ModelAdmin):
                     response_count=survey_response_count,
                     is_addition=False,
                 ).save()
-                print('Anime "%s" removed from survey "%s" at %i responses' % (str(anime), str(survey), survey_response_count))
 
             # If anime was added to survey
             elif not was_included and is_included:
@@ -279,7 +278,6 @@ class AnimeAdmin(admin.ModelAdmin):
                     response_count=survey_response_count,
                     is_addition=True,
                 ).save()
-                print('Anime "%s" added to survey "%s" at %i responses' % (str(anime), str(survey), survey_response_count))
 
 
 
