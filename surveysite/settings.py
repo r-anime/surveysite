@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.cache.UpdateCacheMiddleware',
+    'htmlmin.middleware.HtmlMinifyMiddleware',
     
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -71,6 +72,7 @@ MIDDLEWARE = [
 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
+    'htmlmin.middleware.MarkRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'surveysite.urls'
@@ -125,6 +127,8 @@ LOGIN_REDIRECT_URL = 'survey:index'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'survey:index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
 
 WSGI_APPLICATION = 'surveysite.wsgi.application'
+
+HTML_MINIFY = True
 
 
 CACHES = {
