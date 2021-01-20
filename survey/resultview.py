@@ -162,12 +162,11 @@ class ResultsGenerator:
             survey_yearseason = AnimeUtil.combine_year_season(self.survey.year, self.survey.season)
             current_yearseason = AnimeUtil.combine_year_season(datetime.now().year, datetime.now().month // 4)
 
-            # Random cache timeout to decrease the chance that ALL results will have to be generated at the same time
-            # If survey from two or more seasons ago, keep much longer in cache
+            # If survey from two or more seasons ago, never let cache expire
             if AnimeUtil.calc_season_difference(current_yearseason, survey_yearseason) >= 2:
-                cache_timeout = 60*60*48 + randint(-60*60*12, 60*60*12)
+                cache_timeout = None
             else:
-                cache_timeout = 60*60* 3 + randint(-60*60   , 60*60   )
+                cache_timeout = 60*60*8 + randint(-60*60*2, 60*60*2)
 
             return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=2, timeout=cache_timeout)
 
