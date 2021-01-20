@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from django.db.models import Avg
 from django.shortcuts import redirect
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from enum import Enum
 from collections import OrderedDict
 import inspect
@@ -158,7 +158,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = SurveyUtil.get_survey_cache_timeout(self.survey)
-            return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=2, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=cache_timeout)
 
     # Please refactor this sometime
     def __get_anime_results_data_internal(self):

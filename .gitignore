@@ -6,9 +6,10 @@ __pycache__
 *.sqlite3
 media
 files/
+!*/files/
 static/
 !*/static/
-log/
+cache/*.djcache
 
 startserver.ps1
 *.tsv
