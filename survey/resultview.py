@@ -4,8 +4,6 @@ from django.shortcuts import redirect
 from django.core.cache import cache
 from enum import Enum
 from collections import OrderedDict
-from datetime import datetime
-from random import randint
 import inspect
 import json
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
@@ -159,15 +157,7 @@ class ResultsGenerator:
         if self.survey.is_ongoing:
             return self.__get_anime_results_data_internal()
         else:
-            survey_yearseason = AnimeUtil.combine_year_season(self.survey.year, self.survey.season)
-            current_yearseason = AnimeUtil.combine_year_season(datetime.now().year, datetime.now().month // 4)
-
-            # If survey from two or more seasons ago, never let cache expire
-            if AnimeUtil.calc_season_difference(current_yearseason, survey_yearseason) >= 2:
-                cache_timeout = None
-            else:
-                cache_timeout = 60*60*8 + randint(-60*60*2, 60*60*2)
-
+            cache_timeout = SurveyUtil.get_survey_cache_timeout(self.survey)
             return cache.get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=2, timeout=cache_timeout)
 
     # Please refactor this sometime

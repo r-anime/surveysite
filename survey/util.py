@@ -2,6 +2,8 @@ from django.db.models import Q, F
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from .models import Anime, Survey, AnimeName
+from datetime import datetime
+from random import randint
 
 
 class AnimeUtil:
@@ -126,6 +128,26 @@ class SurveyUtil:
             anime_series_filter | special_anime_filter
         )
         return combined_anime_queryset, anime_series_queryset, special_anime_queryset
+
+    @staticmethod
+    def get_old_survey_cache_timeout():
+        return None
+
+    @staticmethod
+    def is_survey_old(survey):
+        """Get whether a survey is considered old and thus should have variables related to it cached for longer."""
+        survey_yearseason = AnimeUtil.combine_year_season(survey.year, survey.season)
+        current_yearseason = AnimeUtil.combine_year_season(datetime.now().year, datetime.now().month // 4)
+        return AnimeUtil.calc_season_difference(current_yearseason, survey_yearseason) >= 2
+
+    @staticmethod
+    def get_survey_cache_timeout(survey):
+        """Get for how long values belonging to the given survey have to be cached."""
+        # If survey from two or more seasons ago, never let cache expire, otherwise between 6 and 10 hours
+        if SurveyUtil.is_survey_old(survey):
+            return SurveyUtil.get_old_survey_cache_timeout()
+        else:
+            return 60*60*8 + randint(-60*60*2, 60*60*2)
 
 
 # Returns None if not authenticated
