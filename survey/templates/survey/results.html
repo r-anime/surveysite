@@ -91,6 +91,7 @@
 <div class="row mb-3 justify-content-center">
     <div class="col-md-4 col-8 text-center">
         {% with anime_list=table.data.keys|listify %}
+        {% if anime_list %}
         <div class="row justify-content-center mb-4">
             <div class="col-8 mb-2">
                 {% get_anime_image anime_list.0 css_class='img-fluid' variant='l' %}
@@ -99,6 +100,7 @@
                 {% get_official_names anime_list.0 'div class="mb-1"' %}
             </div>
         </div>
+        {% if anime_list|length >= 2 %}
         <div class="row" style="font-size:75%;">
             <div class="col-6">
                 <div class="row justify-content-center">
@@ -110,6 +112,7 @@
                     </div>
                 </div>
             </div>
+            {% if anime_list|length >= 3 %}
             <div class="col-6">
                 <div class="row justify-content-center">
                     <div class="col-10 mb-1">
@@ -120,7 +123,10 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
+        {% endif %}
+        {% endif %}
         {% endwith %}
     </div>
     <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
