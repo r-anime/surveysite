@@ -1,14 +1,14 @@
 
 {% load anime_util %}
 
-<div class="row align-items-center">
-    <div class="col-1">
+<div class="row align-items-center no-gutters">
+    <div class="col-auto">
         <b>#{{ rank }}</b>
     </div>
-    <div class="col-2">
+    <div class="col-2 pl-2 pr-2">
         {% get_anime_image anime css_class='img-fluid' variant='s' %}
     </div>
-    <div class="col-7">
+    <div class="col">
         {% get_official_names anime 'div class="mb-1"'%}
     </div>
     <div class="col-2 text-right">
