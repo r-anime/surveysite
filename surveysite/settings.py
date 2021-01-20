@@ -130,6 +130,8 @@ WSGI_APPLICATION = 'surveysite.wsgi.application'
 
 HTML_MINIFY = True
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
 
 CACHES = {
     'default': {

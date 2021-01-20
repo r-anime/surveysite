@@ -56,6 +56,12 @@ def index(request):
 def form(request, year, season, pre_or_post):
     """Generates the form view, where users can respond to a survey. Requires the user being logged in."""
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
+
+    if __session_is_survey_answered(request, survey):
+        messages.info(request, 'You already filled in %s!' % str(survey))
+        return redirect('survey:index')
+
+
     _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
 
     def modify(anime):
@@ -84,6 +90,11 @@ def form(request, year, season, pre_or_post):
 def submit(request, year, season, pre_or_post):
     """A view saving a user's response to a survey to a database, and redirecting them back to the index. Requires the user being logged in."""
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
+
+    if __session_is_survey_answered(request, survey):
+        messages.info(request, 'You already filled in %s!' % str(survey))
+        return redirect('survey:index')
+
 
     if request.method == 'POST' and survey.is_ongoing:
         anime_list, _, _ = SurveyUtil.get_survey_anime(survey)
@@ -145,6 +156,7 @@ def submit(request, year, season, pre_or_post):
         
         AnimeResponse.objects.bulk_create(anime_response_list)
         
+        __session_set_survey_answered(request, survey)
         messages.success(request, "Successfully filled in %s!" % str(survey))
         return redirect('survey:index')
     else:
@@ -185,3 +197,13 @@ def __reddit_check(user):
 
     reddit_accounts = user.socialaccount_set.filter(provider='reddit')
     return len(reddit_accounts) > 0
+
+def __session_set_survey_answered(request, survey):
+    """Store that the given survey is answered in the session data."""
+    key = 'answered_survey_%i' % survey.id
+    request.session[key] = True
+
+def __session_is_survey_answered(request, survey):
+    """Check whether the user answered a certain survey."""
+    key = 'answered_survey_%i' % survey.id
+    return key in request.session
