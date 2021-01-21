@@ -1,8 +1,12 @@
 from django.urls import path, include
+from django.shortcuts import redirect
 from . import views
 from .resultview import ResultsView
 
 app_name = 'survey'
+
+def favicon_redirect(request):
+    return redirect('/static/favicon/favicon.ico')
 
 survey_patterns = [
     path('<int:year>/<int:season>/<pre_or_post>/', views.form, name='form'),
@@ -12,5 +16,6 @@ survey_patterns = [
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('survey/', include(survey_patterns))
+    path('survey/', include(survey_patterns)),
+    path('favicon.ico', favicon_redirect),
 ]
