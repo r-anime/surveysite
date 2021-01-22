@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.db.models import Avg
 from django.shortcuts import redirect
 from django.core.cache import cache, caches
@@ -9,16 +9,14 @@ import json
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
 from .util import SurveyUtil, get_username, AnimeUtil
 
+ANIME_POPULARITY_THRESHOLD = 0.02 # Anime with a popularity lower than this won't get included in results tables by default
 
-class ResultsView(TemplateView):
-    """Class-based results view."""
-    ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
-
-    template_name = 'survey/results.html'
+class BaseResultsView(TemplateView):
+    """Base class for views displaying survey results."""
     http_method_names = ['get']
     
     def get(self, request, *args, **kwargs):
-        survey = self.__get_survey()
+        survey = self._get_survey()
 
         # Only display results if the survey is not ongoing, or if the user is staff
         if survey.is_ongoing and not request.user.is_staff:
@@ -28,7 +26,43 @@ class ResultsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        survey = self.__get_survey()
+        survey = self._get_survey()
+
+        context['survey'] = survey
+        context['username'] = get_username(self.request.user)
+
+        return context
+
+    def _get_survey(self):
+        return SurveyUtil.get_survey_or_404(
+            year=self.kwargs['year'],
+            season=self.kwargs['season'],
+            pre_or_post=self.kwargs['pre_or_post'],
+        )
+
+
+class FullResultsView(BaseResultsView):
+    """Class-based results view containing a table with all the results of a survey."""
+    template_name = 'survey/fullresults.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        survey = self._get_survey()
+
+        results_generator = ResultsGenerator(survey)
+        context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
+        context['results_type_list_json'] = json.JSONEncoder().encode([results_type.name.lower() for results_type in list(ResultsType)])
+
+        return context
+
+
+class ResultsView(BaseResultsView):
+    """Class-based results view."""
+    template_name = 'survey/results.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        survey = self._get_survey()
 
         results_generator = ResultsGenerator(survey)
         anime_series_data, special_anime_data = results_generator.get_anime_results_data()
@@ -37,8 +71,6 @@ class ResultsView(TemplateView):
             {'title': table.title, 'table': table} if isinstance(table, ResultsTable) else {'title': table[0].title, 'table_list': table}
             for table in self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
         ]
-        context['username'] = get_username(self.request.user)
-        context['survey'] = survey
 
         survey_responses = Response.objects.filter(survey=survey)
         response_count = survey_responses.count()
@@ -71,13 +103,6 @@ class ResultsView(TemplateView):
         context['age_distribution_max'] = age_max
         return context
 
-
-    def __get_survey(self):
-        return SurveyUtil.get_survey_or_404(
-            year=self.kwargs['year'],
-            season=self.kwargs['season'],
-            pre_or_post=self.kwargs['pre_or_post'],
-        )
 
     def __generate_table_list(self, anime_series_data, special_anime_data, is_preseason):
         popularity_table = ResultsTable('Most Popular Anime', anime_series_data)
@@ -145,6 +170,25 @@ class ResultsGenerator:
             The survey for which results have to be generated.
         """
         self.survey = survey
+
+    def get_anime_results_data_json(self):
+        anime_series_data, special_anime_data = self.get_anime_results_data()
+
+        anime_info_json = json.JSONEncoder().encode({
+            anime.id: {
+                'official_name_list': AnimeUtil.get_name_list(anime),
+                'type': anime.anime_type,
+            } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
+        })
+
+        def __convert_data(anime_data):
+            return json.JSONEncoder().encode({
+                anime.id: {
+                    results_type.name.lower(): value for results_type, value in results.items()
+                } for anime, results in anime_data.items()
+            })
+
+        return anime_info_json, __convert_data(anime_series_data), __convert_data(special_anime_data)
 
     def get_anime_results_data(self):
         """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
@@ -255,7 +299,6 @@ class ResultsGenerator:
 
 class ResultsTable:
     """Table with anime results."""
-    ANIME_POPULARITY_THRESHOLD = 2.0 # Anime below this percentage won't get included in results tables by default
 
     def __init__(self, title, anime_data, ignore_anime_below_threshold=True):
         self.title = title
@@ -264,7 +307,7 @@ class ResultsTable:
         self.data = {}
 
         for anime in anime_data.keys():
-            if ignore_anime_below_threshold and anime_data[anime][ResultsType.POPULARITY] < self.ANIME_POPULARITY_THRESHOLD:
+            if ignore_anime_below_threshold and anime_data[anime][ResultsType.POPULARITY] < ANIME_POPULARITY_THRESHOLD * 100:
                 continue
             self.data[anime] = {}
 

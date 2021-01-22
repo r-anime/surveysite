@@ -1,0 +1,55 @@
+{% extends 'survey/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md col-10" id="results-table-series">
+        <b-table-lite hover small borderless :items="items" :fields="fields">
+            <template #cell(rank)="data">
+                #{$ data.value $}
+            </template>
+            <template #cell(image)="data">
+                <img :src="data.value" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div class="ml-2 mr-2">
+                    <div v-for="name in data.value">
+                        {$ name $}
+                    </div>
+                </div>
+            </template>
+        </b-table>
+    </div>
+</div>
+
+<div class="row justify-content-between mt-3">
+    <div class="col-auto">
+        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="btn btn-primary">Back to results summary</a>
+    </div>
+</div>
+
+<script>
+    const anime_info = {{ anime_info_json|safe }};
+    const anime_series_data = {{ anime_series_data_json|safe }};
+    const special_anime_data = {{ special_anime_data_json|safe }};
+    const results_types = {{ results_type_list_json|safe }};
+
+    let series_table_items = [];
+    for (let anime_id in anime_series_data) {
+        item = anime_series_data[anime_id];
+        item['name'] = anime_info[anime_id].official_name_list;
+        series_table_items.push(item);
+    }
+
+    new Vue({
+        el: '#results-table-series',
+        delimiters: ['{$', '$}'],
+        data: {
+            fields: results_types,
+            items: series_table_items,
+        },
+    });
+</script>
+{% endblock %}

@@ -198,9 +198,10 @@
 
 <div class="row justify-content-between mt-3">
     <div class="col-auto">
-        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index.</a>
+        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
     </div>
     <div class="col-auto">
+        <a href="{% url 'survey:fullresults' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="btn btn-primary">View full results</a>
     </div>
 </div>
 
