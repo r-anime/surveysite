@@ -1,19 +1,29 @@
 {% extends 'survey/base.html' %}
 
+{% block head %}
+<style>
+    td, th {
+        vertical-align:middle!important;
+    }
+    .col-img img {
+        width: 50px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
-    <div class="col-md col-10" id="results-table-series">
-        <b-table hover small bordered striped sort-by="name" :sort-desc="false" :items="items" :fields="fields">
-            <template #cell(rank)="data">
-                #{$ data.value $}
-            </template>
-            <template #cell(image)="data">
-                <img :src="data.value" class="img-fluid"></img>
-            </template>
+    <div class="col" id="results-table-series">
+        <b-table hover small bordered striped fixed responsive sort-by="name" :sort-desc="false" :sort-compare="sortCompare" :items="items" :fields="fields">
             <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value">
-                        {$ name $}
+                <div class="row align-items-center no-gutters">
+                    <div class="col-auto col-img">
+                        <img :src="data.value.image" class="img-fluid">
+                    </div>
+                    <div class="col ml-2 mr-2 mb-n2">
+                        <div v-for="name in data.value.official_name_list" class="mb-2">
+                            {$ name $}
+                        </div>
                     </div>
                 </div>
             </template>
@@ -21,12 +31,12 @@
     </div>
 </div>
 
-<div class="row justify-content-between mt-3">
-    <div class="col-auto">
+<div class="row mt-3 no-gutters">
+    <div class="col-auto mr-2">
         <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
     </div>
     <div class="col-auto">
-        <a href="{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="btn btn-primary">Back to results summary</a>
+        <a href="{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="btn btn-secondary">Back to results summary</a>
     </div>
 </div>
 
@@ -58,69 +68,78 @@
         return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
     }
 
+    function sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
+        const a = aRow[key];
+        const b = bRow[key];
+        if (key == "name") {
+            const aName = a["official_name_list"][0];
+            const bName = b["official_name_list"][0];
+            return aName < bName ? -1 : aName > bName ? 1 : 0;
+        }
+        else {
+            return null;
+        }
+    }
+
     const animeInfo = {{ anime_info_json|safe }};
     const animeSeriesData = {{ anime_series_data_json|safe }};
     const specialAnimeData = {{ special_anime_data_json|safe }};
-    const resultsTypes = [{
+    const columns = [{
         key: 'name',
         label: 'Anime',
-        sortable: true,
     }, {
         key: 'popularity',
         label: 'Popu-larity',
         formatter: percentageFormatter,
-        sortable: true,
     }, {
         key: 'gender_popularity_ratio',
         label: 'Gender Ratio (♂:♀)',
         formatter: genderRatioFormatter,
-        sortable: true,
     }, {
         key: 'gender_popularity_ratio_inv',
         label: 'Gender Ratio (♀:♂)',
         formatter: genderRatioFormatter,
-        sortable: true,
     }, {
         key: 'age',
         label: 'Avg. Age',
         formatter: ageFormatter,
-        sortable: true,
     },{% if not survey.is_preseason %} {
         key: 'underwatched',
         label: 'Under-watched',
         formatter: percentageFormatter,
-        sortable: true,
     },{% endif %} {
         key: 'score',
         label: 'Score',
         formatter: scoreFormatter,
-        sortable: true,
     }, {
         key: 'gender_score_difference',
         label: 'Score Diff. (♂-♀)',
         formatter: scoreFormatter,
-        sortable: true,
     }, {
         key: 'gender_score_difference_inv',
         label: 'Score Diff. (♀-♂)',
         formatter: scoreFormatter,
-        sortable: true,
     },{% if not survey.is_preseason %} {
         key: 'surprise',
         label: 'Sur-prise',
         formatter: percentageFormatter,
-        sortable: true,
     }, {
         key: 'disappointment',
         label: 'Disa-ppoint-ment',
         formatter: percentageFormatter,
-        sortable: true,
     }{% endif %}];
+
+    for (let column_idx in columns) {
+        let column = columns[column_idx];
+        column['sortable'] = true;
+        column['thStyle'] = column['key'] == "name" ? "width:300px" : "width:70px";
+        console.log(column);
+    }
 
     let seriesTableItems = [];
     for (let anime_id in animeSeriesData) {
         item = animeSeriesData[anime_id];
-        item['name'] = animeInfo[anime_id].official_name_list;
+        item['name'] = animeInfo[anime_id];
         seriesTableItems.push(item);
     }
 
@@ -128,7 +147,7 @@
         el: '#results-table-series',
         delimiters: ['{$', '$}'],
         data: {
-            fields: resultsTypes,
+            fields: columns,
             items: seriesTableItems,
         },
     });

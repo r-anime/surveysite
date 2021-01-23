@@ -1,5 +1,4 @@
 from django import template
-from django.conf import settings
 from ..models import Anime, AnimeName
 from ..util import AnimeUtil
 
@@ -30,22 +29,7 @@ def get_anime_image(anime, css_class='', variant='l'):
 
 @register.simple_tag
 def get_anime_image_url(anime, variant='l', default=''):
-    if anime.image_set.count():
-        anime_image = anime.image_set.first()
-        if variant == 's':
-            image_file = anime_image.file_small
-        elif variant == 'm':
-            image_file = anime_image.file_medium
-        else:
-            image_file = anime_image.file_large
-
-        image_url = image_file.url
-    else:
-        image_url = None
-
-    if not default:
-        default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
-    return image_url if image_url else default
+    return AnimeUtil.get_anime_image_url(anime, variant=variant, default=default)
 
 @register.simple_tag
 def get_season_name(season_idx, start_with_capital=True):

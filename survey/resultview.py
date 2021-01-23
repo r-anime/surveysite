@@ -177,6 +177,7 @@ class ResultsGenerator:
             anime.id: {
                 'official_name_list': AnimeUtil.get_name_list(anime),
                 'type': anime.anime_type,
+                'image': AnimeUtil.get_anime_image_url(anime, variant='s'),
             } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
         })
 
