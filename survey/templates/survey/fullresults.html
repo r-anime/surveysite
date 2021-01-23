@@ -20,8 +20,8 @@
                     <div class="col-auto col-img">
                         <img :src="data.value.image" class="img-fluid">
                     </div>
-                    <div class="col ml-2 mr-2 mb-n2">
-                        <div v-for="name in data.value.official_name_list" class="mb-2">
+                    <div class="col ml-2 mr-2 mb-n1">
+                        <div v-for="name in data.value.official_name_list" class="mb-1">
                             {$ name $}
                         </div>
                     </div>
@@ -76,79 +76,93 @@
             const bName = b["official_name_list"][0];
             return aName < bName ? -1 : aName > bName ? 1 : 0;
         }
+        else if (typeof(a) == "number" && typeof(b) == "number") {
+            if (isNaN(a)) return -1;
+            if (isNaN(b)) return 1;
+            return a < b ? -1 : a > b ? 1 : 0;
+        }
         else {
             return null;
         }
+    }
+
+    function filterData(rows) {
+        let result = [];
+        for (let row of rows) {
+            if (row["popularity"] > 0.0) {
+                result.push(row);
+            }
+        }
+        return result;
     }
 
     const animeInfo = {{ anime_info_json|safe }};
     const animeSeriesData = {{ anime_series_data_json|safe }};
     const specialAnimeData = {{ special_anime_data_json|safe }};
     const columns = [{
-        key: 'name',
-        label: 'Anime',
+        key: "name",
+        label: "Anime",
     }, {
-        key: 'popularity',
-        label: 'Popu-larity',
+        key: "popularity",
+        label: "Popu-larity",
         formatter: percentageFormatter,
     }, {
-        key: 'gender_popularity_ratio',
-        label: 'Gender Ratio (♂:♀)',
+        key: "gender_popularity_ratio",
+        label: "Gender Ratio (♂:♀)",
         formatter: genderRatioFormatter,
     }, {
-        key: 'gender_popularity_ratio_inv',
-        label: 'Gender Ratio (♀:♂)',
+        key: "gender_popularity_ratio_inv",
+        label: "Gender Ratio (♀:♂)",
         formatter: genderRatioFormatter,
     }, {
-        key: 'age',
-        label: 'Avg. Age',
+        key: "age",
+        label: "Avg. Age",
         formatter: ageFormatter,
     },{% if not survey.is_preseason %} {
-        key: 'underwatched',
-        label: 'Under-watched',
+        key: "underwatched",
+        label: "Under-watched",
         formatter: percentageFormatter,
     },{% endif %} {
-        key: 'score',
-        label: 'Score',
+        key: "score",
+        label: "Score",
         formatter: scoreFormatter,
     }, {
-        key: 'gender_score_difference',
-        label: 'Score Diff. (♂-♀)',
+        key: "gender_score_difference",
+        label: "Score Diff. (♂-♀)",
         formatter: scoreFormatter,
     }, {
-        key: 'gender_score_difference_inv',
-        label: 'Score Diff. (♀-♂)',
+        key: "gender_score_difference_inv",
+        label: "Score Diff. (♀-♂)",
         formatter: scoreFormatter,
     },{% if not survey.is_preseason %} {
-        key: 'surprise',
-        label: 'Sur-prise',
+        key: "surprise",
+        label: "Sur-prise",
         formatter: percentageFormatter,
     }, {
-        key: 'disappointment',
-        label: 'Disa-ppoint-ment',
+        key: "disappointment",
+        label: "Disa-ppoint-ment",
         formatter: percentageFormatter,
     }{% endif %}];
 
     for (let column_idx in columns) {
         let column = columns[column_idx];
-        column['sortable'] = true;
-        column['thStyle'] = column['key'] == "name" ? "width:300px" : "width:70px";
-        console.log(column);
+        column["sortable"] = true;
+        column["thStyle"] = column["key"] == "name" ? "width:300px" : "width:70px";
     }
 
     let seriesTableItems = [];
     for (let anime_id in animeSeriesData) {
         item = animeSeriesData[anime_id];
-        item['name'] = animeInfo[anime_id];
+        item["name"] = animeInfo[anime_id];
         seriesTableItems.push(item);
     }
 
     new Vue({
-        el: '#results-table-series',
-        delimiters: ['{$', '$}'],
+        el: "#results-table-series",
+        delimiters: ["{$", "$}"],
         data: {
             fields: columns,
-            items: seriesTableItems,
+            items: filterData(seriesTableItems),
         },
     });
 </script>
