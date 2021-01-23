@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md col-10" id="results-table-series">
-        <b-table-lite hover small borderless :items="items" :fields="fields">
+        <b-table hover small bordered striped sort-by="name" :sort-desc="false" :items="items" :fields="fields">
             <template #cell(rank)="data">
                 #{$ data.value $}
             </template>
@@ -61,51 +61,61 @@
     const animeInfo = {{ anime_info_json|safe }};
     const animeSeriesData = {{ anime_series_data_json|safe }};
     const specialAnimeData = {{ special_anime_data_json|safe }};
-    //const resultsTypes = {{ results_type_list_json|safe }};
     const resultsTypes = [{
         key: 'name',
         label: 'Anime',
+        sortable: true,
     }, {
         key: 'popularity',
         label: 'Popu-larity',
         formatter: percentageFormatter,
+        sortable: true,
     }, {
         key: 'gender_popularity_ratio',
         label: 'Gender Ratio (♂:♀)',
         formatter: genderRatioFormatter,
+        sortable: true,
     }, {
         key: 'gender_popularity_ratio_inv',
         label: 'Gender Ratio (♀:♂)',
         formatter: genderRatioFormatter,
+        sortable: true,
     }, {
         key: 'age',
         label: 'Avg. Age',
         formatter: ageFormatter,
-    }, {
+        sortable: true,
+    },{% if not survey.is_preseason %} {
         key: 'underwatched',
         label: 'Under-watched',
         formatter: percentageFormatter,
-    }, {
+        sortable: true,
+    },{% endif %} {
         key: 'score',
         label: 'Score',
         formatter: scoreFormatter,
+        sortable: true,
     }, {
         key: 'gender_score_difference',
         label: 'Score Diff. (♂-♀)',
         formatter: scoreFormatter,
+        sortable: true,
     }, {
         key: 'gender_score_difference_inv',
         label: 'Score Diff. (♀-♂)',
         formatter: scoreFormatter,
-    }, {
+        sortable: true,
+    },{% if not survey.is_preseason %} {
         key: 'surprise',
         label: 'Sur-prise',
         formatter: percentageFormatter,
+        sortable: true,
     }, {
         key: 'disappointment',
         label: 'Disa-ppoint-ment',
         formatter: percentageFormatter,
-    }];
+        sortable: true,
+    }{% endif %}];
 
     let seriesTableItems = [];
     for (let anime_id in animeSeriesData) {
