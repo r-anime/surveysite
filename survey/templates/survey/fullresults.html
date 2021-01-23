@@ -31,24 +31,95 @@
 </div>
 
 <script>
-    const anime_info = {{ anime_info_json|safe }};
-    const anime_series_data = {{ anime_series_data_json|safe }};
-    const special_anime_data = {{ special_anime_data_json|safe }};
-    const results_types = {{ results_type_list_json|safe }};
+    function genericNumberFormatter(value, validFormatter) {
+        switch (isNaN(value) || value) {
+            case true:
+                return "N/A";
+            case Infinity:
+                return "\u221e";
+            default:
+                return validFormatter(value);
+        }
+    }
 
-    let series_table_items = [];
-    for (let anime_id in anime_series_data) {
-        item = anime_series_data[anime_id];
-        item['name'] = anime_info[anime_id].official_name_list;
-        series_table_items.push(item);
+    function percentageFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(1) + "%");
+    }
+
+    function genderRatioFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+
+    function scoreFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+
+    function ageFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+
+    const animeInfo = {{ anime_info_json|safe }};
+    const animeSeriesData = {{ anime_series_data_json|safe }};
+    const specialAnimeData = {{ special_anime_data_json|safe }};
+    //const resultsTypes = {{ results_type_list_json|safe }};
+    const resultsTypes = [{
+        key: 'name',
+        label: 'Anime',
+    }, {
+        key: 'popularity',
+        label: 'Popu-larity',
+        formatter: percentageFormatter,
+    }, {
+        key: 'gender_popularity_ratio',
+        label: 'Gender Ratio (♂:♀)',
+        formatter: genderRatioFormatter,
+    }, {
+        key: 'gender_popularity_ratio_inv',
+        label: 'Gender Ratio (♀:♂)',
+        formatter: genderRatioFormatter,
+    }, {
+        key: 'age',
+        label: 'Avg. Age',
+        formatter: ageFormatter,
+    }, {
+        key: 'underwatched',
+        label: 'Under-watched',
+        formatter: percentageFormatter,
+    }, {
+        key: 'score',
+        label: 'Score',
+        formatter: scoreFormatter,
+    }, {
+        key: 'gender_score_difference',
+        label: 'Score Diff. (♂-♀)',
+        formatter: scoreFormatter,
+    }, {
+        key: 'gender_score_difference_inv',
+        label: 'Score Diff. (♀-♂)',
+        formatter: scoreFormatter,
+    }, {
+        key: 'surprise',
+        label: 'Sur-prise',
+        formatter: percentageFormatter,
+    }, {
+        key: 'disappointment',
+        label: 'Disa-ppoint-ment',
+        formatter: percentageFormatter,
+    }];
+
+    let seriesTableItems = [];
+    for (let anime_id in animeSeriesData) {
+        item = animeSeriesData[anime_id];
+        item['name'] = animeInfo[anime_id].official_name_list;
+        seriesTableItems.push(item);
     }
 
     new Vue({
         el: '#results-table-series',
         delimiters: ['{$', '$}'],
         data: {
-            fields: results_types,
-            items: series_table_items,
+            fields: resultsTypes,
+            items: seriesTableItems,
         },
     });
 </script>

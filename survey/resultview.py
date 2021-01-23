@@ -51,7 +51,6 @@ class FullResultsView(BaseResultsView):
 
         results_generator = ResultsGenerator(survey)
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
-        context['results_type_list_json'] = json.JSONEncoder().encode([results_type.name.lower() for results_type in list(ResultsType)])
 
         return context
 
