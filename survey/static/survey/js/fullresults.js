@@ -82,7 +82,7 @@ const columnTypes = {
     },
     popularity: {
         key: "popularity",
-        label: "Popu-larity",
+        label: "Pop.",
         formatter: percentageFormatter,
     },
     gender_popularity_ratio: {
@@ -135,7 +135,7 @@ const columnTypes = {
 for (let column_idx in columnTypes) {
     let column = columnTypes[column_idx];
     column["sortable"] = true;
-    column["thStyle"] = column["key"] == "name" ? "width:300px" : "width:70px";
+    column["thStyle"] = column["key"] == "name" ? "min-width:300px;width:300px;" : "min-width:70px;width:70px;";
 }
 
 const animeSeriesColumns = [].concat([

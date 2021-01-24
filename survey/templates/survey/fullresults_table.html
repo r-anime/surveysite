@@ -1,6 +1,6 @@
-<div class="row">
+<div class="row mb-3">
     <div class="col" id="{{ table_id }}">
-        <b-table hover small bordered striped responsive sort-by="name" :sort-desc="false" :sort-compare="sortCompare" :items="items" :fields="fields" :tbody-tr-class="rowClass">
+        <b-table hover small bordered striped responsive fixed sort-by="name" :sort-desc="false" :sort-compare="sortCompare" :items="items" :fields="fields" :tbody-tr-class="rowClass">
             <template #cell(name)="data">
                 <div class="row align-items-center no-gutters">
                     <div class="col-auto col-img">
