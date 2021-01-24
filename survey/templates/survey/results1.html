@@ -1,0 +1,192 @@
+{% extends "survey/base.html" %}
+{% load anime_util %}
+{% load util %}
+
+{% block head %}
+<script>
+    function genericNumberFormatter(value, validFormatter) {
+        switch (value) {
+            case 'nan':
+                return 'NaN';
+            case 'inf':
+                return '\u221e';
+            default:
+                return validFormatter(value)
+        }
+    }
+
+    function percentageFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(1) + '%');
+    }
+
+    function genderRatioFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+
+    function scoreFormatter(value) {
+        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-3">{{ survey }} Results!</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="row"><div class="col">
+            Thanks everyone for filling in this survey! There were {{ response_count }} responses,
+            and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
+        </div></div>
+        <div class="row mt-2"><div class="col">
+            <canvas id="age-distribution-chart"></canvas>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <canvas id="gender-distribution-chart"></canvas>
+    </div>
+</div>
+
+
+{% include 'survey/results_segment.html' with depth=2 item=root_item only%}
+
+
+<div class="row justify-content-between mt-3">
+    <div class="col-auto">
+        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'survey:fullresults' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" class="btn btn-primary">View full results</a>
+    </div>
+</div>
+
+
+<script>
+    var distributionChartColor = 'rgb(54, 162, 235)';
+    var distributionChartDatalabelColor = 'rgb(96, 96, 96)';
+
+    var gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
+    var gdcChart = new Chart(gdcCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
+            datasets: [{
+                label: 'Percentage of responders',
+                backgroundColor: distributionChartColor,
+                borderColor: distributionChartColor,
+                data: [{% for value in gender_distribution.values %}{{ value|floatformat:1 }}, {% endfor %}],
+            }],
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Gender Distribution',
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                        if (label) {
+                            label += ': ' + tooltipItem.yLabel + '%';
+                        }
+                        return label;
+                    },
+                },
+            },
+            legend: {
+                display: false,
+            },
+            plugins: {
+                datalabels: {
+                    align: 'top',
+                    anchor: 'end',
+                    color: distributionChartDatalabelColor,
+                    offset: -2,
+                    formatter: function(value) {
+                        return value + '%';
+                    },
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        min: 0,
+                        max: 100,
+                    },
+                }]
+            },
+        },
+    });
+
+    var adcCtx = document.getElementById('age-distribution-chart').getContext('2d');
+    var adcChart = new Chart(adcCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for age in age_distribution.keys %}{{ age }}, {% endfor %}],
+            datasets: [{
+                label: 'Percentage of responders',
+                backgroundColor: distributionChartColor,
+                borderColor: distributionChartColor,
+                data: [{% for value in age_distribution.values %}{{ value|floatformat:2 }}, {% endfor %}],
+            }],
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Age Distribution',
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                        if (label) {
+                            label += ': ' + tooltipItem.yLabel + '%';
+                        }
+                        return label;
+                    },
+                },
+            },
+            legend: {
+                display: false,
+            },
+            plugins: {
+                datalabels: {
+                    align: 'top',
+                    anchor: 'end',
+                    color: distributionChartDatalabelColor,
+                    offset: -2,
+                    formatter: function(value, context) {
+                        if (context.dataIndex % 2 == 0 && value > 0.1) {
+                            return value + '%';
+                        }
+                        else {
+                            return '';
+                        }
+                    },
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        min: 0,
+                        max: Math.round({{ age_distribution_max }} * 1.1 + 0.5),
+                    },
+                }]
+            },
+        },
+    });
+</script>
+{% endblock content %}

@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, DetailView
 from django.db.models import Avg
 from django.shortcuts import redirect
 from django.core.cache import cache, caches
-from enum import Enum
+from enum import Enum, auto
 from collections import OrderedDict
 import inspect
 import json
@@ -57,7 +57,7 @@ class FullResultsView(BaseResultsView):
 
 class ResultsView(BaseResultsView):
     """Class-based results view."""
-    template_name = 'survey/results.html'
+    template_name = 'survey/results1.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -66,10 +66,48 @@ class ResultsView(BaseResultsView):
         results_generator = ResultsGenerator(survey)
         anime_series_data, special_anime_data = results_generator.get_anime_results_data()
 
-        context['segment_list'] = [
-            {'title': table.title, 'table': table} if isinstance(table, ResultsTable) else {'title': table[0].title, 'table_list': table}
-            for table in self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
-        ]
+        # context['segment_list'] = [
+        #     {'title': table.title, 'table': table} if isinstance(table, ResultsTable) else {'title': table[0].title, 'table_list': table}
+        #     for table in self.__generate_table_list(anime_series_data, special_anime_data, survey.is_preseason)
+        # ]
+
+        # context['root_item'] = {
+        #     'type': 'segment',
+        #     'title': 'Anime Results',
+        #     'children': [{
+        #         'type': 'segment',
+        #         'title': 'Anime Series',
+        #         'children': [],
+        #     }, {
+        #         'type': 'segment',
+        #         'title': 'Anime OVAs/ONAs/Movies/Specials',
+        #         'children': [],
+        #     }],
+        # }
+
+        root_item = ResultsSegment('Anime Results', [
+            ResultsSegment('Demographics', [
+                ResultsSegment('Popularity', [
+                    ResultsTableWithTop3('Most Popular Anime Series', None),
+                    ResultsTableDuo('Largest Gender Popularity Disparities', None, None),
+                ]),
+                ResultsSegment('Miscellaneous', [
+                    ResultsTableWithTop3('Most Underwatched Anime', None),
+                    ResultsTableTopAndBottom('Average Age per Anime', None),
+                ]),
+            ]),
+            ResultsSegment('Impressions', [
+                ResultsSegment('Scores', [
+                    ResultsTableTopAndBottom(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', None),
+                    ResultsTableDuo('Largest Gender Score Disparities', None, None),
+                ]),
+            ]),
+            ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
+                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', None),
+                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', None),
+            ]),
+        ])
+        context['root_item'] = root_item
 
         survey_responses = Response.objects.filter(survey=survey)
         response_count = survey_responses.count()
@@ -155,6 +193,45 @@ class ResultsView(BaseResultsView):
                 special_popularity_table, special_score_table,
             ]
     
+
+class ResultsItem:
+    def __init__(self, item_type, title):
+        self.item_type = item_type
+        self.title = title
+    
+    class ItemType(Enum):
+        SEGMENT = 'segment'
+        TABLE_WITH_TOP3 = 'table_with_top3'
+        TABLE_DUO = 'table_duo'
+        TABLE_TOP_AND_BOTTOM = 'table_top_and_bottom'
+
+class ResultsSegment(ResultsItem):
+    def __init__(self, title, children=[]):
+        super().__init__(ResultsItem.ItemType.SEGMENT, title)
+
+        self.children = children
+
+    def add_child(self, item):
+        self.children.append(item)
+
+class ResultsTableWithTop3(ResultsItem):
+    def __init__(self, title, table_data):
+        super().__init__(ResultsItem.ItemType.TABLE_WITH_TOP3, title)
+
+        self.table_data = table_data
+
+class ResultsTableDuo(ResultsItem):
+    def __init__(self, title, table_data_a, table_data_b):
+        super().__init__(ResultsItem.ItemType.TABLE_DUO, title)
+
+        self.table_data_a = table_data_a
+        self.table_data_b = table_data_b
+
+class ResultsTableTopAndBottom(ResultsItem):
+    def __init__(self, title, table_data):
+        super().__init__(ResultsItem.ItemType.TABLE_TOP_AND_BOTTOM, title)
+
+        self.table_data = table_data
 
 
 class ResultsGenerator:

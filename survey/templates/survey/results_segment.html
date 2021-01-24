@@ -1,0 +1,10 @@
+<h{{ depth }} class="mb3">{{ item.title }}</h{{ depth }}>
+
+{% for child in item.children %}
+    {% if child.item_type.value == "segment" %}
+        {% include 'survey/results_segment.html' with depth=depth|add:"1" item=child only %}
+    {% else %}
+        <h{{ depth|add:"1" }}>{{ child.title }}</h{{ depth|add:"1" }}>
+        <p>{{ child.item_type.value }}</p>
+    {% endif %}
+{% endfor %}
