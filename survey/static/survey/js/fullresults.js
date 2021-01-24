@@ -166,7 +166,7 @@ const specialAnimeColumns = [].concat([
 );
 
 new Vue({
-    el: "#results-table-series",
+    el: "#" + animeSeriesTableId,
     delimiters: ["{$", "$}"],
     data: {
         fields: animeSeriesColumns,
@@ -174,7 +174,7 @@ new Vue({
     },
 });
 new Vue({
-    el: "#results-table-special",
+    el: "#" + specialAnimeTableId,
     delimiters: ["{$", "$}"],
     data: {
         fields: specialAnimeColumns,

@@ -10,22 +10,16 @@
         width: 50px;
     }
 </style>
-<script>
-    const animeInfo = {{ anime_info_json|safe }};
-    const animeSeriesData = {{ anime_series_data_json|safe }};
-    const specialAnimeData = {{ special_anime_data_json|safe }};
-    const surveyIsPreseason = {{ survey.is_preseason|lower }};
-</script>
 {% endblock %}
 
-{% block content %}{% with series_table_id='results-table-series' special_table_id='results-table-special' %}
+{% block content %}{% with anime_series_table_id='results-table-series' special_anime_table_id='results-table-special' %}
 <h1 class="mb-3">Full Results of {{ survey }}</h1>
 
 <h2 class="mb-3">Anime Series</h2>
-{% include 'survey/fullresults_table.html' with table_id=series_table_id only %}
+{% include 'survey/fullresults_table.html' with table_id=anime_series_table_id only %}
 
 <h2 class="mb-3">Anime OVAs/ONAs/Movies/Specials</h2>
-{% include 'survey/fullresults_table.html' with table_id=special_table_id only %}
+{% include 'survey/fullresults_table.html' with table_id=special_anime_table_id only %}
 
 <div class="row mt-3 no-gutters">
     <div class="col-auto mr-2">
@@ -36,5 +30,13 @@
     </div>
 </div>
 
+<script>
+    const animeInfo = {{ anime_info_json|safe }};
+    const animeSeriesData = {{ anime_series_data_json|safe }};
+    const specialAnimeData = {{ special_anime_data_json|safe }};
+    const surveyIsPreseason = {{ survey.is_preseason|lower }};
+    const animeSeriesTableId = "{{ anime_series_table_id }}";
+    const specialAnimeTableId = "{{ special_anime_table_id }}";
+</script>
 <script src="{% static 'survey/js/fullresults.js' %}"></script>
 {% endwith %}{% endblock %}
