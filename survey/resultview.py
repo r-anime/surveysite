@@ -103,8 +103,8 @@ class ResultsView(BaseResultsView):
                 ]),
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
-                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, top_count=5),
-                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, top_count=5),
+                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
+                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
             ]),
         ])
         context['root_item'] = root_item
@@ -221,9 +221,10 @@ class ResultsSegment(ResultsItem):
         self.children.append(item)
 
 class ResultsTableWithTop3(ResultsItem):
-    def __init__(self, title, main_result_type, bonus_result_type=None, top_count=None, bottom_count=None):
+    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(ResultsItem.ItemType.TABLE_WITH_TOP3, title)
 
+        self.is_for_series = is_for_series
         self.main_result_type = main_result_type
         self.bonus_result_type = bonus_result_type
         self.top_count = top_count
