@@ -75,12 +75,12 @@ class ResultsView(BaseResultsView):
                 ]),
                 ResultsSegment('Miscellaneous', [
                     ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
-                    ResultsSplitTable('Average Age per Anime', None),
+                    ResultsTableDuo('Average Age per Anime', None),
                 ]),
             ]),
             ResultsSegment('Impressions', [
                 ResultsSegment('Scores', [
-                    ResultsSplitTable(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', None),
+                    ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
                     ResultsTableDuo('Largest Gender Score Disparities', None, None),
                 ]),
             ]),
@@ -122,6 +122,12 @@ class ResultsView(BaseResultsView):
         return context
     
 
+
+class ResultsItemType(Enum):
+    SEGMENT = auto()
+    TABLE_WITH_TOP3 = auto()
+    TABLE_DUO = auto()
+
 class ResultsItem:
     def __init__(self, item_type, title):
         self.item_type = item_type
@@ -131,15 +137,11 @@ class ResultsItem:
         self.id = item_id
         return item_id + 1
 
-    class ItemType(Enum):
-        SEGMENT = auto()
-        TABLE_WITH_TOP3 = auto()
-        TABLE_DUO = auto()
-        SPLIT_TABLE = auto()
+
 
 class ResultsSegment(ResultsItem):
     def __init__(self, title, children=[], is_root=False):
-        super().__init__(ResultsItem.ItemType.SEGMENT, title)
+        super().__init__(ResultsItemType.SEGMENT, title)
 
         self.children = children
 
@@ -153,9 +155,11 @@ class ResultsSegment(ResultsItem):
             next_id = child.set_id(next_id)
         return next_id
 
-class ResultsTableWithTop3(ResultsItem):
-    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(ResultsItem.ItemType.TABLE_WITH_TOP3, title)
+
+
+class ResultsTableBase(ResultsItem):
+    def __init__(self, item_type, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
+        super().__init__(item_type, title)
 
         self.is_for_series = is_for_series
         self.main_result_type = main_result_type
@@ -163,18 +167,15 @@ class ResultsTableWithTop3(ResultsItem):
         self.top_count = top_count
         self.bottom_count = bottom_count
 
-class ResultsTableDuo(ResultsItem):
-    def __init__(self, title, table_data_a, table_data_b):
-        super().__init__(ResultsItem.ItemType.TABLE_DUO, title)
 
-        self.table_data_a = table_data_a
-        self.table_data_b = table_data_b
+class ResultsTableWithTop3(ResultsTableBase):
+    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
+        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, bonus_result_type, is_for_series, top_count, bottom_count)
 
-class ResultsSplitTable(ResultsItem):
-    def __init__(self, title, table_data):
-        super().__init__(ResultsItem.ItemType.SPLIT_TABLE, title)
 
-        self.table_data = table_data
+class ResultsTableDuo(ResultsTableBase):
+    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, row_count=None):
+        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, bonus_result_type, is_for_series, row_count)
 
 
 class ResultsGenerator:

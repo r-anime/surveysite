@@ -48,8 +48,8 @@
                 <img :src="data.item.name.image.s" class="img-fluid"></img>
             </template>
             <template #cell(name)="data">
-                <div class="ml-2 mr-2 mb-n1">
-                    <div v-for="name in data.value.official_name_list" class="mb-1">
+                <div class="ml-2 mr-2 pb-n1">
+                    <div v-for="name in data.value.official_name_list" class="pb-1">
                         {$ name $}
                     </div>
                 </div>
