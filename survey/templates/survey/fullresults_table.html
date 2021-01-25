@@ -4,7 +4,7 @@
             <template #cell(name)="data">
                 <div class="row align-items-center no-gutters">
                     <div class="col-auto col-img">
-                        <img :src="data.value.image" class="img-fluid">
+                        <img :src="data.value.image.s" class="img-fluid">
                     </div>
                     <div class="col ml-2 mr-2 mb-n1">
                         <div v-for="name in data.value.official_name_list" class="mb-1">

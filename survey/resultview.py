@@ -92,7 +92,7 @@ class ResultsView(BaseResultsView):
                     ResultsTableDuo('Largest Gender Popularity Disparities', None, None),
                 ]),
                 ResultsSegment('Miscellaneous', [
-                    ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, top_count=5),
+                    ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
                     ResultsSplitTable('Average Age per Anime', None),
                 ]),
             ]),
@@ -263,7 +263,11 @@ class ResultsGenerator:
             anime.id: {
                 'official_name_list': AnimeUtil.get_name_list(anime),
                 'type': anime.anime_type,
-                'image': AnimeUtil.get_anime_image_url(anime, variant='s'),
+                'image': {
+                    's': AnimeUtil.get_anime_image_url(anime, variant='s'),
+                    'm': AnimeUtil.get_anime_image_url(anime, variant='m'),
+                    'l': AnimeUtil.get_anime_image_url(anime, variant='l'),
+                },
             } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
         })
 
