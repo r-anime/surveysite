@@ -1,0 +1,97 @@
+{% load anime_util %}
+{% load util %}
+
+{% with table=item.table %}
+<h{{ depth }} class="mb-3">{{ item.title }}</h{{ depth }}>
+
+<div class="row mb-3 justify-content-center">
+    <div class="col-md-4 col-8 text-center">
+        {% with anime_list=table.data.keys|listify %}
+        {% if anime_list %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-8 mb-2">
+                {% get_anime_image anime_list.0 css_class='img-fluid' variant='l' %}
+            </div>
+            <div class="col-12">
+                {% get_official_names anime_list.0 'div class="mb-1"' %}
+            </div>
+        </div>
+        {% if anime_list|length >= 2 %}
+        <div class="row" style="font-size:75%;">
+            <div class="col-6">
+                <div class="row justify-content-center">
+                    <div class="col-10 mb-1">
+                        {% get_anime_image anime_list.1 css_class='img-fluid' variant='m' %}
+                    </div>
+                    <div class="col-12">
+                        {% get_official_names anime_list.1 'div class="mb-1"' %}
+                    </div>
+                </div>
+            </div>
+            {% if anime_list|length >= 3 %}
+            <div class="col-6">
+                <div class="row justify-content-center">
+                    <div class="col-10 mb-1">
+                        {% get_anime_image anime_list.2 css_class='img-fluid' variant='m' %}
+                    </div>
+                    <div class="col-12">
+                        {% get_official_names anime_list.2 'div class="mb-1"' %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div class="col-md col-10" id="results-table-{{ item.id }}">
+        <b-table-lite hover small borderless :items="items" :fields="fields">
+            <template #cell(rank)="data">
+                #{$ data.value $}
+            </template>
+            <template #cell(image)="data">
+                <img :src="data.item.name.image" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div class="ml-2 mr-2 mb-n1">
+                    <div v-for="name in data.value.official_name_list" class="mb-1">
+                        {$ name $}
+                    </div>
+                </div>
+                <div class="progress-bar table-row-progress-bar" :style="data.item.pbwidth"></div>
+            </template>
+        </b-table>
+    </div>
+</div>
+
+<script>
+const tableMainResult{{ item.id }} = "{{ item.main_result_type.name|lower }}";
+const tableBonusResult{{ item.id }} = "{{ item.bonus_result_type.name|lower|default:'' }}";
+
+const tableColumns{{ item.id }} = [
+    columnTypes["rank"],
+    columnTypes["image"],
+    columnTypes["name"],
+].concat(
+    [columnTypes[tableMainResult{{ item.id }}]],
+    tableBonusResult{{ item.id }} ? [columnTypes[tableBonusResult{{ item.id }}]] : []
+);
+
+const tableItems{{ item.id }} = sortAndCutoffData(
+    getTableItems(animeSeriesData),
+    tableMainResult{{ item.id }},
+    {{ item.top_count|default:'null' }},
+    {{ item.bottom_count|default:'null' }}
+);
+
+new Vue({
+    el: "#results-table-{{ item.id }}",
+    delimiters: ["{$", "$}"],
+    data: {
+        fields: tableColumns{{ item.id }},
+        items: tableItems{{ item.id }},
+    },
+});
+</script>
+{% endwith %}

@@ -3,34 +3,142 @@
 {% load util %}
 
 {% block head %}
+<style>
+    .table-col-image {
+        width: 15%!important;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
 <script>
     function genericNumberFormatter(value, validFormatter) {
-        switch (value) {
-            case 'nan':
-                return 'NaN';
-            case 'inf':
-                return '\u221e';
+        switch (isNaN(value) || value) {
+            case true:
+                return "N/A";
+            case Infinity:
+                return "\u221e";
             default:
-                return validFormatter(value)
+                return validFormatter(value);
         }
     }
 
     function percentageFormatter(value) {
-        return genericNumberFormatter(value, v => parseFloat(v).toFixed(1) + '%');
+        return genericNumberFormatter(value, function (v) { return parseFloat(v).toFixed(1) + "%" });
     }
-
     function genderRatioFormatter(value) {
-        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    }
+    function scoreFormatter(value) {
+        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    }
+    function ageFormatter(value) {
+        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
     }
 
-    function scoreFormatter(value) {
-        return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+
+    const animeInfo = {{ anime_info_json|safe }};
+    const animeSeriesData = {{ anime_series_data_json|safe }};
+    const specialAnimeData = {{ special_anime_data_json|safe }};
+    const surveyIsPreseason = {{ survey.is_preseason|lower }};
+
+    const columnTypes = {
+        rank: {
+            key: "rank",
+            label: "#",
+        },
+        image: {
+            key: "image",
+            label: "",
+            tdClass: "table-col-image",
+        },
+        name: {
+            key: "name",
+            label: "Anime",
+        },
+        popularity: {
+            key: "popularity",
+            label: "Pop.",
+            formatter: percentageFormatter,
+        },
+        gender_popularity_ratio: {
+            key: "gender_popularity_ratio",
+            label: "Gender Ratio (♂:♀)",
+            formatter: genderRatioFormatter,
+        },
+        gender_popularity_ratio_inv: {
+            key: "gender_popularity_ratio_inv",
+            label: "Gender Ratio (♀:♂)",
+            formatter: genderRatioFormatter,
+        },
+        age: {
+            key: "age",
+            label: "Avg. Age",
+            formatter: ageFormatter,
+        },
+        underwatched: {
+            key: "underwatched",
+            label: "Under-watched",
+            formatter: percentageFormatter,
+        },
+        score: {
+            key: "score",
+            label: "Score",
+            formatter: scoreFormatter,
+        },
+        gender_score_difference: {
+            key: "gender_score_difference",
+            label: "Score Diff. (♂-♀)",
+            formatter: scoreFormatter,
+        },
+        gender_score_difference_inv: {
+            key: "gender_score_difference_inv",
+            label: "Score Diff. (♀-♂)",
+            formatter: scoreFormatter,
+        },
+        surprise: {
+            key: "surprise",
+            label: "Sur-prise",
+            formatter: percentageFormatter,
+        },
+        disappointment: {
+            key: "disappointment",
+            label: "Disa-ppoint-ment",
+            formatter: percentageFormatter,
+        }
+    };
+
+    for (let column_idx in columnTypes) {
+        let column = columnTypes[column_idx];
+        column["sortable"] = true;
+        //column["thStyle"] = column["key"] == "name" ? "min-width:300px;width:300px;" : "min-width:70px;width:70px;";
+    }
+
+    function getTableItems(animeData) {
+        const tableItems = [];
+        for (const anime_id in animeData) {
+            const item = Object.assign({}, animeData[anime_id]);
+            item["name"] = animeInfo[anime_id];
+            tableItems.push(item);
+        }
+        return tableItems;
+    }
+
+    function sortAndCutoffData(tableItems, sortKey, topCount, bottomCount) {
+        tableItems.sort(function(a, b) { return b[sortKey] - a[sortKey] });
+
+        for (let i = 0; i < tableItems.length; i++) {
+            tableItems[i]["rank"] = i + 1;
+        }
+
+        if (typeof(topCount) === "number") {
+            if (typeof(bottomCount) === "number") {
+                return tableItems.slice(0, topCount).concat(tableItems.slice(-bottomCount));
+            }
+            return tableItems.slice(0, topCount);
+        }
+        return tableItems;
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
-<style>
-</style>
 {% endblock %}
 
 {% block content %}

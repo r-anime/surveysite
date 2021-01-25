@@ -64,7 +64,7 @@ class ResultsView(BaseResultsView):
         survey = self._get_survey()
 
         results_generator = ResultsGenerator(survey)
-        anime_series_data, special_anime_data = results_generator.get_anime_results_data()
+        # anime_series_data, special_anime_data = results_generator.get_anime_results_data()
 
         # context['segment_list'] = [
         #     {'title': table.title, 'table': table} if isinstance(table, ResultsTable) else {'title': table[0].title, 'table_list': table}
@@ -88,26 +88,27 @@ class ResultsView(BaseResultsView):
         root_item = ResultsSegment('Anime Results', [
             ResultsSegment('Demographics', [
                 ResultsSegment('Popularity', [
-                    ResultsTableWithTop3('Most Popular Anime Series', None),
+                    ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
                     ResultsTableDuo('Largest Gender Popularity Disparities', None, None),
                 ]),
                 ResultsSegment('Miscellaneous', [
-                    ResultsTableWithTop3('Most Underwatched Anime', None),
-                    ResultsTableTopAndBottom('Average Age per Anime', None),
+                    ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, top_count=5),
+                    ResultsSplitTable('Average Age per Anime', None),
                 ]),
             ]),
             ResultsSegment('Impressions', [
                 ResultsSegment('Scores', [
-                    ResultsTableTopAndBottom(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', None),
+                    ResultsSplitTable(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', None),
                     ResultsTableDuo('Largest Gender Score Disparities', None, None),
                 ]),
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
-                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', None),
-                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', None),
+                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, top_count=5),
+                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, top_count=5),
             ]),
         ])
         context['root_item'] = root_item
+        context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
 
         survey_responses = Response.objects.filter(survey=survey)
         response_count = survey_responses.count()
@@ -194,16 +195,21 @@ class ResultsView(BaseResultsView):
             ]
     
 
+RESULTS_ITEM_ID_COUNTER = 0
 class ResultsItem:
     def __init__(self, item_type, title):
+        global RESULTS_ITEM_ID_COUNTER
+        self.id = RESULTS_ITEM_ID_COUNTER
+        RESULTS_ITEM_ID_COUNTER += 1
+
         self.item_type = item_type
         self.title = title
     
     class ItemType(Enum):
-        SEGMENT = 'segment'
-        TABLE_WITH_TOP3 = 'table_with_top3'
-        TABLE_DUO = 'table_duo'
-        TABLE_TOP_AND_BOTTOM = 'table_top_and_bottom'
+        SEGMENT = auto()
+        TABLE_WITH_TOP3 = auto()
+        TABLE_DUO = auto()
+        SPLIT_TABLE = auto()
 
 class ResultsSegment(ResultsItem):
     def __init__(self, title, children=[]):
@@ -215,10 +221,13 @@ class ResultsSegment(ResultsItem):
         self.children.append(item)
 
 class ResultsTableWithTop3(ResultsItem):
-    def __init__(self, title, table_data):
+    def __init__(self, title, main_result_type, bonus_result_type=None, top_count=None, bottom_count=None):
         super().__init__(ResultsItem.ItemType.TABLE_WITH_TOP3, title)
 
-        self.table_data = table_data
+        self.main_result_type = main_result_type
+        self.bonus_result_type = bonus_result_type
+        self.top_count = top_count
+        self.bottom_count = bottom_count
 
 class ResultsTableDuo(ResultsItem):
     def __init__(self, title, table_data_a, table_data_b):
@@ -227,9 +236,9 @@ class ResultsTableDuo(ResultsItem):
         self.table_data_a = table_data_a
         self.table_data_b = table_data_b
 
-class ResultsTableTopAndBottom(ResultsItem):
+class ResultsSplitTable(ResultsItem):
     def __init__(self, title, table_data):
-        super().__init__(ResultsItem.ItemType.TABLE_TOP_AND_BOTTOM, title)
+        super().__init__(ResultsItem.ItemType.SPLIT_TABLE, title)
 
         self.table_data = table_data
 

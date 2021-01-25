@@ -10,16 +10,16 @@ function genericNumberFormatter(value, validFormatter) {
 }
 
 function percentageFormatter(value) {
-    return genericNumberFormatter(value, v => parseFloat(v).toFixed(1) + "%");
+    return genericNumberFormatter(value, function (v) { return parseFloat(v).toFixed(1) + "%" });
 }
 function genderRatioFormatter(value) {
-    return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
 }
 function scoreFormatter(value) {
-    return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
 }
 function ageFormatter(value) {
-    return genericNumberFormatter(value, v => parseFloat(v).toFixed(2));
+    return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
 }
 
 

@@ -1,10 +1,12 @@
 <h{{ depth }} class="mb3">{{ item.title }}</h{{ depth }}>
 
 {% for child in item.children %}
-    {% if child.item_type.value == "segment" %}
-        {% include 'survey/results_segment.html' with depth=depth|add:"1" item=child only %}
+    {% if child.item_type.name|lower == 'segment' %}
+        {% include 'survey/results_segment.html' with depth=depth|add:'1' item=child only %}
+    {% elif child.item_type.name|lower == 'table_with_top3' %}
+        {% include 'survey/results_table-with-top3.html' with depth=depth|add:'1' item=child only %}
     {% else %}
-        <h{{ depth|add:"1" }}>{{ child.title }}</h{{ depth|add:"1" }}>
-        <p>{{ child.item_type.value }}</p>
+        <h{{ depth|add:'1' }}>{{ child.title }}</h{{ depth|add:'1' }}>
+        <p>{{ child.item_type.name|lower }}</p>
     {% endif %}
 {% endfor %}
