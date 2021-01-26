@@ -39,7 +39,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md col-10">
+    <div class="col-md col-10 table-with-top3">
         <b-table-lite hover small borderless :items="items" :fields="fields">
             <template #cell(rank)="data">
                 #{$ data.value $}
@@ -48,7 +48,7 @@
                 <img :src="data.item.name.image.s" class="img-fluid"></img>
             </template>
             <template #cell(name)="data">
-                <div class="ml-2 mr-2 pb-n1">
+                <div class="ml-2 mr-2">
                     <div v-for="name in data.value.official_name_list" class="pb-1">
                         {$ name $}
                     </div>
@@ -61,15 +61,15 @@
 
 <script>
 const tableMainResult{{ item.id }} = "{{ item.main_result_type.name|lower }}";
-const tableBonusResult{{ item.id }} = "{{ item.bonus_result_type.name|lower|default:'' }}";
+const tableExtraResult{{ item.id }} = "{{ item.extra_result_type.name|lower|default:'' }}";
 
 const tableColumns{{ item.id }} = [
     columnTypes["rank"],
     columnTypes["image"],
     columnTypes["name"],
 ].concat(
-    [columnTypes[tableMainResult{{ item.id }}]],
-    tableBonusResult{{ item.id }} ? [columnTypes[tableBonusResult{{ item.id }}]] : []
+    [setColumnCssClass(columnTypes[tableMainResult{{ item.id }}], "table-col-main")],
+    tableExtraResult{{ item.id }} ? [setColumnCssClass(columnTypes[tableExtraResult{{ item.id }}], "table-col-extra")] : []
 );
 
 const tableItems{{ item.id }} = processData(

@@ -162,24 +162,24 @@ class ResultsSegment(ResultsItem):
 
 
 class ResultsTableBase(ResultsItem):
-    def __init__(self, item_type, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
+    def __init__(self, item_type, title, main_result_type, extra_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(item_type, title)
 
         self.is_for_series = is_for_series
         self.main_result_type = main_result_type
-        self.bonus_result_type = bonus_result_type
+        self.extra_result_type = extra_result_type
         self.top_count = top_count
         self.bottom_count = bottom_count
 
 
 class ResultsTableWithTop3(ResultsTableBase):
-    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, bonus_result_type, is_for_series, top_count, bottom_count)
+    def __init__(self, title, main_result_type, extra_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
+        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, is_for_series, top_count, bottom_count)
 
 
 class ResultsTableDuo(ResultsTableBase):
-    def __init__(self, title, main_result_type, bonus_result_type=None, is_for_series=True, row_count=None):
-        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, bonus_result_type, is_for_series, row_count)
+    def __init__(self, title, main_result_type, extra_result_type=None, is_for_series=True, row_count=None):
+        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, extra_result_type, is_for_series, row_count)
 
 
 class ResultsGenerator:

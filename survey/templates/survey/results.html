@@ -4,11 +4,26 @@
 
 {% block head %}
 <style>
+    .table-duo {
+        font-size: 85%;
+    }
+
+    .table-col-rank {
+        width: 5%!important;
+    }
     .table-col-image {
         width: 15%!important;
     }
     .table-col-name {
         width: auto!important;
+        position: relative!important;
+    }
+    .table-col-main {
+        width: 10%!important;
+        position: relative!important;
+    }
+    .table-col-extra {
+        width: 7%!important;
         position: relative!important;
     }
     .table-row-progress-bar {
@@ -77,15 +92,19 @@
         rank: {
             key: "rank",
             label: "",
+            thClass: "table-col-rank",
+            tdClass: "table-col-rank",
         },
         image: {
             key: "image",
             label: "",
+            thClass: "table-col-image",
             tdClass: "table-col-image",
         },
         name: {
             key: "name",
             label: "Anime",
+            thClass: "table-col-name",
             tdClass: "table-col-name",
         },
         popularity: {
@@ -165,6 +184,13 @@
         else {
             return null;
         }
+    }
+
+    function setColumnCssClass(column, cssClass) {
+        const result = Object.assign({}, column);
+        result["tdClass"] = cssClass;
+        result["thClass"] = cssClass;
+        return result;
     }
 
     function processData(tableItems, sortKey, sortDesc, topCount, bottomCount) {
