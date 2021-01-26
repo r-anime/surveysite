@@ -41,10 +41,27 @@
         return genericNumberFormatter(value, function (v) { return parseFloat(v).toFixed(1) + "%" });
     }
     function genderRatioFormatter(value) {
-        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+        return genericNumberFormatter(value, function(v) {
+            if (v >= 1.0) {
+                return parseFloat(v).toFixed(2) + " M:F";
+            }
+            else {
+                return parseFloat(1.0/v).toFixed(2) + " F:M";
+            }
+        });
     }
     function scoreFormatter(value) {
         return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    }
+    function genderScoreDiffFormatter(value) {
+        return genericNumberFormatter(value, function (v) {
+            if (v >= 0.0) {
+                return parseFloat(v).toFixed(2) + " M";
+            }
+            else {
+                return parseFloat(-v).toFixed(2) + " F";
+            }
+        });
     }
     function ageFormatter(value) {
         return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
@@ -78,12 +95,7 @@
         },
         gender_popularity_ratio: {
             key: "gender_popularity_ratio",
-            label: "Gender Ratio (♂:♀)",
-            formatter: genderRatioFormatter,
-        },
-        gender_popularity_ratio_inv: {
-            key: "gender_popularity_ratio_inv",
-            label: "Gender Ratio (♀:♂)",
+            label: "Gender Ratio",
             formatter: genderRatioFormatter,
         },
         age: {
@@ -103,13 +115,8 @@
         },
         gender_score_difference: {
             key: "gender_score_difference",
-            label: "Score Diff. (♂-♀)",
-            formatter: scoreFormatter,
-        },
-        gender_score_difference_inv: {
-            key: "gender_score_difference_inv",
-            label: "Score Diff. (♀-♂)",
-            formatter: scoreFormatter,
+            label: "Score Diff.",
+            formatter: genderScoreDiffFormatter,
         },
         surprise: {
             key: "surprise",
@@ -173,6 +180,7 @@
         // Calculate the min and max values for the progress bar value.
         let pbMin = 0.0;
         let pbMax = 85.0;
+        let pbValueConversion = function(value) { return value };
         switch (sortKey) {
             case "score":
                 pbMin = 1.0;
@@ -181,16 +189,25 @@
             case "gender_score_difference":
             case "gender_score_difference_inv":
                 pbMax = 1.5;
+                pbValueConversion = function(value) { return Math.abs(value) };
                 break;
             case "gender_popularity_ratio":
             case "gender_popularity_ratio_inv":
                 pbMax = 10.0;
+                pbValueConversion = function(value) { return value >= 1.0 ? value : 1.0 / value };
+                break;
+            case "age":
+                pbMin = 20.0;
+                pbMax = 30.0;
                 break;
         }
 
         // Add progress bar value and item rank.
         for (let i = 0; i < tableItems.length; i++) {
-            tableItems[i]["pb_width"] = "width:" + String(Math.min(Math.max((tableItems[i][sortKey] - pbMin) / (pbMax - pbMin), 0.0), 1.0) * 100.0) + "%;";
+            let pbValue = pbValueConversion(tableItems[i][sortKey]);
+            pbValue = (pbValue - pbMin) / (pbMax - pbMin);
+            pbValue = Math.min(Math.max(pbValue, 0.0), 1.0);
+            tableItems[i]["pb_width"] = "width:" + String(pbValue * 100.0) + "%;";
             tableItems[i]["rank"] = i + 1;
         }
 

@@ -83,6 +83,10 @@ class ResultsView(BaseResultsView):
                     ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
                     ResultsTableDuo('Largest Gender Score Disparities', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3),
                 ]),
+                ResultsSegment('Expectations', [
+                    ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
+                    ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+                ])
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
                 ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
