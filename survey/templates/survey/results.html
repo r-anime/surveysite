@@ -3,32 +3,18 @@
 {% load util %}
 
 {% block head %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
 <style>
-    /*th {
-        display: none;
-    }*/
-    .table-col-index {
-        width: 5%!important;
-    }
     .table-col-image {
         width: 15%!important;
-    }
-    .table-col-image-small {
-        width: 10%!important;
     }
     .table-col-name {
         width: auto!important;
         position: relative!important;
     }
-    .table-col-other {
-        width: 10%!important
-    }
     .table-row-progress-bar {
         position: absolute;
-        top: 0%;
-        height: 100%;
+        top: 10%;
+        height: 80%;
         z-index: -10;
         /*border-radius:.25rem;*/
         background-color: rgb(199, 230, 250);
@@ -37,6 +23,204 @@
         vertical-align: middle!important;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+<script>
+    function genericNumberFormatter(value, validFormatter) {
+        switch (isNaN(value) || value) {
+            case true:
+                return "N/A";
+            case Infinity:
+                return "\u221e";
+            default:
+                return validFormatter(value);
+        }
+    }
+
+    function percentageFormatter(value) {
+        return genericNumberFormatter(value, function (v) { return parseFloat(v).toFixed(1) + "%" });
+    }
+    function genderRatioFormatter(value) {
+        return genericNumberFormatter(value, function(v) {
+            if (v >= 1.0) {
+                return parseFloat(v).toFixed(2) + " M:F";
+            }
+            else {
+                return parseFloat(1.0/v).toFixed(2) + " F:M";
+            }
+        });
+    }
+    function scoreFormatter(value) {
+        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    }
+    function genderScoreDiffFormatter(value) {
+        return genericNumberFormatter(value, function (v) {
+            if (v >= 0.0) {
+                return parseFloat(v).toFixed(2) + " M";
+            }
+            else {
+                return parseFloat(-v).toFixed(2) + " F";
+            }
+        });
+    }
+    function ageFormatter(value) {
+        return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    }
+
+
+    const animeInfo = {{ anime_info_json|safe }};
+    const animeSeriesData = {{ anime_series_data_json|safe }};
+    const specialAnimeData = {{ special_anime_data_json|safe }};
+    const surveyIsPreseason = {{ survey.is_preseason|lower }};
+
+    const columnTypes = {
+        rank: {
+            key: "rank",
+            label: "",
+        },
+        image: {
+            key: "image",
+            label: "",
+            tdClass: "table-col-image",
+        },
+        name: {
+            key: "name",
+            label: "Anime",
+            tdClass: "table-col-name",
+        },
+        popularity: {
+            key: "popularity",
+            label: "Pop.",
+            formatter: percentageFormatter,
+        },
+        gender_popularity_ratio: {
+            key: "gender_popularity_ratio",
+            label: "Gender Ratio",
+            formatter: genderRatioFormatter,
+        },
+        age: {
+            key: "age",
+            label: "Avg. Age",
+            formatter: ageFormatter,
+        },
+        underwatched: {
+            key: "underwatched",
+            label: "Under-watched",
+            formatter: percentageFormatter,
+        },
+        score: {
+            key: "score",
+            label: "Score",
+            formatter: scoreFormatter,
+        },
+        gender_score_difference: {
+            key: "gender_score_difference",
+            label: "Score Diff.",
+            formatter: genderScoreDiffFormatter,
+        },
+        surprise: {
+            key: "surprise",
+            label: "Sur-prise",
+            formatter: percentageFormatter,
+        },
+        disappointment: {
+            key: "disappointment",
+            label: "Disa-ppoint-ment",
+            formatter: percentageFormatter,
+        }
+    };
+
+    for (let column_idx in columnTypes) {
+        let column = columnTypes[column_idx];
+        column["sortable"] = true;
+        //column["thStyle"] = column["key"] == "name" ? "min-width:300px;width:300px;" : "min-width:70px;width:70px;";
+    }
+
+    function getTableItems(animeData) {
+        const tableItems = [];
+        for (const anime_id in animeData) {
+            const item = Object.assign({}, animeData[anime_id]);
+            item["name"] = animeInfo[anime_id];
+            tableItems.push(item);
+        }
+        return tableItems;
+    }
+
+    function sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
+        const a = aRow[key];
+        const b = bRow[key];
+
+        if (key == "name") {
+            // Sort names by the first official name (should be the Japanese name).
+            const aName = a["official_name_list"][0];
+            const bName = b["official_name_list"][0];
+            return aName < bName ? -1 : aName > bName ? 1 : 0;
+        }
+        else if (typeof(a) == "number" && typeof(b) == "number") {
+            // Treat NaN as the lowest number possible.
+            if (isNaN(a)) return -1;
+            if (isNaN(b)) return 1;
+            return a < b ? -1 : a > b ? 1 : 0;
+        }
+        else {
+            return null;
+        }
+    }
+
+    function processData(tableItems, sortKey, sortDesc, topCount, bottomCount) {
+        // Sort.
+        tableItems.sort(function(a, b) {
+            const comparison = sortCompare(a, b, sortKey);
+            return (sortDesc ? -1.0 : 1.0) * (comparison ? comparison : a[sortKey] - b[sortKey]);
+        });
+
+        // Filter anime below popularity threshold.
+        tableItems = tableItems.filter(function(item) { return item["popularity"] > 2.0});
+
+        // Calculate the min and max values for the progress bar value.
+        let pbMin = 0.0;
+        let pbMax = 85.0;
+        let pbValueConversion = function(value) { return value };
+        switch (sortKey) {
+            case "score":
+                pbMin = 1.0;
+                pbMax = 5.0;
+                break;
+            case "gender_score_difference":
+            case "gender_score_difference_inv":
+                pbMax = 1.5;
+                pbValueConversion = function(value) { return Math.abs(value) };
+                break;
+            case "gender_popularity_ratio":
+            case "gender_popularity_ratio_inv":
+                pbMax = 10.0;
+                pbValueConversion = function(value) { return value >= 1.0 ? value : 1.0 / value };
+                break;
+            case "age":
+                pbMin = 20.0;
+                pbMax = 30.0;
+                break;
+        }
+
+        // Add progress bar value and item rank.
+        for (let i = 0; i < tableItems.length; i++) {
+            let pbValue = pbValueConversion(tableItems[i][sortKey]);
+            pbValue = (pbValue - pbMin) / (pbMax - pbMin);
+            pbValue = Math.min(Math.max(pbValue, 0.0), 1.0);
+            tableItems[i]["pb_width"] = "width:" + String(pbValue * 100.0) + "%;";
+            tableItems[i]["rank"] = i + 1;
+        }
+
+        // Slice table to only include top X and bottom Y.
+        if (typeof(topCount) === "number") {
+            if (typeof(bottomCount) === "number") {
+                return tableItems.slice(0, topCount).concat(tableItems.slice(-bottomCount));
+            }
+            return tableItems.slice(0, topCount);
+        }
+        return tableItems;
+    }
+</script>
 {% endblock %}
 
 {% block content %}
@@ -59,117 +243,7 @@
 </div>
 
 
-{% for segment in segment_list %}
-{% if segment.table %}
-{% with table=segment.table %}
-<h2 class="mb-3">{{ segment.title }}</h2>
-
-<div class="row mb-3 justify-content-center">
-    <div class="col-md-4 col-8 text-center">
-        {% with anime_list=table.data.keys|listify %}
-        {% if anime_list %}
-        <div class="row justify-content-center mb-4">
-            <div class="col-8 mb-2">
-                {% get_anime_image anime_list.0 css_class='img-fluid' variant='l' %}
-            </div>
-            <div class="col-12">
-                {% get_official_names anime_list.0 'div class="mb-1"' %}
-            </div>
-        </div>
-        {% if anime_list|length >= 2 %}
-        <div class="row" style="font-size:75%;">
-            <div class="col-6">
-                <div class="row justify-content-center">
-                    <div class="col-10 mb-1">
-                        {% get_anime_image anime_list.1 css_class='img-fluid' variant='m' %}
-                    </div>
-                    <div class="col-12">
-                        {% get_official_names anime_list.1 'div class="mb-1"' %}
-                    </div>
-                </div>
-            </div>
-            {% if anime_list|length >= 3 %}
-            <div class="col-6">
-                <div class="row justify-content-center">
-                    <div class="col-10 mb-1">
-                        {% get_anime_image anime_list.2 css_class='img-fluid' variant='m' %}
-                    </div>
-                    <div class="col-12">
-                        {% get_official_names anime_list.2 'div class="mb-1"' %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
-        {% endif %}
-        {% endwith %}
-    </div>
-    <div class="col-md col-10" id="results-table-{{ forloop.counter0 }}">
-        <b-table-lite hover small borderless :items="items" :fields="fields">
-            <template #cell(rank)="data">
-                #{$ data.value $}
-            </template>
-            <template #cell(image)="data">
-                <img :src="data.value" class="img-fluid"></img>
-            </template>
-            <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value">
-                        {$ name $}
-                    </div>
-                </div>
-                <div class="progress-bar table-row-progress-bar" :style="data.item.pbwidth"></div>
-            </template>
-        </b-table>
-    </div>
-</div>
-{% endwith %}
-
-{% else %}
-
-<h3 class="mb-3">{{ segment.title }}</h3>
-
-<div class="row mb-3 justify-content-center" style="font-size:75%;">
-    <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-0">
-        <b-table-lite hover small borderless :items="items" :fields="fields">
-            <template #cell(rank)="data">
-                #{$ data.value $}
-            </template>
-            <template #cell(image)="data">
-                <img :src="data.value" class="img-fluid"></img>
-            </template>
-            <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value">
-                        {$ name $}
-                    </div>
-                </div>
-                <div class="progress-bar table-row-progress-bar" :style="data.item.pbwidth"></div>
-            </template>
-        </b-table>
-    </div>
-    <div class="col-md col-4" id="results-table-{{ forloop.counter0 }}-1">
-        <b-table-lite hover small borderless :items="items" :fields="fields">
-            <template #cell(rank)="data">
-                #{$ data.value $}
-            </template>
-            <template #cell(image)="data">
-                <img :src="data.value" class="img-fluid"></img>
-            </template>
-            <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value">
-                        {$ name $}
-                    </div>
-                </div>
-                <div class="progress-bar table-row-progress-bar" :style="data.item.pbwidth"></div>
-            </template>
-        </b-table>
-    </div>
-</div>
-{% endif %}
-{% endfor %}
+{% include 'survey/results_segment.html' with depth=2 item=root_item only%}
 
 
 <div class="row justify-content-between mt-3">
@@ -183,49 +257,6 @@
 
 
 <script>
-    {% for segment in segment_list %}
-    {% if segment.table %}
-    {% with table=segment.table %}
-    new Vue({
-        el: '#results-table-{{ forloop.counter0 }}',
-        delimiters: ['{$', '$}'],
-        data: {
-            fields: [{% for column in table.columns %}{
-                    {% for key, value in column.as_keyvalue %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
-                }, {% endfor %}
-            ],
-            items: [{% for anime, row in table.data.items %}{
-                    image: '{% get_anime_image_url anime variant="m" %}',
-                    {% for key, value in row.items %}{{ key }}: {% if key == 'name' %}{{ value|safe }}{% elif key == 'pbwidth' %}'width:{{ value|floatformat:1 }}%;'{% else %}'{{ value|safe|escapejs }}'{% endif %}, {% endfor %}
-                }, {% endfor %}
-            ],
-        }
-    })
-    {% endwith %}
-    {% else %}
-    {% with table_list=segment.table_list segment_idx=forloop.counter0 %}
-    {% for table in table_list %}
-    new Vue({
-        el: '#results-table-{{ segment_idx }}-{{ forloop.counter0 }}',
-        delimiters: ['{$', '$}'],
-        data: {
-            fields: [{% for column in table.columns %}{
-                    {% for key, value in column.as_keyvalue %}{% if key == 'formatter' %}{{ key }}: {{ value }}, {% else %}{{ key }}: '{{ value }}', {% endif %}{% endfor %}
-                }, {% endfor %}
-            ],
-            items: [{% for anime, row in table.data.items %}{
-                    image: '{% get_anime_image_url anime variant="s" %}',
-                    {% for key, value in row.items %}{{ key }}: {% if key == 'name' %}{{ value|safe }}{% elif key == 'pbwidth' %}'width:{{ value|floatformat:1 }}%;'{% else %}'{{ value|safe|escapejs }}'{% endif %}, {% endfor %}
-                }, {% endfor %}
-            ],
-        }
-    })
-    {% endfor %}
-    {% endwith %}
-    {% endif %}
-    {% endfor %}
-
-
     var distributionChartColor = 'rgb(54, 162, 235)';
     var distributionChartDatalabelColor = 'rgb(96, 96, 96)';
 

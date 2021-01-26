@@ -57,7 +57,7 @@ class FullResultsView(BaseResultsView):
 
 class ResultsView(BaseResultsView):
     """Class-based results view."""
-    template_name = 'survey/results1.html'
+    template_name = 'survey/results.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
