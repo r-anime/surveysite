@@ -1,7 +1,7 @@
 function genericNumberFormatter(value, validFormatter) {
     switch (isNaN(value) || value) {
         case true:
-            return "N/A";
+            return typeof(value) === "number" ? "N/A" : value;
         case Infinity:
             return "\u221e";
         default:
@@ -13,10 +13,27 @@ function percentageFormatter(value) {
     return genericNumberFormatter(value, function (v) { return parseFloat(v).toFixed(1) + "%" });
 }
 function genderRatioFormatter(value) {
-    return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+    return genericNumberFormatter(value, function(v) {
+        if (v >= 1.0) {
+            return parseFloat(v).toFixed(2) + " M:F";
+        }
+        else {
+            return parseFloat(1.0/v).toFixed(2) + " F:M";
+        }
+    });
 }
 function scoreFormatter(value) {
     return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
+}
+function genderScoreDiffFormatter(value) {
+    return genericNumberFormatter(value, function (v) {
+        if (v >= 0.0) {
+            return parseFloat(v).toFixed(2) + " M";
+        }
+        else {
+            return parseFloat(-v).toFixed(2) + " F";
+        }
+    });
 }
 function ageFormatter(value) {
     return genericNumberFormatter(value, function(v) { return parseFloat(v).toFixed(2) });
@@ -87,12 +104,7 @@ const columnTypes = {
     },
     gender_popularity_ratio: {
         key: "gender_popularity_ratio",
-        label: "Gender Ratio (♂:♀)",
-        formatter: genderRatioFormatter,
-    },
-    gender_popularity_ratio_inv: {
-        key: "gender_popularity_ratio_inv",
-        label: "Gender Ratio (♀:♂)",
+        label: "Gender Ratio",
         formatter: genderRatioFormatter,
     },
     age: {
@@ -112,13 +124,8 @@ const columnTypes = {
     },
     gender_score_difference: {
         key: "gender_score_difference",
-        label: "Score Diff. (♂-♀)",
-        formatter: scoreFormatter,
-    },
-    gender_score_difference_inv: {
-        key: "gender_score_difference_inv",
-        label: "Score Diff. (♀-♂)",
-        formatter: scoreFormatter,
+        label: "Score Diff.",
+        formatter: genderScoreDiffFormatter,
     },
     surprise: {
         key: "surprise",
@@ -144,13 +151,13 @@ const animeSeriesColumns = [].concat([
     columnTypes["gender_popularity_ratio"],
     columnTypes["gender_popularity_ratio_inv"],
     columnTypes["age"]],
-    surveyIsPreseason ? [
+    !surveyIsPreseason ? [
         columnTypes["underwatched"]
     ] : [], [
     columnTypes["score"],
     columnTypes["gender_score_difference"],
     columnTypes["gender_score_difference_inv"]],
-    surveyIsPreseason ? [
+    !surveyIsPreseason ? [
         columnTypes["surprise"], columnTypes["disappointment"]
     ] : []
 );
@@ -160,7 +167,7 @@ const specialAnimeColumns = [].concat([
     columnTypes["gender_popularity_ratio"],
     columnTypes["gender_popularity_ratio_inv"],
     columnTypes["age"]],
-    surveyIsPreseason ? [
+    !surveyIsPreseason ? [
         columnTypes["score"], columnTypes["gender_score_difference"], columnTypes["gender_score_difference_inv"]
     ] : []
 );
