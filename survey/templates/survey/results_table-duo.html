@@ -1,4 +1,4 @@
-<h{{ depth }} class="mb-3">{{ item.title }}</h{{ depth }}>
+<h{{ depth|add:'1' }} class="mb-3">{{ item.title }}</h{{ depth|add:'1' }}>
 
 <div class="row no-gutters" id="results-table-{{ item.id }}">
     <div class="col-lg col-6">
@@ -52,17 +52,15 @@ const tableColumns{{ item.id }} = [
     tableBonusResult{{ item.id }} ? [columnTypes[tableBonusResult{{ item.id }}]] : []
 );
 
-const tableItemsTemp{{ item.id }} = getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData);
-
 const tableItems{{ item.id }}Left = processData(
-    tableItemsTemp{{ item.id }},
+    getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
     tableMainResult{{ item.id }},
     true,
     {{ item.top_count|default:'null' }},
     {{ item.bottom_count|default:'null' }}
 );
 const tableItems{{ item.id }}Right = processData(
-    tableItemsTemp{{ item.id }},
+    getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
     tableMainResult{{ item.id }},
     false,
     {{ item.top_count|default:'null' }},
