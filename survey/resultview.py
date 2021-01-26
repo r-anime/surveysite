@@ -74,7 +74,7 @@ class ResultsView(BaseResultsView):
                     ResultsTableDuo('Largest Gender Popularity Disparities', ResultsType.GENDER_POPULARITY_RATIO, row_count=3),
                 ]),
                 ResultsSegment('Miscellaneous', [
-                    ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
+                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
                     ResultsTableDuo('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
@@ -83,14 +83,14 @@ class ResultsView(BaseResultsView):
                     ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
                     ResultsTableDuo('Largest Gender Score Disparities', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3),
                 ]),
-                ResultsSegment('Expectations', [
+                ResultsEmpty() if survey.is_preseason else ResultsSegment('Expectations', [
                     ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
                     ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
                 ])
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
                 ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
-                ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
+                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
             ]),
         ])
 
@@ -128,6 +128,7 @@ class ResultsView(BaseResultsView):
 
 
 class ResultsItemType(Enum):
+    EMPTY = auto()
     SEGMENT = auto()
     TABLE_WITH_TOP3 = auto()
     TABLE_DUO = auto()
@@ -142,6 +143,9 @@ class ResultsItem:
         return item_id + 1
 
 
+class ResultsEmpty(ResultsItem):
+    def __init__(self):
+        super().__init__(ResultsItemType.EMPTY, None)
 
 class ResultsSegment(ResultsItem):
     def __init__(self, title, children=[], is_root=False):

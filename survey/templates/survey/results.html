@@ -44,7 +44,7 @@
     function genericNumberFormatter(value, validFormatter) {
         switch (isNaN(value) || value) {
             case true:
-                return "N/A";
+                return typeof(value) === "number" ? "N/A" : value;
             case Infinity:
                 return "\u221e";
             default:
@@ -240,7 +240,14 @@
         // Slice table to only include top X and bottom Y.
         if (typeof(topCount) === "number") {
             if (typeof(bottomCount) === "number") {
-                return tableItems.slice(0, topCount).concat(tableItems.slice(-bottomCount));
+                const filler = {
+                    name: {
+                        official_name_list: ["..."],
+                        image: null,
+                    },
+                }
+                filler[sortKey] = "...";
+                return tableItems.slice(0, topCount).concat([filler], tableItems.slice(-bottomCount));
             }
             return tableItems.slice(0, topCount);
         }

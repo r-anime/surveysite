@@ -42,10 +42,12 @@
     <div class="col-md col-10 table-with-top3">
         <b-table-lite hover small borderless :items="items" :fields="fields">
             <template #cell(rank)="data">
-                #{$ data.value $}
+                <template v-if="data.value">
+                    #{$ data.value $}
+                </template>
             </template>
             <template #cell(image)="data">
-                <img :src="data.item.name.image.s" class="img-fluid"></img>
+                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
             </template>
             <template #cell(name)="data">
                 <div class="ml-2 mr-2">

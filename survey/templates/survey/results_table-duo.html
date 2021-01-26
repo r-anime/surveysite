@@ -4,10 +4,12 @@
     <div class="col-lg col-6">
         <b-table-lite hover small borderless :items="itemsLeft" :fields="fields">
             <template #cell(rank)="data">
-                #{$ data.value $}
+                <template v-if="data.value">
+                    #{$ data.value $}
+                </template>
             </template>
             <template #cell(image)="data">
-                <img :src="data.item.name.image.s" class="img-fluid"></img>
+                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
             </template>
             <template #cell(name)="data">
                 <div class="ml-2 mr-2">
@@ -22,10 +24,12 @@
     <div class="col-lg col-6">
         <b-table-lite hover small borderless :items="itemsRight" :fields="fields">
             <template #cell(rank)="data">
-                #{$ data.value $}
+                <template v-if="data.value">
+                    #{$ data.value $}
+                </template>
             </template>
             <template #cell(image)="data">
-                <img :src="data.item.name.image.s" class="img-fluid"></img>
+                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
             </template>
             <template #cell(name)="data">
                 <div class="ml-2 mr-2">
