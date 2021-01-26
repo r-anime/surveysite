@@ -71,17 +71,17 @@ class ResultsView(BaseResultsView):
             ResultsSegment('Demographics', [
                 ResultsSegment('Popularity', [
                     ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                    ResultsTableDuo('Largest Gender Popularity Disparities', None, None),
+                    ResultsTableDuo('Largest Gender Popularity Disparities', ResultsType.GENDER_POPULARITY_RATIO, row_count=3),
                 ]),
                 ResultsSegment('Miscellaneous', [
                     ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
-                    ResultsTableDuo('Average Age per Anime', None),
+                    ResultsTableDuo('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
             ResultsSegment('Impressions', [
                 ResultsSegment('Scores', [
                     ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                    ResultsTableDuo('Largest Gender Score Disparities', None, None),
+                    ResultsTableDuo('Largest Gender Score Disparities', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3),
                 ]),
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [

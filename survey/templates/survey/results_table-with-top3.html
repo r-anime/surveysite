@@ -75,6 +75,7 @@ const tableColumns{{ item.id }} = [
 const tableItems{{ item.id }} = processData(
     getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
     tableMainResult{{ item.id }},
+    true,
     {{ item.top_count|default:'null' }},
     {{ item.bottom_count|default:'null' }}
 );

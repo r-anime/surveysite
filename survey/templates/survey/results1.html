@@ -160,11 +160,11 @@
         }
     }
 
-    function processData(tableItems, sortKey, topCount, bottomCount) {
+    function processData(tableItems, sortKey, sortDesc, topCount, bottomCount) {
         // Sort.
         tableItems.sort(function(a, b) {
-            const comparison = sortCompare(b, a, sortKey); // Invert sorting by swapping a and b.
-            return comparison ? comparison : b[sortKey] - a[sortKey];
+            const comparison = sortCompare(a, b, sortKey);
+            return (sortDesc ? -1.0 : 1.0) * (comparison ? comparison : a[sortKey] - b[sortKey]);
         });
 
         // Filter anime below popularity threshold.
