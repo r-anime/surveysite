@@ -1,45 +1,13 @@
+{% with table_items_left_var='itemsLeft' table_items_right_var='itemsRight' %}
+
 <h{{ depth|add:'1' }} class="mb-3">{{ item.title }}</h{{ depth|add:'1' }}>
 
 <div class="row no-gutters table-duo" id="results-table-{{ item.id }}">
     <div class="col-lg col-6">
-        <b-table-lite hover small borderless :items="itemsLeft" :fields="fields">
-            <template #cell(rank)="data">
-                <template v-if="data.value">
-                    #{$ data.value $}
-                </template>
-            </template>
-            <template #cell(image)="data">
-                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
-            </template>
-            <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value.official_name_list" class="pb-1">
-                        {$ name $}
-                    </div>
-                </div>
-                <div class="progress-bar table-row-progress-bar" :style="data.item.pb_width"></div>
-            </template>
-        </b-table>
+        {% include 'survey/results_base-table.html' with table_items_var=table_items_left_var only %}
     </div>
     <div class="col-lg col-6">
-        <b-table-lite hover small borderless :items="itemsRight" :fields="fields">
-            <template #cell(rank)="data">
-                <template v-if="data.value">
-                    #{$ data.value $}
-                </template>
-            </template>
-            <template #cell(image)="data">
-                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
-            </template>
-            <template #cell(name)="data">
-                <div class="ml-2 mr-2">
-                    <div v-for="name in data.value.official_name_list" class="pb-1">
-                        {$ name $}
-                    </div>
-                </div>
-                <div class="progress-bar table-row-progress-bar" :style="data.item.pb_width"></div>
-            </template>
-        </b-table>
+        {% include 'survey/results_base-table.html' with table_items_var=table_items_right_var only %}
     </div>
 </div>
 
@@ -76,8 +44,10 @@ new Vue({
     delimiters: ["{$", "$}"],
     data: {
         fields: tableColumns{{ item.id }},
-        itemsLeft: tableItems{{ item.id }}Left,
-        itemsRight: tableItems{{ item.id }}Right,
+        {{ table_items_left_var }}: tableItems{{ item.id }}Left,
+        {{ table_items_right_var }}: tableItems{{ item.id }}Right,
     },
 });
 </script>
+
+{% endwith %}
