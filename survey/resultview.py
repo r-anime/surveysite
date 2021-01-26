@@ -67,26 +67,26 @@ class ResultsView(BaseResultsView):
 
 
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
-        context['root_item'] = ResultsSegment(is_root=True, title='Anime Results', children=[
-            ResultsSegment('Demographics', [
-                ResultsSegment('Popularity', [
+        context['root_item'] = ResultsSegment(is_root=True, title='', children=[
+            ResultsSegment('Popularity', [
+                # ResultsSegment('Popularity', [
                     ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                    ResultsTableDuo('Largest Gender Popularity Disparities', ResultsType.GENDER_POPULARITY_RATIO, row_count=3),
-                ]),
-                ResultsSegment('Miscellaneous', [
+                    ResultsTableDuo('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                # ]),
+                ResultsSegment('Popularity - Miscellaneous', [
                     ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
                     ResultsTableDuo('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
             ResultsSegment('Impressions', [
-                ResultsSegment('Scores', [
-                    ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst) Anime') + ' of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                    ResultsTableDuo('Largest Gender Score Disparities', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3),
-                ]),
-                ResultsEmpty() if survey.is_preseason else ResultsSegment('Expectations', [
-                    ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
-                    ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
-                ])
+                # ResultsSegment('Scores', [
+                    ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
+                    ResultsTableDuo('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                # ]),
+                # ResultsEmpty() if survey.is_preseason else ResultsSegment('Expectations', [
+                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
+                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+                # ])
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
                 ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
@@ -166,7 +166,7 @@ class ResultsSegment(ResultsItem):
 
 
 class ResultsTableBase(ResultsItem):
-    def __init__(self, item_type, title, main_result_type, extra_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
+    def __init__(self, item_type, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(item_type, title)
 
         self.is_for_series = is_for_series
@@ -174,16 +174,17 @@ class ResultsTableBase(ResultsItem):
         self.extra_result_type = extra_result_type
         self.top_count = top_count
         self.bottom_count = bottom_count
+        self.description = description
 
 
 class ResultsTableWithTop3(ResultsTableBase):
-    def __init__(self, title, main_result_type, extra_result_type=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, is_for_series, top_count, bottom_count)
+    def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
+        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, description, is_for_series, top_count, bottom_count)
 
 
 class ResultsTableDuo(ResultsTableBase):
-    def __init__(self, title, main_result_type, extra_result_type=None, is_for_series=True, row_count=None):
-        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, extra_result_type, is_for_series, row_count)
+    def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, row_count=None):
+        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, extra_result_type, description, is_for_series, row_count)
 
 
 class ResultsGenerator:

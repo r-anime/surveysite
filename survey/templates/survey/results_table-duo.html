@@ -1,12 +1,16 @@
 {% with table_items_left_var='itemsLeft' table_items_right_var='itemsRight' %}
 
-<h{{ depth|add:'1' }} class="mb-3">{{ item.title }}</h{{ depth|add:'1' }}>
+<h5 class="table-title mb-3">{{ item.title }}</h5>
 
-<div class="row no-gutters table-duo" id="results-table-{{ item.id }}">
-    <div class="col-lg col-6">
+{% if item.description %}
+    <p class="table-description mt-n3 mb-3">{{ item.description }}</p>
+{% endif %}
+
+<div class="row mb-3 no-gutters table-duo table-container" id="results-table-{{ item.id }}">
+    <div class="col-md-6 col-12 pl-md-1 pr-md-3">
         {% include 'survey/results_base-table.html' with table_items_var=table_items_left_var only %}
     </div>
-    <div class="col-lg col-6">
+    <div class="col-md-6 col-12 pl-md-3 pr-md-1">
         {% include 'survey/results_base-table.html' with table_items_var=table_items_right_var only %}
     </div>
 </div>

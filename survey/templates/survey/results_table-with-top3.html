@@ -1,41 +1,60 @@
 {% with table_items_var='items' %}
 
-<h{{ depth }} class="mb-3">{{ item.title }}</h{{ depth }}>
+<h5 class="table-title mb-3">{{ item.title }}</h5>
 
-<div class="row mb-3 justify-content-center" id="results-table-{{ item.id }}">
+{% if item.description %}
+    <p class="table-description mt-n3 mb-3">{{ item.description }}</p>
+{% endif %}
+
+<div class="row mb-3 justify-content-center table-container" id="results-table-{{ item.id }}">
     <div class="col-md-4 col-8 text-center">
         <div v-if="tableItems{{ item.id }}" class="row justify-content-center mb-4">
             <div class="col-8 mb-2">
                 <img :src="tableItems{{ item.id }}[0].name.image.l" class="img-fluid"></img>
             </div>
             <div class="col-12">
-                <div v-for="name in tableItems{{ item.id }}[0].name.official_name_list" class="mb-1">
-                    {$ name $}
-                </div>
+                <template v-for="(name, idx) in tableItems{{ item.id }}[0].name.official_name_list">
+                    <div v-if="idx == 0" class="">
+                        {$ name $}
+                    </div>
+                    <div v-else class="" style="font-size: 80%">
+                        {$ name $}
+                    </div>
+                </template>
             </div>
         </div>
-        <div v-if="tableItems{{ item.id }}.length > 1" class="row" style="font-size:75%;">
+        <div v-if="tableItems{{ item.id }}.length > 1" class="row" style="font-size:90%;">
             <div class="col-6">
                 <div class="row justify-content-center">
-                    <div class="col-10 mb-1">
+                    <div class="col-11 mb-1">
                         <img :src="tableItems{{ item.id }}[1].name.image.m" class="img-fluid"></img>
                     </div>
                     <div class="col-12">
-                        <div v-for="name in tableItems{{ item.id }}[1].name.official_name_list" class="mb-1">
-                            {$ name $}
-                        </div>
+                        <template v-for="(name, idx) in tableItems{{ item.id }}[1].name.official_name_list">
+                            <div v-if="idx == 0" class="">
+                                {$ name $}
+                            </div>
+                            <div v-else class="" style="font-size: 80%">
+                                {$ name $}
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
             <div v-if="tableItems{{ item.id }}.length > 2" class="col-6">
                 <div class="row justify-content-center">
-                    <div class="col-10 mb-1">
+                    <div class="col-11 mb-1">
                         <img :src="tableItems{{ item.id }}[2].name.image.m" class="img-fluid"></img>
                     </div>
                     <div class="col-12">
-                        <div v-for="name in tableItems{{ item.id }}[2].name.official_name_list" class="mb-1">
-                            {$ name $}
-                        </div>
+                        <template v-for="(name, idx) in tableItems{{ item.id }}[2].name.official_name_list">
+                            <div v-if="idx == 0" class="">
+                                {$ name $}
+                            </div>
+                            <div v-else class="" style="font-size: 80%">
+                                {$ name $}
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
