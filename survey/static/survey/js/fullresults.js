@@ -74,7 +74,7 @@ function filterData(rows) {
 
 function rowClass(item, type) {
     if (item["popularity"] < 2.0) {
-        return "text-danger";
+        return "row-under-threshold";
     }
     else {
         return null;

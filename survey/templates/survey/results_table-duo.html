@@ -6,7 +6,7 @@
     <p class="table-description mt-n3 mb-3">{{ item.description }}</p>
 {% endif %}
 
-<div class="row mb-3 no-gutters table-duo table-container" id="results-table-{{ item.id }}">
+<div class="row mb-5 no-gutters table-duo table-container" id="results-table-{{ item.id }}">
     <div class="col-md-6 col-12 pl-md-1 pr-md-3">
         {% include 'survey/results_base-table.html' with table_items_var=table_items_left_var only %}
     </div>

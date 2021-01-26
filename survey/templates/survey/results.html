@@ -275,8 +275,13 @@
 <div class="row">
     <div class="col-md-8">
         <div class="row"><div class="col">
-            Thanks everyone for filling in this survey! There were {{ response_count }} responses,
-            and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
+            <p>
+                Thanks everyone for filling in this survey! There were {{ response_count }} responses,
+                and the average age of everyone who answered was {{ average_age|floatformat:2 }}.
+            </p>
+            <p>
+                Anime with a popularity of less than 2% will not be displayed here, as their data may be inaccurate.
+            </p>
         </div></div>
         <div class="row mt-2"><div class="col">
             <canvas id="age-distribution-chart"></canvas>
@@ -291,7 +296,7 @@
 {% include 'survey/results_segment.html' with depth=2 item=root_item only%}
 
 
-<div class="row justify-content-between mt-3">
+<div class="row justify-content-between mt-5">
     <div class="col-auto">
         <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
     </div>

@@ -9,11 +9,16 @@
     .col-img img {
         width: 50px;
     }
+    .row-under-threshold {
+        background-color: #fdd;
+    }
 </style>
 {% endblock %}
 
 {% block content %}{% with anime_series_table_id='results-table-series' special_anime_table_id='results-table-special' %}
 <h1 class="mb-3">Full Results of {{ survey }}</h1>
+
+<p>Anime with a popularity of less than 2% are marked with red.</p>
 
 <h2 class="mb-3">Anime Series</h2>
 {% include 'survey/fullresults_table.html' with table_id=anime_series_table_id only %}
