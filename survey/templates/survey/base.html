@@ -46,9 +46,15 @@
 
         <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav class="ml-auto">
-                {% if username %}
+                {% if user_info %}
                 <b-nav-text class="mr-3">
-                    Authenticated as {{ username }}
+                    Logged in as
+                    {% if user_info.image %}
+                        <img class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" src="{{ user_info.image }}">
+                    {% else %}
+                        <b-icon icon="person-square" class="mx-1 my-n1 align-middle rounded" style="width:auto;height:25px;"></b-icon>
+                    {% endif %}
+                    {{ user_info.username }}
                 </b-nav-text>
 
                 <b-nav-form method="post" action="{% url 'logout' %}">

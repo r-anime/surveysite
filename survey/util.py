@@ -171,11 +171,25 @@ class SurveyUtil:
 
 
 # Returns None if not authenticated
-def get_username(user):
-    """Gets the username of the user. Returns None if the user is not authenticated."""
+def get_user_info(user):
+    """Gets displayable informatin about the user. Returns None if the user is not authenticated."""
     if not user.is_authenticated: return None
 
-    if len(user.socialaccount_set.all()) > 0:
-        return user.socialaccount_set.all()[0].uid
+    socialaccount_queryset = user.socialaccount_set.all()
+    reddit_account_queryset = socialaccount_queryset.filter(provider='reddit')
+    if len(reddit_account_queryset) == 1:
+        account = reddit_account_queryset[0]
+        username = account.uid
+        image = account.extra_data['icon_img']
+    elif len(socialaccount_queryset) > 1:
+        account = user.socialaccount_set.all()[0]
+        username = account.uid
+        image = None
     else:
-        return user.username
+        username = user.username
+        image = None
+
+    return {
+        'username': username,
+        'image': image,
+    }

@@ -13,7 +13,7 @@ import allauth
 import logging
 
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
-from .util import AnimeUtil, SurveyUtil, get_username
+from .util import AnimeUtil, SurveyUtil, get_user_info
 from .resultview import ResultsGenerator, ResultsType
 
 
@@ -45,7 +45,7 @@ def index(request):
 
     context = {
         'survey_list': survey_queryset,
-        'username': get_username(request.user),
+        'user_info': get_user_info(request.user),
     }
 
     return render(request, 'survey/index.html', context)
@@ -80,7 +80,7 @@ def form(request, year, season, pre_or_post):
         'survey': survey,
         'anime_series_list': anime_series_list,
         'special_anime_list': special_anime_list,
-        'username': get_username(request.user),
+        'user_info': get_user_info(request.user),
     }
     return render(request, 'survey/form.html', context)
 

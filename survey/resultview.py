@@ -7,7 +7,7 @@ from collections import OrderedDict
 import inspect
 import json
 from .models import Survey, AnimeResponse, Response, SurveyAdditionRemoval, AnimeName
-from .util import SurveyUtil, get_username, AnimeUtil
+from .util import SurveyUtil, get_user_info, AnimeUtil
 
 ANIME_POPULARITY_THRESHOLD = 0.02 # Anime with a popularity lower than this won't get included in results tables by default
 
@@ -29,7 +29,7 @@ class BaseResultsView(TemplateView):
         survey = self._get_survey()
 
         context['survey'] = survey
-        context['username'] = get_username(self.request.user)
+        context['user_info'] = get_user_info(self.request.user)
 
         return context
 
