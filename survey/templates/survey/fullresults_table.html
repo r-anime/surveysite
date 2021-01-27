@@ -1,6 +1,6 @@
 <div class="row mb-3">
     <div class="col" id="{{ table_id }}">
-        <b-table hover small bordered responsive fixed sort-by="name" :sort-desc="false" :sort-compare="sortCompare" :items="items" :fields="fields" :tbody-tr-class="rowClass">
+        <b-table hover small bordered responsive sort-by="name" :sort-desc="false" :sort-compare="sortCompare" :items="items" :fields="fields" :tbody-tr-class="rowClass">
             <template #cell(name)="data">
                 <div class="row align-items-center no-gutters">
                     <div class="col-auto col-img">
@@ -11,6 +11,28 @@
                             {$ name $}
                         </div>
                     </div>
+                </div>
+            </template>
+            <template #cell(gender_popularity_ratio)="data">
+                <div v-if="data.value.endsWith('M:F')" style="color:blue;">
+                    {$ data.value $}
+                </div>
+                <div v-else-if="data.value.endsWith('F:M')" style="color:deeppink;">
+                    {$ data.value $}
+                </div>
+                <div v-else>
+                    {$ data.value $}
+                </div>
+            </template>
+            <template #cell(gender_score_difference)="data">
+                <div v-if="data.value.endsWith('M')" style="color:blue;">
+                    {$ data.value $}
+                </div>
+                <div v-else-if="data.value.endsWith('F')" style="color:deeppink;">
+                    {$ data.value $}
+                </div>
+                <div v-else>
+                    {$ data.value $}
                 </div>
             </template>
         </b-table>
