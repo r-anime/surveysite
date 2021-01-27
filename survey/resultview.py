@@ -69,24 +69,18 @@ class ResultsView(BaseResultsView):
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
         context['root_item'] = ResultsSegment(is_root=True, title='', children=[
             ResultsSegment('Popularity', [
-                # ResultsSegment('Popularity', [
-                    ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                    ResultsTableDuo('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
-                # ]),
+                ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
+                ResultsTableDuo('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
                 ResultsSegment('Popularity - Miscellaneous', [
                     ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
                     ResultsTableDuo('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
             ResultsSegment('Impressions', [
-                # ResultsSegment('Scores', [
-                    ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                    ResultsTableDuo('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
-                # ]),
-                # ResultsEmpty() if survey.is_preseason else ResultsSegment('Expectations', [
-                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
-                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
-                # ])
+                ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
+                ResultsTableDuo('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
+                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
             ]),
             ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
                 ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
