@@ -1,0 +1,51 @@
+
+th div {
+    hyphens: manual;
+}
+
+.table-duo {
+    font-size: 85%;
+}
+
+.table-title, .table-description {
+    /* background-color: lightblue; */
+    text-align: center;
+}
+.table-container {
+    /* background-color: aliceblue; */
+    z-index: -100;
+}
+
+.table-col-rank {
+    width: 5%!important;
+}
+.table-col-image {
+    width: 15%!important;
+}
+.table-col-name {
+    width: auto!important;
+    position: relative!important;
+    z-index: 10;
+}
+.table-col-main {
+    width: 10%!important;
+    position: relative!important;
+    text-align: right!important;
+}
+.table-col-extra {
+    width: 7%!important;
+    font-size: 80%;
+    position: relative!important;
+    text-align: right!important;
+}
+.table-row-progress-bar {
+    position: absolute;
+    top: 10%;
+    height: 80%;
+    z-index: -10;
+    /*border-radius:.25rem;*/
+    background-color: rgb(199, 230, 250);
+}
+td {
+    vertical-align: middle!important;
+}
