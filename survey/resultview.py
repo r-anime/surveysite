@@ -148,8 +148,7 @@ class ResultsSegment(ResultsItem):
         self.children = children
 
         if is_root:
-            final_id = self.set_id(0)
-            print('Last id:', final_id)
+            self.set_id(0)
     
     def set_id(self, start_item_id):
         next_id = super().set_id(start_item_id)
