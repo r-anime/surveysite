@@ -4,6 +4,10 @@
 
 {% block head %}
 <style>
+    th div {
+        hyphens: manual;
+    }
+
     .table-duo {
         font-size: 85%;
     }
@@ -121,12 +125,12 @@
         },
         popularity: {
             key: "popularity",
-            label: "Pop.",
+            label: "Pop\u00adu\u00adlar\u00adi\u00adty",
             formatter: percentageFormatter,
         },
         gender_popularity_ratio: {
             key: "gender_popularity_ratio",
-            label: "Gender Ratio",
+            label: "Gen\u00adder Ra\u00adtio",
             formatter: genderRatioFormatter,
         },
         age: {
@@ -136,7 +140,7 @@
         },
         underwatched: {
             key: "underwatched",
-            label: "Under-watched",
+            label: "Un\u00adder\u00adwatch\u00aded",
             formatter: percentageFormatter,
         },
         score: {
@@ -151,12 +155,12 @@
         },
         surprise: {
             key: "surprise",
-            label: "Sur-prise",
+            label: "Sur\u00adprise",
             formatter: percentageFormatter,
         },
         disappointment: {
             key: "disappointment",
-            label: "Disa-ppoint-ment",
+            label: "Dis\u00adap\u00adpoint\u00adment",
             formatter: percentageFormatter,
         }
     };
@@ -164,7 +168,6 @@
     for (let column_idx in columnTypes) {
         let column = columnTypes[column_idx];
         column["sortable"] = true;
-        //column["thStyle"] = column["key"] == "name" ? "min-width:300px;width:300px;" : "min-width:70px;width:70px;";
     }
 
     function getTableItems(animeData) {

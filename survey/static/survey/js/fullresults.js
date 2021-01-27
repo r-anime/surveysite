@@ -99,7 +99,7 @@ const columnTypes = {
     },
     popularity: {
         key: "popularity",
-        label: "Pop.",
+        label: "Pop\u00adu\u00adlar\u00adi\u00adty",
         formatter: percentageFormatter,
     },
     gender_popularity_ratio: {
@@ -114,7 +114,7 @@ const columnTypes = {
     },
     underwatched: {
         key: "underwatched",
-        label: "Under-watched",
+        label: "Un\u00adder\u00adwatch\u00aded",
         formatter: percentageFormatter,
     },
     score: {
@@ -129,12 +129,12 @@ const columnTypes = {
     },
     surprise: {
         key: "surprise",
-        label: "Sur-prise",
+        label: "Sur\u00adprise",
         formatter: percentageFormatter,
     },
     disappointment: {
         key: "disappointment",
-        label: "Disa-ppoint-ment",
+        label: "Dis\u00adap\u00adpoint\u00adment",
         formatter: percentageFormatter,
     }
 };
