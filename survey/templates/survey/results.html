@@ -4,6 +4,7 @@
 {% load static %}
 
 {% block head %}
+{% with light_text='#f2f2fc' dark_text='#080421' %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/results.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
@@ -15,11 +16,12 @@
     const specialAnimeData = {{ special_anime_data_json|safe }};
     const surveyIsPreseason = {{ survey.is_preseason|lower }};
 </script>
+{% endwith %}
 {% endblock %}
 
 {% block content %}
 
-<h1 class="mb-3">{{ survey }} Results!</h1>
+<h1 class="mb-3 mx-n2">{{ survey }} Results!</h1>
 
 <div class="row">
     <div class="col-md-8">
@@ -56,11 +58,14 @@
 
 
 <script>
-    var distributionChartColor = 'rgb(54, 162, 235)';
-    var distributionChartDatalabelColor = 'rgb(96, 96, 96)';
+    const textColor = '#080421';
+    const distributionChartColor = '#537cf9'; //'rgb(54, 162, 235)';
+    const distributionChartDatalabelColor = textColor;//'rgb(96, 96, 96)';
+    const distributionChartGridColor = '#cce'
+    Chart.defaults.global.defaultFontColor = textColor;
 
-    var gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
-    var gdcChart = new Chart(gdcCtx, {
+    const gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
+    const gdcChart = new Chart(gdcCtx, {
         type: 'bar',
         data: {
             labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
@@ -79,7 +84,7 @@
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, data) {
-                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                        let label = data.datasets[tooltipItem.datasetIndex].label || '';
 
                         if (label) {
                             label += ': ' + tooltipItem.yLabel + '%';
@@ -103,6 +108,11 @@
                 }
             },
             scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: false,
+                    }
+                }],
                 yAxes: [{
                     ticks: {
                         callback: function(value) {
@@ -111,13 +121,16 @@
                         min: 0,
                         max: 100,
                     },
+                    gridLines: {
+                        color: distributionChartGridColor,
+                    },
                 }]
             },
         },
     });
 
-    var adcCtx = document.getElementById('age-distribution-chart').getContext('2d');
-    var adcChart = new Chart(adcCtx, {
+    const adcCtx = document.getElementById('age-distribution-chart').getContext('2d');
+    const adcChart = new Chart(adcCtx, {
         type: 'bar',
         data: {
             labels: [{% for age in age_distribution.keys %}{{ age }}, {% endfor %}],
@@ -136,7 +149,7 @@
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, data) {
-                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                        let label = data.datasets[tooltipItem.datasetIndex].label || '';
 
                         if (label) {
                             label += ': ' + tooltipItem.yLabel + '%';
@@ -150,21 +163,16 @@
             },
             plugins: {
                 datalabels: {
-                    align: 'top',
-                    anchor: 'end',
-                    color: distributionChartDatalabelColor,
-                    offset: -2,
-                    formatter: function(value, context) {
-                        if (context.dataIndex % 2 == 0 && value > 0.1) {
-                            return value + '%';
-                        }
-                        else {
-                            return '';
-                        }
-                    },
+                    display: false,
                 }
             },
             scales: {
+                xAxes: [{
+                    gridLines: {
+                        color: distributionChartGridColor,
+                        offsetGridLines: false,
+                    }
+                }],
                 yAxes: [{
                     ticks: {
                         callback: function(value) {
@@ -172,6 +180,9 @@
                         },
                         min: 0,
                         max: Math.round({{ age_distribution_max }} * 1.1 + 0.5),
+                    },
+                    gridLines: {
+                        color: distributionChartGridColor,
                     },
                 }]
             },

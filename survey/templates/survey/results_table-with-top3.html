@@ -1,12 +1,12 @@
 {% with table_items_var='items' %}
 
-<h5 class="table-title mb-3">{{ item.title }}</h5>
+<h5 class="table-title mb-4">{{ item.title }}</h5>
 
 {% if item.description %}
-    <p class="table-description mt-n3 mb-3">{{ item.description }}</p>
+    <p class="table-description mt-n4 mb-4">{{ item.description }}</p>
 {% endif %}
 
-<div class="row mb-5 justify-content-center table-container" id="results-table-{{ item.id }}">
+<div class="row mb-5 justify-content-center" id="results-table-{{ item.id }}">
     <div class="col-md-4 col-8 text-center">
         <div v-if="tableItems{{ item.id }}" class="row justify-content-center mb-4">
             <div class="col-8 mb-2">

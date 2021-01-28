@@ -1,6 +1,20 @@
+body, table {
+    color: #080421!important;
+}
+h1, h2, h3, h4 {
+    background-color: #537cf9;
+    color: #f4f4fc;
+    padding: 15px;
+}
+h4 {
+    padding: 10px;
+}
 
 th div {
     hyphens: manual;
+}
+td {
+    vertical-align: middle!important;
 }
 
 .table-duo {
@@ -8,12 +22,7 @@ th div {
 }
 
 .table-title, .table-description {
-    /* background-color: lightblue; */
     text-align: center;
-}
-.table-container {
-    /* background-color: aliceblue; */
-    z-index: -100;
 }
 
 .table-col-rank {
@@ -43,9 +52,5 @@ th div {
     top: 10%;
     height: 80%;
     z-index: -10;
-    /*border-radius:.25rem;*/
-    background-color: rgb(199, 230, 250);
-}
-td {
-    vertical-align: middle!important;
+    background-color: #9dccfb;
 }
