@@ -64,10 +64,18 @@ for (let column_idx in columnTypes) {
     column["sortable"] = true;
 }
 
+function copyObject(object) {
+    const result = {};
+    for (let key in object) {
+        result[key] = object[key];
+    }
+    return result;
+}
+
 function getTableItems(animeData) {
     const tableItems = [];
-    for (const anime_id in animeData) {
-        const item = Object.assign({}, animeData[anime_id]);
+    for (let anime_id in animeData) {
+        const item = copyObject(animeData[anime_id]);
         item["name"] = animeInfo[anime_id];
         tableItems.push(item);
     }
@@ -96,7 +104,7 @@ function sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compa
 }
 
 function setColumnCssClass(column, cssClass) {
-    const result = Object.assign({}, column);
+    const result = copyObject(column);
     result["tdClass"] = cssClass;
     result["thClass"] = cssClass;
     return result;

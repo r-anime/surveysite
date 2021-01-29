@@ -40,7 +40,7 @@ function rowClass(item, type) {
 
 function getTableItems(animeData) {
     const tableItems = [];
-    for (const anime_id in animeData) {
+    for (let anime_id in animeData) {
         const item = animeData[anime_id];
         item["name"] = animeInfo[anime_id];
         tableItems.push(item);
