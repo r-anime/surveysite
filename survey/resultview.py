@@ -82,9 +82,9 @@ class ResultsView(BaseResultsView):
                 ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
                 ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
             ]),
-            ResultsSegment('Anime OVAs/ONAs/Movies/Specials', [
-                ResultsTableWithTop3('Most Popular Anime OVAs/ONAs/Movies/Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
-                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Anticipated Anime OVAs/ONAs/Movies/Specials' if survey.is_preseason else 'Best Anime OVAs/ONAs/Movies/Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
+            ResultsSegment('Anime OVAs / ONAs / Movies / Specials', [
+                ResultsTableWithTop3('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
+                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
             ]),
         ])
 
