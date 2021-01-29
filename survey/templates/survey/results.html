@@ -4,7 +4,6 @@
 {% load static %}
 
 {% block head %}
-{% with light_text='#f2f2fc' dark_text='#080421' %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/results.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
@@ -16,7 +15,6 @@
     const specialAnimeData = {{ special_anime_data_json|safe }};
     const surveyIsPreseason = {{ survey.is_preseason|lower }};
 </script>
-{% endwith %}
 {% endblock %}
 
 {% block content %}
@@ -47,7 +45,7 @@
 {% include 'survey/results_segment.html' with depth=2 item=root_item only%}
 
 
-<div class="row justify-content-between mt-5">
+<div class="row justify-content-between mt-3">
     <div class="col-auto">
         <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
     </div>

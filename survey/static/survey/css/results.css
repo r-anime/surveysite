@@ -1,19 +1,16 @@
-body, table {
-    color: #080421!important;
-}
 h1, h2, h3, h4 {
     background-color: #537cf9;
     color: #f4f4fc;
-    padding: 15px;
+    padding: 13px;
 }
 h4 {
-    padding: 10px;
+    padding: 7px;
 }
 
 th div {
     hyphens: manual;
 }
-td {
+th, td {
     vertical-align: middle!important;
 }
 
@@ -52,5 +49,5 @@ td {
     top: 10%;
     height: 80%;
     z-index: -10;
-    background-color: #9dccfb;
+    background-color: #bbdaf9;
 }
