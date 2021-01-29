@@ -1,8 +1,13 @@
 {% extends "survey/base.html" %}
 {% load form_card %}
 {% load cache %}
+{% load static %}
 
 {% block title %}{{ survey }} - {{ block.super }}{% endblock %}
+
+{% block head %}
+<link type="text/css" rel="stylesheet" href="{% static 'survey/css/form.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -15,7 +20,7 @@
 <form id="form" action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
-    <div class="row mb-2">
+    <div class="row mb-5">
         <div class="col-lg-4">
             <div class="row">
                 <div class="col-12 form-group">
@@ -37,8 +42,8 @@
 
 
 
-    <h3>Anime Series</h3>
-    {% cache None form_cards_series anime_series_list %}
+    <h3 class="mb-3 rounded">Anime Series</h3>
+    {% cache 7200 form_cards_series anime_series_list %}
     {% if anime_series_list %}
         <div class="row row-cols-md-2">
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
@@ -54,8 +59,8 @@
     <br>
 
 
-    <h3>Anime Movies/ONAs/OVAs/Specials</h3>
-    {% cache None form_cards_specials special_anime_list %}
+    <h3 class="mb-3 rounded">Anime Movies/ONAs/OVAs/Specials</h3>
+    {% cache 7200 form_cards_specials special_anime_list %}
     {% if special_anime_list %}
         <div class="row row-cols-md-2">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
