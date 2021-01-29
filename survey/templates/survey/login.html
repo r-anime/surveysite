@@ -1,6 +1,8 @@
 {% extends "survey/base.html" %}
 {% load account socialaccount %}
 
+{% block title %}Log In - {{ block.super }}{% endblock %}
+
 {% block content %}
 
 {% get_providers as socialaccount_providers %}

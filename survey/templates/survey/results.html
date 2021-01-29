@@ -3,6 +3,8 @@
 {% load util %}
 {% load static %}
 
+{% block title %}Results: {{ survey }} - {{ block.super }}{% endblock %}
+
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/results.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>

@@ -2,6 +2,8 @@
 {% load form_card %}
 {% load cache %}
 
+{% block title %}{{ survey }} - {{ block.super }}{% endblock %}
+
 {% block content %}
 
 <h1 class="mb-3">{{ survey }}!</h1>

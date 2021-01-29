@@ -1,6 +1,8 @@
 {% extends 'survey/base.html' %}
 {% load static %}
 
+{% block title %}Full Results: {{ survey }} - {{ block.super }}{% endblock %}
+
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/fullresults.css' %}">
 {% endblock %}
