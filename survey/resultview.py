@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView, DetailView
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.shortcuts import redirect
 from django.core.cache import cache, caches
 from enum import Enum, auto
@@ -93,24 +93,32 @@ class ResultsView(BaseResultsView):
         context['response_count'] = response_count
         context['average_age'] = survey_responses.aggregate(avg_age=Avg('age'))['avg_age'] or float('NaN')
 
+        gender_answers_queryset = survey_responses.filter(~Q(gender=''), gender__isnull=False)
+        gender_answers_count = len(gender_answers_queryset)
         context['gender_distribution'] = OrderedDict([
-            (Response.Gender.MALE,   survey_responses.filter(gender=Response.Gender.MALE  ).count() / max(response_count, 1) * 100),
-            (Response.Gender.FEMALE, survey_responses.filter(gender=Response.Gender.FEMALE).count() / max(response_count, 1) * 100),
-            (Response.Gender.OTHER,  survey_responses.filter(gender=Response.Gender.OTHER ).count() / max(response_count, 1) * 100),
+            (Response.Gender.MALE,   gender_answers_queryset.filter(gender=Response.Gender.MALE  ).count() / max(gender_answers_count, 1) * 100),
+            (Response.Gender.FEMALE, gender_answers_queryset.filter(gender=Response.Gender.FEMALE).count() / max(gender_answers_count, 1) * 100),
+            (Response.Gender.OTHER,  gender_answers_queryset.filter(gender=Response.Gender.OTHER ).count() / max(gender_answers_count, 1) * 100),
         ])
+
 
         age_distribution = [0]*81
         age_list = survey_responses.filter(age__isnull=False, age__gt=0).values_list('age', flat=True)
         age_count = len(age_list)
         age_max = 0
 
+        # Count for each age how many people are that old.
         for age in age_list:
             if age > 0 and age <= 80:
                 age_distribution[int(age)] += 1
+
+        # Normalize the values.
         for i in range(len(age_distribution)):
             age_distribution[i] /= max(age_count, 1) / 100.0
             if age_distribution[i] > age_max:
                 age_max = age_distribution[i]
+
+        # Convert the list to a dict.
         age_distribution = OrderedDict([
             (idx, age_distribution[idx]) for idx in range(5, 81)
         ])
