@@ -8,14 +8,14 @@
 {% endblock %}
 
 {% block content %}{% with anime_series_table_id='results-table-series' special_anime_table_id='results-table-special' %}
-<h1 class="mb-3 mx-n2">{{ survey }} - Full Results</h1>
+<h1 class="mb-4 mx-n2 shadow">{{ survey }} - Full Results</h1>
 
 <p>Anime with a popularity of less than 2% are marked with red.</p>
 
-<h2 class="mb-3 rounded">Anime Series</h2>
+<h2 class="mb-3 rounded shadow">Anime Series</h2>
 {% include 'survey/fullresults_table.html' with table_id=anime_series_table_id only %}
 
-<h2 class="mb-3 rounded">Anime OVAs/ONAs/Movies/Specials</h2>
+<h2 class="mb-3 rounded shadow">Anime OVAs/ONAs/Movies/Specials</h2>
 {% include 'survey/fullresults_table.html' with table_id=special_anime_table_id only %}
 
 <div class="row mt-3 no-gutters">

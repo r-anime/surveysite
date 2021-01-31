@@ -10,7 +10,7 @@
     <div class="col-md-4 col-8 text-center">
         <div v-if="tableItems{{ item.id }}" class="row justify-content-center mb-4">
             <div class="col-8 mb-2">
-                <img :src="tableItems{{ item.id }}[0].name.image.l" class="img-fluid"></img>
+                <img :src="tableItems{{ item.id }}[0].name.image.l" class="img-fluid shadow-sm"></img>
             </div>
             <div class="col-12">
                 <template v-for="(name, idx) in tableItems{{ item.id }}[0].name.official_name_list">
@@ -27,7 +27,7 @@
             <div class="col-6">
                 <div class="row justify-content-center">
                     <div class="col-11 mb-1">
-                        <img :src="tableItems{{ item.id }}[1].name.image.m" class="img-fluid"></img>
+                        <img :src="tableItems{{ item.id }}[1].name.image.m" class="img-fluid shadow-sm"></img>
                     </div>
                     <div class="col-12">
                         <template v-for="(name, idx) in tableItems{{ item.id }}[1].name.official_name_list">
@@ -44,7 +44,7 @@
             <div v-if="tableItems{{ item.id }}.length > 2" class="col-6">
                 <div class="row justify-content-center">
                     <div class="col-11 mb-1">
-                        <img :src="tableItems{{ item.id }}[2].name.image.m" class="img-fluid"></img>
+                        <img :src="tableItems{{ item.id }}[2].name.image.m" class="img-fluid shadow-sm"></img>
                     </div>
                     <div class="col-12">
                         <template v-for="(name, idx) in tableItems{{ item.id }}[2].name.official_name_list">
