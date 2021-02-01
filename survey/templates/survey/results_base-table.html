@@ -1,23 +1,30 @@
-<b-table-lite hover small borderless :items="{{ table_items_var }}" :fields="fields">
-    <template #cell(rank)="data">
-        <template v-if="data.value">
-            #{$ data.value $}
-        </template>
-    </template>
-    <template #cell(image)="data">
-        <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
-    </template>
-    <template #cell(name)="data">
-        <div class="ml-2 mr-2">
-            <template v-for="(name, idx) in data.value.official_name_list">
-                <div v-if="idx == 0" class="">
-                    {$ name $}
-                </div>
-                <div v-else class="" style="font-size: 80%">
-                    {$ name $}
-                </div>
+<div class="row row-cols-1">
+    <div class="col">
+        <b-table-lite hover small borderless :items="{{ table_items_var }}" :fields="fields">
+            <template #cell(rank)="data">
+                <template v-if="data.value">
+                    #{$ data.value $}
+                </template>
             </template>
-        </div>
-        <div class="progress-bar table-row-progress-bar" :style="data.item.pb_width"></div>
-    </template>
-</b-table>
+            <template #cell(image)="data">
+                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
+            </template>
+            <template #cell(name)="data">
+                <div class="ml-2 mr-2">
+                    <template v-for="(name, idx) in data.value.official_name_list">
+                        <div v-if="idx == 0" class="">
+                            {$ name $}
+                        </div>
+                        <div v-else class="" style="font-size: 80%">
+                            {$ name $}
+                        </div>
+                    </template>
+                </div>
+                <div class="progress-bar table-row-progress-bar" :style="data.item.pb_width"></div>
+            </template>
+        </b-table>
+    </div>
+    <div class="col mt-n3 text-right">
+        <a style="font-size:90%;" href="{% url 'survey:fullresults' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}?sort={{ main_result_type }}">View full results &raquo;</a>
+    </div>
+</div>

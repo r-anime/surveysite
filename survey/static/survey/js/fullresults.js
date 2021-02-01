@@ -107,14 +107,12 @@ const animeSeriesColumns = [].concat([
     columnTypes["name"],
     columnTypes["popularity"],
     columnTypes["gender_popularity_ratio"],
-    columnTypes["gender_popularity_ratio_inv"],
     columnTypes["age"]],
     !surveyIsPreseason ? [
         columnTypes["underwatched"]
     ] : [], [
     columnTypes["score"],
-    columnTypes["gender_score_difference"],
-    columnTypes["gender_score_difference_inv"]],
+    columnTypes["gender_score_difference"]],
     !surveyIsPreseason ? [
         columnTypes["surprise"], columnTypes["disappointment"]
     ] : []
@@ -123,10 +121,9 @@ const specialAnimeColumns = [].concat([
     columnTypes["name"],
     columnTypes["popularity"],
     columnTypes["gender_popularity_ratio"],
-    columnTypes["gender_popularity_ratio_inv"],
     columnTypes["age"]],
     !surveyIsPreseason ? [
-        columnTypes["score"], columnTypes["gender_score_difference"], columnTypes["gender_score_difference_inv"]
+        columnTypes["score"], columnTypes["gender_score_difference"]
     ] : []
 );
 
@@ -136,13 +133,25 @@ new Vue({
     data: {
         fields: animeSeriesColumns,
         items: filterData(getTableItems(animeSeriesData)),
+        sortBy: sortBy,
+        sortDesc: sortBy === "name" ? false : true,
     },
 });
+
+let specialCanSortBy = false;
+for (let i = 0; i < specialAnimeColumns.length; i++) {
+    if (sortBy === specialAnimeColumns[i]["key"]) {
+        specialCanSortBy = true;
+    }
+}
+const specialSortBy = specialCanSortBy ? sortBy : "name";
 new Vue({
     el: "#" + specialAnimeTableId,
     delimiters: ["{$", "$}"],
     data: {
         fields: specialAnimeColumns,
         items: filterData(getTableItems(specialAnimeData)),
+        sortBy: specialSortBy,
+        sortDesc: specialSortBy === "name" ? false : true,
     },
 });

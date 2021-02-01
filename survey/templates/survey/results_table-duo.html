@@ -8,10 +8,10 @@
 
 <div class="row mb-5 no-gutters table-duo" id="results-table-{{ item.id }}">
     <div class="col-md-6 col-12 pl-md-1 pr-md-3">
-        {% include 'survey/results_base-table.html' with table_items_var=table_items_left_var only %}
+        {% include 'survey/results_base-table.html' with table_items_var=table_items_left_var survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
     <div class="col-md-6 col-12 pl-md-3 pr-md-1">
-        {% include 'survey/results_base-table.html' with table_items_var=table_items_right_var only %}
+        {% include 'survey/results_base-table.html' with table_items_var=table_items_right_var survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
 </div>
 

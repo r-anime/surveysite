@@ -51,6 +51,7 @@ class FullResultsView(BaseResultsView):
 
         results_generator = ResultsGenerator(survey)
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
+        context['sort_by'] = self.request.GET.get('sort', default='name')
 
         return context
 
