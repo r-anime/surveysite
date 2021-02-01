@@ -13,4 +13,4 @@ def survey_logout_view(request):
         logout(request)
         return redirect(request.POST['next'])
     else:
-        return Http404()
+        raise Http404()
