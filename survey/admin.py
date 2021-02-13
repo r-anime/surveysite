@@ -3,6 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
 from django.core.files.base import ContentFile
+from django.core.cache import cache
 from datetime import datetime
 from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil
@@ -251,6 +252,7 @@ class AnimeAdmin(admin.ModelAdmin):
             prev_survey_validity_list = []
             
         super().save_model(request, anime, form, change)
+        cache.clear()
         
         ongoing_survey_queryset = Survey.objects.filter(is_ongoing=True)
         for survey in ongoing_survey_queryset:
