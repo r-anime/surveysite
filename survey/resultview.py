@@ -11,6 +11,7 @@ from .util import SurveyUtil, get_user_info, AnimeUtil
 
 ANIME_POPULARITY_THRESHOLD = 0.02 # Anime with a popularity lower than this won't get included in results tables by default
 
+#region Views
 class BaseResultsView(TemplateView):
     """Base class for views displaying survey results."""
     http_method_names = ['get']
@@ -68,24 +69,24 @@ class ResultsView(BaseResultsView):
 
 
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
-        context['root_item'] = ResultsSegment(is_root=True, title='', children=[
-            ResultsSegment('Popularity', [
-                ResultsTableWithTop3('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                ResultsTableDuo('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
-                ResultsSegment('Popularity - Miscellaneous', [
-                    ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
-                    ResultsTableDuo('Average Age per Anime', ResultsType.AGE, row_count=3),
+        context['root_item'] = SegmentGroup(is_root=True, title='', children=[
+            SegmentGroup('Popularity', [
+                TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
+                TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                SegmentGroup('Popularity - Miscellaneous', [
+                    EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
+                    TablePairSegment('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
-            ResultsSegment('Impressions', [
-                ResultsTableWithTop3(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                ResultsTableDuo('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
-                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
-                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+            SegmentGroup('Impressions', [
+                TableWithTop3Segment(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
+                TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
+                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
             ]),
-            ResultsSegment('Anime OVAs / ONAs / Movies / Specials', [
-                ResultsTableWithTop3('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
-                ResultsEmpty() if survey.is_preseason else ResultsTableWithTop3('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
+            SegmentGroup('Anime OVAs / ONAs / Movies / Specials', [
+                TableWithTop3Segment('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
+                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
             ]),
         ])
 
@@ -127,16 +128,16 @@ class ResultsView(BaseResultsView):
         context['age_distribution'] = age_distribution
         context['age_distribution_max'] = age_max
         return context
-    
+#endregion
 
 
-class ResultsItemType(Enum):
+class SegmentType(Enum):
     EMPTY = auto()
-    SEGMENT = auto()
+    GROUP = auto()
     TABLE_WITH_TOP3 = auto()
-    TABLE_DUO = auto()
+    TABLE_PAIR = auto()
 
-class ResultsItem:
+class Segment:
     def __init__(self, item_type, title):
         self.item_type = item_type
         self.title = title
@@ -146,13 +147,13 @@ class ResultsItem:
         return item_id + 1
 
 
-class ResultsEmpty(ResultsItem):
+class EmptySegment(Segment):
     def __init__(self):
-        super().__init__(ResultsItemType.EMPTY, None)
+        super().__init__(SegmentType.EMPTY, None)
 
-class ResultsSegment(ResultsItem):
+class SegmentGroup(Segment):
     def __init__(self, title, children=[], is_root=False):
-        super().__init__(ResultsItemType.SEGMENT, title)
+        super().__init__(SegmentType.GROUP, title)
 
         self.children = children
 
@@ -167,7 +168,7 @@ class ResultsSegment(ResultsItem):
 
 
 
-class ResultsTableBase(ResultsItem):
+class TableBaseSegment(Segment):
     def __init__(self, item_type, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(item_type, title)
 
@@ -179,14 +180,14 @@ class ResultsTableBase(ResultsItem):
         self.description = description
 
 
-class ResultsTableWithTop3(ResultsTableBase):
+class TableWithTop3Segment(TableBaseSegment):
     def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(ResultsItemType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, description, is_for_series, top_count, bottom_count)
+        super().__init__(SegmentType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, description, is_for_series, top_count, bottom_count)
 
 
-class ResultsTableDuo(ResultsTableBase):
+class TablePairSegment(TableBaseSegment):
     def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, row_count=None):
-        super().__init__(ResultsItemType.TABLE_DUO, title, main_result_type, extra_result_type, description, is_for_series, row_count)
+        super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, extra_result_type, description, is_for_series, row_count)
 
 
 class ResultsGenerator:
