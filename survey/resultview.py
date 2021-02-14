@@ -66,10 +66,25 @@ class ResultsView(BaseResultsView):
         survey = self._get_survey()
 
         results_generator = ResultsGenerator(survey)
-
-
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
-        context['root_item'] = SegmentGroup(is_root=True, title='', children=[
+        context['root_item'] = self.__get_segments()
+
+        survey_responses = Response.objects.filter(survey=survey)
+        response_count = survey_responses.count()
+        context['response_count'] = response_count
+        context['average_age'] = survey_responses.aggregate(avg_age=Avg('age'))['avg_age'] or float('NaN')
+
+        context['gender_distribution'] = self.__get_gender_distribution(survey_responses)
+
+        age_distribution = self.__get_age_distribution(survey_responses)
+        context['age_distribution'] = age_distribution
+        context['age_distribution_max'] = max(age_distribution.values())
+        return context
+
+    def __get_segments(self):
+        survey = self._get_survey()
+
+        root_item = SegmentGroup('', is_root=True, children=[
             SegmentGroup('Popularity', [
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
                 TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
@@ -90,47 +105,43 @@ class ResultsView(BaseResultsView):
             ]),
         ])
 
-        survey_responses = Response.objects.filter(survey=survey)
-        response_count = survey_responses.count()
-        context['response_count'] = response_count
-        context['average_age'] = survey_responses.aggregate(avg_age=Avg('age'))['avg_age'] or float('NaN')
+        return root_item
 
+    def __get_gender_distribution(self, survey_responses):
         gender_answers_queryset = survey_responses.filter(~Q(gender=''), gender__isnull=False)
         gender_answers_count = len(gender_answers_queryset)
-        context['gender_distribution'] = OrderedDict([
+        gender_distribution = OrderedDict([
             (Response.Gender.MALE,   gender_answers_queryset.filter(gender=Response.Gender.MALE  ).count() / max(gender_answers_count, 1) * 100),
             (Response.Gender.FEMALE, gender_answers_queryset.filter(gender=Response.Gender.FEMALE).count() / max(gender_answers_count, 1) * 100),
             (Response.Gender.OTHER,  gender_answers_queryset.filter(gender=Response.Gender.OTHER ).count() / max(gender_answers_count, 1) * 100),
         ])
 
+        return gender_distribution
 
+    def __get_age_distribution(self, survey_responses):
         age_distribution = [0]*81
         age_list = survey_responses.filter(age__isnull=False, age__gt=0).values_list('age', flat=True)
         age_count = len(age_list)
-        age_max = 0
 
         # Count for each age how many people are that old.
         for age in age_list:
             if age > 0 and age <= 80:
                 age_distribution[int(age)] += 1
 
-        # Normalize the values.
+        # Normalize the values to 0-100.
         for i in range(len(age_distribution)):
             age_distribution[i] /= max(age_count, 1) / 100.0
-            if age_distribution[i] > age_max:
-                age_max = age_distribution[i]
 
         # Convert the list to a dict.
         age_distribution = OrderedDict([
             (idx, age_distribution[idx]) for idx in range(5, 81)
         ])
-            
-        context['age_distribution'] = age_distribution
-        context['age_distribution_max'] = age_max
-        return context
+
+        return age_distribution
 #endregion
 
 
+#region Segments
 class SegmentType(Enum):
     EMPTY = auto()
     GROUP = auto()
@@ -142,7 +153,7 @@ class Segment:
         self.item_type = item_type
         self.title = title
     
-    def set_id(self, item_id):
+    def _set_id(self, item_id):
         self.id = item_id
         return item_id + 1
 
@@ -158,12 +169,12 @@ class SegmentGroup(Segment):
         self.children = children
 
         if is_root:
-            self.set_id(0)
+            self._set_id(0)
     
-    def set_id(self, start_item_id):
-        next_id = super().set_id(start_item_id)
+    def _set_id(self, start_item_id):
+        next_id = super()._set_id(start_item_id)
         for child in self.children:
-            next_id = child.set_id(next_id)
+            next_id = child._set_id(next_id)
         return next_id
 
 
@@ -188,6 +199,7 @@ class TableWithTop3Segment(TableBaseSegment):
 class TablePairSegment(TableBaseSegment):
     def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, row_count=None):
         super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, extra_result_type, description, is_for_series, row_count)
+#endregion
 
 
 class ResultsGenerator:
