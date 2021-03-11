@@ -22,7 +22,7 @@
     <div class="row mb-5">
         <div class="col-lg-4">
             <div class="row">
-                <div class="col-12 form-group">
+                {% comment %} <div class="col-12 form-group">
                     <label for="age">How old are you?</label>
                     <input class="form-control" type="number" name="age" label="age" min=10 max=80 placeholder="--">
                 </div>
@@ -34,7 +34,14 @@
                         <option value="F">Female</option>
                         <option value="O">Other</option>
                     </select>
-                </div>
+                </div> {% endcomment %}
+                {% for field in responseform %}
+                    <div class="col-12 form-group">
+                        {{ field.errors }} {% comment %}TODO: Please customize this{% endcomment %}
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -45,9 +52,14 @@
     {% cache 7200 form_cards_series anime_series_list %}
     {% if anime_series_list %}
         <div class="row row-cols-md-2" id="anime-series">
-        {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
+        {% comment %} {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
                 {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=True only %}
+            </div>
+        {% endfor %} {% endcomment %}
+        {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
+            <div class="col-md mb-4">
+                {% include 'survey/form_card2.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=True only %}
             </div>
         {% endfor %}
         </div>

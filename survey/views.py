@@ -15,6 +15,7 @@ import logging
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil, SurveyUtil, get_user_info
 from .resultview import ResultsGenerator, ResultsType
+from .forms import ResponseForm, AnimeResponseForm
 
 
 # ======= VIEWS =======
@@ -61,8 +62,19 @@ def form(request, year, season, pre_or_post):
         messages.info(request, 'You already filled in %s!' % str(survey))
         return redirect('survey:index')
 
+    previous_response = None
 
     _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
+
+    def __get_animeresponseform(anime):
+        animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
+
+        if animeresponse_queryset and animeresponse_queryset.count() == 1:
+            return AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
+        else:
+            return AnimeResponseForm(prefix=str(anime.id), initial={'anime': anime})
+
+    responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
 
     def modify(anime):
         names = anime.animename_set.all()
@@ -76,6 +88,8 @@ def form(request, year, season, pre_or_post):
 
         anime.is_ongoing = survey.year != anime.start_year or survey.season != anime.start_season
 
+        anime.animeresponseform = __get_animeresponseform(anime)
+
         return anime
 
     anime_series_list = map(modify, anime_series_list)
@@ -86,6 +100,7 @@ def form(request, year, season, pre_or_post):
         'anime_series_list': anime_series_list,
         'special_anime_list': special_anime_list,
         'user_info': get_user_info(request.user),
+        'responseform': responseform,
     }
     return render(request, 'survey/form.html', context)
 

@@ -256,6 +256,7 @@ class Response(models.Model):
     survey = models.ForeignKey(
         to='Survey',
         on_delete=models.CASCADE,
+        editable=False,
     )
 
 
@@ -285,8 +286,10 @@ class AnimeResponse(models.Model):
     response = models.ForeignKey(
         to='Response',
         on_delete=models.CASCADE,
+        editable=False,
     )
     anime = models.ForeignKey(
         to='Anime',
         on_delete=models.CASCADE,
+        editable=False,
     )

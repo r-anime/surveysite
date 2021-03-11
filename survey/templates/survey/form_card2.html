@@ -1,0 +1,49 @@
+{% load anime_util %}
+
+<div class="card shadow-sm h-100">
+    <div class="row no-gutters">
+        <!-- Card image -->
+        <div class="col-4" style="border-radius:3px;">
+            {% get_anime_image anime css_class='card-img' variant='m' %}
+        </div>
+
+        <!-- Card info -->
+        <div class="col-8"><div class="card-body">
+            <div class="card-title">
+                <h5 class="mb-1">
+                    {{ anime.japanese_name.name }}
+                    {% if anime.short_name %}
+                    <span style="font-size:60%;">({{ anime.short_name.name }})</span>
+                    {% endif %}
+                </h5>
+                {% if anime.english_name %}
+                <h6 style="color:#777777;">{{ anime.english_name.name }}</h6>
+                {% endif %}
+            </div>
+
+            <div class="form-group form-check">
+                {{ form.watching }}
+                {{ form.watching.label_tag }}
+            </div>
+
+            {% if not is_preseason and is_series %}
+            <div class="form-group form-check">
+                {{ form.underwatched }}
+                {{ form.underwatched.label_tag }}
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                {{ form.score.label_tag }}
+                {{ form.score }}
+            </div>
+
+            {% if not is_preseason and is_series %}
+            <div class="form-group">
+                {{ form.expectations.label_tag }}
+                {{ form.expectations }}
+            </div>
+            {% endif %}
+        </div></div>
+    </div>
+</div>
