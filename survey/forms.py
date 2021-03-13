@@ -1,4 +1,4 @@
-from django.forms import ModelForm, NumberInput, CheckboxInput
+from django.forms import ModelForm, NumberInput, CheckboxInput, Select
 from .models import Response, AnimeResponse
 
 
@@ -27,6 +27,16 @@ class AnimeResponseForm(ModelForm):
     class Meta:
         exclude = []
         model = AnimeResponse
+        widgets = {
+            'score': Select(choices=[
+                (None, '---------'),
+                (5, '5/5 - Great'),
+                (4, '4/5'),
+                (3, '3/5 - Average'),
+                (2, '2/5'),
+                (1, '1/5 - Bad'),
+            ])
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

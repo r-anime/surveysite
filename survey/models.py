@@ -266,7 +266,7 @@ class AnimeResponse(models.Model):
     class Expectations(models.TextChoices):
         SURPRISE =       'S', _('Surprise')
         DISAPPOINTMENT = 'D', _('Disappointment')
-        __empty__ =           _('N/A')
+        __empty__ =           _('Met expectations / no answer')
     
     # Fields
     score = models.IntegerField(
