@@ -15,7 +15,7 @@ import logging
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil, SurveyUtil, get_user_info
 from .resultview import ResultsGenerator, ResultsType
-from .forms import ResponseForm, AnimeResponseForm
+from .forms import ResponseForm, PreSeasonAnimeResponseForm, PostSeasonAnimeResponseForm
 
 
 # ======= VIEWS =======
@@ -68,6 +68,7 @@ def form(request, year, season, pre_or_post):
 
     def __get_animeresponseform(anime):
         animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
+        AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
         if animeresponse_queryset and animeresponse_queryset.count() == 1:
             return AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())

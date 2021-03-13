@@ -23,13 +23,13 @@
 
             <div class="form-group form-check">
                 {{ form.watching }}
-                {{ form.watching.label_tag }}
+                <label class="form-check-label" for="{{ form.watching.id_for_label }}">{{ form.watching.label }}</label>
             </div>
 
             {% if not is_preseason and is_series %}
             <div class="form-group form-check">
                 {{ form.underwatched }}
-                {{ form.underwatched.label_tag }}
+                <label class="form-check-label" for="{{ form.underwatched.id_for_label }}">{{ form.underwatched.label }}</label>
             </div>
             {% endif %}
 
