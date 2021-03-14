@@ -56,17 +56,36 @@ def index(request):
 @login_required
 def form(request, year, season, pre_or_post):
     """Generates the form view, where users can respond to a survey. Requires the user being logged in."""
-    survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
 
-    if __session_is_survey_answered(request, survey):
-        messages.info(request, 'You already filled in %s!' % str(survey))
+    # Send the user back to the index if the survey is closed.
+    survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
+    if not survey.is_ongoing:
+        messages.error(request, str(survey) + ' is closed!')
         return redirect('survey:index')
 
+
+    anime_list, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
     previous_response = None
 
-    _, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
+    # if __session_is_survey_answered(request, survey):
+    #     messages.info(request, 'You already filled in %s!' % str(survey))
+    #     return redirect('survey:index')
 
-    def __get_animeresponseform(anime):
+
+    if request.method == 'POST':
+        responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
+
+        if responseform.is_valid():
+            messages.success(request, 'Response form is valid')
+            return redirect('survey:index')
+        else:
+            messages.error(request, 'Invalid response form: ' + str(responseform.errors))
+
+    elif request.method == 'GET':
+        responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
+
+
+    def get_animeresponseform(anime):
         animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
         AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
@@ -74,8 +93,6 @@ def form(request, year, season, pre_or_post):
             return AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
         else:
             return AnimeResponseForm(prefix=str(anime.id), initial={'anime': anime})
-
-    responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
 
     def modify(anime):
         names = anime.animename_set.all()
@@ -89,7 +106,7 @@ def form(request, year, season, pre_or_post):
 
         anime.is_ongoing = survey.year != anime.start_year or survey.season != anime.start_season
 
-        anime.animeresponseform = __get_animeresponseform(anime)
+        anime.animeresponseform = get_animeresponseform(anime)
 
         return anime
 
@@ -105,11 +122,11 @@ def form(request, year, season, pre_or_post):
     }
     return render(request, 'survey/form.html', context)
 
-
 #@user_passes_test(__reddit_check)
 @login_required
 def submit(request, year, season, pre_or_post):
     """A view saving a user's response to a survey to a database, and redirecting them back to the index. Requires the user being logged in."""
+    raise DeprecationWarning()
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
 
     if __session_is_survey_answered(request, survey):
