@@ -144,10 +144,6 @@ def generate_unique_image_file_path(instance, filename):
     return 'survey/images/anime/' + str(instance.anime.id) + '/' + filename
 
 class Image(models.Model):
-    @staticmethod
-    def generate_unique_file_path(instance, filename):
-        return 'survey/images/anime/' + str(self.anime) + '/' + str(uuid.uuid4().split('-')[0]) + '.' + filename.split('.')[-1]
-    
     # Fields
     name = models.CharField(
         max_length=20,
@@ -184,6 +180,10 @@ class Image(models.Model):
 
 
 class Survey(models.Model):
+    class Meta:
+        ordering = ['-year', '-season', 'is_preseason']
+
+
     # Fields
     is_preseason = models.BooleanField()
     is_ongoing = models.BooleanField(

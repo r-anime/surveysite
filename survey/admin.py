@@ -315,7 +315,6 @@ class SurveyAdmin(admin.ModelAdmin):
         'is_ongoing',
         ('year', 'season')
     ]
-    ordering = ['year', 'season', 'is_preseason']
     list_display = [
         '__str__',
         'is_ongoing',
