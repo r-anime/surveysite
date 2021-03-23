@@ -45,13 +45,19 @@
     <h3 class="mb-4 rounded shadow">Anime Series</h3>
     {% cache 7200 form_cards_series anime_series_list %}
     {% if anime_series_list %}
-        <div class="row row-cols-md-2">
+        <div class="row row-cols-md-2" id="anime-series">
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
                 {% create_form_card anime survey.is_preseason True %}
             </div>
         {% endfor %}
         </div>
+        
+        <script>
+            new Vue({
+                el: "#anime-series",
+            });
+        </script>
     {% else %}
         <p>No anime found!</p>
     {% endif %}
@@ -62,13 +68,19 @@
     <h3 class="mb-4 rounded shadow">Anime Movies/ONAs/OVAs/Specials</h3>
     {% cache 7200 form_cards_specials special_anime_list %}
     {% if special_anime_list %}
-        <div class="row row-cols-md-2">
+        <div class="row row-cols-md-2" id="special-anime">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
                 {% create_form_card anime survey.is_preseason False %}
             </div>
         {% endfor %}
         </div>
+        
+        <script>
+            new Vue({
+                el: "#special-anime",
+            });
+        </script>
     {% else %}
         <p>No anime found!</p>
     {% endif %}

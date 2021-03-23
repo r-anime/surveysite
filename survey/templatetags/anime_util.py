@@ -31,6 +31,31 @@ def get_anime_image(anime, css_class='', variant='l'):
 def get_anime_image_url(anime, variant='l', default=''):
     return AnimeUtil.get_anime_image_url(anime, variant=variant, default=default)
 
+@register.inclusion_tag('survey/anime_image_carousel.html')
+def get_anime_image_carousel(anime, css_class='', variant='l'):
+    image_set = anime.image_set.all()
+
+    def get_data(image):
+        image_file = image.file_small if variant == 's' else image.file_medium if variant == 'm' else image.file_large
+        return {
+            'url': image_file.url,
+            'alt': image.name,
+            'width': image_file.width,
+            'height': image_file.height,
+        }
+
+    image_list = list(map(get_data, image_set))
+    max_width  = max([image['width' ] for image in image_list]) if image_list else None
+    max_height = max([image['height'] for image in image_list]) if image_list else None
+
+    return {
+        'image_list': image_list,
+        'css_class': css_class,
+        'id': anime.id,
+        'width': max_width,
+        'height': max_height,
+    }
+
 @register.simple_tag
 def get_season_name(season_idx, start_with_capital=True):
     season_name = Anime.AnimeSeason(season_idx).name

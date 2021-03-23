@@ -1,0 +1,26 @@
+{% load static %}
+
+{% with image_list_length=image_list|length%}
+{% if image_list_length == 1 %}
+    <img src="{{ image_list.0.url }}" alt="{{ image_ist.0.alt }}" class="{{ css_class }}">
+{% elif image_list %}
+    <div>
+        <b-carousel
+            id="anime-carousel-{{ id }}"
+            class="{{ css_class }}"
+            img-width="{{ width }}"
+            img-height="{{ height }}"
+            controls fade indicators
+        >
+            {% for image in image_list %}
+                <b-carousel-slide
+                    img-alt="{{ image.alt }}"
+                    img-src="{{ image.url }}"
+                ></b-carousel-slide>
+            {% endfor %}
+        </b-carousel>
+    </div>
+{% else %}
+    <img src="{% static 'survey/img/image-unavailable.png' %}" alt="Image unavailable" class="{{ css_class }}">
+{% endif %}
+{% endwith %}
