@@ -13,39 +13,43 @@
                 <h5 class="mb-1">
                     {{ anime.japanese_name.name }}
                     {% if anime.short_name %}
-                    <span style="font-size:60%;">({{ anime.short_name.name }})</span>
+                        <span style="font-size:60%;">({{ anime.short_name.name }})</span>
                     {% endif %}
                 </h5>
                 {% if anime.english_name %}
-                <h6 style="color:#777777;">{{ anime.english_name.name }}</h6>
+                    <h6 style="color:#777777;">{{ anime.english_name.name }}</h6>
                 {% endif %}
             </div>
 
             <div class="form-group form-check">
                 <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
                 <label class="form-check-label" for="{{ anime.id }}-watched">
-                    {% if is_preseason %}
-                    Will you watch this?
+                    {% if is_preseason and anime.is_ongoing %}
+                        Did you watch this and will you continue watching this?
+                    {% elif is_preseason %}
+                        Will you watch this?
                     {% else %}
-                    Did you watch this?
+                        Did you watch this?
                     {% endif %}
                 </label>
             </div>
 
             {% if not is_preseason and is_series %}
-            <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
-                <label class="form-check-label" for="{{ anime.id }}-underwatched">Did you find this underwatched?</label>
-            </div>
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
+                    <label class="form-check-label" for="{{ anime.id }}-underwatched">Did you find this underwatched?</label>
+                </div>
             {% endif %}
 
             <div class="form-group">
                 <label for="{{ anime.id }}-score">
-                {% if is_preseason %}
-                How good will this be?
-                {% else %}
-                What did you think of this?
-                {% endif %}
+                    {% if is_preseason and anime.is_ongoing %}
+                        What are your expectations for the remainder?
+                    {% elif is_preseason %}
+                        What are your expectations for this?
+                    {% else %}
+                        What did you think of this?
+                    {% endif %}
                 </label>
                 <select name="{{ anime.id }}-score" class="form-control">
                     <option value="">-----</option>
@@ -58,14 +62,14 @@
             </div>
 
             {% if not is_preseason and is_series %}
-            <div class="form-group">
-                <label for="{{ anime.id }}-expectations">Was this a surprise or disappointment?</label>
-                <select name="{{ anime.id }}-expectations" class="form-control">
-                    <option value="">Met expectations / no answer</option>
-                    <option value="S">Surprise</option>
-                    <option value="D">Disappointment</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="{{ anime.id }}-expectations">Was this a surprise or disappointment?</label>
+                    <select name="{{ anime.id }}-expectations" class="form-control">
+                        <option value="">Met expectations / no answer</option>
+                        <option value="S">Surprise</option>
+                        <option value="D">Disappointment</option>
+                    </select>
+                </div>
             {% endif %}
         </div></div>
     </div>

@@ -74,10 +74,12 @@ def form(request, year, season, pre_or_post):
         short_name    = names.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME   , official=True).first()
         anime.short_name    = short_name    if short_name    else names.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME   , official=False).first()
 
+        anime.is_ongoing = survey.year != anime.start_year or survey.season != anime.start_season
+
         return anime
 
-    anime_series_list = [modify(anime) for anime in anime_series_list]
-    special_anime_list = [modify(anime) for anime in special_anime_list]
+    anime_series_list = map(modify, anime_series_list)
+    special_anime_list = map(modify, special_anime_list)
 
     context = {
         'survey': survey,
