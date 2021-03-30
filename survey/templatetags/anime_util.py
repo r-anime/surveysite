@@ -4,35 +4,8 @@ from ..util import AnimeUtil
 
 register = template.Library()
 
-@register.inclusion_tag('survey/anime_image.html')
-def get_anime_image(anime, css_class='', variant='l'):
-    if anime.image_set.count():
-        anime_image = anime.image_set.first()
-        if variant == 's':
-            image_file = anime_image.file_small
-        elif variant == 'm':
-            image_file = anime_image.file_medium
-        else:
-            image_file = anime_image.file_large
-        
-        image_url = image_file.url
-        image_alt = anime_image.name
-    else:
-        image_url = None
-        image_alt = None
-    
-    return {
-        'image_url': image_url,
-        'image_alt': image_alt,
-        'css_class': css_class,
-    }
-
-@register.simple_tag
-def get_anime_image_url(anime, variant='l', default=''):
-    return AnimeUtil.get_anime_image_url(anime, variant=variant, default=default)
-
-@register.inclusion_tag('survey/anime_image_carousel.html')
-def get_anime_image_carousel(anime, variant='l', enable_controls=True):
+@register.inclusion_tag('survey/anime_images.html')
+def render_anime_images(anime, variant='l', enable_controls=True):
     image_set = anime.image_set.all()
 
     def get_data(image):

@@ -1,5 +1,4 @@
 {% extends "survey/base.html" %}
-{% load form_card %}
 {% load cache %}
 {% load static %}
 
@@ -48,7 +47,7 @@
         <div class="row row-cols-md-2" id="anime-series">
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% create_form_card anime survey.is_preseason True %}
+                {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=True only %}
             </div>
         {% endfor %}
         </div>
@@ -71,7 +70,7 @@
         <div class="row row-cols-md-2" id="special-anime">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% create_form_card anime survey.is_preseason False %}
+                {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=False only %}
             </div>
         {% endfor %}
         </div>
