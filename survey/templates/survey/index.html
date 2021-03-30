@@ -1,10 +1,26 @@
 {% extends "survey/base.html" %}
 {% load anime_util %}
 
+{% block head %}
+<style>
+    .carousel-item {
+        display: block;
+    }
+
+    /* Mimic Bootstrap's align-items-center d-flex until I've added Sass support */
+    .carousel-inner {
+        display: -ms-flexbox!important;
+        display: flex!important;
+        -ms-flex-align: center!important;
+        align-items: center!important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 {% if survey_list %}
-<div class="list-group mt-5">
+<div class="list-group mt-5" id="survey-list">
     {% for survey in survey_list %}
     <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action">
         <div class="d-flex align-items-center">
@@ -49,6 +65,11 @@
     </a>
     {% endfor %}
 </div>
+<script>
+    new Vue({
+        el: "#survey-list",
+    });
+</script>
 {% else %}
 <p>No surveys available.</p>
 {% endif %}

@@ -32,7 +32,7 @@ def get_anime_image_url(anime, variant='l', default=''):
     return AnimeUtil.get_anime_image_url(anime, variant=variant, default=default)
 
 @register.inclusion_tag('survey/anime_image_carousel.html')
-def get_anime_image_carousel(anime, css_class='', variant='l'):
+def get_anime_image_carousel(anime, variant='l', enable_controls=True):
     image_set = anime.image_set.all()
 
     def get_data(image):
@@ -50,10 +50,10 @@ def get_anime_image_carousel(anime, css_class='', variant='l'):
 
     return {
         'image_list': image_list,
-        'css_class': css_class,
         'id': anime.id,
         'width': max_width,
         'height': max_height,
+        'enable_controls': enable_controls,
     }
 
 @register.simple_tag
