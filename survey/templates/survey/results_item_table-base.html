@@ -7,7 +7,14 @@
                 </template>
             </template>
             <template #cell(image)="data">
-                <img v-if="data.item.name.image" :src="data.item.name.image.s" class="img-fluid"></img>
+                <b-carousel fade>
+                    <b-carousel-slide
+                        v-for="image in data.item.name.image_list"
+                        :img-src="image.urls.s"
+                        :img-alt="image.alt"
+                    >
+                    </b-carousel-slide>
+                </b-carousel>
             </template>
             <template #cell(name)="data">
                 <div class="ml-2 mr-2">

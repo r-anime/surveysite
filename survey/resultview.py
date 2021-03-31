@@ -222,11 +222,7 @@ class ResultsGenerator:
             anime.id: {
                 'official_name_list': AnimeUtil.get_name_list(anime),
                 'type': anime.anime_type,
-                'image': {
-                    's': AnimeUtil.get_anime_image_url(anime, variant='s'),
-                    'm': AnimeUtil.get_anime_image_url(anime, variant='m'),
-                    'l': AnimeUtil.get_anime_image_url(anime, variant='l'),
-                },
+                'image_list': AnimeUtil.get_image_url_list(anime),
             } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
         })
 

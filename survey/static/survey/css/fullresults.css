@@ -10,7 +10,7 @@ th div {
 th, td {
     vertical-align:middle!important;
 }
-.col-img img {
+.col-img img, .col-img .carousel {
     width: 50px;
 }
 .row-under-threshold {

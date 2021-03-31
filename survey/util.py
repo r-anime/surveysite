@@ -69,6 +69,32 @@ class AnimeUtil:
         return [animename.name for animename in animename_list]
 
     @staticmethod
+    def get_image_url_list(anime, default=''):
+        image_set = anime.image_set.all()
+        image_list = []
+        if len(image_set):
+            image_list = map(
+                lambda image: {
+                    'urls': {
+                        's': image.file_small.url,
+                        'm': image.file_medium.url,
+                        'l': image.file_large.url,
+                    },
+                    'alt': image.name,
+                },
+                image_set
+            )
+            return list(image_list)
+        else:
+            if not default:
+                default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
+            return {
+                's': default,
+                'm': default,
+                'l': default,
+            }
+
+    @staticmethod
     def get_anime_image_url(anime, variant='l', default=''):
         if anime.image_set.count():
             anime_image = anime.image_set.first()

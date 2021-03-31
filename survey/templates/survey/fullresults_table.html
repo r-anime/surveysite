@@ -4,7 +4,14 @@
             <template #cell(name)="data">
                 <div class="row align-items-center no-gutters">
                     <div class="col-auto col-img">
-                        <img :src="data.value.image.s" class="img-fluid">
+                        <b-carousel fade>
+                            <b-carousel-slide
+                                v-for="image in data.value.image_list"
+                                :img-src="image.urls.s"
+                                :img-alt="image.alt"
+                            >
+                            </b-carousel-slide>
+                        </b-carousel>
                     </div>
                     <div class="col ml-2 mr-2">
                         <template v-for="(name, idx) in data.value.official_name_list">
