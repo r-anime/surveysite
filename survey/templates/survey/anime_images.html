@@ -2,7 +2,7 @@
 
 {% with image_list_length=image_list|length%}
 {% if image_list_length == 1 %}
-    <img src="{{ image_list.0.url }}" alt="{{ image_ist.0.alt }}" class="img-fluid">
+    <img src="{{ image_list.0.url }}" alt="{{ image_list.0.alt }}" class="img-fluid">
 {% elif image_list %}
     <b-carousel
         id="anime-carousel-{{ id }}"
