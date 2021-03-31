@@ -11,6 +11,9 @@ static/
 !*/static/
 cache/*.djcache
 
+# Sass output #
+*/static/**/css/*
+
 startserver.ps1
 *.tsv
 

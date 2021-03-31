@@ -1,20 +1,9 @@
 {% extends "survey/base.html" %}
 {% load anime_util %}
+{% load static %}
 
 {% block head %}
-<style>
-    .carousel-item {
-        display: block;
-    }
-
-    /* Mimic Bootstrap's align-items-center d-flex until I've added Sass support */
-    .carousel-inner {
-        display: -ms-flexbox!important;
-        display: flex!important;
-        -ms-flex-align: center!important;
-        align-items: center!important;
-    }
-</style>
+<link type="text/css" rel="stylesheet" href="{% static 'survey/css/index.css' %}">
 {% endblock %}
 
 {% block content %}
