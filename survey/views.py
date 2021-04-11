@@ -69,7 +69,9 @@ def form(request, year, season, pre_or_post):
     AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
 
+    # -----
     # The user has submitted a response
+    # -----
     if request.method == 'POST':
         responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
         animeresponseform_list = []
@@ -82,29 +84,53 @@ def form(request, year, season, pre_or_post):
             else:
                 animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id)))
 
-        # If all the forms contain valid data, save them, otherwise render the form again
+        # If all the forms contain valid data, save them
         if responseform.is_valid() and all(map(lambda animeresponseform: animeresponseform.is_valid(), animeresponseform_list)):
+            response = Response(
+                survey=survey,
+                age=responseform.cleaned_data.get('age'),
+                gender=responseform.cleaned_data.get('gender'),
+            )
+            response.save()
+
+            animeresponse_list = []
+            for animeresponseform in animeresponseform_list:
+                if animeresponseform.cleaned_data:
+                    animeresponse_list.append(AnimeResponse(
+                        anime=Anime.objects.get(pk=int(animeresponseform.prefix)),
+                        score=animeresponseform.cleaned_data.get('score', None),
+                        watching=animeresponseform.cleaned_data.get('watching', False),
+                        underwatched=animeresponseform.cleaned_data.get('underwatched', False),
+                        expectations=animeresponseform.cleaned_data.get('expectations', AnimeResponse.Expectations.__empty__),
+                        response=response,
+                    ))
+            AnimeResponse.objects.bulk_create(animeresponse_list)
+
             messages.success(request, 'Successfully filled in %s!' % str(survey))
-            # TODO: Save the data
             return redirect('survey:index')
+
+        # If at least one form contains invalid data, re-render the form
         else:
             messages.error(request, 'One or more of your answers are invalid.')
             animeresponseform_dict = {int(form.prefix): form for form in animeresponseform_list}
             return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)
 
 
+    # -----
     # The user wants to view the form
+    # -----
     elif request.method == 'GET':
         responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
         animeresponseform_dict = {}
 
         # Get the anime response forms, bound to already stored anime responses whenever possible
+        # (Saving what anime an AnimeResponseForm belongs to requires AnimeResponse.anime to be editable, so I just store it in the prefix)
         for anime in anime_list:
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
                 animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
             else:
-                animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), initial={'anime': anime})
+                animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id))
 
         # Render the form
         return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)

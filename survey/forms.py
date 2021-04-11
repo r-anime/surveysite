@@ -47,6 +47,19 @@ class AnimeResponseForm(ModelForm):
             else:
                 field.field.widget.attrs['class'] = 'form-control'
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        watching = cleaned_data.get('watching', False)
+        score = cleaned_data.get('score', None)
+        underwatched = cleaned_data.get('underwatched', False)
+        expectations = cleaned_data.get('expectations', None)
+
+        if not watching and not score and not underwatched and not expectations:
+            return {}
+        else:
+            return cleaned_data
+
 class PreSeasonAnimeResponseForm(AnimeResponseForm):
     class Meta(AnimeResponseForm.Meta):
         exclude = ['underwatched', 'expectations']
