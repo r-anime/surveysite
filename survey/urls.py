@@ -12,7 +12,6 @@ survey_patterns = [
     path('<int:year>/<int:season>/<pre_or_post>/', views.form, name='form'),
     path('<int:year>/<int:season>/<pre_or_post>/results/', ResultsView.as_view(), name='results'),
     path('<int:year>/<int:season>/<pre_or_post>/fullresults/', FullResultsView.as_view(), name='fullresults'),
-    path('<int:year>/<int:season>/<pre_or_post>/submit/', views.submit, name='submit'),
 ]
 
 urlpatterns = [
