@@ -52,6 +52,7 @@ def index(request):
     return render(request, 'survey/index.html', context)
 
 
+
 #@user_passes_test(__reddit_check)
 @login_required
 def form(request, year, season, pre_or_post):
@@ -63,40 +64,58 @@ def form(request, year, season, pre_or_post):
         messages.error(request, str(survey) + ' is closed!')
         return redirect('survey:index')
 
-
     anime_list, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
-    previous_response = None
-
-    # if __session_is_survey_answered(request, survey):
-    #     messages.info(request, 'You already filled in %s!' % str(survey))
-    #     return redirect('survey:index')
+    previous_response = None # TODO: Get previous response when possible
+    AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
 
+    # The user has submitted a response
     if request.method == 'POST':
         responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
+        animeresponseform_list = []
 
-        if responseform.is_valid():
-            messages.success(request, 'Response form is valid')
+        # Get the anime response forms, bound to already stored anime responses whenever possible
+        for anime in anime_list:
+            animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
+            if animeresponse_queryset and animeresponse_queryset.count() == 1:
+                animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id), instance=animeresponse_queryset.first()))
+            else:
+                animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id)))
+
+        # If all the forms contain valid data, save them, otherwise render the form again
+        if responseform.is_valid() and all(map(lambda animeresponseform: animeresponseform.is_valid(), animeresponseform_list)):
+            messages.success(request, 'Successfully filled in %s!' % str(survey))
+            # TODO: Save the data
             return redirect('survey:index')
         else:
-            messages.error(request, 'Invalid response form: ' + str(responseform.errors))
+            messages.error(request, 'One or more of your answers are invalid.')
+            animeresponseform_dict = {int(form.prefix): form for form in animeresponseform_list}
+            return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)
 
+
+    # The user wants to view the form
     elif request.method == 'GET':
         responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
+        animeresponseform_dict = {}
+
+        # Get the anime response forms, bound to already stored anime responses whenever possible
+        for anime in anime_list:
+            animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
+            if animeresponse_queryset and animeresponse_queryset.count() == 1:
+                animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
+            else:
+                animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), initial={'anime': anime})
+
+        # Render the form
+        return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)
 
 
-    def get_animeresponseform(anime):
-        animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
-        AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
-        if animeresponse_queryset and animeresponse_queryset.count() == 1:
-            return AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
-        else:
-            return AnimeResponseForm(prefix=str(anime.id), initial={'anime': anime})
-
+def __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict):
+    """Renders a survey form using the provided data."""
     def modify(anime):
+        # Get anime names
         names = anime.animename_set.all()
-
         japanese_name = names.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME, official=True).first()
         anime.japanese_name = japanese_name if japanese_name else names.filter(anime_name_type=AnimeName.AnimeNameType.JAPANESE_NAME, official=False).first()
         english_name  = names.filter(anime_name_type=AnimeName.AnimeNameType.ENGLISH_NAME , official=True).first()
@@ -104,9 +123,11 @@ def form(request, year, season, pre_or_post):
         short_name    = names.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME   , official=True).first()
         anime.short_name    = short_name    if short_name    else names.filter(anime_name_type=AnimeName.AnimeNameType.SHORT_NAME   , official=False).first()
 
+        # Get whether the anime is still ongoing or not
         anime.is_ongoing = survey.year != anime.start_year or survey.season != anime.start_season
 
-        anime.animeresponseform = get_animeresponseform(anime)
+        # Get a response form for the anime
+        anime.animeresponseform = animeresponseform_dict[anime.id]
 
         return anime
 
@@ -121,84 +142,6 @@ def form(request, year, season, pre_or_post):
         'responseform': responseform,
     }
     return render(request, 'survey/form.html', context)
-
-#@user_passes_test(__reddit_check)
-@login_required
-def submit(request, year, season, pre_or_post):
-    """A view saving a user's response to a survey to a database, and redirecting them back to the index. Requires the user being logged in."""
-    raise DeprecationWarning()
-    survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
-
-    if __session_is_survey_answered(request, survey):
-        messages.info(request, 'You already filled in %s!' % str(survey))
-        return redirect('survey:index')
-
-
-    if request.method == 'POST' and survey.is_ongoing:
-        anime_list, _, _ = SurveyUtil.get_survey_anime(survey)
-
-        try:
-            response = Response(
-                survey=survey,
-                timestamp=datetime.now(),
-                age=__try_get_response(request, 'age', lambda x: int(x)),
-                gender=__try_get_response(request, 'gender', lambda x: Response.Gender(x)),
-            )
-            response.clean_fields()
-        except (ValueError, ValidationError) as e:
-            messages.error(request, 'Submitted an invalid age or gender not one of the possible options')
-            logging.warning('User sent one or more invalid values:\n  %s: "%s"\n  %s: "%s"' % ('age', request.POST.get('age', None), 'gender', request.POST.get('gender', None)))
-            return redirect('survey:form', survey.year, survey.season, pre_or_post)
-        except Exception as e:
-            messages.error(request, 'Something went wrong during response submission')
-            logging.error('Unknown exception occurred during response validation:\nPOST values:\n%s\n\nException:\n%s' % (str(request.POST), str(e)))
-            return redirect('survey:form', survey.year, survey.season, pre_or_post)
-        else:
-            response.save()
-
-
-        anime_response_list = []
-        for anime in anime_list:
-            # Check if the response contains the current anime
-            has_anime = False
-            for key in request.POST.keys():
-                # The key has to both exist in the POST request, and its accompanying value has to be something (in case of score/expectations)
-                if key.startswith(str(anime.id)) and request.POST.get(key, None):
-                    has_anime = True
-                    break
-            if not has_anime:
-                continue
-
-            anime_str = ' / '.join(AnimeUtil.get_name_list(anime))
-            try:
-                anime_response = AnimeResponse(
-                    response=response,
-                    anime=anime,
-                    watching=__try_get_response(request, str(anime.id) + '-watched', lambda _: True, False),
-                    score=__try_get_response(request, str(anime.id) + '-score', lambda x: int(x), None),
-                    underwatched=__try_get_response(request, str(anime.id) + '-underwatched', lambda _: True, False),
-                    expectations=__try_get_response(request, str(anime.id) + '-expectations', lambda x: AnimeResponse.Expectations(x), ''),
-                )
-                anime_response.clean_fields()
-            except (ValueError, ValidationError) as e:
-                messages.error(request, 'Submitted invalid score or expectation for anime "%s"' % anime_str)
-                logging.warning('User sent one or more invalid values for anime "%i":\n  %s: "%s"\n  %s: "%s"' % (anime.id, 'score', request.POST.get(str(anime.id) + '-score', None), 'expectations', request.POST.get(str(anime.id) + '-expectations', None)))
-                response.delete()
-                return redirect('survey:form', survey.year, survey.season, pre_or_post)
-            except Exception as e:
-                messages.error(request, 'Something went wrong during submitting your response for anime "%s"' % anime_str)
-                logging.error('Unknown exception occurred during response validation for anime %i:\nPOST values:\n%s\n\nException:\n%s' % (anime.id, str(request.POST), str(e)))
-                return redirect('survey:form', survey.year, survey.season, pre_or_post)
-            else:
-                anime_response_list.append(anime_response)
-        
-        AnimeResponse.objects.bulk_create(anime_response_list)
-        
-        __session_set_survey_answered(request, survey)
-        messages.success(request, "Successfully filled in %s!" % str(survey))
-        return redirect('survey:index')
-    else:
-        return redirect('survey:form', survey.year, survey.season, pre_or_post)
 
 
 
@@ -235,13 +178,3 @@ def __reddit_check(user):
 
     reddit_accounts = user.socialaccount_set.filter(provider='reddit')
     return len(reddit_accounts) > 0
-
-def __session_set_survey_answered(request, survey):
-    """Store that the given survey is answered in the session data."""
-    key = 'answered_survey_%i' % survey.id
-    request.session[key] = True
-
-def __session_is_survey_answered(request, survey):
-    """Check whether the user answered a certain survey."""
-    key = 'answered_survey_%i' % survey.id
-    return key in request.session
