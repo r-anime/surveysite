@@ -237,6 +237,11 @@ class Response(models.Model):
         OTHER     = 'O', _('Other')
 
     # Fields
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
     timestamp = models.DateTimeField(
         auto_now=True,
     )
