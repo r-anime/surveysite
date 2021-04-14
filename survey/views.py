@@ -11,6 +11,7 @@ from datetime import datetime
 from enum import Enum, auto
 import allauth
 import logging
+from itertools import repeat
 
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil, SurveyUtil, get_user_info
@@ -58,15 +59,30 @@ def index(request):
 def form(request, year, season, pre_or_post):
     """Generates the form view, where users can respond to a survey. Requires the user being logged in."""
 
-    # Send the user back to the index if the survey is closed.
+    # Send the user back to the index if the survey is closed
     survey = SurveyUtil.get_survey_or_404(year, season, pre_or_post)
     if not survey.is_ongoing:
         messages.error(request, str(survey) + ' is closed!')
         return redirect('survey:index')
 
     anime_list, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
-    previous_response = None # TODO: Get previous response when possible
     AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
+
+    # Load the previous response if possible
+    response_session_key = 'survey_%i_response' % survey.id
+    if response_session_key in request.session:
+        response_public_id = request.session[response_session_key]
+        try:
+            previous_response = Response.objects.get(public_id=response_public_id)
+        except Response.DoesNotExist:
+            messages.warning(request, 'Response with ID "%s" does not exist!' % response_public_id)
+            previous_response = None
+        except Response.MultipleObjectsReturned:
+            messages.warning(request, 'Unable to load response with ID "%s".' % response_public_id)
+            logging.error('Multiple responses with public ID "%s" found!' % response_public_id)
+            previous_response = None
+    else:
+        previous_response = None
 
 
     # -----
@@ -74,45 +90,50 @@ def form(request, year, season, pre_or_post):
     # -----
     if request.method == 'POST':
         responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
-        animeresponseform_list = []
+        existing_animeresponseform_list = []
+        new_animeresponseform_list = []
 
         # Get the anime response forms, bound to already stored anime responses whenever possible
         for anime in anime_list:
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
-                animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id), instance=animeresponse_queryset.first()))
+                existing_animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id), instance=animeresponse_queryset.first()))
             else:
-                animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id)))
+                new_animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id)))
 
         # If all the forms contain valid data, save them
-        if responseform.is_valid() and all(map(lambda animeresponseform: animeresponseform.is_valid(), animeresponseform_list)):
-            response = Response(
-                survey=survey,
-                age=responseform.cleaned_data.get('age'),
-                gender=responseform.cleaned_data.get('gender'),
-            )
+        if responseform.is_valid() and all(map(lambda animeresponseform: animeresponseform.is_valid(), existing_animeresponseform_list + new_animeresponseform_list)):
+            response = responseform.save(commit=False)
+            response.survey = survey
             response.save()
 
-            animeresponse_list = []
-            for animeresponseform in animeresponseform_list:
-                if animeresponseform.cleaned_data:
-                    animeresponse_list.append(AnimeResponse(
-                        anime=Anime.objects.get(pk=int(animeresponseform.prefix)),
-                        score=animeresponseform.cleaned_data.get('score', None),
-                        watching=animeresponseform.cleaned_data.get('watching', False),
-                        underwatched=animeresponseform.cleaned_data.get('underwatched', False),
-                        expectations=animeresponseform.cleaned_data.get('expectations', AnimeResponse.Expectations.__empty__),
-                        response=response,
-                    ))
-            AnimeResponse.objects.bulk_create(animeresponse_list)
+            existing_animeresponse_list = []
+            new_animeresponse_list = []
+            for animeresponseform, is_existing in list(zip(existing_animeresponseform_list, repeat(True))) + list(zip(new_animeresponseform_list, repeat(False))):
+                if not animeresponseform.is_empty() or is_existing:
+                    animeresponse = animeresponseform.save(commit=False)
+                    animeresponse.anime = Anime.objects.get(pk=int(animeresponseform.prefix))
+                    animeresponse.response = response
+                    if is_existing:
+                        existing_animeresponse_list.append(animeresponse)
+                    else:
+                        new_animeresponse_list.append(animeresponse)
 
-            messages.success(request, 'Successfully filled in %s!' % str(survey))
+            AnimeResponse.objects.bulk_update(existing_animeresponse_list, ['watching', 'underwatched', 'score', 'expectations'])
+            AnimeResponse.objects.bulk_create(new_animeresponse_list)
+
+            if previous_response:
+                messages.success(request, 'Successfully updated your response to %s!' % str(survey))
+            else:
+                messages.success(request, 'Successfully filled in %s!' % str(survey))
+
+            request.session['survey_%i_response' % survey.id] = response.public_id.hex
             return redirect('survey:index')
 
         # If at least one form contains invalid data, re-render the form
         else:
             messages.error(request, 'One or more of your answers are invalid.')
-            animeresponseform_dict = {int(form.prefix): form for form in animeresponseform_list}
+            animeresponseform_dict = {int(form.prefix): form for form in existing_animeresponseform_list + new_animeresponseform_list}
             return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)
 
 
@@ -133,6 +154,8 @@ def form(request, year, season, pre_or_post):
                 animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id))
 
         # Render the form
+        if previous_response:
+            messages.info(request, 'Loaded your previous response.')
         return __render_form(request, survey, anime_series_list, special_anime_list, responseform, animeresponseform_dict)
 
 
