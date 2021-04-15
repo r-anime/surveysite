@@ -88,11 +88,14 @@ class AnimeUtil:
         else:
             if not default:
                 default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
-            return {
-                's': default,
-                'm': default,
-                'l': default,
-            }
+            return [{
+                'urls': {
+                    's': default,
+                    'm': default,
+                    'l': default,
+                },
+                'alt': 'Image unavailable',
+            }]
 
 
 class SurveyUtil:
