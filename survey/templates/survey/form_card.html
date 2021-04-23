@@ -22,53 +22,26 @@
             </div>
 
             <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" name="{{ anime.id }}-watched" id="{{ anime.id }}-watched" value="true">
-                <label class="form-check-label" for="{{ anime.id }}-watched">
-                    {% if is_preseason and anime.is_ongoing %}
-                        Did you watch this and will you continue watching this?
-                    {% elif is_preseason %}
-                        Will you watch this?
-                    {% else %}
-                        Did you watch this?
-                    {% endif %}
-                </label>
+                {{ form.watching }}
+                <label class="form-check-label" for="{{ form.watching.id_for_label }}">{{ form.watching.label }}</label>
             </div>
 
             {% if not is_preseason and is_series %}
                 <div class="form-group form-check">
-                    <input class="form-check-input" type="checkbox" name="{{ anime.id }}-underwatched" id="{{ anime.id }}-underwatched" value="true">
-                    <label class="form-check-label" for="{{ anime.id }}-underwatched">Did you find this underwatched?</label>
+                    {{ form.underwatched }}
+                    <label class="form-check-label" for="{{ form.underwatched.id_for_label }}">{{ form.underwatched.label }}</label>
                 </div>
             {% endif %}
 
             <div class="form-group">
-                <label for="{{ anime.id }}-score">
-                    {% if is_preseason and anime.is_ongoing %}
-                        What are your expectations for the remainder?
-                    {% elif is_preseason %}
-                        What are your expectations for this?
-                    {% else %}
-                        What did you think of this?
-                    {% endif %}
-                </label>
-                <select name="{{ anime.id }}-score" class="form-control">
-                    <option value="">-----</option>
-                    <option value="5">5/5 - Great</option>
-                    <option value="4">4/5</option>
-                    <option value="3">3/5 - Average</option>
-                    <option value="2">2/5</option>
-                    <option value="1">1/5 - Bad</option>
-                </select>
+                {{ form.score.label_tag }}
+                {{ form.score }}
             </div>
 
             {% if not is_preseason and is_series %}
                 <div class="form-group">
-                    <label for="{{ anime.id }}-expectations">Was this a surprise or disappointment?</label>
-                    <select name="{{ anime.id }}-expectations" class="form-control">
-                        <option value="">Met expectations / no answer</option>
-                        <option value="S">Surprise</option>
-                        <option value="D">Disappointment</option>
-                    </select>
+                    {{ form.expectations.label_tag }}
+                    {{ form.expectations }}
                 </div>
             {% endif %}
         </div></div>

@@ -40,7 +40,7 @@
         <div class="row row-cols-md-2" id="anime-series">
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% include 'survey/form_card2.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=True only %}
+                {% include 'survey/form_card.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=True only %}
             </div>
         {% endfor %}
         </div>
@@ -61,7 +61,7 @@
         <div class="row row-cols-md-2" id="special-anime">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=False only %}
+                {% include 'survey/form_card.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=False only %}
             </div>
         {% endfor %}
         </div>
