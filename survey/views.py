@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.cache import cache
+from django.views.decorators.cache import never_cache
 #from django.template import loader
 from datetime import datetime
 from enum import Enum, auto
@@ -56,6 +57,7 @@ def index(request):
 
 #@user_passes_test(__reddit_check)
 @login_required
+@never_cache
 def form(request, year, season, pre_or_post):
     """Generates the form view, where users can respond to a survey. Requires the user being logged in."""
 
