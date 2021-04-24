@@ -97,6 +97,11 @@ class AnimeUtil:
                 'alt': 'Image unavailable',
             }]
 
+    @staticmethod
+    def anime_is_continuing(anime, survey):
+        """Gets whether the anime is a continuing anime (for pre-season surveys, start year/season != survey year/season) or not."""
+        return survey.year != anime.start_year or survey.season != anime.start_season
+
 
 class SurveyUtil:
     """Class with various static utility methods related to Survey objects."""

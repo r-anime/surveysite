@@ -21,6 +21,15 @@ class ResponseForm(ModelForm):
             field.field.widget.attrs['class'] = 'form-control'
 
 
+def get_anime_response_form(is_preseason, is_continuing):
+    if is_preseason:
+        if is_continuing:
+            return PreSeasonContinuingAnimeResponseForm
+        else:
+            return PreSeasonNewAnimeResponseForm
+    else:
+        return PostSeasonAnimeResponseForm
+
 
 # Pre-season survey needs underwatched/expectations hidden/excluded
 class AnimeResponseForm(ModelForm):
@@ -55,17 +64,22 @@ class AnimeResponseForm(ModelForm):
 
         return not watching and not score and not underwatched and not expectations
 
-class PreSeasonAnimeResponseForm(AnimeResponseForm):
+class PreSeasonNewAnimeResponseForm(AnimeResponseForm):
     class Meta(AnimeResponseForm.Meta):
-        exclude = []
         labels = {
             'watching': 'Will you watch this?',
-            'score': 'How good will this be?',
+            'score': 'How good do you expect this to be?',
+        }
+
+class PreSeasonContinuingAnimeResponseForm(AnimeResponseForm):
+    class Meta(AnimeResponseForm.Meta):
+        labels = {
+            'watching': 'Did you watch this and will you continue watching this?',
+            'score': 'How good do you expect the remainder to be?',
         }
 
 class PostSeasonAnimeResponseForm(AnimeResponseForm):
     class Meta(AnimeResponseForm.Meta):
-        exclude = []
         labels = {
             'watching': 'Did you watch this?',
             'score': 'What did you think of this?',

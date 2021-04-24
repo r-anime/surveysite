@@ -17,7 +17,7 @@ from itertools import repeat
 from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
 from .util import AnimeUtil, SurveyUtil, get_user_info
 from .resultview import ResultsGenerator, ResultsType
-from .forms import ResponseForm, PreSeasonAnimeResponseForm, PostSeasonAnimeResponseForm
+from .forms import ResponseForm, get_anime_response_form
 
 
 # ======= VIEWS =======
@@ -68,7 +68,6 @@ def form(request, year, season, pre_or_post):
         return redirect('survey:index')
 
     anime_list, anime_series_list, special_anime_list = SurveyUtil.get_survey_anime(survey)
-    AnimeResponseForm = PreSeasonAnimeResponseForm if survey.is_preseason else PostSeasonAnimeResponseForm
 
     # Load the previous response if possible
     response_session_key = 'survey_%i_response' % survey.id
@@ -97,6 +96,7 @@ def form(request, year, season, pre_or_post):
 
         # Get the anime response forms, bound to already stored anime responses whenever possible
         for anime in anime_list:
+            AnimeResponseForm = get_anime_response_form(survey.is_preseason, AnimeUtil.anime_is_continuing(anime, survey))
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
                 existing_animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id), instance=animeresponse_queryset.first()))
@@ -149,6 +149,7 @@ def form(request, year, season, pre_or_post):
         # Get the anime response forms, bound to already stored anime responses whenever possible
         # (Saving what anime an AnimeResponseForm belongs to requires AnimeResponse.anime to be editable, so I just store it in the prefix)
         for anime in anime_list:
+            AnimeResponseForm = get_anime_response_form(survey.is_preseason, AnimeUtil.anime_is_continuing(anime, survey))
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
                 animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
