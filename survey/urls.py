@@ -1,6 +1,6 @@
 from django.urls import path, include
 from django.shortcuts import redirect
-from survey.views.index import index
+from survey.views.index import IndexView
 from survey.views.form import form
 from survey.views.results import ResultsView, FullResultsView
 
@@ -16,7 +16,7 @@ survey_patterns = [
 ]
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', IndexView.as_view(), name='index'),
     path('survey/', include(survey_patterns)),
     path('favicon.ico', favicon_redirect),
 ]
