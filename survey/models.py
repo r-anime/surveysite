@@ -237,6 +237,11 @@ class Response(models.Model):
         OTHER     = 'O', _('Other')
 
     # Fields
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
     timestamp = models.DateTimeField(
         auto_now=True,
     )
@@ -256,6 +261,7 @@ class Response(models.Model):
     survey = models.ForeignKey(
         to='Survey',
         on_delete=models.CASCADE,
+        editable=False,
     )
 
 
@@ -265,7 +271,7 @@ class AnimeResponse(models.Model):
     class Expectations(models.TextChoices):
         SURPRISE =       'S', _('Surprise')
         DISAPPOINTMENT = 'D', _('Disappointment')
-        __empty__ =           _('N/A')
+        __empty__ =           _('Met expectations / no answer')
     
     # Fields
     score = models.IntegerField(
@@ -285,8 +291,10 @@ class AnimeResponse(models.Model):
     response = models.ForeignKey(
         to='Response',
         on_delete=models.CASCADE,
+        editable=False,
     )
     anime = models.ForeignKey(
         to='Anime',
         on_delete=models.CASCADE,
+        editable=False,
     )

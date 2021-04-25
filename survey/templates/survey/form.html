@@ -16,25 +16,19 @@
 
 
 {% if survey.is_ongoing %}
-<form id="form" action="{% url 'survey:submit' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
+<form id="form" action="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
     <div class="row mb-5">
         <div class="col-lg-4">
             <div class="row">
-                <div class="col-12 form-group">
-                    <label for="age">How old are you?</label>
-                    <input class="form-control" type="number" name="age" label="age" min=10 max=80 placeholder="--">
-                </div>
-                <div class="col-12 form-group">
-                    <label for="gender">Which gender do you identify as?</label>
-                    <select class="form-control" name="gender">
-                        <option value="">-----</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Other</option>
-                    </select>
-                </div>
+                {% for field in responseform %}
+                    <div class="col-12 form-group">
+                        {{ field.errors }} {% comment %}TODO: Please customize this{% endcomment %}
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -42,12 +36,11 @@
 
 
     <h3 class="mb-4 rounded shadow">Anime Series</h3>
-    {% cache 7200 form_cards_series anime_series_list %}
     {% if anime_series_list %}
         <div class="row row-cols-md-2" id="anime-series">
         {% for anime in anime_series_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=True only %}
+                {% include 'survey/form_card.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=True only %}
             </div>
         {% endfor %}
         </div>
@@ -60,17 +53,15 @@
     {% else %}
         <p>No anime found!</p>
     {% endif %}
-    {% endcache %}
     <br>
 
 
     <h3 class="mb-4 rounded shadow">Anime Movies/ONAs/OVAs/Specials</h3>
-    {% cache 7200 form_cards_specials special_anime_list %}
     {% if special_anime_list %}
         <div class="row row-cols-md-2" id="special-anime">
         {% for anime in special_anime_list|dictsort:"japanese_name.name" %}
             <div class="col-md mb-4">
-                {% include 'survey/form_card.html' with anime=anime is_preseason=survey.is_preseason is_series=False only %}
+                {% include 'survey/form_card.html' with form=anime.animeresponseform anime=anime is_preseason=survey.is_preseason is_series=False only %}
             </div>
         {% endfor %}
         </div>
@@ -83,7 +74,6 @@
     {% else %}
         <p>No anime found!</p>
     {% endif %}
-    {% endcache %}
     <br>
 
     <div class="row justify-content-between">
