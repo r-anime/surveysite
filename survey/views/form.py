@@ -1,61 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import Http404 # HttpResponse
-from django.db.models import F, Q, Avg
-from django.db.models.query import EmptyQuerySet
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
-#from django.template import loader
-from datetime import datetime
-from enum import Enum, auto
-import allauth
-import logging
 from itertools import repeat
+import logging
+from survey.forms import ResponseForm, get_anime_response_form
+from survey.models import Anime, AnimeName, AnimeResponse, Response
+from survey.util import AnimeUtil, SurveyUtil, get_user_info
 
-from .models import Survey, Anime, AnimeName, Response, AnimeResponse, SurveyAdditionRemoval
-from .util import AnimeUtil, SurveyUtil, get_user_info
-from .resultview import ResultsGenerator, ResultsType
-from .forms import ResponseForm, get_anime_response_form
-
-
-# ======= VIEWS =======
-def index(request):
-    """Generates the index view, containing a list of current and past surveys."""
-    survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
-
-
-    for survey in survey_queryset:
-        if survey.is_ongoing:
-            score_ranking = []
-        else:
-            def get_score_ranking():
-                anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
-                return sorted(
-                    [(anime, anime_data[ResultsType.SCORE]) for anime, anime_data in anime_series_results.items()],
-                    key=lambda item: item[1] if item[1] == item[1] else -1,
-                    reverse=True,
-                )
-
-            if SurveyUtil.is_survey_old(survey):
-                score_ranking = cache.get_or_set('survey_score_ranking_%i' % survey.id, get_score_ranking, version=1, timeout=SurveyUtil.get_old_survey_cache_timeout())
-            else:
-                score_ranking = get_score_ranking()
-
-        
-        survey.score_ranking = score_ranking[:3]
-
-    context = {
-        'survey_list': survey_queryset,
-        'user_info': get_user_info(request.user),
-    }
-
-    return render(request, 'survey/index.html', context)
-
-
-
-#@user_passes_test(__reddit_check)
 @login_required
 @never_cache
 def form(request, year, season, pre_or_post):
@@ -194,39 +146,3 @@ def __render_form(request, survey, anime_series_list, special_anime_list, respon
         'responseform': responseform,
     }
     return render(request, 'survey/form.html', context)
-
-
-
-# ======= HELPER METHODS =======
-def __try_get_response(request, item, conversion, value_if_none=None):
-    """Tries to get the specified value of an item from the POST request.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        The request sent by the user. Must be a POST request.
-    item : str
-        The item (key) you want to get the value of.
-    conversion : lambda
-        Converts the item's value (if it exists).
-    value_if_none : any, optional
-        Value that gets returned if the item or value doesn't exist or is empty, by default None.
-
-    Returns
-    -------
-    any
-        The value of the item.
-    """
-
-    if item not in request.POST.keys() or request.POST.get(item, '') == '':
-        return value_if_none
-    else:
-        return conversion(request.POST.get(item, None))
-
-# Forgot why I stopped using this
-def __reddit_check(user):
-    """Returns True if the user is authenticated via Reddit."""
-    if not user.is_authenticated: return False
-
-    reddit_accounts = user.socialaccount_set.filter(provider='reddit')
-    return len(reddit_accounts) > 0

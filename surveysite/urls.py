@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from survey.accountviews import survey_login_view, survey_logout_view
+from survey.views.account import survey_login_view, survey_logout_view
 
 urlpatterns = [
     path('', include('survey.urls')),

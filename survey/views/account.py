@@ -2,7 +2,6 @@ from allauth.account.views import LoginView, LogoutView
 from django.views.generic import View
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from django.http import Http404
 
 class SurveyLoginView(LoginView):
     template_name = 'survey/login.html'
