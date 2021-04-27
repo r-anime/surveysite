@@ -3,12 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
+from django.views.generic import View
 from itertools import repeat
 import logging
 from survey.forms import ResponseForm, get_anime_response_form
 from survey.models import Anime, AnimeName, AnimeResponse, Response
 from survey.util import AnimeUtil, SurveyUtil, get_user_info
-from django.views.generic import View
 
 @method_decorator([never_cache, login_required], name='dispatch')
 class FormView(View):

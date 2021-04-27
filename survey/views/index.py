@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from django.views.generic import TemplateView
-from .results import ResultsGenerator, ResultsType
+from survey.views.results import ResultsGenerator, ResultsType
 from survey.models import Survey
 from survey.util import SurveyUtil, get_user_info
 

@@ -1,21 +1,16 @@
-from django.views.generic import TemplateView, DetailView
+from collections import OrderedDict
+from django.views.generic import TemplateView
 from django.db.models import Avg, Q
 from django.shortcuts import redirect
 from django.core.cache import caches
 from enum import Enum, auto
-from collections import OrderedDict
-import inspect
 import json
 from survey.models import AnimeResponse, Response, SurveyAdditionRemoval
 from survey.util import SurveyUtil, get_user_info, AnimeUtil
 
-ANIME_POPULARITY_THRESHOLD = 0.02 # Anime with a popularity lower than this won't get included in results tables by default
-
 #region Views
 class BaseResultsView(TemplateView):
     """Base class for views displaying survey results."""
-    http_method_names = ['get']
-    
     def get(self, request, *args, **kwargs):
         survey = self._get_survey()
 
