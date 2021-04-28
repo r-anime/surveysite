@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.views.generic import TemplateView
 from survey.views.results import ResultsGenerator, ResultsType
-from survey.models import Survey
+from survey.models import Anime, Survey
 from survey.util import SurveyUtil, get_user_info
 
 class IndexView(TemplateView):
@@ -11,6 +11,34 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
+
+        first_year = survey_queryset.last().year
+        last_year = survey_queryset.first().year
+
+        items = {}
+        for survey in survey_queryset:
+            year = survey.year
+            season = Anime.AnimeSeason(survey.season)
+            pre_or_post = 'pre' if survey.is_preseason else 'post'
+            if year not in items:
+                items[year] = {}
+            if season not in items[year]:
+                items[year][season] = {}
+            if pre_or_post not in items[year][season]:
+                items[year][season][pre_or_post] = {}
+            items[year][season][pre_or_post]['survey'] = survey
+            survey_results = {}
+            items[year][season][pre_or_post]['results'] = survey_results
+
+            anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+            resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE] + ([] if survey.is_preseason else [ResultsType.SURPRISE, ResultsType.UNDERWATCHED])
+            for resulttype in resulttype_list:
+                anime, anime_results = max(anime_series_results.items(), key=lambda value: value[1][resulttype])
+                survey_results[resulttype] = {'anime': anime, 'value': anime_results[resulttype]}
+        
+        context['items'] = items
+        context['user_info'] = get_user_info(self.request.user)
+        return context
 
         for survey in survey_queryset:
             if survey.is_ongoing:

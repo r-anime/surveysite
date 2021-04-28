@@ -8,6 +8,24 @@
 
 {% block content %}
 
+
+{% if items %}
+    {% for year, seasons in items.items %}
+        <h3>{{ year }}</h3>
+        {% for season, surveys in seasons.items %}
+            <h4>{{ season.label|capfirst }}</h4>
+            {% if surveys.pre %}
+                {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
+            {% endif %}
+            {% if surveys.post %}
+                {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% else %}
+    <p>No surveys available.</p>
+{% endif %}
+
 {% if survey_list %}
 <div class="list-group mt-5" id="survey-list">
     {% for survey in survey_list %}

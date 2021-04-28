@@ -1,0 +1,8 @@
+<h5>{{ survey }}</h5>
+<ul>
+    {% for resulttype, values in results.items %}
+        <li>
+            <b>{{ resulttype.value }}</b> - {{ values.anime }}: {{ values.value }}
+        </li>
+    {% endfor %}
+</ul>
