@@ -4,6 +4,7 @@
 
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/index.css' %}">
+<link rel="stylesheet" href="//unpkg.com/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
@@ -19,19 +20,34 @@
                     </div>
                 </div>
                 {% for season, surveys in seasons.items %}
-                    <div class="row row-cols-3 justify-content-center">
-                        <div class="col col-1 border rounded-left d-flex justify-content-center align-items-center font-weight-bold text-center bg-{{ season.label|lower }}">
-                            <large>Q{{ season.value|add:1 }}<br>{{ season.label|capfirst }}</large>
+                    <div class="row justify-content-center">
+                        <div class="col col-1 border rounded-left d-flex justify-content-center align-items-center text-center bg-{{ season.label|lower }}">
+                            <div class="row row-cols-1">
+                                <div class="col">
+                                    {% if season.value == 0 %}<i class="bi bi-snow"></i>
+                                    {% elif season.value == 1 %}<i class="bi bi-flower2"></i>
+                                    {% elif season.value == 2 %}<i class="bi bi-sun"></i>
+                                    {% else %}<i class="bi bi-tree"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="col text-season font-weight-bold">
+                                    <span>{{ season.label|capfirst }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col col-5 border rounded-left py-3 px-3">
-                            {% if surveys.pre %}
-                                {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
-                            {% endif %}
-                        </div>
-                        <div class="col col-5 border rounded-right py-3 px-3">
-                            {% if surveys.post %}
-                                {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
-                            {% endif %}
+                        <div class="col col-10">
+                            <div class="row">
+                                <div class="col col-lg-6 col-12 border py-3 px-3">
+                                    {% if surveys.pre %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
+                                    {% endif %}
+                                </div>
+                                <div class="col col-lg-6 col-12 border py-3 px-3">
+                                    {% if surveys.post %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
