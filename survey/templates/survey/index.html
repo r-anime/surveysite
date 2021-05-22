@@ -10,18 +10,34 @@
 
 
 {% if items %}
-    {% for year, seasons in items.items %}
-        <h3>{{ year }}</h3>
-        {% for season, surveys in seasons.items %}
-            <h4>{{ season.label|capfirst }}</h4>
-            {% if surveys.pre %}
-                {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
-            {% endif %}
-            {% if surveys.post %}
-                {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
-            {% endif %}
+    <div class="row row-cols-1">
+        {% for year, seasons in items.items %}
+            <div class="col {% if not forloop.last %}mb-5{% endif %}">
+                <div class="row justify-content-center">
+                    <div class="col col-11 d-flex align-items-center">
+                        <h3 class="my-2 p-0">{{ year }}</h3>
+                    </div>
+                </div>
+                {% for season, surveys in seasons.items %}
+                    <div class="row row-cols-3 justify-content-center">
+                        <div class="col col-1 border rounded-left d-flex justify-content-center align-items-center font-weight-bold text-center bg-{{ season.label|lower }}">
+                            <large>Q{{ season.value|add:1 }}<br>{{ season.label|capfirst }}</large>
+                        </div>
+                        <div class="col col-5 border rounded-left py-3 px-3">
+                            {% if surveys.pre %}
+                                {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
+                            {% endif %}
+                        </div>
+                        <div class="col col-5 border rounded-right py-3 px-3">
+                            {% if surveys.post %}
+                                {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         {% endfor %}
-    {% endfor %}
+    </div>
 {% else %}
     <p>No surveys available.</p>
 {% endif %}

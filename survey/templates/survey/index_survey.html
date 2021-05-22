@@ -1,4 +1,11 @@
-<h5>{{ survey }}</h5>
+<h5>
+    {{ survey }}
+    {% if survey.is_ongoing %}
+        <span class="badge badge-primary badge-pill" style="font-size: 80%;">Ongoing</span>
+    {% else %}
+        <small class="text-muted" style="font-size: 80%;">Finished</small>
+    {% endif %}
+</h5>
 <ul>
     {% for resulttype, values in results.items %}
         <li>
