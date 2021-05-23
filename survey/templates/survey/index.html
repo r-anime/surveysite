@@ -21,7 +21,7 @@
                 </div>
                 {% for season, surveys in seasons.items %}
                     <div class="row justify-content-center">
-                        <div class="col col-1 border rounded-left d-flex justify-content-center align-items-center text-center bg-{{ season.label|lower }}">
+                        <div class="col col-2 col-sm-1 border rounded-left d-flex justify-content-center align-items-center text-center bg-{{ season.label|lower }}">
                             <div class="row row-cols-1">
                                 <div class="col">
                                     {% if season.value == 0 %}<i class="bi bi-snow"></i>
@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col col-10">
+                        <div class="col col-9 col-sm-10">
                             <div class="row">
                                 <div class="col col-lg-6 col-12 border py-3 px-3">
                                     {% if surveys.pre %}

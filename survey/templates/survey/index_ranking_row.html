@@ -1,17 +1,11 @@
 
 {% load anime_util %}
 
-<div class="row align-items-center no-gutters">
-    <div class="col-auto">
-        <b>#{{ rank }}</b>
-    </div>
-    <div class="col-2 pl-2 pr-2">
+<div class="row align-items-center no-gutters index-ranking-row">
+    <div class="col-2 px-2 py-1">
         {% render_anime_images anime variant='s' enable_controls=False %}
     </div>
     <div class="col">
         {% get_official_names anime 'div class="mb-1"'%}
-    </div>
-    <div class="col-2 text-right">
-        <b>{{ value }}</b>
     </div>
 </div>

@@ -31,10 +31,12 @@ class IndexView(TemplateView):
             items[year][season][pre_or_post]['results'] = survey_results
 
             anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
-            resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE] + ([] if survey.is_preseason else [ResultsType.SURPRISE, ResultsType.UNDERWATCHED])
+            resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE] #+ ([] if survey.is_preseason else [ResultsType.SURPRISE, ResultsType.UNDERWATCHED])
             for resulttype in resulttype_list:
-                anime, anime_results = max(anime_series_results.items(), key=lambda value: value[1][resulttype])
-                survey_results[resulttype] = {'anime': anime, 'value': anime_results[resulttype]}
+                sorted_results = sorted(anime_series_results.items(), key=lambda value: value[1][resulttype], reverse=True)
+                #anime, anime_results = max(anime_series_results.items(), key=lambda value: value[1][resulttype])
+                #survey_results[resulttype] = {'anime': anime, 'value': anime_results[resulttype]}
+                survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2]]
         
         context['items'] = items
         context['user_info'] = get_user_info(self.request.user)

@@ -1,15 +1,60 @@
-<h5>
-    {{ survey }}
-    {% if survey.is_ongoing %}
-        <span class="badge badge-primary badge-pill" style="font-size: 80%;">Ongoing</span>
-    {% else %}
-        <small class="text-muted" style="font-size: 80%;">Finished</small>
-    {% endif %}
-</h5>
-<ul>
-    {% for resulttype, values in results.items %}
-        <li>
-            <b>{{ resulttype.value }}</b> - {{ values.anime }}: {{ values.value }}
-        </li>
+{% load anime_util %}
+
+<div class="row row-cols-1">
+    <div class="col">
+        <h5>
+            {{ survey }}
+            {% if survey.is_ongoing %}
+                <span class="badge badge-primary badge-pill" style="font-size: 80%;">Ongoing</span>
+            {% else %}
+                <small class="text-muted" style="font-size: 80%;">Finished</small>
+            {% endif %}
+        </h5>
+    </div>
+    {% for resulttype, resulttype_results in results.items %}
+        <div class="col{% if not forloop.last %} mb-2{% endif %}">
+            <div class="row">
+                <div class="col">
+                    <span class="bg-fall">{{ resulttype.value }}</span>
+                </div>
+            </div>
+            {% for anime_value_pair in resulttype_results %}
+                {% if forloop.first %}
+                    {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                {% else %}
+                    {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value css_class='d-lg-flex d-none' only %}
+                {% endif %}
+            {% endfor %}
+            {% comment %}
+            <div class="row">
+                {% for anime_value_pair in resulttype_results %}
+                    <div class="col col-4">
+                        <div class="row row-cols-1
+                            {% if forloop.counter0 == 0 %}anime-first
+                            {% elif forloop.counter0 == 1%}anime-second
+                            {% else %}anime-third
+                            {% endif %}
+                        ">
+                            <div class="col">
+                                {% if forloop.counter0 == 0 %}
+                                    {% render_anime_images anime_value_pair.anime variant='l' enable_controls=False %}
+                                {% elif forloop.counter0 == 1 %}
+                                    {% render_anime_images anime_value_pair.anime variant='l' enable_controls=False %}
+                                {% else %}
+                                    {% render_anime_images anime_value_pair.anime variant='l' enable_controls=False %}
+                                {% endif %}
+                            </div>
+                            <div class="col" style="font-size:50%;">
+                                {% get_official_names anime_value_pair.anime 'div'%}
+                            </div>
+                            <div class="col">
+                                {{ anime_value_pair.value }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endcomment %}
+        </div>
     {% endfor %}
-</ul>
+</div>
