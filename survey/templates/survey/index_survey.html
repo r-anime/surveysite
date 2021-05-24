@@ -12,19 +12,23 @@
         </h5>
     </div>
     {% for resulttype, resulttype_results in results.items %}
-        <div class="col{% if not forloop.last %} mb-2{% endif %}">
-            <div class="row">
+        <div class="col{% if not forloop.last %} mb-3{% endif %}">
+            <div class="row mb-1">
                 <div class="col">
-                    <span class="bg-fall">{{ resulttype.value }}</span>
+                    <span class="">{{ resulttype.value }}</span>
                 </div>
             </div>
-            {% for anime_value_pair in resulttype_results %}
-                {% if forloop.first %}
-                    {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
-                {% else %}
-                    {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value css_class='d-lg-flex d-none' only %}
-                {% endif %}
-            {% endfor %}
+            <div class="row px-1 align-items-center" style="font-size:70%;">
+                {% for anime_value_pair in resulttype_results %}
+                    <div class="col px-1">
+                        {% if forloop.first %}
+                            {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                        {% else %}
+                            {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value css_class='d-lg-flex d-none' only %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
             {% comment %}
             <div class="row">
                 {% for anime_value_pair in resulttype_results %}
