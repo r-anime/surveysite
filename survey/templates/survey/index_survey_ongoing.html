@@ -1,0 +1,21 @@
+{% load anime_util %}
+
+<a class="col col-lg-6 col-12 border py-3 px-3" href="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">
+    <div class="row row-cols-1">
+        <div class="col">
+            <h5>
+                {{ survey }}
+                <span class="badge badge-primary badge-pill" style="font-size: 80%;">Ongoing</span>
+            </h5>
+        </div>
+        <div class="col">
+            <div class="row row-cols-6 p-3 align-items-center">
+                {% for anime in data %}
+                    <div class="col p-1">
+                        {% render_anime_images anime variant='m' enable_controls=False %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</a>

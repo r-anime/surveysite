@@ -37,16 +37,16 @@
                         </div>
                         <div class="col col-9 col-sm-10">
                             <div class="row">
-                                <div class="col col-lg-6 col-12 border py-3 px-3">
                                     {% if surveys.pre %}
-                                        {% include 'survey/index_survey.html' with survey=surveys.pre.survey results=surveys.pre.results only %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.pre.survey data=surveys.pre.data only %}
+                                    {% else %}
+                                        {% include 'survey/index_survey_empty.html' %}
                                     {% endif %}
-                                </div>
-                                <div class="col col-lg-6 col-12 border py-3 px-3">
                                     {% if surveys.post %}
-                                        {% include 'survey/index_survey.html' with survey=surveys.post.survey results=surveys.post.results only %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.post.survey data=surveys.post.data only %}
+                                    {% else %}
+                                        {% include 'survey/index_survey_empty.html' %}
                                     {% endif %}
-                                </div>
                             </div>
                         </div>
                     </div>

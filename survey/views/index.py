@@ -27,16 +27,18 @@ class IndexView(TemplateView):
             if pre_or_post not in items[year][season]:
                 items[year][season][pre_or_post] = {}
             items[year][season][pre_or_post]['survey'] = survey
-            survey_results = {}
-            items[year][season][pre_or_post]['results'] = survey_results
 
-            anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
-            resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE] #+ ([] if survey.is_preseason else [ResultsType.SURPRISE, ResultsType.UNDERWATCHED])
-            for resulttype in resulttype_list:
-                sorted_results = sorted(anime_series_results.items(), key=lambda value: value[1][resulttype], reverse=True)
-                #anime, anime_results = max(anime_series_results.items(), key=lambda value: value[1][resulttype])
-                #survey_results[resulttype] = {'anime': anime, 'value': anime_results[resulttype]}
-                survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2]]
+            if survey.is_ongoing:
+                items[year][season][pre_or_post]['data'] = SurveyUtil.get_survey_anime(survey)[0][0:12]
+            else:
+                survey_results = {}
+                items[year][season][pre_or_post]['data'] = survey_results
+
+                anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+                resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE]
+                for resulttype in resulttype_list:
+                    sorted_results = sorted(anime_series_results.items(), key=lambda value: value[1][resulttype], reverse=True)
+                    survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2]]
         
         context['items'] = items
         context['user_info'] = get_user_info(self.request.user)

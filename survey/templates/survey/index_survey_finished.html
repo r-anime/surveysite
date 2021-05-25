@@ -1,0 +1,32 @@
+{% load anime_util %}
+
+<div class="col col-lg-6 col-12 border py-3 px-3">
+    <div class="row row-cols-1">
+        <div class="col">
+            <h5>
+                {{ survey }}
+                <small class="text-muted" style="font-size: 80%;">Finished</small>
+            </h5>
+        </div>
+        {% for resulttype, resulttype_results in data.items %}
+            <div class="col{% if not forloop.last %} mb-3{% endif %}">
+                <div class="row mb-1">
+                    <div class="col">
+                        <span class="">{{ resulttype.value }}</span>
+                    </div>
+                </div>
+                <div class="row px-1 align-items-center" style="font-size:70%;">
+                    {% for anime_value_pair in resulttype_results %}
+                        <div class="col px-1">
+                            {% if forloop.first %}
+                                {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                            {% else %}
+                                {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value css_class='d-lg-flex d-none' only %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
