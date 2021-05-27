@@ -1,6 +1,6 @@
 {% load anime_util %}
 
-<a class="col col-lg-6 col-12 border py-3 px-3" href="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">
+<a class="col col-lg-6 col-12 border p-3 list-group-item-action text-body" href="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">
     <div class="row row-cols-1">
         <div class="col">
             <h5>
