@@ -12,7 +12,17 @@
             <div class="col{% if not forloop.last %} mb-3{% endif %}">
                 <div class="row mb-1">
                     <div class="col">
-                        <span class="">{{ resulttype.value }}</span>
+                        <span>
+                            {% if resulttype.value|lower == 'popularity' %}
+                                Most popular series
+                            {% elif resulttype.value|lower == 'score' %}
+                                {% if survey.is_preseason %}
+                                    Most anticipated series
+                                {% else %}
+                                    Most highly regarded series
+                                {% endif %}
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
                 <div class="row px-1 align-items-center" style="font-size:70%;">
