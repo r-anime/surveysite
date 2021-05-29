@@ -9,11 +9,10 @@
 
 {% block content %}
 
-
 {% if items %}
-    <div class="row row-cols-1">
+    <div class="row row-cols-1" id="index-content">
         {% for year, seasons in items.items %}
-            <div class="col {% if not forloop.last %}mb-5{% endif %}">
+            <div class="col{% if not forloop.last %} mb-5{% endif %}">
                 <div class="row justify-content-center">
                     <div class="col col-11 d-flex align-items-center">
                         <h3 class="my-2 p-0">{{ year }}</h3>
@@ -37,16 +36,16 @@
                         </div>
                         <div class="col col-9 col-sm-10">
                             <div class="row">
-                                    {% if surveys.pre %}
-                                        {% include 'survey/index_survey.html' with survey=surveys.pre.survey data=surveys.pre.data only %}
-                                    {% else %}
-                                        {% include 'survey/index_survey_empty.html' %}
-                                    {% endif %}
-                                    {% if surveys.post %}
-                                        {% include 'survey/index_survey.html' with survey=surveys.post.survey data=surveys.post.data only %}
-                                    {% else %}
-                                        {% include 'survey/index_survey_empty.html' %}
-                                    {% endif %}
+                                {% if surveys.pre %}
+                                    {% include 'survey/index_survey.html' with survey=surveys.pre.survey data=surveys.pre.data only %}
+                                {% else %}
+                                    {% include 'survey/index_survey_empty.html' %}
+                                {% endif %}
+                                {% if surveys.post %}
+                                    {% include 'survey/index_survey.html' with survey=surveys.post.survey data=surveys.post.data only %}
+                                {% else %}
+                                    {% include 'survey/index_survey_empty.html' %}
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -54,6 +53,7 @@
             </div>
         {% endfor %}
     </div>
+    <script>new Vue({el:"#index-content"});</script>
 {% else %}
     <p>No surveys available.</p>
 {% endif %}
