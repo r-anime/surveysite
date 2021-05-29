@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.views.generic import TemplateView
 from survey.views.results import ResultsGenerator, ResultsType
-from survey.models import Anime, Survey
+from survey.models import Anime, Survey, Image
 from survey.util import SurveyUtil, get_user_info
 
 class IndexView(TemplateView):
@@ -29,7 +29,8 @@ class IndexView(TemplateView):
             items[year][season][pre_or_post]['survey'] = survey
 
             if survey.is_ongoing:
-                items[year][season][pre_or_post]['data'] = SurveyUtil.get_survey_anime(survey)[0][0:12]
+                anime_queryset, _, _ = SurveyUtil.get_survey_anime(survey)
+                items[year][season][pre_or_post]['data'] = Image.objects.filter(anime__in=anime_queryset).order_by('?')[:12]
             else:
                 survey_results = {}
                 items[year][season][pre_or_post]['data'] = survey_results

@@ -12,9 +12,9 @@
     <div class="row position-relative">
         <div class="col">
             <div class="row row-cols-6 p-3 align-items-center survey-ongoing-images">
-                {% for anime in data %}
+                {% for image in data %}
                     <div class="col p-1">
-                        {% render_anime_images anime variant='m' enable_controls=False %}
+                        <img src="{{ image.file_medium.url }}" alt="{{ image.name }}" class="img-fluid">
                     </div>
                 {% endfor %}
             </div>
