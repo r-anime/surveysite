@@ -1,17 +1,5 @@
 @import 'image-carousel';
-
-.bg-winter {
-    background-color: rgb(123, 171, 193);
-}
-.bg-spring {
-    background-color: rgb(168, 215, 44);
-}
-.bg-summer {
-    background-color: rgb(253, 215, 10);
-}
-.bg-fall {
-    background-color: rgb(223, 129, 60);
-}
+@import 'background-colors';
 
 .bi {
     font-size: 2rem;
@@ -40,7 +28,7 @@
 }
 
 .survey-ongoing-text {
-    text-align:center;
-    font-size:3.5em;
-    text-shadow:0 0 2px rgba(0,0,0,0.3);
+    text-align: center;
+    font-size: 3.5em;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
 }

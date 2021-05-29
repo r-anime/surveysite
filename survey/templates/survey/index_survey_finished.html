@@ -2,7 +2,7 @@
 
 <a class="col col-lg-6 col-12 border p-3 list-group-item-action text-body" href="{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">
     <div class="row">
-        <div class="col col-12">
+        <div class="col col-12 mb-1">
             <h5>
                 {{ survey }}
                 <small class="text-muted" style="font-size: 80%;">Finished</small>
