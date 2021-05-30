@@ -23,11 +23,11 @@
                         <div class="col col-2 col-sm-1 border rounded-left d-flex justify-content-center align-items-center text-center bg-{{ season.label|lower }}">
                             <div class="row row-cols-1">
                                 <div class="col">
-                                    {% if season.value == 0 %}<i class="bi bi-snow"></i>
-                                    {% elif season.value == 1 %}<i class="bi bi-flower2"></i>
-                                    {% elif season.value == 2 %}<i class="bi bi-sun"></i>
-                                    {% else %}<i class="bi bi-tree"></i>
-                                    {% endif %}
+                                    <i class="bi {% if   season.value == 0 %}bi-snow
+                                                 {% elif season.value == 1 %}bi-flower2
+                                                 {% elif season.value == 2 %}bi bi-sun
+                                                 {% else %}                  bi-tree
+                                    {% endif %}"></i>
                                 </div>
                                 <div class="col text-season font-weight-bold">
                                     <span>{{ season.label|capfirst }}</span>
