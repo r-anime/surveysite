@@ -1,4 +1,4 @@
-# [/r/anime Seasonal Surveys Website](https://survey.r-anime.moe/)
+# [/r/anime Seasonal Surveys Website](https://survey.r-anime.moe/) [![deploy status](https://img.shields.io/github/deployments/r-anime/surveysite/production?label=deploy)](https://github.com/r-anime/surveysite/deployments/activity_log?environment=production)
 
 Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/r/anime/). Built with [Django](https://www.djangoproject.com/) as the backend and [BootstrapVue](https://bootstrap-vue.org/) (Bootstrap and embedded Vue.js) on the frontend.
 
