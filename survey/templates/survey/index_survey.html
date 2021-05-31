@@ -1,0 +1,5 @@
+{% if survey.is_ongoing %}
+    {% include 'survey/index_survey_ongoing.html' %}
+{% else %}
+    {% include 'survey/index_survey_finished.html' %}
+{% endif %}

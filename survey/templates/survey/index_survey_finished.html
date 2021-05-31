@@ -1,0 +1,38 @@
+{% load anime_util %}
+
+<a class="col col-lg-6 col-12 border p-3 list-group-item-action text-body" href="{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}">
+    <div class="row">
+        <div class="col col-12 mb-1">
+            <h5>
+                {{ survey }}
+                <small class="text-muted" style="font-size: 80%;">Finished</small>
+            </h5>
+        </div>
+        {% for resulttype, resulttype_results in data.items %}
+            <div class="col col-6 col-lg-12{% if not forloop.last %} mb-lg-3{% endif %}">
+                <div class="row mb-1">
+                    <div class="col">
+                        <span>
+                            {% if resulttype.value|lower == 'popularity' %}
+                                Most popular series
+                            {% elif resulttype.value|lower == 'score' %}
+                                {% if survey.is_preseason %}
+                                    Most anticipated series
+                                {% else %}
+                                    Most highly regarded series
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="row px-1 align-items-center" style="font-size:70%;">
+                    {% for anime_value_pair in resulttype_results %}
+                        <div class="col px-1{% if not forloop.first %} d-lg-flex d-none{% endif %}">
+                            {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</a>

@@ -4,63 +4,58 @@
 
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/index.css' %}">
+<link rel="stylesheet" href="//unpkg.com/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
 
-{% if survey_list %}
-<div class="list-group mt-5" id="survey-list">
-    {% for survey in survey_list %}
-    <a href="{% if survey.is_ongoing %}{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% else %}{% url 'survey:results' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}{% endif %}" class="list-group-item list-group-item-action">
-        <div class="d-flex align-items-center">
-            <h5 class="mr-2 mb-1">{{ survey }}</h5>
-            {% if survey.is_ongoing %}
-            <span class="badge badge-primary badge-pill">Ongoing</span>
-            {% else %}
-            <small class="text-muted">Finished</small>
-            {% endif %}
-        </div>
-        {% if survey.is_ongoing %}
-        <p class="mb-1">
-            {% if survey.is_preseason %}
-            Vote on your what you think will be the best anime of {{ survey.year }} Q{{ survey.season|add:1 }}!
-            {% else %}
-            Vote on what your favorite anime of {{ survey.year }} Q{{ survey.season|add:1 }} were!
-            {% endif %}
-        </p>
-        {% else %}
-        <div class="row mt-2">
-            <div class="col-12">
-                <h6>
-                    {% if survey.is_preseason %}
-                    {% get_season_name survey.season %} {{ survey.year }}'s Most Anticipated Anime
-                    {% else %}
-                    {% get_season_name survey.season %} {{ survey.year }}'s Best Anime
-                    {% endif %}
-                </h6>
+
+{% if items %}
+    <div class="row row-cols-1">
+        {% for year, seasons in items.items %}
+            <div class="col {% if not forloop.last %}mb-5{% endif %}">
+                <div class="row justify-content-center">
+                    <div class="col col-11 d-flex align-items-center">
+                        <h3 class="my-2 p-0">{{ year }}</h3>
+                    </div>
+                </div>
+                {% for season, surveys in seasons.items %}
+                    <div class="row justify-content-center">
+                        <div class="col col-2 col-sm-1 border rounded-left d-flex justify-content-center align-items-center text-center bg-{{ season.label|lower }}">
+                            <div class="row row-cols-1">
+                                <div class="col">
+                                    {% if season.value == 0 %}<i class="bi bi-snow"></i>
+                                    {% elif season.value == 1 %}<i class="bi bi-flower2"></i>
+                                    {% elif season.value == 2 %}<i class="bi bi-sun"></i>
+                                    {% else %}<i class="bi bi-tree"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="col text-season font-weight-bold">
+                                    <span>{{ season.label|capfirst }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col col-9 col-sm-10">
+                            <div class="row">
+                                    {% if surveys.pre %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.pre.survey data=surveys.pre.data only %}
+                                    {% else %}
+                                        {% include 'survey/index_survey_empty.html' %}
+                                    {% endif %}
+                                    {% if surveys.post %}
+                                        {% include 'survey/index_survey.html' with survey=surveys.post.survey data=surveys.post.data only %}
+                                    {% else %}
+                                        {% include 'survey/index_survey_empty.html' %}
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% for row in survey.score_ranking %}
-            <div class="col-lg-8 mb-1">
-                {% include 'survey/index_ranking_row.html' with rank=forloop.counter anime=row.0 value=row.1|floatformat:2 only %}
-            </div>
-            {% endfor %}
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-12">
-                Check out how well other anime did in {{ survey.year }} Q{{ survey.season|add:1 }}!
-            </div>
-        </div>
-        {% endif %}
-    </a>
-    {% endfor %}
-</div>
-<script>
-    new Vue({
-        el: "#survey-list",
-    });
-</script>
+        {% endfor %}
+    </div>
 {% else %}
-<p>No surveys available.</p>
+    <p>No surveys available.</p>
 {% endif %}
 
 {% endblock content %}
