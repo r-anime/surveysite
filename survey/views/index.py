@@ -12,9 +12,6 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         survey_queryset = Survey.objects.order_by('-year', '-season', 'is_preseason')
 
-        first_year = survey_queryset.last().year
-        last_year = survey_queryset.first().year
-
         items = {}
         for survey in survey_queryset:
             year = survey.year
