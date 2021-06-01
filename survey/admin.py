@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.forms.models import BaseInlineFormSet
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
@@ -95,6 +95,14 @@ class ImageInlineFormSet(BaseInlineFormSet):
         model = super().save_new(form, False)
 
         image_org = PIL.Image.open(model.file_large)
+
+        # Try to remove alpha channel - not all non-RGB modes have an alpha channel, but this should not affect the output
+        if image_org.mode !='RGB':
+            bg = PIL.Image.new('RGBA', image_org.size, (255, 255, 255, 255))
+            image_org = PIL.Image.alpha_composite(bg, image_org.convert('RGBA')).convert('RGB')
+
+            if self.request:
+                messages.info(self.request, 'Removed alpha channel from image.')
 
         image_types = {
             'large': {
