@@ -19,7 +19,7 @@
 <form id="form" action="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
-    <div class="row mb-5">
+    <div class="row">
         <div class="col-lg-4">
             <div class="row">
                 {% for field in responseform %}
@@ -31,6 +31,11 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
+
+    <div id="modal-content" class="mb-5">
+        <b-button v-b-modal="'modal-missing-anime'" class="bt-secondary">An anime is missing</b-button>
+        <b-modal id="modal-missing-anime">Test modal.</b-modal>
     </div>
 
 
@@ -97,4 +102,7 @@
     </div>
 </div>
 {% endif %}
+
+<script>new Vue({el:"#modal-content"});</script>
+
 {% endblock content %}
