@@ -298,3 +298,19 @@ class AnimeResponse(models.Model):
         on_delete=models.CASCADE,
         editable=False,
     )
+
+
+
+class MissingAnime(models.Model):
+    # Fields
+    link = models.URLField()
+    description = models.TextField(
+        blank=True,
+    )
+
+    # Relation fields
+    survey = models.ForeignKey(
+        to='Survey',
+        on_delete=models.CASCADE,
+        editable=False,
+    )

@@ -1,13 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from itertools import repeat
+import json
 import logging
 from survey.forms import ResponseForm, get_anime_response_form
-from survey.models import Anime, AnimeName, AnimeResponse, Response
+from survey.models import Anime, AnimeName, AnimeResponse, Response, MissingAnime
 from survey.util import AnimeUtil, SurveyUtil, get_user_info
 
 @method_decorator([never_cache, login_required], name='dispatch')
@@ -169,3 +171,16 @@ class FormView(View):
         else:
             previous_response = None
         return previous_response
+
+
+
+@method_decorator([login_required], name='dispatch')
+class MissingAnimeView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, '', {})
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(
+            json.dumps({
+                'a': None
+        }))

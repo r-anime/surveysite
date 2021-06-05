@@ -34,8 +34,13 @@
     </div>
 
     <div id="modal-content" class="mb-5">
-        <b-button v-b-modal="'modal-missing-anime'" class="bt-secondary">An anime is missing</b-button>
-        <b-modal id="modal-missing-anime">Test modal.</b-modal>
+        <b-button v-b-modal="'modal-missing-anime'" class="bt-secondary">Is an anime missing?</b-button>
+        <b-modal id="modal-missing-anime">
+            <template #modal-title>
+                Add a missing anime
+            </template>
+            Test modal.
+        </b-modal>
     </div>
 
 
