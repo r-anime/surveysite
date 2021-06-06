@@ -1,8 +1,8 @@
 function displayModalContent(data) {
     $("#modal-content").html(data);
-    let messages = $("#messages-missinganime");
-    if (messages.length) {
-        new Vue({el: "#messages-missinganime"});
+    let messages = $("#messages-missinganime")[0];
+    if (messages) {
+        new Vue({ el: messages });
     }
 }
 
