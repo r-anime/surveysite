@@ -7,32 +7,7 @@
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/form.css' %}">
 <script src="//unpkg.com/jquery@3.6.0/dist/jquery.min.js"></script>
-<script>
-    function displayModalContent(data) {
-        $("#modal-content").html(data);
-        let messages = $("#messages-missinganime");
-        if (messages.length) {
-            new Vue({el: "#messages-missinganime"});
-        }
-        new Vue({el: "#accordion-description"});
-    }
-
-    function loadModalData() {
-        $.get(
-            "{% url 'survey:missinganime' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}",
-            displayModalContent
-        );
-    }
-
-    function sendModalData(event) {
-        event.preventDefault();
-        let posting = $.post(
-            "{% url 'survey:missinganime' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}",
-            $("#form-missinganime").serialize()
-        );
-        posting.done(displayModalContent);
-    }
-</script>
+<script src="{% static 'survey/js/form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -62,7 +37,7 @@
 
     <div id="modal-wrapper" class="mb-5">
         <b-button v-b-modal="'modal-missing-anime'" class="bt-secondary">Is an anime missing?</b-button>
-        <b-modal id="modal-missing-anime" @show="loadModalData" @ok="sendModalData">
+        <b-modal id="modal-missing-anime" @show="load" @ok="send">
             <template #modal-title>
                 Add a missing anime
             </template>
@@ -135,6 +110,17 @@
 </div>
 {% endif %}
 
-<script>new Vue({el:"#modal-wrapper"});</script>
+<script>
+    new Vue({
+        el: "#modal-wrapper",
+        data: {
+            url: "{% url 'survey:missinganime' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}",
+        },
+        methods: {
+            load: loadModalData,
+            send: sendModalData,
+        },
+    });
+</script>
 
 {% endblock content %}
