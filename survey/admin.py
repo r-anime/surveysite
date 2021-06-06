@@ -5,7 +5,7 @@ from django.db.models.functions import Concat
 from django.core.files.base import ContentFile
 from django.core.cache import cache
 from datetime import datetime
-from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval
+from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
 from .util import AnimeUtil
 from io import StringIO, BytesIO
 import uuid
@@ -336,3 +336,4 @@ class SurveyAdmin(admin.ModelAdmin):
 admin.site.register(Anime, AnimeAdmin)
 admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Response, ResponseAdmin)
+admin.site.register(MissingAnime)

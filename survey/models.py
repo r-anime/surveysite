@@ -302,7 +302,13 @@ class AnimeResponse(models.Model):
 
 
 class MissingAnime(models.Model):
+    class Meta:
+        verbose_name_plural = "missing anime"
+
     # Fields
+    name = models.CharField(
+        max_length=128,
+    )
     link = models.URLField()
     description = models.TextField(
         blank=True,
