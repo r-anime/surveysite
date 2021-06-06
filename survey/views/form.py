@@ -6,10 +6,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from itertools import repeat
-import json
 import logging
-from survey.forms import ResponseForm, get_anime_response_form
-from survey.models import Anime, AnimeName, AnimeResponse, Response, MissingAnime
+from survey.forms import ResponseForm, get_anime_response_form, MissingAnimeForm
+from survey.models import Anime, AnimeName, AnimeResponse, Response
 from survey.util import AnimeUtil, SurveyUtil, get_user_info
 
 @method_decorator([never_cache, login_required], name='dispatch')
@@ -176,11 +175,36 @@ class FormView(View):
 
 @method_decorator([login_required], name='dispatch')
 class MissingAnimeView(View):
+    __survey = None
+
     def get(self, request, *args, **kwargs):
-        return render(request, '', {})
+        form = MissingAnimeForm()
+
+        return render(request, 'survey/form_missinganime.html', {
+            'form': form
+        })
 
     def post(self, request, *args, **kwargs):
-        return HttpResponse(
-            json.dumps({
-                'a': None
-        }))
+        form = MissingAnimeForm(request.POST)
+        if form.is_valid():
+            missinganime = form.save(commit=False)
+            missinganime.survey = self.__get_survey()
+            missinganime.user = request.user
+            missinganime.save()
+            messages.success(request, 'Successfully sent missing anime! Manual review pending.')
+        else:
+            messages.error(request, 'Something went wrong.')
+
+        return render(request, 'survey/form_missinganime.html', {
+            'form': form
+        })
+
+    def __get_survey(self):
+        """Returns the survey belonging to the season of the current request."""
+        if not self.__survey:
+            self.__survey = SurveyUtil.get_survey_or_404(
+                year=self.kwargs['year'],
+                season=self.kwargs['season'],
+                pre_or_post=self.kwargs['pre_or_post'],
+            )
+        return self.__survey

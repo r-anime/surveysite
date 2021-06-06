@@ -1,5 +1,5 @@
-from django.forms import ModelForm, NumberInput, CheckboxInput, Select
-from .models import Response, AnimeResponse
+from django.forms import ModelForm, NumberInput, CheckboxInput, Select, modelformset_factory
+from .models import Response, AnimeResponse, MissingAnime
 
 
 class ResponseForm(ModelForm):
@@ -86,3 +86,10 @@ class PostSeasonAnimeResponseForm(AnimeResponseForm):
             'underwatched': 'Did you find this underwatched?',
             'expectations': 'Was this a surprise or disappointment?',
         }
+
+
+
+class MissingAnimeForm(ModelForm):
+    class Meta:
+        model = MissingAnime
+        fields = ['link', 'description']
