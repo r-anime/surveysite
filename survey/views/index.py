@@ -2,9 +2,10 @@ from django.core.cache import cache
 from django.views.generic import TemplateView
 from survey.views.results import ResultsGenerator, ResultsType
 from survey.models import Anime, Survey, Image
-from survey.util import SurveyUtil, get_user_info
+from survey.util import SurveyUtil
+from .mixins import UserMixin
 
-class IndexView(TemplateView):
+class IndexView(UserMixin, TemplateView):
     """View containing a list of all current and past surveys."""
     template_name = 'survey/index.html'
 
@@ -39,5 +40,4 @@ class IndexView(TemplateView):
                     survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2]]
         
         context['items'] = items
-        context['user_info'] = get_user_info(self.request.user)
         return context

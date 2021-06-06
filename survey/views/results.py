@@ -6,35 +6,20 @@ from django.core.cache import caches
 from enum import Enum, auto
 import json
 from survey.models import AnimeResponse, Response, SurveyAdditionRemoval
-from survey.util import SurveyUtil, get_user_info, AnimeUtil
+from survey.util import SurveyUtil, AnimeUtil
+from .mixins import SurveyMixin, UserMixin
 
 #region Views
-class BaseResultsView(TemplateView):
+class BaseResultsView(UserMixin, SurveyMixin, TemplateView):
     """Base class for views displaying survey results."""
     def get(self, request, *args, **kwargs):
-        survey = self._get_survey()
+        survey = self.get_survey()
 
         # Only display results if the survey is not ongoing, or if the user is staff
         if survey.is_ongoing and not request.user.is_staff:
             return redirect('survey:form', survey.year, survey.season, 'pre' if survey.is_preseason else 'post')
         else:
             return super().get(self, request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        survey = self._get_survey()
-
-        context['survey'] = survey
-        context['user_info'] = get_user_info(self.request.user)
-
-        return context
-
-    def _get_survey(self):
-        return SurveyUtil.get_survey_or_404(
-            year=self.kwargs['year'],
-            season=self.kwargs['season'],
-            pre_or_post=self.kwargs['pre_or_post'],
-        )
 
 
 class FullResultsView(BaseResultsView):
@@ -43,7 +28,7 @@ class FullResultsView(BaseResultsView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        survey = self._get_survey()
+        survey = self.get_survey()
 
         results_generator = ResultsGenerator(survey)
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
@@ -58,7 +43,7 @@ class ResultsView(BaseResultsView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        survey = self._get_survey()
+        survey = self.get_survey()
 
         results_generator = ResultsGenerator(survey)
         context['anime_info_json'], context['anime_series_data_json'], context['special_anime_data_json'] = results_generator.get_anime_results_data_json()
@@ -77,7 +62,7 @@ class ResultsView(BaseResultsView):
         return context
 
     def __get_segments(self):
-        survey = self._get_survey()
+        survey = self.get_survey()
 
         root_item = SegmentGroup('', is_root=True, children=[
             SegmentGroup('Popularity', [
