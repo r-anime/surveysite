@@ -191,6 +191,8 @@ class MissingAnimeView(View):
             missinganime.survey = self.__get_survey()
             missinganime.user = request.user
             missinganime.save()
+
+            form = MissingAnimeForm()
             messages.success(request, 'Successfully sent missing anime! Manual review pending.')
         else:
             messages.error(request, 'Something went wrong.')

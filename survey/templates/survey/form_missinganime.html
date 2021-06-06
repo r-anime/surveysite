@@ -1,1 +1,12 @@
-{{ form }}
+{% if messages %}
+    <div id="messages-missinganime">
+        {% for message in messages %}
+            <b-alert show dismissible fade variant="{{ message.tags }}" id="message-{{ forloop.counter0 }}">{{ message }}</b-alert>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<form id="form-missinganime">
+    {% csrf_token %}
+    {{ form }}
+</form>
