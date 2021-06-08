@@ -28,8 +28,8 @@
 
     <script src="//unpkg.com/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
-    <!-- Load the following for BootstrapVueIcons support -->
-    <script src="//unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue-icons.min.js"></script>
+    <!-- Load Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="//unpkg.com/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 
     {% block head %}
     {% endblock head %}
@@ -52,7 +52,10 @@
                     {% if user_info.image %}
                         <img class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" src="{{ user_info.image }}">
                     {% else %}
-                        <b-icon icon="person-square" class="mx-1 my-n1 align-middle rounded" style="width:auto;height:25px;"></b-icon>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi mx-1 my-n2" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12z"/>
+                        </svg>
                     {% endif %}
                     {{ user_info.username }}
                 </b-nav-text>
