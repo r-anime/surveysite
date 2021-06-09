@@ -31,6 +31,9 @@
     <!-- Load Bootstrap Icons CSS -->
     <link rel="stylesheet" href="//unpkg.com/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 
+    <!-- jQuery -->
+    <script src="//unpkg.com/jquery@3.6.0/dist/jquery.min.js"></script>
+
     {% block head %}
     {% endblock head %}
 
@@ -47,30 +50,28 @@
         <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav class="ml-auto">
                 {% if user_info %}
-                <b-nav-text class="mr-3">
-                    Logged in as
-                    {% if user_info.image %}
-                        <img class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" src="{{ user_info.image }}">
-                    {% else %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi mx-1 my-n2" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12z"/>
-                        </svg>
-                    {% endif %}
-                    {{ user_info.username }}
-                </b-nav-text>
+                    <b-nav-text class="mr-3 my-2 my-md-0">
+                        Logged in as
+                        {% if user_info.image %}
+                            <img class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" src="{{ user_info.image }}">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi mx-1 my-n2" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12z"/>
+                            </svg>
+                        {% endif %}
+                        {{ user_info.username }}
+                    </b-nav-text>
 
-                <b-nav-form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" id="logoutNext" value=""/>
-                    <b-button size="md" type="submit" variant="secondary">Log Out</b-button>
-                </b-nav-form>
-
+                    <b-nav-form method="post" action="{% url 'logout' %}" class="my-2 my-md-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" id="logoutNext" value=""/>
+                        <b-button size="md" type="submit" variant="secondary">Log Out</b-button>
+                    </b-nav-form>
                 {% else %}
-
-                <b-nav-form method="get" action="{% url 'login' %}">
-                    <b-button size="md" type="submit" variant="primary">Log In</b-button>
-                </b-nav-form>
+                    <b-nav-form method="get" action="{% url 'login' %}" class="my-2 my-md-0">
+                        <b-button size="md" type="submit" variant="primary">Log In</b-button>
+                    </b-nav-form>
                 {% endif %}
 
                 {% block navbar%}
@@ -80,8 +81,38 @@
     </b-navbar>
     <!-- end header -->
 
+    <div id="toasts">
+    </div>
+    <script>
+        let vueToasts = new Vue({ el: "#toasts" });
+        $.get(
+            "{% url 'survey:notifications' %}",
+            function(data) {
+                for (let missingAnime of data.missingAnimeList) {
+                    const requestAccepted = Boolean(missingAnime.nameList.length);
+                    const requestAcceptedStr = requestAccepted ? "accepted" : "denied";
+
+                    const ce = vueToasts.$createElement;
+
+                    const message = ce("div", [
+                        "Your request to add ",
+                        ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
+                        " to " + missingAnime.surveyName + " got " + requestAcceptedStr + "!",
+                    ]);
+                    const title = "Request " + requestAcceptedStr;
+                    vueToasts.$bvToast.toast(
+                        message, {
+                            title: title,
+                            noAutoHide: true,
+                            solid: true,
+                        }
+                    );
+                }
+            }
+        );
+    </script>
+
     <!-- messages -->
-    {% if messages %}
     {% for message in messages %}
     <b-alert show dismissible fade variant="{{ message.tags }}" id="message-{{ forloop.counter0 }}">{{ message }}</b-alert>
     <script>
@@ -90,7 +121,6 @@
         });
     </script>
     {% endfor %}
-    {% endif %}
     <!-- end messages -->
 
     <div class="content container-md mt-5 mb-5">
