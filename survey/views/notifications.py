@@ -18,6 +18,7 @@ class NotificationsView(View):
                     'submittedLink': missinganime.link,
                     'nameList': AnimeUtil.get_name_list(missinganime.anime) if missinganime.anime else [],
                     'surveyName': str(missinganime.survey),
+                    'reason': missinganime.reason,
                 } for missinganime in missinganime_queryset
             ]
         }

@@ -319,6 +319,9 @@ class MissingAnime(models.Model):
     admin_has_reviewed = models.BooleanField(
         default=False,
     )
+    reason = models.TextField(
+        blank=True,
+    )
 
     # Relation fields
     survey = models.ForeignKey(

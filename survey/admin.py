@@ -333,7 +333,21 @@ class SurveyAdmin(admin.ModelAdmin):
     inlines = [SurveyAdditionRemovalInline]
 
 
+class MissingAnimeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'survey', 'admin_has_reviewed')
+    fieldsets = (
+        ('Information', {
+            'fields': ('user', 'name', 'link', 'survey', 'description', 'user_has_read'),
+        }),
+        ('Admin', {
+            'fields': ('reason', 'anime', 'admin_has_reviewed'),
+        })
+    )
+    autocomplete_fields = ['anime']
+    readonly_fields = ['user', 'survey', 'user_has_read', 'description', 'name', 'link']
+
+
 admin.site.register(Anime, AnimeAdmin)
 admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Response, ResponseAdmin)
-admin.site.register(MissingAnime)
+admin.site.register(MissingAnime, MissingAnimeAdmin)

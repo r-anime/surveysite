@@ -98,6 +98,12 @@
                         "Your request to add ",
                         ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
                         " to " + missingAnime.surveyName + " got " + requestAcceptedStr + "!",
+                        !requestAccepted && missingAnime.reason ? [
+                            ce("br"),
+                            ce("b", "Reason:"),
+                            ce("br"),
+                            ce("i", missingAnime.reason),
+                        ] : [],
                     ]);
                     const title = "Request " + requestAcceptedStr;
                     vueToasts.$bvToast.toast(
