@@ -313,7 +313,10 @@ class MissingAnime(models.Model):
     description = models.TextField(
         blank=True,
     )
-    is_read = models.BooleanField(
+    user_has_read = models.BooleanField(
+        default=False,
+    )
+    admin_has_reviewed = models.BooleanField(
         default=False,
     )
 

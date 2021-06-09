@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from survey.views.index import IndexView
 from survey.views.form import FormView, MissingAnimeView
+from survey.views.notifications import NotificationsView
 from survey.views.results import ResultsView, FullResultsView
 
 app_name = 'survey'
@@ -19,5 +20,6 @@ survey_patterns = [
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
     path('survey/', include(survey_patterns)),
+    path('notifications/', NotificationsView.as_view(), name='notifications'),
     path('favicon.ico', favicon_redirect),
 ]
