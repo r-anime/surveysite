@@ -14,7 +14,14 @@
 <h1 class="mb-4 mx-n2 shadow">{{ survey }}!</h1>
 
 <div id="modal-container">
-    <b-modal id="modal-missing-anime" ref="modal" @show="show" @ok="ok" cancel-title="Return" ok-title="Send" title="Request a missing anime to be added">
+    <b-modal
+        id="modal-missing-anime"
+        ref="modal"
+        scrollable
+        @show="show" @ok="ok"
+        cancel-title="Return" ok-title="Send"
+        title="Request a missing anime to be added"
+    >
         <div class="container-fluid" id="modal-content"></div>
     </b-modal>
 </div>
