@@ -84,16 +84,17 @@
     <div id="toasts">
     </div>
     <script>
-        let vueToasts = new Vue({ el: "#toasts" });
+        const vueToasts = new Vue({ el: "#toasts" });
+        const ce = vueToasts.$createElement;
         $.get(
             "{% url 'survey:notifications' %}",
             function(data) {
+
                 for (let missingAnime of data.missingAnimeList) {
                     const requestAccepted = Boolean(missingAnime.nameList.length);
                     const requestAcceptedStr = requestAccepted ? "accepted" : "denied";
 
-                    const ce = vueToasts.$createElement;
-
+                    const title = "Request " + requestAcceptedStr;
                     const message = ce("div", [
                         "Your request to add ",
                         ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
@@ -105,7 +106,6 @@
                             ce("i", missingAnime.reason),
                         ] : [],
                     ]);
-                    const title = "Request " + requestAcceptedStr;
                     vueToasts.$bvToast.toast(
                         message, {
                             title: title,
@@ -113,6 +113,31 @@
                             solid: true,
                         }
                     );
+                }
+
+                if (data.unreviewedMissingAnimeList) {
+                    for (let missingAnime of data.unreviewedMissingAnimeList) {
+                        const title = "Unreviewed missing anime request";
+                        const message = ce("div", [
+                            missingAnime.surveyName,
+                            ce("br"),
+                            ce("b", "Name: "),
+                            ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
+                            ce("br"),
+                            missingAnime.submittedDescription ? [
+                                ce("b", "Description: "),
+                                ce("i", missingAnime.submittedDescription),
+                            ] : [],
+                        ]);
+
+                        vueToasts.$bvToast.toast(
+                            message, {
+                                title: title,
+                                noAutoHide: true,
+                                solid: true,
+                            }
+                        );
+                    }
                 }
             }
         );
