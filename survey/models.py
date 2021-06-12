@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
-from django.core.files import File
 import uuid
 
 class Anime(models.Model):
@@ -297,4 +297,47 @@ class AnimeResponse(models.Model):
         to='Anime',
         on_delete=models.CASCADE,
         editable=False,
+    )
+
+
+
+class MissingAnime(models.Model):
+    class Meta:
+        verbose_name_plural = "missing anime"
+
+    # Fields
+    name = models.CharField(
+        max_length=128,
+    )
+    link = models.URLField()
+    description = models.TextField(
+        blank=True,
+    )
+    user_has_read = models.BooleanField(
+        default=False,
+    )
+    admin_has_reviewed = models.BooleanField(
+        default=False,
+    )
+    reason = models.TextField(
+        blank=True,
+    )
+
+    # Relation fields
+    survey = models.ForeignKey(
+        to='Survey',
+        on_delete=models.CASCADE,
+        editable=False,
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        editable=False,
+    )
+    anime = models.ForeignKey(
+        to='Anime',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        default=None,
     )

@@ -1,0 +1,33 @@
+{% if messages %}
+    <div id="messages-missinganime">
+        {% for message in messages %}
+            <b-alert show dismissible fade variant="{{ message.tags }}" id="message-{{ forloop.counter0 }}">{{ message }}</b-alert>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<span>
+    Note:
+</span>
+<ul>
+    <li>Only <b>subbed</b> and <b>widely-available</b> anime will be added to the survey.</li>
+    <li>
+        OVAs and other irregularly-releasing anime will only be added
+        {% if survey.is_preseason %}
+            to pre-season surveys when they're <b>starting</b>
+        {% else %}
+            to post-season surveys when they're <b>finishing</b>
+        {% endif %}
+        this season.
+    </li>
+    <li>Compilation movies and recaps will <b>not</b> be added.</li>
+</ul>
+
+<form id="form-missinganime" class="mb-1">
+    {% csrf_token %}
+    {{ form }}
+</form>
+
+<small>
+    Anime addition requests will be linked to your account; you will be notified on this site when a request went through or was denied.
+</small>

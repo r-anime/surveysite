@@ -3,31 +3,21 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.generic import View
+from django.views.generic import View, TemplateView
+from django.views.generic.base import ContextMixin
 from itertools import repeat
 import logging
-from survey.forms import ResponseForm, get_anime_response_form
+from survey.forms import ResponseForm, get_anime_response_form, MissingAnimeForm
 from survey.models import Anime, AnimeName, AnimeResponse, Response
-from survey.util import AnimeUtil, SurveyUtil, get_user_info
+from survey.util import AnimeUtil
+from .mixins import SurveyMixin, RequireSurveyOngoingMixin, UserMixin
 
 @method_decorator([never_cache, login_required], name='dispatch')
-class FormView(View):
-    __anime_list = None
-    __anime_series_list = None
-    __special_anime_list = None
-    __survey = None
-
-    def dispatch(self, request, *args, **kwargs):
-        survey = self.__get_survey()
-        if not survey.is_ongoing:
-            messages.error(request, str(survey) + ' is closed!')
-            return redirect('survey:index')
-        return super().dispatch(request, *args, **kwargs)
-
+class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, View):
     def get(self, request, *args, **kwargs):
-        survey = self.__get_survey()
+        survey = self.get_survey()
         previous_response = self.__get_previous_response()
-        anime_list, _, _ = self.__get_anime_lists()
+        anime_list, _, _ = self.get_anime_lists()
         responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
         animeresponseform_dict = {}
 
@@ -47,9 +37,9 @@ class FormView(View):
         return self.__render_form(responseform, animeresponseform_dict)
 
     def post(self, request, *args, **kwargs):
-        survey = self.__get_survey()
+        survey = self.get_survey()
         previous_response = self.__get_previous_response()
-        anime_list, _, _ = self.__get_anime_lists()
+        anime_list, _, _ = self.get_anime_lists()
         responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
         existing_animeresponseform_list = []
         new_animeresponseform_list = []
@@ -102,7 +92,7 @@ class FormView(View):
 
     def __render_form(self, responseform, animeresponseform_dict):
         """Renders a survey form using the provided data."""
-        survey = self.__get_survey()
+        survey = self.get_survey()
 
         def modify(anime):
             # Get anime names
@@ -122,39 +112,21 @@ class FormView(View):
 
             return anime
 
-        _, anime_series_list, special_anime_list = self.__get_anime_lists()
+        _, anime_series_list, special_anime_list = self.get_anime_lists()
         anime_series_list = map(modify, anime_series_list)
         special_anime_list = map(modify, special_anime_list)
 
-        context = {
-            'survey': survey,
-            'anime_series_list': anime_series_list,
-            'special_anime_list': special_anime_list,
-            'user_info': get_user_info(self.request.user),
-            'responseform': responseform,
-        }
+        context = self.get_context_data()
+        context['anime_series_list'] = anime_series_list
+        context['special_anime_list'] = special_anime_list
+        context['responseform'] = responseform
+
         return render(self.request, 'survey/form.html', context)
-
-    def __get_anime_lists(self):
-        """Returns the combined anime list, the anime series list, and the special anime list of the current survey."""
-        if not self.__anime_list or not self.__anime_series_list or not self.__special_anime_list:
-            self.__anime_list, self.__anime_series_list, self.__special_anime_list = SurveyUtil.get_survey_anime(self.__get_survey())
-        return self.__anime_list, self.__anime_series_list, self.__special_anime_list
-
-    def __get_survey(self):
-        """Returns the survey belonging to the season of the current request."""
-        if not self.__survey:
-            self.__survey = SurveyUtil.get_survey_or_404(
-                year=self.kwargs['year'],
-                season=self.kwargs['season'],
-                pre_or_post=self.kwargs['pre_or_post'],
-            )
-        return self.__survey
 
     def __get_previous_response(self):
         """Returns the previous response if the user submitted one, otherwise returns None."""
 
-        response_session_key = 'survey_%i_response' % self.__get_survey().id
+        response_session_key = 'survey_%i_response' % self.get_survey().id
         if response_session_key in self.request.session:
             response_public_id = self.request.session[response_session_key]
             try:
@@ -169,3 +141,33 @@ class FormView(View):
         else:
             previous_response = None
         return previous_response
+
+
+
+@method_decorator([login_required], name='dispatch')
+class MissingAnimeView(RequireSurveyOngoingMixin, SurveyMixin, TemplateView):
+    template_name = 'survey/form_missinganime.html'
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {
+            'form': MissingAnimeForm()
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = MissingAnimeForm(request.POST)
+        if form.is_valid():
+            missinganime = form.save(commit=False)
+            missinganime.survey = self.get_survey()
+            missinganime.user = request.user
+            missinganime.save()
+
+            form = MissingAnimeForm()
+            messages.success(request, 'Successfully sent missing anime! Your request will be manually reviewed.')
+        else:
+            messages.error(request, 'Something went wrong.')
+
+        self.extra_context = {
+            'form': form
+        }
+        return super().get(request, *args, **kwargs)

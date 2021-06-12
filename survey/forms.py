@@ -1,8 +1,25 @@
-from django.forms import ModelForm, NumberInput, CheckboxInput, Select
-from .models import Response, AnimeResponse
+from django.forms import ModelForm, NumberInput, CheckboxInput, Select, modelformset_factory
+from django.forms.widgets import Textarea
+from .models import Response, AnimeResponse, MissingAnime
+
+def bootstrapmixin_factory(css_class_list=[]):
+    """Creates a BootstrapMixin ModelForm mixin that applies basic Bootstrap CSS classes and potential provided CSS classes."""
+    class BootstrapMixinInternal:
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            for field in self.visible_fields():
+                if isinstance(field.field.widget, CheckboxInput):
+                    field.field.widget.attrs['class'] = ' '.join(['form-check-input'] + css_class_list)
+                else:
+                    field.field.widget.attrs['class'] = ' '.join(['form-control']     + css_class_list)
+    return BootstrapMixinInternal
+
+BootstrapMixin = bootstrapmixin_factory()
 
 
-class ResponseForm(ModelForm):
+
+class ResponseForm(BootstrapMixin, ModelForm):
     class Meta:
         model = Response
         fields = '__all__'
@@ -13,12 +30,6 @@ class ResponseForm(ModelForm):
         widgets = {
             'age': NumberInput(attrs={'min': 10, 'max': 80}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field in self.visible_fields():
-            field.field.widget.attrs['class'] = 'form-control'
 
 
 def get_anime_response_form(is_preseason, is_continuing):
@@ -32,7 +43,7 @@ def get_anime_response_form(is_preseason, is_continuing):
 
 
 # Pre-season survey needs underwatched/expectations hidden/excluded
-class AnimeResponseForm(ModelForm):
+class AnimeResponseForm(BootstrapMixin, ModelForm):
     class Meta:
         exclude = []
         model = AnimeResponse
@@ -46,15 +57,6 @@ class AnimeResponseForm(ModelForm):
                 (1, '1/5 - Bad'),
             ])
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field in self.visible_fields():
-            if isinstance(field.field.widget, CheckboxInput):
-                field.field.widget.attrs['class'] = 'form-check-input'
-            else:
-                field.field.widget.attrs['class'] = 'form-control'
 
     def is_empty(self):
         watching = self.cleaned_data.get('watching', False)
@@ -85,4 +87,19 @@ class PostSeasonAnimeResponseForm(AnimeResponseForm):
             'score': 'What did you think of this?',
             'underwatched': 'Did you find this underwatched?',
             'expectations': 'Was this a surprise or disappointment?',
+        }
+
+
+
+class MissingAnimeForm(bootstrapmixin_factory(['mb-2']), ModelForm):
+    class Meta:
+        model = MissingAnime
+        fields = ['name', 'link', 'description']
+        labels = {
+            'name': 'Anime name',
+            'link': 'Link to anime',
+            'description': 'Extra information (optional)',
+        }
+        widgets = {
+            'description': Textarea(attrs={'rows': 3}),
         }
