@@ -1,4 +1,4 @@
-from django.forms import ModelForm, NumberInput, CheckboxInput, Select, modelformset_factory
+from django.forms import ModelForm, NumberInput, CheckboxInput, Select, BooleanField
 from django.forms.widgets import Textarea
 from .models import Response, AnimeResponse, MissingAnime
 
@@ -30,6 +30,12 @@ class ResponseForm(BootstrapMixin, ModelForm):
         widgets = {
             'age': NumberInput(attrs={'min': 10, 'max': 80}),
         }
+
+    link_user_to_response = BooleanField(
+        required=False,
+        label='Link this response to your account?',
+        help_text='By doing this, you can easily edit your response later on any of your devices simply by re-opening this survey.',
+    )
 
 
 def get_anime_response_form(is_preseason, is_continuing):

@@ -301,6 +301,34 @@ class AnimeResponse(models.Model):
 
 
 
+class MtmUserResponse(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['username_hash', 'survey']),
+        ]
+        constraints = [
+            models.UniqueConstraint(fields=['username_hash', 'survey'], name='unique_username_survey'),
+        ]
+
+    # Relation fields
+    username_hash = models.BinaryField(
+        max_length=64, # We're using SHA-512
+        editable=False,
+    )
+    survey = models.ForeignKey(
+        to='Survey',
+        on_delete=models.CASCADE,
+        editable=False,
+    )
+    response = models.ForeignKey(
+        to='Response',
+        on_delete=models.CASCADE,
+        null=True,
+        editable=False,
+    )
+
+
+
 class MissingAnime(models.Model):
     class Meta:
         verbose_name_plural = "missing anime"
