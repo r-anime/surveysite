@@ -20,7 +20,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
 
     def get(self, request, *args, **kwargs):
         try:
-            previous_response = self.__get_previous_response()
+            previous_response, response_is_linked_to_user = self.__get_previous_response()
         except UserAlreadyRespondedException:
             messages.error(request, 'You already responded to this survey!')
             return redirect('survey:index')
@@ -28,7 +28,10 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         survey = self.get_survey()
         anime_list, _, _ = self.get_anime_lists()
 
-        responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
+        responseform = ResponseForm(
+            instance=previous_response,
+            initial={'link_user_to_response': response_is_linked_to_user}
+        ) if previous_response else ResponseForm()
         animeresponseform_dict = {}
 
         # Get the anime response forms, bound to already stored anime responses whenever possible
@@ -48,7 +51,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
 
     def post(self, request, *args, **kwargs):
         try:
-            previous_response = self.__get_previous_response()
+            previous_response, _ = self.__get_previous_response()
         except UserAlreadyRespondedException:
             messages.error(request, 'You already responded to this survey!')
             return redirect('survey:index')
@@ -163,7 +166,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         return render(self.request, 'survey/form.html', context)
 
     def __get_previous_response(self):
-        """Returns the previous response if the user submitted one, otherwise returns None.
+        """Returns the previous response if the user submitted one or None, and whether the user linked their response to their account.
         Raises UserAlreadyRespondedException if the user already responded but does not have a response linked to their account."""
 
         previous_response_lookup, user_responded = self.__get_previous_response_from_lookup_table()
@@ -182,9 +185,9 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         if previous_response_lookup and previous_response_getpost and previous_response_getpost != previous_response_lookup:
             messages.warning(self.request, f'Cannot load your response with ID "{previous_response_getpost.public_id}" as your account already has a linked response!')
             logging.error(f'Tried to load two different responses ({previous_response_lookup.id}, {previous_response_getpost.id}), which should not be possible.')
-            return previous_response_lookup
+            return previous_response_lookup, True
 
-        return previous_response_lookup or previous_response_getpost
+        return previous_response_lookup or previous_response_getpost, bool(previous_response_lookup)
 
     def __get_previous_response_from_lookup_table(self):
         """Tries to get the user's previous Response from MtmUserResponse.
