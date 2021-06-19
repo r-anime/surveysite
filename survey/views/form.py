@@ -5,19 +5,29 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View, TemplateView
 from django.views.generic.base import ContextMixin
+from hashlib import sha512
 from itertools import repeat
 import logging
 from survey.forms import ResponseForm, get_anime_response_form, MissingAnimeForm
-from survey.models import Anime, AnimeName, AnimeResponse, Response
+from survey.models import Anime, AnimeName, AnimeResponse, Response, MtmUserResponse
 from survey.util import AnimeUtil
 from .mixins import SurveyMixin, RequireSurveyOngoingMixin, UserMixin
 
 @method_decorator([never_cache, login_required], name='dispatch')
 class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, View):
+    __username_hash = None
+    __response_public_id = None
+
     def get(self, request, *args, **kwargs):
+        try:
+            previous_response = self.__get_previous_response()
+        except UserAlreadyRespondedException:
+            messages.error(request, 'You already responded to this survey!')
+            return redirect('survey:index')
+
         survey = self.get_survey()
-        previous_response = self.__get_previous_response()
         anime_list, _, _ = self.get_anime_lists()
+
         responseform = ResponseForm(instance=previous_response) if previous_response else ResponseForm()
         animeresponseform_dict = {}
 
@@ -37,9 +47,16 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         return self.__render_form(responseform, animeresponseform_dict)
 
     def post(self, request, *args, **kwargs):
+        try:
+            previous_response = self.__get_previous_response()
+        except UserAlreadyRespondedException:
+            messages.error(request, 'You already responded to this survey!')
+            return redirect('survey:index')
+
+        username_hash = self.__get_username_hash()
         survey = self.get_survey()
-        previous_response = self.__get_previous_response()
         anime_list, _, _ = self.get_anime_lists()
+
         responseform = ResponseForm(request.POST, instance=previous_response) if previous_response else ResponseForm(request.POST)
         existing_animeresponseform_list = []
         new_animeresponseform_list = []
@@ -76,9 +93,25 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
             AnimeResponse.objects.bulk_update(existing_animeresponse_list, ['watching', 'underwatched', 'score', 'expectations'])
             AnimeResponse.objects.bulk_create(new_animeresponse_list)
 
+            link_user_to_response = responseform.cleaned_data['link_user_to_response']
+
             if previous_response:
+                # get_or_create in case MtmUserResponse wasn't present when the previous response was saved
+                mtmuserresponse, _ = MtmUserResponse.objects.get_or_create(username_hash=username_hash, survey=survey)
+                if link_user_to_response and not mtmuserresponse.response:
+                    mtmuserresponse.response = response
+                    mtmuserresponse.save()
+                elif not link_user_to_response and mtmuserresponse.response:
+                    mtmuserresponse.response = None
+                    mtmuserresponse.save()
+
                 messages.success(request, 'Successfully updated your response to %s!' % str(survey))
             else:
+                mtmuserresponse = MtmUserResponse(username_hash=username_hash, survey=survey)
+                if link_user_to_response:
+                    mtmuserresponse.response = response
+                mtmuserresponse.save()
+
                 messages.success(request, 'Successfully filled in %s!' % str(survey))
 
             request.session['survey_%i_response' % survey.id] = response.public_id.hex
@@ -120,27 +153,104 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         context['anime_series_list'] = anime_series_list
         context['special_anime_list'] = special_anime_list
         context['responseform'] = responseform
+        if self.__response_public_id:
+            context['response_public_id'] = self.__response_public_id
 
         return render(self.request, 'survey/form.html', context)
 
     def __get_previous_response(self):
-        """Returns the previous response if the user submitted one, otherwise returns None."""
+        """Returns the previous response if the user submitted one, otherwise returns None.
+        Raises UserAlreadyRespondedException if the user already responded but does not have a response linked to their account."""
 
-        response_session_key = 'survey_%i_response' % self.get_survey().id
-        if response_session_key in self.request.session:
-            response_public_id = self.request.session[response_session_key]
-            try:
-                previous_response = Response.objects.get(public_id=response_public_id)
-            except Response.DoesNotExist:
-                messages.warning(self.request, 'Response with ID "%s" does not exist!' % response_public_id)
-                previous_response = None
-            except Response.MultipleObjectsReturned:
-                messages.warning(self.request, 'Unable to load response with ID "%s".' % response_public_id)
-                logging.error('Multiple responses with public ID "%s" found!' % response_public_id)
-                previous_response = None
+        previous_response_lookup, user_responded = self.__get_previous_response_from_lookup_table()
+        previous_response_getpost = self.__get_previous_response_from_getpost_parameter()
+
+        # Check whether the user responded but does not have a response linked
+        if user_responded and not previous_response_lookup and not previous_response_getpost:
+            raise UserAlreadyRespondedException()
+
+        if previous_response_getpost:
+            self.__response_public_id = previous_response_getpost.public_id
+
+        # Check whether a lookup response and a get-param response were found that are different,
+        # this should be impossible because a user is not allowed to answer the same survey twice
+        # and because __get_previous_response_from_getpost_parameter() checks if the get-param response belongs to this survey and user
+        if previous_response_lookup and previous_response_getpost and previous_response_getpost != previous_response_lookup:
+            messages.warning(f'Cannot load your response with ID "{previous_response_getpost.public_id}" as your account already has a linked response!')
+            logging.error(f'Tried to load two different responses ({previous_response_lookup.id}, {previous_response_getpost.id}), which should not be possible.')
+            return previous_response_lookup
+
+        return previous_response_lookup or previous_response_getpost
+
+    def __get_previous_response_from_lookup_table(self):
+        """Tries to get the user's previous Response from MtmUserResponse.
+        Returns the Response (or None if not found) and a boolean indicating whether the user answered the survey."""
+
+        username_hash = self.__get_username_hash()
+        survey = self.get_survey()
+        mtmuserresponse_queryset = MtmUserResponse.objects.filter(username_hash=username_hash, survey=survey)
+
+        # No need to check whether there are multiple entries in the queryset as there's a uniqueness constraint on username_hash and survey
+        if not mtmuserresponse_queryset.exists():
+            return None, False
         else:
-            previous_response = None
-        return previous_response
+            response = mtmuserresponse_queryset.first().response
+            return response, True
+
+    def __get_previous_response_from_getpost_parameter(self):
+        """Checks whether the user has a response's public ID set as a GET or POST parameter and returns the Response if possible."""
+
+        if self.request.method == 'GET':
+            response_public_id = self.request.GET.get('response', default=None)
+        elif self.request.method == 'POST':
+            response_public_id = self.request.POST.get('response-id', default=None)
+        else:
+            response_public_id = None
+
+        if not response_public_id:
+            return None
+
+        response_queryset = Response.objects.filter(public_id=response_public_id)
+        response_queryset_count = len(response_queryset)
+        if response_queryset_count == 0:
+            messages.warning(f'Unable to find your response with ID "{response_public_id}"!')
+            return None
+        if response_queryset_count > 1:
+            messages.warning(self.request, f'An error occurred while retrieving your response with ID "{response_public_id}".')
+            logging.error(f'Multiple responses with public ID "{response_public_id}" found!')
+            return None
+        response = response_queryset.first()
+
+        # Handle some funny edge-cases here
+
+        # Check whether the response belongs to another survey
+        if response.survey != self.get_survey():
+            messages.warning(f'Your response with ID "{response_public_id}" belongs to {response.survey}!')
+            return None
+
+        # Check whether the response belongs to someone else (to our knowledge)
+        mtmuserresponse_queryset = MtmUserResponse.objects.filter(response=response)
+        mtmuserresponse_queryset_count = len(mtmuserresponse_queryset)
+        if mtmuserresponse_queryset_count > 1:
+            logging.error(f'A user tried to load a response with public ID {response.public_id} but multiple MtmUserResponse entries were found for this response!')
+        if mtmuserresponse_queryset_count and mtmuserresponse_queryset.first().username_hash != self.__get_username_hash():
+            messages.warning(f'Cannot load the response with ID {response.public_id} as that response belongs to someone else!')
+            return None
+
+        return response
+
+    def __get_username_hash(self):
+        """Returns a SHA-512 has of the username of a user (should be a lowercase version of their Reddit username)."""
+        if not self.__username_hash:
+            user = self.request.user
+            self.__username_hash = sha512(user.username.encode('utf-8')).digest()
+        return self.__username_hash
+
+
+
+class UserAlreadyRespondedException(Exception):
+    """Exception used to indicate a user already responded to a survey without having linked their account to a response."""
+    pass
 
 
 

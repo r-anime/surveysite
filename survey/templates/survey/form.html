@@ -112,6 +112,10 @@
         </div>
     </div>
 
+    {% if response_public_id %}
+        <input type="hidden" id="response-id" name="response-id" value="{{ response_public_id }}">
+    {% endif %}
+
     <div class="row justify-content-between">
         <div class="col-auto">
             <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
