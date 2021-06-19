@@ -1,0 +1,27 @@
+{% extends 'survey/base.html' %}
+
+{% block title %}{{ survey }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row pt-5 justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Successfully Saved Your Response
+            </h5>
+            <div class="card-body">
+                <p class="card-text">
+                    To edit your response in the future, save the link below! Without it, you will not be able to edit your response.
+                    <br>
+                    <a href="{{ response_url }}">
+                        {{ response_url }}
+                    </a>
+                </p>
+                <a class="btn btn-primary" href="{% url 'survey:index' %}">
+                    Back to index
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

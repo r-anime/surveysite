@@ -114,8 +114,12 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
 
                 messages.success(request, 'Successfully filled in %s!' % str(survey))
 
-            request.session['survey_%i_response' % survey.id] = response.public_id.hex
-            return redirect('survey:index')
+            if link_user_to_response:
+                return redirect('survey:index')
+            else:
+                context = self.get_context_data()
+                context['response_url'] = request.build_absolute_uri() + '?response=' + str(response.public_id)
+                return render(request, 'survey/form_link.html', context)
 
         # If at least one form contains invalid data, re-render the form
         else:
