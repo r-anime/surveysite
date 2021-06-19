@@ -96,27 +96,22 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
             AnimeResponse.objects.bulk_update(existing_animeresponse_list, ['watching', 'underwatched', 'score', 'expectations'])
             AnimeResponse.objects.bulk_create(new_animeresponse_list)
 
+            # Store in a lookup table what survey the user has responded to, and if possible also which response this is
             link_user_to_response = responseform.cleaned_data['link_user_to_response']
-
-            if previous_response:
-                # get_or_create in case MtmUserResponse wasn't present when the previous response was saved
-                mtmuserresponse, _ = MtmUserResponse.objects.get_or_create(username_hash=username_hash, survey=survey)
-                if link_user_to_response and not mtmuserresponse.response:
-                    mtmuserresponse.response = response
-                    mtmuserresponse.save()
-                elif not link_user_to_response and mtmuserresponse.response:
-                    mtmuserresponse.response = None
-                    mtmuserresponse.save()
-
-                messages.success(request, 'Successfully updated your response to %s!' % str(survey))
-            else:
-                mtmuserresponse = MtmUserResponse(username_hash=username_hash, survey=survey)
-                if link_user_to_response:
-                    mtmuserresponse.response = response
+            mtmuserresponse, _ = MtmUserResponse.objects.get_or_create(username_hash=username_hash, survey=survey)
+            if link_user_to_response and not mtmuserresponse.response:
+                mtmuserresponse.response = response
+                mtmuserresponse.save()
+            elif not link_user_to_response and mtmuserresponse.response:
+                mtmuserresponse.response = None
                 mtmuserresponse.save()
 
-                messages.success(request, 'Successfully filled in %s!' % str(survey))
+            messages.success(
+                request,
+                f'Successfully updated your response to {survey}!' if previous_response else f'Successfully filled in {survey}!'
+            )
 
+            # Redirect to index if the response is linked to the user, otherwise show a page with a link to edit the response
             if link_user_to_response:
                 return redirect('survey:index')
             else:
@@ -239,9 +234,9 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         mtmuserresponse_queryset = MtmUserResponse.objects.filter(response=response)
         mtmuserresponse_queryset_count = len(mtmuserresponse_queryset)
         if mtmuserresponse_queryset_count > 1:
-            logging.error(f'A user tried to load a response with public ID {response.public_id} but multiple MtmUserResponse entries were found for this response!')
+            logging.error(f'A user tried to load a response with public ID "{response.public_id}" but multiple MtmUserResponse entries were found for this response!')
         if mtmuserresponse_queryset_count and mtmuserresponse_queryset.first().username_hash != self.__get_username_hash():
-            messages.warning(self.request, f'Cannot load the response with ID {response.public_id} as that response belongs to someone else!')
+            messages.warning(self.request, f'Cannot load the response with ID "{response.public_id}" as that response belongs to someone else!')
             return None
 
         return response
