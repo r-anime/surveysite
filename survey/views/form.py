@@ -180,7 +180,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         # this should be impossible because a user is not allowed to answer the same survey twice
         # and because __get_previous_response_from_getpost_parameter() checks if the get-param response belongs to this survey and user
         if previous_response_lookup and previous_response_getpost and previous_response_getpost != previous_response_lookup:
-            messages.warning(f'Cannot load your response with ID "{previous_response_getpost.public_id}" as your account already has a linked response!')
+            messages.warning(self.request, f'Cannot load your response with ID "{previous_response_getpost.public_id}" as your account already has a linked response!')
             logging.error(f'Tried to load two different responses ({previous_response_lookup.id}, {previous_response_getpost.id}), which should not be possible.')
             return previous_response_lookup
 
@@ -217,7 +217,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         response_queryset = Response.objects.filter(public_id=response_public_id)
         response_queryset_count = len(response_queryset)
         if response_queryset_count == 0:
-            messages.warning(f'Unable to find your response with ID "{response_public_id}"!')
+            messages.warning(self.request, f'Unable to find your response with ID "{response_public_id}"!')
             return None
         if response_queryset_count > 1:
             messages.warning(self.request, f'An error occurred while retrieving your response with ID "{response_public_id}".')
@@ -229,7 +229,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
 
         # Check whether the response belongs to another survey
         if response.survey != self.get_survey():
-            messages.warning(f'Your response with ID "{response_public_id}" belongs to {response.survey}!')
+            messages.warning(self.request, f'Your response with ID "{response_public_id}" belongs to {response.survey}!')
             return None
 
         # Check whether the response belongs to someone else (to our knowledge)
@@ -238,7 +238,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         if mtmuserresponse_queryset_count > 1:
             logging.error(f'A user tried to load a response with public ID {response.public_id} but multiple MtmUserResponse entries were found for this response!')
         if mtmuserresponse_queryset_count and mtmuserresponse_queryset.first().username_hash != self.__get_username_hash():
-            messages.warning(f'Cannot load the response with ID {response.public_id} as that response belongs to someone else!')
+            messages.warning(self.request, f'Cannot load the response with ID {response.public_id} as that response belongs to someone else!')
             return None
 
         return response
