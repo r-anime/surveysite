@@ -34,7 +34,7 @@ class ResponseForm(BootstrapMixin, ModelForm):
     link_user_to_response = BooleanField(
         required=False,
         label='Link this response to your account?',
-        help_text='By doing this, you can easily edit your response later on any of your devices simply by re-opening this survey.',
+        help_text='By doing this, you can easily edit your response on any of your devices simply by re-opening this survey while logged in to the same account.',
     )
 
 
