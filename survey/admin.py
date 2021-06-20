@@ -94,7 +94,7 @@ class ImageInlineFormSet(BaseInlineFormSet):
     def save_new(self, form, commit=True):
         model = super().save_new(form, False)
 
-        image_org = PIL.Image.open(model.file_large)
+        image_org = PIL.Image.open(model.file_original)
 
         # Try to remove alpha channel - not all non-RGB modes have an alpha channel, but this should not affect the output
         if image_org.mode !='RGB':
@@ -105,6 +105,10 @@ class ImageInlineFormSet(BaseInlineFormSet):
                 messages.info(self.request, 'Removed alpha channel from image.')
 
         image_types = {
+            'original': {
+                'width': None,
+                'model_field': model.file_original,
+            },
             'large': {
                 'width': 600,
                 'model_field': model.file_large,
@@ -126,12 +130,13 @@ class ImageInlineFormSet(BaseInlineFormSet):
             image = image_org.copy()
 
             image_width = image_values['width']
-            image.thumbnail((image_width, image_width * 2))
+            if image_width:
+                image.thumbnail((image_width, image_width * 2))
 
             content = BytesIO()
             image.save(fp=content, format=image_format, quality=80)
 
-            image_name = image_base_name + '-' + image_type + image_extension
+            image_name = f'{image_base_name}-{image_type}{image_extension}'
             image_values['model_field'].save(image_name, ContentFile(content.getvalue()))
 
         return model
@@ -139,7 +144,7 @@ class ImageInlineFormSet(BaseInlineFormSet):
 class ImageInline(admin.TabularInline):
     model = Image
     formset = ImageInlineFormSet
-    readonly_fields = ['file_medium', 'file_small']
+    readonly_fields = ['file_large', 'file_medium', 'file_small']
     
     def get_extra(self, request, obj=None, **kwargs):
         extra = 1

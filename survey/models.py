@@ -148,6 +148,9 @@ class Image(models.Model):
     name = models.CharField(
         max_length=20,
     )
+    file_original = models.ImageField(
+        upload_to=generate_unique_image_file_path,
+    )
     file_small = models.ImageField(
         editable=False,
         null=True,
@@ -159,6 +162,8 @@ class Image(models.Model):
         upload_to=generate_unique_image_file_path,
     )
     file_large = models.ImageField(
+        editable=False,
+        null=True,
         upload_to=generate_unique_image_file_path,
     )
 
