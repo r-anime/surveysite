@@ -33,13 +33,16 @@
     <div class="row mb-4">
         <div class="col-lg-4">
             <div class="row">
-                {% for field in responseform %}
-                    <div class="col-12 form-group">
-                        {{ field.errors }} {% comment %}TODO: Please customize this{% endcomment %}
-                        {{ field.label_tag }}
-                        {{ field }}
-                    </div>
-                {% endfor %}
+                <div class="col-12 form-group">
+                    {{ responseform.age.errors }}
+                    {{ responseform.age.label_tag }}
+                    {{ responseform.age }}
+                </div>
+                <div class="col-12 form-group">
+                    {{ responseform.gender.errors }}
+                    {{ responseform.gender.label_tag }}
+                    {{ responseform.gender }}
+                </div>
             </div>
         </div>
     </div>
@@ -96,6 +99,22 @@
         <p>No anime found!</p>
     {% endif %}
     <br>
+
+    <div class="row justify-content-end">
+        <div class="col-6 col-md-3 form-group form-check">
+            {{ responseform.link_user_to_response.errors }}
+            {{ responseform.link_user_to_response }}
+            {{ responseform.link_user_to_response.label_tag }}
+            <br>
+            <span class="text-muted" style="font-size:80%;">
+                {{ responseform.link_user_to_response.help_text }}
+            </span>
+        </div>
+    </div>
+
+    {% if response_public_id %}
+        <input type="hidden" id="response-id" name="response-id" value="{{ response_public_id }}">
+    {% endif %}
 
     <div class="row justify-content-between">
         <div class="col-auto">
