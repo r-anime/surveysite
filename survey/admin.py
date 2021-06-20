@@ -94,7 +94,7 @@ class ImageInlineFormSet(BaseInlineFormSet):
     def save_new(self, form, commit=True):
         model = super().save_new(form, False)
 
-        image_org = PIL.Image.open(model.file_large)
+        image_org = PIL.Image.open(model.file_original)
 
         # Try to remove alpha channel - not all non-RGB modes have an alpha channel, but this should not affect the output
         if image_org.mode !='RGB':
@@ -104,42 +104,63 @@ class ImageInlineFormSet(BaseInlineFormSet):
             if self.request:
                 messages.info(self.request, 'Removed alpha channel from image.')
 
+        image_formats = {
+            'jpg': {
+                'format': 'JPEG',
+                'extension': 'jpg',
+                'kwargs': {'quality': 80},
+            },
+            'png': {
+                'format': 'PNG',
+                'extension': 'png',
+                'kwargs': {},
+            },
+        }
         image_types = {
+            'original': {
+                'width': None,
+                'model_field': model.file_original,
+                'format': image_formats['png'],
+            },
             'large': {
                 'width': 600,
                 'model_field': model.file_large,
+                'format': image_formats['jpg'],
             },
             'medium': {
                 'width': 375,
                 'model_field': model.file_medium,
+                'format': image_formats['jpg'],
             },
             'small': {
                 'width': 150,
                 'model_field': model.file_small,
+                'format': image_formats['jpg'],
             },
         }
-        image_format = 'JPEG'
-        image_extension = '.jpg'
         image_base_name = str(uuid.uuid4()).split('-')[0]
 
         for image_type, image_values in image_types.items():
             image = image_org.copy()
 
             image_width = image_values['width']
-            image.thumbnail((image_width, image_width * 2))
+            if image_width:
+                image.thumbnail((image_width, image_width * 2))
+
+            image_format = image_values['format']
 
             content = BytesIO()
-            image.save(fp=content, format=image_format, quality=80)
+            image.save(fp=content, format=image_format['format'], **image_format['kwargs'])
 
-            image_name = image_base_name + '-' + image_type + image_extension
+            image_name = f'{image_base_name}-{image_type}.{image_format["extension"]}'
             image_values['model_field'].save(image_name, ContentFile(content.getvalue()))
 
         return model
 
-class ImageInline(admin.TabularInline):
+class ImageInline(admin.StackedInline):
     model = Image
     formset = ImageInlineFormSet
-    readonly_fields = ['file_medium', 'file_small']
+    readonly_fields = ['file_large', 'file_medium', 'file_small']
     
     def get_extra(self, request, obj=None, **kwargs):
         extra = 1
