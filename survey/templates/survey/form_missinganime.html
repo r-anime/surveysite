@@ -10,17 +10,17 @@
     Note:
 </span>
 <ul>
-    <li>Only <b>subbed</b> and <b>widely-available</b> anime will be added to the survey.</li>
+    <li>Only <b>subbed</b> and <b>widely-available</b> anime from this season will be added to the survey.</li>
     <li>
         OVAs and other irregularly-releasing anime will only be added
         {% if survey.is_preseason %}
             to pre-season surveys when they're <b>starting</b>
         {% else %}
-            to post-season surveys when they're <b>finishing</b>
+            to post-season surveys when they've been <b>fully subbed</b>
         {% endif %}
         this season.
     </li>
-    <li>Compilation movies and recaps will <b>not</b> be added.</li>
+    <li>Compilation movies and recaps will <b>not</b> be added unless they {% if survey.is_preseason %}will {% endif %}make noticable changes to the original.</li>
 </ul>
 
 <form id="form-missinganime" class="mb-1">
