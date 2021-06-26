@@ -21,3 +21,13 @@ function sendModalData(event) {
     );
     posting.done(displayModalContent);
 }
+
+$(window).on(
+    "beforeunload",
+    function(e) {
+        e.preventDefault();
+        // Newer browsers ignore the return value, but certain older browsers display this in the dialog.
+        e.returnValue = "Do you want to leave the survey page? Changes you made may not be saved.";
+        return "Do you want to leave the survey page? Changes you made may not be saved.";
+    }
+);
