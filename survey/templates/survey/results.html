@@ -6,8 +6,8 @@
 
 {% block head %}
 <link type="text/css" rel="stylesheet" href="{% static 'survey/css/results.css' %}">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.4.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-rc.1"></script>
 <script src="{% static 'survey/js/results-table-formatters.js' %}"></script>
 <script src="{% static 'survey/js/results.js' %}"></script>
 <script>
@@ -57,133 +57,91 @@
 
 
 <script>
-    const textColor = '#080421';
-    const distributionChartColor = '#537cf9'; //'rgb(54, 162, 235)';
-    const distributionChartDatalabelColor = textColor;//'rgb(96, 96, 96)';
-    const distributionChartGridColor = '#cce'
-    Chart.defaults.global.defaultFontColor = textColor;
+    const textColor = "#080421";
+    const chartDataColor = "#537cf9";
+    const chartDatalabelColor = textColor;
+    const chartGridColor = "#cce"
+    function chartPercentageFormatter(value) {
+        return value + "%";
+    }
 
-    const gdcCtx = document.getElementById('gender-distribution-chart').getContext('2d');
-    const gdcChart = new Chart(gdcCtx, {
-        type: 'bar',
+    Chart.defaults.color = textColor;
+    Chart.defaults.backgroundColor = chartDataColor;
+    Chart.defaults.borderColor = chartGridColor;
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.plugins.title.display = true;
+    Chart.defaults.plugins.tooltip.callbacks.label = function(tooltipItem) { return chartPercentageFormatter(tooltipItem.parsed.y); }
+
+    const gdcContext = $("#gender-distribution-chart")[0].getContext("2d");
+    new Chart(gdcContext, {
+        plugins: [ChartDataLabels],
+        type: "bar",
         data: {
-            labels: [{% for gender in gender_distribution.keys %}'{{ gender.name.lower|capfirst }}', {% endfor %}],
+            labels: [{% for gender in gender_distribution.keys %}"{{ gender.name.lower|capfirst }}", {% endfor %}],
             datasets: [{
-                label: 'Percentage of responders',
-                backgroundColor: distributionChartColor,
-                borderColor: distributionChartColor,
+                label: "Percentage of responders",
                 data: [{% for value in gender_distribution.values %}{{ value|floatformat:1 }}, {% endfor %}],
             }],
         },
         options: {
-            title: {
-                display: true,
-                text: 'Gender Distribution',
+            plugins: {
+                datalabels: {
+                    align: "top",
+                    anchor: "end",
+                    color: chartDatalabelColor,
+                    offset: 2,
+                    formatter: chartPercentageFormatter,
+                },
+                title: {
+                    text: "Gender Distribution",
+                },
             },
-            tooltips: {
-                callbacks: {
-                    label: function(tooltipItem, data) {
-                        let label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                        if (label) {
-                            label += ': ' + tooltipItem.yLabel + '%';
-                        }
-                        return label;
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                },
+                y: {
+                    max: 100,
+                    min: 0,
+                    ticks: {
+                        callback: chartPercentageFormatter,
                     },
                 },
             },
-            legend: {
-                display: false,
-            },
-            plugins: {
-                datalabels: {
-                    align: 'top',
-                    anchor: 'end',
-                    color: distributionChartDatalabelColor,
-                    offset: -2,
-                    formatter: function(value) {
-                        return value + '%';
-                    },
-                }
-            },
-            scales: {
-                xAxes: [{
-                    gridLines: {
-                        display: false,
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        },
-                        min: 0,
-                        max: 100,
-                    },
-                    gridLines: {
-                        color: distributionChartGridColor,
-                    },
-                }]
-            },
         },
     });
-
-    const adcCtx = document.getElementById('age-distribution-chart').getContext('2d');
-    const adcChart = new Chart(adcCtx, {
-        type: 'bar',
+    
+    const adcContext = $("#age-distribution-chart")[0].getContext("2d");
+    new Chart(adcContext, {
+        type: "bar",
         data: {
             labels: [{% for age in age_distribution.keys %}{{ age }}, {% endfor %}],
             datasets: [{
-                label: 'Percentage of responders',
-                backgroundColor: distributionChartColor,
-                borderColor: distributionChartColor,
+                label: "Percentage of responders",
                 data: [{% for value in age_distribution.values %}{{ value|floatformat:2 }}, {% endfor %}],
             }],
         },
         options: {
-            title: {
-                display: true,
-                text: 'Age Distribution',
-            },
-            tooltips: {
-                callbacks: {
-                    label: function(tooltipItem, data) {
-                        let label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                        if (label) {
-                            label += ': ' + tooltipItem.yLabel + '%';
-                        }
-                        return label;
-                    },
+            plugins: {
+                title: {
+                    text: "Age Distribution",
                 },
             },
-            legend: {
-                display: false,
-            },
-            plugins: {
-                datalabels: {
-                    display: false,
-                }
-            },
             scales: {
-                xAxes: [{
-                    gridLines: {
-                        color: distributionChartGridColor,
-                        offsetGridLines: false,
-                    }
-                }],
-                yAxes: [{
+                x: {
+                    grid: {
+                        offset: false,
+                    },
+                },
+                y: {
+                    max: Math.round({{ age_distribution_max }} * 1.1 + 0.5),
+                    min: 0,
                     ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        },
-                        min: 0,
-                        max: Math.round({{ age_distribution_max }} * 1.1 + 0.5),
+                        callback: chartPercentageFormatter,
                     },
-                    gridLines: {
-                        color: distributionChartGridColor,
-                    },
-                }]
+                },
             },
         },
     });
