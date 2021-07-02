@@ -213,33 +213,30 @@ class AnimeAdmin(admin.ModelAdmin):
         'has_image',
     ]
 
+    @admin.display(ordering=Concat('start_year', 'start_season'), description='Start')
     def get_start_year_season(self, anime):
         if anime.start_year is not None and anime.start_season is not None:
             return str(anime.start_year) + ' Q' + str(anime.start_season + 1)
         else:
             return None
-    get_start_year_season.short_description = 'Start'
-    get_start_year_season.admin_order_field = Concat('start_year', 'start_season')
 
+    @admin.display(ordering=Concat('end_year', 'end_season'), description='End')
     def get_end_year_season(self, anime):
         if anime.end_year is not None and anime.end_season is not None:
             return str(anime.end_year) + ' Q' + str(anime.end_season + 1)
         else:
             return None
-    get_end_year_season.short_description = 'End'
-    get_end_year_season.admin_order_field = Concat('end_year', 'end_season')
 
+    @admin.display(ordering=Concat('subbed_year', 'subbed_season'), description='Subbed')
     def get_subbed_year_season(self, anime):
         if anime.subbed_year is not None and anime.subbed_season is not None:
             return str(anime.subbed_year) + ' Q' + str(anime.subbed_season + 1)
         else:
             return None
-    get_subbed_year_season.short_description = 'Subbed'
-    get_subbed_year_season.admin_order_field = Concat('subbed_year', 'subbed_season')
 
+    @admin.display(boolean=True, description='Has Image')
     def has_image(self, anime):
-        return 'Yes' if anime.image_set.count() > 0 else None
-    has_image.short_description = 'Has image'
+        return anime.image_set.count() > 0
 
     def get_survey_validity_list(self, anime):
         survey_validity_list = []
@@ -334,9 +331,9 @@ class ResponseAdmin(admin.ModelAdmin):
         'get_anime_response_count',
     ]
 
+    @admin.display(description='Response Count')
     def get_anime_response_count(self, response):
         return response.animeresponse_set.count()
-    get_anime_response_count.short_description = 'Response Count'
 
 class SurveyAdmin(admin.ModelAdmin):
     fields = [

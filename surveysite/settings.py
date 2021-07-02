@@ -95,6 +95,10 @@ TEMPLATES = [
     },
 ]
 
+# Explicitly set the default type of primary fields of models to AutoField - in the future, Django will use BigAutoField by default
+# https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
