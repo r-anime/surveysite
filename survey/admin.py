@@ -338,15 +338,13 @@ class ResponseAdmin(admin.ModelAdmin):
 class SurveyAdmin(admin.ModelAdmin):
     fields = [
         'is_preseason',
-        'is_ongoing',
+        ('opening_time', 'closing_time'),
         ('year', 'season')
     ]
     list_display = [
         '__str__',
-        'is_ongoing',
-    ]
-    list_editable = [
-        'is_ongoing',
+        'opening_time',
+        'closing_time'
     ]
     inlines = [SurveyAdditionRemovalInline]
 

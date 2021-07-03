@@ -1,6 +1,8 @@
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 import uuid
@@ -191,9 +193,8 @@ class Survey(models.Model):
 
     # Fields
     is_preseason = models.BooleanField()
-    is_ongoing = models.BooleanField(
-        default=False,
-    )
+    opening_time = models.DateTimeField()
+    closing_time = models.DateTimeField()
 
     def get_relevant_year(): return datetime.now().year + (1 if datetime.now().month // 4 + 1 == 4 else 0),
     def get_relevant_season(): return Anime.AnimeSeason((datetime.now().month // 4 + 1) % 4)
@@ -206,6 +207,11 @@ class Survey(models.Model):
         choices=Anime.AnimeSeason.choices,
         default=get_relevant_season,
     )
+
+    def clean(self):
+        super().clean()
+        if self.closing_time <= self.opening_time:
+            raise ValidationError({'closing_time': 'The closing time must be after the opening time.'})
 
     def __str__(self):
         return 'The ' + ('Start' if self.is_preseason else 'End') + ' of ' + Anime.AnimeSeason.labels[self.season] + ' ' + str(self.year) + ' Survey'
