@@ -1,4 +1,6 @@
-{% if survey.is_ongoing %}
+{% if survey.state.name|lower == 'upcoming' %}
+    {% include 'survey/index_survey_upcoming.html' %}
+{% elif survey.state.name|lower == 'ongoing' %}
     {% include 'survey/index_survey_ongoing.html' %}
 {% else %}
     {% include 'survey/index_survey_finished.html' %}

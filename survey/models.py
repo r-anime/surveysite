@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
+from enum import Enum, auto
 import uuid
 
 class Anime(models.Model):
@@ -207,6 +208,23 @@ class Survey(models.Model):
         choices=Anime.AnimeSeason.choices,
         default=get_relevant_season,
     )
+
+
+    class State(Enum):
+        UPCOMING = auto()
+        ONGOING = auto()
+        FINISHED = auto()
+
+    @property
+    def state(self):
+        now = timezone.now()
+        if now < self.opening_time:
+            return Survey.State.UPCOMING
+        elif self.closing_time < now:
+            return Survey.State.FINISHED
+        else:
+            return Survey.State.ONGOING
+
 
     def clean(self):
         super().clean()

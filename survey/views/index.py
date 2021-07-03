@@ -26,7 +26,7 @@ class IndexView(UserMixin, TemplateView):
                 items[year][season][pre_or_post] = {}
             items[year][season][pre_or_post]['survey'] = survey
 
-            if survey.is_ongoing:
+            if survey.state != Survey.State.FINISHED:
                 anime_queryset, _, _ = SurveyUtil.get_survey_anime(survey)
                 items[year][season][pre_or_post]['data'] = Image.objects.filter(anime__in=anime_queryset).order_by('?')[:12]
             else:
