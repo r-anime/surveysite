@@ -37,7 +37,8 @@ class IndexView(UserMixin, TemplateView):
                 resulttype_list = [ResultsType.POPULARITY, ResultsType.SCORE]
                 for resulttype in resulttype_list:
                     sorted_results = sorted(anime_series_results.items(), key=lambda value: value[1][resulttype], reverse=True)
-                    survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2]]
+                    survey_results[resulttype] = [{'anime': anime, 'value': results[resulttype]} for anime, results in sorted_results[:2] if results[ResultsType.POPULARITY] > 2.0]
+                    survey_results[resulttype].extend([None] * (2 - len(survey_results[resulttype])))
         
         context['items'] = items
         return context

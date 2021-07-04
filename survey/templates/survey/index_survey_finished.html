@@ -28,7 +28,9 @@
                 <div class="row px-1 align-items-center" style="font-size:70%;">
                     {% for anime_value_pair in resulttype_results %}
                         <div class="col px-1{% if not forloop.first %} d-lg-flex d-none{% endif %}">
-                            {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                            {% if anime_value_pair %}
+                                {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
