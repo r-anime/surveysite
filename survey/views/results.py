@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.core.cache import caches
 from enum import Enum, auto
 import json
-from survey.models import AnimeResponse, Response, SurveyAdditionRemoval
+from survey.models import AnimeResponse, Response, Survey, SurveyAdditionRemoval
 from survey.util import SurveyUtil, AnimeUtil
 from .mixins import SurveyMixin, UserMixin
 
@@ -16,7 +16,7 @@ class BaseResultsView(UserMixin, SurveyMixin, TemplateView):
         survey = self.get_survey()
 
         # Only display results if the survey is not ongoing, or if the user is staff
-        if survey.is_ongoing and not request.user.is_staff:
+        if survey.state != Survey.State.FINISHED and not request.user.is_staff:
             return redirect('survey:form', survey.year, survey.season, 'pre' if survey.is_preseason else 'post')
         else:
             return super().get(self, request, *args, **kwargs)
@@ -223,7 +223,7 @@ class ResultsGenerator:
         ({Anime: {ResultsType: any}}, {Anime: {ResultsType: any}})
             A dict for anime series and one for special anime, where each anime has an associated dict of result values.
         """
-        if self.survey.is_ongoing:
+        if self.survey.state != Survey.State.FINISHED:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = SurveyUtil.get_survey_cache_timeout(self.survey)

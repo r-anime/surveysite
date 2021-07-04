@@ -26,7 +26,6 @@
     </b-modal>
 </div>
 
-{% if survey.is_ongoing %}
 <form id="form" action="{% url 'survey:form' survey.year survey.season survey.is_preseason|yesno:'pre,post' %}" method="post">
     {% csrf_token %}
 
@@ -125,18 +124,6 @@
         </div>
     </div>
 </form>
-
-{% else %}
-<p>The survey is closed!</p>
-
-<div class="row justify-content-between">
-    <div class="col-auto">
-        <a href="{% url 'survey:index' %}" class="btn btn-secondary">Back to index</a>
-    </div>
-    <div class="col-auto">
-    </div>
-</div>
-{% endif %}
 
 <script>
     let vueModal = new Vue({

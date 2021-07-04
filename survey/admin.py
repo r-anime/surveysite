@@ -1,10 +1,12 @@
 from django.contrib import admin, messages
-from django.forms.models import BaseInlineFormSet
+from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
-from django.core.files.base import ContentFile
-from django.core.cache import cache
+from django.forms.models import BaseInlineFormSet
+from django.utils import timezone
 from datetime import datetime
+
 from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
 from .util import AnimeUtil
 from io import StringIO, BytesIO
@@ -280,7 +282,8 @@ class AnimeAdmin(admin.ModelAdmin):
         super().save_model(request, anime, form, change)
         cache.clear()
         
-        ongoing_survey_queryset = Survey.objects.filter(is_ongoing=True)
+        now = timezone.now()
+        ongoing_survey_queryset = Survey.objects.filter(opening_time__lt=now, closing_time__gte=now)
         for survey in ongoing_survey_queryset:
             survey_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
             
@@ -338,15 +341,13 @@ class ResponseAdmin(admin.ModelAdmin):
 class SurveyAdmin(admin.ModelAdmin):
     fields = [
         'is_preseason',
-        'is_ongoing',
+        ('opening_time', 'closing_time'),
         ('year', 'season')
     ]
     list_display = [
         '__str__',
-        'is_ongoing',
-    ]
-    list_editable = [
-        'is_ongoing',
+        'opening_time',
+        'closing_time'
     ]
     inlines = [SurveyAdditionRemovalInline]
 

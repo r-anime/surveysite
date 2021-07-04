@@ -1,6 +1,7 @@
 from logging import exception
 from django.contrib import messages
 from django.shortcuts import redirect
+from survey.models import Survey
 from survey.util import SurveyUtil
 
 class RequireSurveyOngoingMixin:
@@ -9,7 +10,7 @@ class RequireSurveyOngoingMixin:
             raise exception('RequireSurveyOngoingMixin requires the use of SurveyMixin.')
 
         survey = self.get_survey()
-        if not survey.is_ongoing:
+        if survey.state != Survey.State.ONGOING and not request.user.is_staff:
             messages.error(request, str(survey) + ' is closed!')
             return redirect('survey:index')
         return super().dispatch(request, *args, **kwargs)
