@@ -70,7 +70,10 @@ class ResultsView(BaseResultsView):
         root_item = SegmentGroup('', is_root=True, children=[
             SegmentGroup('Popularity', [
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                HiddenSegmentGroup('Popularity - By Gender', [
+                    TablePairSegment('Most Popular Anime by Gender', ResultsType.POPULARITY_MALE, ResultsType.POPULARITY_FEMALE, row_count=5),
+                    TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, extra_result_type=ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                ]),
                 HiddenSegmentGroup('Popularity - Miscellaneous', [
                     _(TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5)),
                     TablePairSegment('Average Age per Anime', ResultsType.AGE, row_count=3),
@@ -78,7 +81,7 @@ class ResultsView(BaseResultsView):
             ]),
             SegmentGroup('Impressions', [
                 TableWithTop3Segment(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, extra_result_type=ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
                 _(TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5)),
                 _(TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5)),
             ]),
@@ -165,11 +168,12 @@ class HiddenSegmentGroup(SegmentGroup):
 
 
 class TableBaseSegment(Segment):
-    def __init__(self, item_type, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
+    def __init__(self, item_type, title, main_result_type, inverse_result_type=None, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(item_type, title)
 
         self.is_for_series = is_for_series
         self.main_result_type = main_result_type
+        self.inverse_result_type = inverse_result_type
         self.extra_result_type = extra_result_type
         self.top_count = top_count
         self.bottom_count = bottom_count
@@ -178,12 +182,12 @@ class TableBaseSegment(Segment):
 
 class TableWithTop3Segment(TableBaseSegment):
     def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(SegmentType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, description, is_for_series, top_count, bottom_count)
+        super().__init__(SegmentType.TABLE_WITH_TOP3, title, main_result_type, None, extra_result_type, description, is_for_series, top_count, bottom_count)
 
 
 class TablePairSegment(TableBaseSegment):
-    def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, row_count=None):
-        super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, extra_result_type, description, is_for_series, row_count)
+    def __init__(self, title, main_result_type, inverse_result_type=None, extra_result_type=None, description=None, is_for_series=True, row_count=None):
+        super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, inverse_result_type, extra_result_type, description, is_for_series, row_count)
 #endregion
 
 
@@ -232,7 +236,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = SurveyUtil.get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=2, timeout=cache_timeout)
 
     # Please refactor this sometime
     def __get_anime_results_data_internal(self):
@@ -284,8 +288,8 @@ class ResultsGenerator:
 
         return {
             ResultsType.POPULARITY:                  div0(       watcher_response_count, scaled_total_response_count) * 100.0,
-            ResultsType.POPULARITY_MALE:             div0(  male_watcher_response_count, scaled_total_response_count) * 100.0,
-            ResultsType.POPULARITY_FEMALE:           div0(female_watcher_response_count, scaled_total_response_count) * 100.0,
+            ResultsType.POPULARITY_MALE:             div0(  male_watcher_response_count,   total_male_response_count) * 100.0,
+            ResultsType.POPULARITY_FEMALE:           div0(female_watcher_response_count, total_female_response_count) * 100.0,
             ResultsType.GENDER_POPULARITY_RATIO:     gender_popularity_ratio,
             ResultsType.GENDER_POPULARITY_RATIO_INV: gender_popularity_ratio_inv,
             ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count) * 100.0,

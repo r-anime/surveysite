@@ -22,6 +22,16 @@ const columnTypes = {
         label: "Pop\u00adu\u00adlar\u00adi\u00adty",
         formatter: percentageFormatter,
     },
+    popularity_male: {
+        key: "popularity_male",
+        label: "Pop\u00adu\u00adlar\u00adi\u00adty (Male)",
+        formatter: percentageFormatter,
+    },
+    popularity_female: {
+        key: "popularity_female",
+        label: "Pop\u00adu\u00adlar\u00adi\u00adty (Female)",
+        formatter: percentageFormatter,
+    },
     gender_popularity_ratio: {
         key: "gender_popularity_ratio",
         label: "Gen\u00adder Ra\u00adtio",
@@ -40,6 +50,16 @@ const columnTypes = {
     score: {
         key: "score",
         label: "Score",
+        formatter: scoreFormatter,
+    },
+    score_male: {
+        key: "score_male",
+        label: "Score (Male)",
+        formatter: scoreFormatter,
+    },
+    score_female: {
+        key: "score_female",
+        label: "Score (Female)",
         formatter: scoreFormatter,
     },
     gender_score_difference: {

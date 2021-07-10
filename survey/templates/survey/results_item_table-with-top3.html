@@ -1,5 +1,5 @@
 {% with item_id=item.id|stringformat:'i' %}
-{% with table_items_var='tableItems'|add:item_id %}
+{% with table_items_var='tableItems'|add:item_id table_fields_var='tableColumns'|add:item_id %}
 
 <h5 class="table-title mb-4">{{ item.title }}</h5>
 
@@ -83,7 +83,7 @@
         </div>
     </div>
     <div class="col-md col-12 table-with-top3">
-        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var table_fields_var=table_fields_var item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
 </div>
 

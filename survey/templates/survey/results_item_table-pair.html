@@ -1,5 +1,5 @@
 {% with item_id=item.id|stringformat:'i' %}
-{% with table_items_left_var='tableItems'|add:item_id|add:'Left' table_items_right_var='tableItems'|add:item_id|add:'Right' %}
+{% with table_items_left_var='tableItems'|add:item_id|add:'Left' table_items_right_var='tableItems'|add:item_id|add:'Right' table_fields_left_var='tableColumns'|add:item_id|add:'Left' table_fields_right_var='tableColumns'|add:item_id|add:'Right' %}
 
 <h5 class="table-title mb-4">{{ item.title }}</h5>
 
@@ -9,10 +9,14 @@
 
 <div class="row mb-5 no-gutters table-duo" id="results-table-{{ item.id }}">
     <div class="col-md-6 col-12 pl-md-1 pr-md-3">
-        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_left_var  item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_left_var table_fields_var=table_fields_left_var survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
     <div class="col-md-6 col-12 pl-md-3 pr-md-1">
-        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_right_var item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% if item.inverse_result_type %}
+            {% include 'survey/results_item_table-base.html' with table_items_var=table_items_right_var table_fields_var=table_fields_right_var survey=survey main_result_type=item.inverse_result_type.name|lower only%}
+        {% else %}
+            {% include 'survey/results_item_table-base.html' with table_items_var=table_items_right_var table_fields_var=table_fields_left_var survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% endif %}
     </div>
 </div>
 
