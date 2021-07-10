@@ -1,10 +1,12 @@
 <div>
     <b-button v-b-toggle.collapse-{{ item.id }} class="w-100 mb-4 hidden-group">
         <h{{ depth }}>
+            <span class="collapse-button-show-text">Show</span>
+            <span class="collapse-button-hide-text">Hide</span>
             {% if item.title %}
-                Show {{ item.title }}
+                {{ item.title }}
             {% else %}
-                Show content
+                content
             {% endif %}
         </h{{ depth }}>
     </b-button>

@@ -19,6 +19,23 @@ h4 {
     }
 }
 
+.hidden-group.collapsed {
+    .collapse-button-show-text {
+        display: initial;
+    }
+    .collapse-button-hide-text {
+        display: none;
+    }
+}
+.hidden-group.not-collapsed {
+    .collapse-button-show-text {
+        display: none;
+    }
+    .collapse-button-hide-test {
+        display: initial;
+    }
+}
+
 th div {
     hyphens: manual;
 }
