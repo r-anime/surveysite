@@ -6,6 +6,8 @@
     {% for child in item.children %}{% with item_type=child.item_type.name %}
         {% if item_type == 'GROUP' %}
             {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}
+        {% elif item_type == 'HIDDEN_GROUP' %}
+            {% include 'survey/results_item_hidden-group.html' with depth=depth|add:'1' survey=survey item=child only %}
         {% elif item_type == 'TABLE_WITH_TOP3' %}
             {% include 'survey/results_item_table-with-top3.html' with depth=depth|add:'1' survey=survey item=child only %}
         {% elif item_type == 'TABLE_PAIR' %}

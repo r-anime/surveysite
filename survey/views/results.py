@@ -68,7 +68,7 @@ class ResultsView(BaseResultsView):
             SegmentGroup('Popularity', [
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
                 TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
-                SegmentGroup('Popularity - Miscellaneous', [
+                HiddenSegmentGroup('Popularity - Miscellaneous', [
                     EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
                     TablePairSegment('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
@@ -125,6 +125,7 @@ class ResultsView(BaseResultsView):
 class SegmentType(Enum):
     EMPTY = auto()
     GROUP = auto()
+    HIDDEN_GROUP = auto()
     TABLE_WITH_TOP3 = auto()
     TABLE_PAIR = auto()
 
@@ -143,11 +144,9 @@ class EmptySegment(Segment):
         super().__init__(SegmentType.EMPTY, None)
 
 class SegmentGroup(Segment):
-    def __init__(self, title, children=[], is_root=False):
-        super().__init__(SegmentType.GROUP, title)
-
+    def __init__(self, title, children=[], is_root=False, item_type=SegmentType.GROUP):
+        super().__init__(item_type, title)
         self.children = children
-
         if is_root:
             self._set_id(0)
     
@@ -156,6 +155,10 @@ class SegmentGroup(Segment):
         for child in self.children:
             next_id = child._set_id(next_id)
         return next_id
+
+class HiddenSegmentGroup(SegmentGroup):
+    def __init__(self, title, children=[], is_root=False):
+        super().__init__(title, children, is_root, SegmentType.HIDDEN_GROUP)
 
 
 

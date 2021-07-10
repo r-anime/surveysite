@@ -1,6 +1,6 @@
 <div class="row row-cols-1">
     <div class="col">
-        <b-table-lite hover small borderless :items="{{ table_items_var }}" :fields="fields">
+        <b-table-lite hover small borderless :items="{{ table_items_var }}" :fields="tableColumns{{ item_id }}">
             <template #cell(rank)="data">
                 <template v-if="data.value">
                     #{$ data.value $}

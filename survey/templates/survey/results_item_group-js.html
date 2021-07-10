@@ -1,0 +1,11 @@
+{% for child in item.children %}{% with item_type=child.item_type.name %}
+    {% if item_type == 'GROUP' or item_type == 'HIDDEN_GROUP' %}
+        {% include 'survey/results_item_group-js.html' with depth=depth|add:'1' survey=survey item=child only %}
+    {% elif item_type == 'TABLE_WITH_TOP3' %}
+        {% include 'survey/results_item_table-with-top3-js.html' with depth=depth|add:'1' survey=survey item=child only %}
+    {% elif item_type == 'TABLE_PAIR' %}
+        {% include 'survey/results_item_table-pair-js.html' with depth=depth|add:'1' survey=survey item=child only %}
+    {% elif item_type == 'EMPTY' %}
+    {% else %}
+    {% endif %}
+{% endwith %}{% endfor %}

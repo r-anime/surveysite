@@ -1,4 +1,5 @@
-{% with table_items_var='items' %}
+{% with item_id=item.id|stringformat:'i' %}
+{% with table_items_var='tableItems'|add:item_id %}
 
 <h5 class="table-title mb-4">{{ item.title }}</h5>
 
@@ -82,39 +83,9 @@
         </div>
     </div>
     <div class="col-md col-12 table-with-top3">
-        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
 </div>
 
-<script>
-const tableMainResult{{ item.id }} = "{{ item.main_result_type.name|lower }}";
-const tableExtraResult{{ item.id }} = "{{ item.extra_result_type.name|lower|default:'' }}";
-
-const tableColumns{{ item.id }} = [
-    columnTypes["rank"],
-    columnTypes["image"],
-    columnTypes["name"],
-].concat(
-    [setColumnCssClass(columnTypes[tableMainResult{{ item.id }}], "table-col-main")],
-    tableExtraResult{{ item.id }} ? [setColumnCssClass(columnTypes[tableExtraResult{{ item.id }}], "table-col-extra")] : []
-);
-
-const tableItems{{ item.id }} = processData(
-    getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
-    tableMainResult{{ item.id }},
-    true,
-    {{ item.top_count|default:'null' }},
-    {{ item.bottom_count|default:'null' }}
-);
-
-new Vue({
-    el: "#results-table-{{ item.id }}",
-    delimiters: ["{$", "$}"],
-    data: {
-        fields: tableColumns{{ item.id }},
-        {{ table_items_var }}: tableItems{{ item.id }},
-    },
-});
-</script>
-
+{% endwith %}
 {% endwith %}

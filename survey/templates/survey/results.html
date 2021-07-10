@@ -43,7 +43,9 @@
 </div>
 
 
-{% include 'survey/results_item_group.html' with depth=2 item=root_item survey=survey only%}
+<div id="results-content">
+    {% include 'survey/results_item_group.html' with depth=2 item=root_item survey=survey only%}
+</div>
 
 
 <div class="row justify-content-between mt-3">
@@ -55,8 +57,19 @@
     </div>
 </div>
 
+<script>
+    const data = {};
+</script>
+
+{% include 'survey/results_item_group-js.html' with item=root_item survey=survey only %}
 
 <script>
+    new Vue({
+        el: "#results-content",
+        delimiters: ["{$", "$}"],
+        data: data,
+    });
+
     const textColor = "#080421";
     const chartDataColor = "#537cf9";
     const chartDatalabelColor = textColor;
