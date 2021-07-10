@@ -146,6 +146,8 @@ function processData(tableItems, sortKey, sortDesc, topCount, bottomCount) {
     let pbValueConversion = function(value) { return value };
     switch (sortKey) {
         case "score":
+        case "score_male":
+        case "score_female":
             pbMin = 1.0;
             pbMax = 5.0;
             break;
