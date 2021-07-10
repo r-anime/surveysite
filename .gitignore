@@ -15,6 +15,7 @@ cache/*.djcache
 */static/**/css/*
 
 startserver.ps1
+*.bat
 *.tsv
 
 # Backup files # 

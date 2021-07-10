@@ -59,6 +59,16 @@ const columnTypes = {
         label: "Pop\u00adu\u00adlar\u00adi\u00adty",
         formatter: percentageFormatter,
     },
+    popularity_male: {
+        key: "popularity_male",
+        label: "Pop\u00adu\u00adlar\u00adi\u00adty (Male)",
+        formatter: percentageFormatter,
+    },
+    popularity_female: {
+        key: "popularity_female",
+        label: "Pop\u00adu\u00adlar\u00adi\u00adty (Female)",
+        formatter: percentageFormatter,
+    },
     gender_popularity_ratio: {
         key: "gender_popularity_ratio",
         label: "Gen\u00adder Ra\u00adtio",
@@ -77,6 +87,16 @@ const columnTypes = {
     score: {
         key: "score",
         label: "Score",
+        formatter: scoreFormatter,
+    },
+    score_male: {
+        key: "score_male",
+        label: "Score (Male)",
+        formatter: scoreFormatter,
+    },
+    score_female: {
+        key: "score_female",
+        label: "Score (Female)",
         formatter: scoreFormatter,
     },
     gender_score_difference: {
@@ -106,12 +126,16 @@ for (let column_idx in columnTypes) {
 const animeSeriesColumns = [].concat([
     columnTypes["name"],
     columnTypes["popularity"],
+    columnTypes["popularity_male"],
+    columnTypes["popularity_female"],
     columnTypes["gender_popularity_ratio"],
     columnTypes["age"]],
     !surveyIsPreseason ? [
         columnTypes["underwatched"]
     ] : [], [
     columnTypes["score"],
+    columnTypes["score_male"],
+    columnTypes["score_female"],
     columnTypes["gender_score_difference"]],
     !surveyIsPreseason ? [
         columnTypes["surprise"], columnTypes["disappointment"]
