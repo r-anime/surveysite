@@ -1,41 +1,34 @@
+<div>
+    <b-button v-b-toggle.collapse-{{ item.id }} class="w-100 mb-4 hidden-group">
+        <h{{ depth }}>
+            {% if item.title %}
+                Show {{ item.title }}
+            {% else %}
+                Show content
+            {% endif %}
+        </h{{ depth }}>
+    </b-button>
+    <b-collapse id="collapse-{{ item.id }}" class="mt-2">
+        <b-card>
 
-
-<div class="accordion" id="accordionExample">
-    <div class="card">
-        <div class="card-header" id="headingOne">
-            <h2 class="mb-0">
-                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <span class="rounded shadow">
-                        {% if item.title %}
-                            {{ item.title }}
-                        {% else %}
-                            Show content
-                        {% endif %}
-                    </span>
-                </button>
-            </h2>
-        </div>
-
-        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-            <div class="card-body">
-                <div class="container-fluid mt-4 px-2 bg-lighter">
-                    {% for child in item.children %}{% with item_type=child.item_type.name %}
-                        {% if item_type == 'GROUP' %}
-                            {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}
-                        {% elif item_type == 'HIDDEN_GROUP' %}
-                            {% include 'survey/results_item_hidden-group.html' with depth=depth|add:'1' survey=survey item=child only %}
-                        {% elif item_type == 'TABLE_WITH_TOP3' %}
-                            {% include 'survey/results_item_table-with-top3.html' with depth=depth|add:'1' survey=survey item=child only %}
-                        {% elif item_type == 'TABLE_PAIR' %}
-                            {% include 'survey/results_item_table-pair.html' with depth=depth|add:'1' survey=survey item=child only %}
-                        {% elif item_type == 'EMPTY' %}
-                        {% else %}
-                            <h{{ depth|add:'1' }}>{{ child.title }}</h{{ depth|add:'1' }}>
-                            <p>Unknown item type: {{ item_type }}</p>
-                        {% endif %}
-                    {% endwith %}{% endfor %}
-                </div>
+            <div class="container-fluid mt-4 px-2 bg-lighter">
+                {% for child in item.children %}{% with item_type=child.item_type.name %}
+                    {% if item_type == 'GROUP' %}
+                        {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'HIDDEN_GROUP' %}
+                        {% include 'survey/results_item_hidden-group.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'TABLE_WITH_TOP3' %}
+                        {% include 'survey/results_item_table-with-top3.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'TABLE_PAIR' %}
+                        {% include 'survey/results_item_table-pair.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'EMPTY' %}
+                    {% else %}
+                        <h{{ depth|add:'1' }}>{{ child.title }}</h{{ depth|add:'1' }}>
+                        <p>Unknown item type: {{ item_type }}</p>
+                    {% endif %}
+                {% endwith %}{% endfor %}
             </div>
-        </div>
-    </div>
+
+        </b-card>
+    </b-collapse>
 </div>

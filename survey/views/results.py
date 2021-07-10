@@ -64,24 +64,27 @@ class ResultsView(BaseResultsView):
     def __get_segments(self):
         survey = self.get_survey()
 
+        # For segments that are post-season survey exclusive
+        _ = lambda segment: EmptySegment() if survey.is_preseason else segment
+
         root_item = SegmentGroup('', is_root=True, children=[
             SegmentGroup('Popularity', [
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
                 TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
                 HiddenSegmentGroup('Popularity - Miscellaneous', [
-                    EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
+                    _(TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5)),
                     TablePairSegment('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
             SegmentGroup('Impressions', [
                 TableWithTop3Segment(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
                 TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+                _(TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5)),
+                _(TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5)),
             ]),
             SegmentGroup('Anime OVAs / ONAs / Movies / Specials', [
                 TableWithTop3Segment('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
+                _(TableWithTop3Segment('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5)),
             ]),
         ])
 
@@ -159,7 +162,6 @@ class SegmentGroup(Segment):
 class HiddenSegmentGroup(SegmentGroup):
     def __init__(self, title, children=[], is_root=False):
         super().__init__(title, children, is_root, SegmentType.HIDDEN_GROUP)
-
 
 
 class TableBaseSegment(Segment):

@@ -3,10 +3,20 @@
 h1, h2, h3, h4 {
     background-color: #537cf9;
     color: #f4f4fc;
+}
+h1, h2, h3 {
     padding: 13px;
 }
 h4 {
     padding: 7px;
+}
+
+.hidden-group {
+    padding: 0px;
+
+    h1, h2, h3, h4 {
+        margin: 0px;
+    }
 }
 
 th div {
