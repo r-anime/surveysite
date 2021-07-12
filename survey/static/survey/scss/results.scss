@@ -11,15 +11,21 @@ h4 {
     padding: 7px;
 }
 
-.hidden-group {
+.hidden-group-button {
     padding: 0px;
+    background-color: transparent!important;
+    border-color: transparent!important;
+    color: initial!important;
 
     h1, h2, h3, h4 {
         margin: 0px;
     }
+    h1:hover, h2:hover, h3:hover, h4:hover {
+        background-color: scale-color($color: #537cf9, $lightness: -20%)!important;
+    }
 }
 
-.hidden-group.collapsed {
+.hidden-group-button.collapsed {
     .collapse-button-show-text {
         display: initial;
     }
@@ -27,7 +33,7 @@ h4 {
         display: none;
     }
 }
-.hidden-group.not-collapsed {
+.hidden-group-button.not-collapsed {
     .collapse-button-show-text {
         display: none;
     }

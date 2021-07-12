@@ -1,6 +1,6 @@
-<div>
-    <b-button v-b-toggle.collapse-{{ item.id }} class="w-100 mb-4 hidden-group">
-        <h{{ depth }}>
+<div class="px-2 mt-4">
+    <b-button v-b-toggle.collapse-{{ item.id }} variant="light" class="w-100 hidden-group-button">
+        <h{{ depth }} class="rounded shadow">
             <span class="collapse-button-show-text">Show</span>
             <span class="collapse-button-hide-text">Hide</span>
             {% if item.title %}
@@ -10,10 +10,10 @@
             {% endif %}
         </h{{ depth }}>
     </b-button>
-    <b-collapse id="collapse-{{ item.id }}" class="mt-2">
+    <b-collapse id="collapse-{{ item.id }}" class="mt-1">
         <b-card>
 
-            <div class="container-fluid mt-4 px-2 bg-lighter">
+            <div class="container-fluid bg-lighter">
                 {% for child in item.children %}{% with item_type=child.item_type.name %}
                     {% if item_type == 'GROUP' %}
                         {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}

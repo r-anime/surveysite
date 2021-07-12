@@ -1,8 +1,8 @@
 {% if item.title %}
-<h{{ depth }} class="rounded shadow">{{ item.title }}</h{{ depth }}>
+<h{{ depth }} class="rounded shadow mt-4">{{ item.title }}</h{{ depth }}>
 {% endif %}
 
-<div class="container-fluid mt-4 px-2 bg-lighter">
+<div class="container-fluid px-2 bg-lighter">
     {% for child in item.children %}{% with item_type=child.item_type.name %}
         {% if item_type == 'GROUP' %}
             {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}
