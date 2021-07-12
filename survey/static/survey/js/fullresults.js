@@ -123,19 +123,21 @@ for (let column_idx in columnTypes) {
     column["tdClass"] = column["thClass"];
 }
 
+// TODO: Commenting away gender-specific result types is only done
+// because the full results table as it is now is simply too wide to fit on the page.
 const animeSeriesColumns = [].concat([
     columnTypes["name"],
     columnTypes["popularity"],
-    columnTypes["popularity_male"],
-    columnTypes["popularity_female"],
+    //columnTypes["popularity_male"],
+    //columnTypes["popularity_female"],
     columnTypes["gender_popularity_ratio"],
     columnTypes["age"]],
     !surveyIsPreseason ? [
         columnTypes["underwatched"]
     ] : [], [
     columnTypes["score"],
-    columnTypes["score_male"],
-    columnTypes["score_female"],
+    //columnTypes["score_male"],
+    //columnTypes["score_female"],
     columnTypes["gender_score_difference"]],
     !surveyIsPreseason ? [
         columnTypes["surprise"], columnTypes["disappointment"]
@@ -144,12 +146,23 @@ const animeSeriesColumns = [].concat([
 const specialAnimeColumns = [].concat([
     columnTypes["name"],
     columnTypes["popularity"],
+    //columnTypes["popularity_male"],
+    //columnTypes["popularity_female"],
     columnTypes["gender_popularity_ratio"],
     columnTypes["age"]],
     !surveyIsPreseason ? [
-        columnTypes["score"], columnTypes["gender_score_difference"]
+        columnTypes["score"], columnTypes["gender_score_difference"], //columnTypes["score_male"], columnTypes["score_female"],
     ] : []
 );
+
+// TODO: Gender-specific result types are currently not displayed on the full results page,
+// so the sorting column has to be the non-gender specific one. See the note above.
+if (sortBy === "popularity_male" || sortBy === "popularity_female") {
+    sortBy = "popularity";
+}
+else if (sortBy === "score_male" || sortBy === "score_female") {
+    sortBy = "score";
+}
 
 new Vue({
     el: "#" + animeSeriesTableId,
