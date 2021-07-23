@@ -64,24 +64,35 @@ class ResultsView(BaseResultsView):
     def __get_segments(self):
         survey = self.get_survey()
 
+        # For segments that are post-season survey exclusive
+        _ = lambda segment: EmptySegment() if survey.is_preseason else segment
+
         root_item = SegmentGroup('', is_root=True, children=[
             SegmentGroup('Popularity', [
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
-                TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
-                SegmentGroup('Popularity - Miscellaneous', [
-                    EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5),
+                HiddenSegmentGroup('Popularity - By Gender', [
+                    TablePairSegment('Most Popular Anime by Gender', ResultsType.POPULARITY_MALE, ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY, row_count=5),
+                    TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, extra_result_type=ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                ]),
+                HiddenSegmentGroup('Popularity - Miscellaneous', [
+                    _(TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5)),
                     TablePairSegment('Average Age per Anime', ResultsType.AGE, row_count=3),
                 ]),
             ]),
             SegmentGroup('Impressions', [
                 TableWithTop3Segment(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
-                TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+                HiddenSegmentGroup('Impressions - By Gender', [
+                    TablePairSegment(('Most Anticipated' if survey.is_preseason else 'Best') + ' Anime of the Season by Gender', ResultsType.SCORE_MALE, ResultsType.SCORE_FEMALE, ResultsType.SCORE, row_count=5),
+                    TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, extra_result_type=ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                ]),
+                HiddenSegmentGroup('Impressions - Expectations', [
+                    _(TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5)),
+                    _(TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5)),
+                ]),
             ]),
             SegmentGroup('Anime OVAs / ONAs / Movies / Specials', [
                 TableWithTop3Segment('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
-                EmptySegment() if survey.is_preseason else TableWithTop3Segment('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5),
+                _(TableWithTop3Segment('Most Anticipated Anime OVAs / ONAs / Movies / Specials' if survey.is_preseason else 'Best Anime OVAs / ONAs / Movies / Specials', ResultsType.SCORE, is_for_series=False, top_count=5)),
             ]),
         ])
 
@@ -125,6 +136,7 @@ class ResultsView(BaseResultsView):
 class SegmentType(Enum):
     EMPTY = auto()
     GROUP = auto()
+    HIDDEN_GROUP = auto()
     TABLE_WITH_TOP3 = auto()
     TABLE_PAIR = auto()
 
@@ -143,11 +155,9 @@ class EmptySegment(Segment):
         super().__init__(SegmentType.EMPTY, None)
 
 class SegmentGroup(Segment):
-    def __init__(self, title, children=[], is_root=False):
-        super().__init__(SegmentType.GROUP, title)
-
+    def __init__(self, title, children=[], is_root=False, item_type=SegmentType.GROUP):
+        super().__init__(item_type, title)
         self.children = children
-
         if is_root:
             self._set_id(0)
     
@@ -157,14 +167,18 @@ class SegmentGroup(Segment):
             next_id = child._set_id(next_id)
         return next_id
 
+class HiddenSegmentGroup(SegmentGroup):
+    def __init__(self, title, children=[], is_root=False):
+        super().__init__(title, children, is_root, SegmentType.HIDDEN_GROUP)
 
 
 class TableBaseSegment(Segment):
-    def __init__(self, item_type, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
+    def __init__(self, item_type, title, main_result_type, inverse_result_type=None, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
         super().__init__(item_type, title)
 
         self.is_for_series = is_for_series
         self.main_result_type = main_result_type
+        self.inverse_result_type = inverse_result_type
         self.extra_result_type = extra_result_type
         self.top_count = top_count
         self.bottom_count = bottom_count
@@ -173,12 +187,12 @@ class TableBaseSegment(Segment):
 
 class TableWithTop3Segment(TableBaseSegment):
     def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, top_count=None, bottom_count=None):
-        super().__init__(SegmentType.TABLE_WITH_TOP3, title, main_result_type, extra_result_type, description, is_for_series, top_count, bottom_count)
+        super().__init__(SegmentType.TABLE_WITH_TOP3, title, main_result_type, None, extra_result_type, description, is_for_series, top_count, bottom_count)
 
 
 class TablePairSegment(TableBaseSegment):
-    def __init__(self, title, main_result_type, extra_result_type=None, description=None, is_for_series=True, row_count=None):
-        super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, extra_result_type, description, is_for_series, row_count)
+    def __init__(self, title, main_result_type, inverse_result_type=None, extra_result_type=None, description=None, is_for_series=True, row_count=None):
+        super().__init__(SegmentType.TABLE_PAIR, title, main_result_type, inverse_result_type, extra_result_type, description, is_for_series, row_count)
 #endregion
 
 
@@ -227,7 +241,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = SurveyUtil.get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=1, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=3, timeout=cache_timeout)
 
     # Please refactor this sometime
     def __get_anime_results_data_internal(self):
@@ -237,56 +251,61 @@ class ResultsGenerator:
         animeresponse_queryset = AnimeResponse.objects.filter(response__survey=survey)
         surveyadditionsremovals_queryset = SurveyAdditionRemoval.objects.filter(survey=survey)
 
-        response_count = Response.objects.filter(survey=survey).count()
-        male_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.MALE).count()
-        female_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.FEMALE).count()
+        total_response_count = Response.objects.filter(survey=survey).count()
+        total_male_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.MALE).count()
+        total_female_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.FEMALE).count()
 
         # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
         anime_series_data = {
-            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in anime_series_list
+            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) for anime in anime_series_list
         }
         special_anime_data = {
-            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count) for anime in special_anime_list
+            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) for anime in special_anime_list
         }
         return anime_series_data, special_anime_data
 
     # Returns a dict of data values for an anime
-    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, response_count, male_response_count, female_response_count):
+    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count):
         survey = self.survey
 
-        responses_for_anime = animeresponse_queryset.filter(anime=anime)
-        responses_by_watchers = responses_for_anime.filter(watching=True)
+        anime_animeresponse_qs = animeresponse_queryset.filter(anime=anime)
+        watchers_animeresponse_qs = anime_animeresponse_qs.filter(watching=True)
 
         # Adjust response count for this anime taking into account the times the anime was added/removed to the survey
         addition_removal_list = list(surveyadditionsremovals_queryset.filter(anime=anime))
-        adjusted_response_count = self.__get_adjusted_response_count(addition_removal_list, response_count)
+        scaled_total_response_count = self.__get_adjusted_response_count(addition_removal_list, total_response_count)
 
         # Amount of people watching
-        watcher_count = responses_by_watchers.count()
-        male_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.MALE).count()
-        female_anime_response_count = responses_by_watchers.filter(response__gender=Response.Gender.FEMALE).count()
+        watcher_response_count = watchers_animeresponse_qs.count()
+        male_watcher_response_count = watchers_animeresponse_qs.filter(response__gender=Response.Gender.MALE).count()
+        female_watcher_response_count = watchers_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).count()
 
-        male_popularity = male_anime_response_count / male_response_count if male_response_count > 0 else float('NaN')
-        female_popularity = female_anime_response_count / female_response_count if female_response_count > 0 else float('NaN')
-        gender_popularity_ratio = male_popularity / female_popularity if female_popularity > 0 else float('inf')
-        gender_popularity_ratio_inv = female_popularity / male_popularity if male_anime_response_count > 0 else float('inf')
+        male_popularity = div0(male_watcher_response_count, total_male_response_count)
+        female_popularity = div0(female_watcher_response_count, total_female_response_count)
+        gender_popularity_ratio = div0(male_popularity, female_popularity)
+        gender_popularity_ratio_inv = div0(female_popularity, male_popularity)
 
-        responses_with_score = responses_for_anime.filter(score__isnull=False) if survey.is_preseason else responses_by_watchers.filter(score__isnull=False)
-        # Becomes NaN if there are no scores (default behavior is None which causes errors, hence "or NaN" being necessary)
-        male_average_score = responses_with_score.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
-        female_average_score = responses_with_score.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
+        score_animeresponse_qs = anime_animeresponse_qs.filter(score__isnull=False) if survey.is_preseason else watchers_animeresponse_qs.filter(score__isnull=False)
+        # The aggregate becomes None when there are no scores which causes errors, hence "or NaN" being necessary
+        average_score = score_animeresponse_qs.aggregate(Avg('score'))['score__avg'] or float('NaN')
+        male_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
+        female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
         return {
-            ResultsType.POPULARITY:              watcher_count / adjusted_response_count * 100.0 if adjusted_response_count > 0 else float('NaN'),
-            ResultsType.GENDER_POPULARITY_RATIO: gender_popularity_ratio,
+            ResultsType.POPULARITY:                  div0(       watcher_response_count, scaled_total_response_count) * 100.0,
+            ResultsType.POPULARITY_MALE:             div0(  male_watcher_response_count,   total_male_response_count) * 100.0,
+            ResultsType.POPULARITY_FEMALE:           div0(female_watcher_response_count, total_female_response_count) * 100.0,
+            ResultsType.GENDER_POPULARITY_RATIO:     gender_popularity_ratio,
             ResultsType.GENDER_POPULARITY_RATIO_INV: gender_popularity_ratio_inv,
-            ResultsType.UNDERWATCHED:            responses_by_watchers.filter(underwatched=True).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
-            ResultsType.SCORE:                   responses_with_score.aggregate(Avg('score'))['score__avg'] or float('NaN'),
-            ResultsType.GENDER_SCORE_DIFFERENCE: male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
+            ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count) * 100.0,
+            ResultsType.SCORE:                              average_score,
+            ResultsType.SCORE_MALE:                    male_average_score,
+            ResultsType.SCORE_FEMALE:                female_average_score,
+            ResultsType.GENDER_SCORE_DIFFERENCE:     male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
             ResultsType.GENDER_SCORE_DIFFERENCE_INV: female_average_score - male_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
-            ResultsType.SURPRISE:                responses_by_watchers.filter(expectations=AnimeResponse.Expectations.SURPRISE).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
-            ResultsType.DISAPPOINTMENT:          responses_by_watchers.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count() / watcher_count * 100.0 if watcher_count > 0 else float('NaN'),
-            ResultsType.AGE:                     responses_by_watchers.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
+            ResultsType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count) * 100.0,
+            ResultsType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count) * 100.0,
+            ResultsType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
         }
 
     def __get_adjusted_response_count(self, addition_removal_list, response_count):
@@ -324,22 +343,37 @@ class ResultsGenerator:
 
 class ResultsType(Enum):
     """Enum representing all types of result values."""
-    POPULARITY              = "Popularity"
-    GENDER_POPULARITY_RATIO = "Gender Ratio (♂:♀)"
+    POPULARITY                  = "Popularity"
+    POPULARITY_MALE             = "Popularity (Male)"
+    POPULARITY_FEMALE           = "Popularity (Female)"
+    GENDER_POPULARITY_RATIO     = "Gender Ratio (♂:♀)"
     GENDER_POPULARITY_RATIO_INV = "Gender Ratio (♀:♂)"
-    UNDERWATCHED            = "Underwatched"
-    SCORE                   = "Score"
-    GENDER_SCORE_DIFFERENCE = "Gender Score Difference (♂-♀)"
+    UNDERWATCHED                = "Underwatched"
+    SCORE                       = "Score"
+    SCORE_MALE                  = "Score (Male)"
+    SCORE_FEMALE                = "Score (Female)"
+    GENDER_SCORE_DIFFERENCE     = "Gender Score Difference (♂-♀)"
     GENDER_SCORE_DIFFERENCE_INV = "Gender Score Difference (♀-♂)"
-    SURPRISE                = "Surprise"
-    DISAPPOINTMENT          = "Disappointment"
-    AGE                     = "Average Viewer Age"
-    NAME                    = "Anime" # Only used to be able to sort by this column
+    SURPRISE                    = "Surprise"
+    DISAPPOINTMENT              = "Disappointment"
+    AGE                         = "Average Viewer Age"
+    NAME                        = "Anime" # Only used to be able to sort by this column
 
     def get_formatter_name(self):
-        if self is ResultsType.GENDER_POPULARITY_RATIO or self is ResultsType.GENDER_POPULARITY_RATIO_INV:
+        ratio_formatter_types = [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.GENDER_POPULARITY_RATIO_INV]
+        score_formatter_types = [
+            ResultsType.SCORE, ResultsType.SCORE_MALE, ResultsType.SCORE_FEMALE,
+            ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.GENDER_SCORE_DIFFERENCE_INV,
+            ResultsType.AGE,
+        ]
+
+        if self in ratio_formatter_types:
             return 'genderRatioFormatter'
-        elif self is ResultsType.SCORE or self is ResultsType.GENDER_SCORE_DIFFERENCE or self is ResultsType.GENDER_SCORE_DIFFERENCE_INV or self is ResultsType.AGE:
+        elif self in score_formatter_types:
             return 'scoreFormatter'
         else:
             return 'percentageFormatter'
+
+
+def div0(a: float, b: float):
+    return a / b if b > 0 else float('NaN')

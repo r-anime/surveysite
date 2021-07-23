@@ -1,0 +1,24 @@
+<script>
+const tableMainResult{{ item.id }} = "{{ item.main_result_type.name|lower }}";
+const tableExtraResult{{ item.id }} = "{{ item.extra_result_type.name|lower|default:'' }}";
+
+const tableColumns{{ item.id }} = [
+    columnTypes["rank"],
+    columnTypes["image"],
+    columnTypes["name"],
+].concat(
+    [setColumnCssClass(columnTypes[tableMainResult{{ item.id }}], "table-col-main")],
+    tableExtraResult{{ item.id }} ? [setColumnCssClass(columnTypes[tableExtraResult{{ item.id }}], "table-col-extra")] : []
+);
+
+const tableItems{{ item.id }} = processData(
+    getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
+    tableMainResult{{ item.id }},
+    true,
+    {{ item.top_count|default:'null' }},
+    {{ item.bottom_count|default:'null' }}
+);
+
+data["tableColumns{{ item.id }}"] = tableColumns{{ item.id }};
+data["tableItems{{ item.id }}"] = tableItems{{ item.id }};
+</script>

@@ -1,0 +1,36 @@
+<div class="px-2 mt-4">
+    <b-button v-b-toggle.collapse-{{ item.id }} variant="light" class="w-100 hidden-group-button">
+        <h{{ depth }} class="rounded shadow">
+            <span class="collapse-button-show-text">Show</span>
+            <span class="collapse-button-hide-text">Hide</span>
+            {% if item.title %}
+                {{ item.title }}
+            {% else %}
+                content
+            {% endif %}
+        </h{{ depth }}>
+    </b-button>
+    <b-collapse id="collapse-{{ item.id }}" class="mt-1">
+        <b-card>
+
+            <div class="container-fluid bg-lighter">
+                {% for child in item.children %}{% with item_type=child.item_type.name %}
+                    {% if item_type == 'GROUP' %}
+                        {% include 'survey/results_item_group.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'HIDDEN_GROUP' %}
+                        {% include 'survey/results_item_hidden-group.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'TABLE_WITH_TOP3' %}
+                        {% include 'survey/results_item_table-with-top3.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'TABLE_PAIR' %}
+                        {% include 'survey/results_item_table-pair.html' with depth=depth|add:'1' survey=survey item=child only %}
+                    {% elif item_type == 'EMPTY' %}
+                    {% else %}
+                        <h{{ depth|add:'1' }}>{{ child.title }}</h{{ depth|add:'1' }}>
+                        <p>Unknown item type: {{ item_type }}</p>
+                    {% endif %}
+                {% endwith %}{% endfor %}
+            </div>
+
+        </b-card>
+    </b-collapse>
+</div>

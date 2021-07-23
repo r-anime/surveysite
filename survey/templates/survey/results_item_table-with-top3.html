@@ -1,12 +1,13 @@
-{% with table_items_var='items' %}
+{% with item_id=item.id|stringformat:'i' %}
+{% with table_items_var='tableItems'|add:item_id table_fields_var='tableColumns'|add:item_id %}
 
-<h5 class="table-title mb-4">{{ item.title }}</h5>
+<h5 class="table-title mt-4 mb-3">{{ item.title }}</h5>
 
 {% if item.description %}
-    <p class="table-description mt-n4 mb-4">{{ item.description }}</p>
+    <p class="table-description mt-n3 mb-3">{{ item.description }}</p>
 {% endif %}
 
-<div class="row mb-5 justify-content-center" id="results-table-{{ item.id }}">
+<div class="row justify-content-center" id="results-table-{{ item.id }}">
     <div class="col-md-4 col-8 text-center">
         <div v-if="tableItems{{ item.id }}" class="row justify-content-center mb-4">
             <div class="col-8 mb-2">
@@ -82,39 +83,9 @@
         </div>
     </div>
     <div class="col-md col-12 table-with-top3">
-        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var survey=survey main_result_type=item.main_result_type.name|lower only %}
+        {% include 'survey/results_item_table-base.html' with table_items_var=table_items_var table_fields_var=table_fields_var item_id=item.id survey=survey main_result_type=item.main_result_type.name|lower only %}
     </div>
 </div>
 
-<script>
-const tableMainResult{{ item.id }} = "{{ item.main_result_type.name|lower }}";
-const tableExtraResult{{ item.id }} = "{{ item.extra_result_type.name|lower|default:'' }}";
-
-const tableColumns{{ item.id }} = [
-    columnTypes["rank"],
-    columnTypes["image"],
-    columnTypes["name"],
-].concat(
-    [setColumnCssClass(columnTypes[tableMainResult{{ item.id }}], "table-col-main")],
-    tableExtraResult{{ item.id }} ? [setColumnCssClass(columnTypes[tableExtraResult{{ item.id }}], "table-col-extra")] : []
-);
-
-const tableItems{{ item.id }} = processData(
-    getTableItems({{ item.is_for_series|lower }} ? animeSeriesData : specialAnimeData),
-    tableMainResult{{ item.id }},
-    true,
-    {{ item.top_count|default:'null' }},
-    {{ item.bottom_count|default:'null' }}
-);
-
-new Vue({
-    el: "#results-table-{{ item.id }}",
-    delimiters: ["{$", "$}"],
-    data: {
-        fields: tableColumns{{ item.id }},
-        {{ table_items_var }}: tableItems{{ item.id }},
-    },
-});
-</script>
-
+{% endwith %}
 {% endwith %}
