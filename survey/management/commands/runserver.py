@@ -24,7 +24,7 @@ class Command(RunserverCommand):
         parser.add_argument(
             "--sassstyle",
             type=str,
-            default='expanded',
+            default='compressed',
             help='Output type. One of "expanded", "nested", "compact", or "compressed"',
             dest='sassstyle',
         )
