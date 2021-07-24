@@ -122,3 +122,4 @@ GitHub.sublime-settings
 # Visual Studio Code # 
 .vscode/* 
 .history
+*.code-workspace
