@@ -3,18 +3,18 @@ from django.conf import settings
 from django.db.models import Q, F
 from django.db.models.manager import BaseManager
 from survey.models import Anime, AnimeName
+from survey.util import DataBase
 from typing import Optional
 
 
-
 @dataclass
-class UrlData:
+class UrlData(DataBase):
     small: str
     medium: str
     large: str
 
 @dataclass
-class ImageData:
+class ImageData(DataBase):
     urls: UrlData
     alt: str
 
@@ -23,7 +23,7 @@ anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Ani
 special_anime_filter = ~anime_series_filter
 
 
-def combine_year_season(year: int, season: Anime.Season) -> int:
+def combine_year_season(year: int, season: Anime.AnimeSeason) -> int:
     """Combines a year and a season into a single value."""
     return year * 10 + season
 

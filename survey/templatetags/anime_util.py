@@ -1,6 +1,6 @@
 from django import template
-from ..models import Anime, AnimeName
-from ..util import AnimeUtil
+from survey.models import Anime
+from survey.util.anime import get_name_list
 
 register = template.Library()
 
@@ -40,6 +40,6 @@ def get_season_name(season_idx, start_with_capital=True):
 @register.inclusion_tag('survey/anime_names.html')
 def get_official_names(anime, tag=None):
     return {
-        'anime_name_list': AnimeUtil.get_name_list(anime),
+        'anime_name_list': get_name_list(anime),
         'tag': tag,
     }

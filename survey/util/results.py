@@ -50,7 +50,7 @@ class ResultsGenerator:
             anime.id: {
                 'official_name_list': get_name_list(anime),
                 'type': anime.anime_type,
-                'image_list': get_image_url_list(anime),
+                'image_list': [image_data.to_dict() for image_data in get_image_url_list(anime)],
             } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
         })
 

@@ -14,7 +14,7 @@
                 <b-carousel class="shadow-sm" fade>
                     <b-carousel-slide
                         v-for="image in tableItems{{ item.id }}[0].name.image_list"
-                        :img-src="image.urls.l"
+                        :img-src="image.urls.large"
                         :img-alt="image.alt"
                     >
                     </b-carousel-slide>
@@ -38,7 +38,7 @@
                         <b-carousel class="shadow-sm" fade>
                             <b-carousel-slide
                                 v-for="image in tableItems{{ item.id }}[1].name.image_list"
-                                :img-src="image.urls.m"
+                                :img-src="image.urls.medium"
                                 :img-alt="image.alt"
                             >
                             </b-carousel-slide>
@@ -62,7 +62,7 @@
                         <b-carousel class="shadow-sm" fade>
                             <b-carousel-slide
                                 v-for="image in tableItems{{ item.id }}[2].name.image_list"
-                                :img-src="image.urls.m"
+                                :img-src="image.urls.medium"
                                 :img-alt="image.alt"
                             >
                             </b-carousel-slide>

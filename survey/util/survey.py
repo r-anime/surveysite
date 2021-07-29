@@ -1,10 +1,11 @@
 from datetime import datetime
 from django.http.response import Http404
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from random import randint
 from survey.models import Anime, Survey
-from typing import Any, Optional
-from .anime import anime_series_filter, annotate_year_season, calc_season_difference, combine_year_season, is_ongoing_filter_func, special_anime_filter
+from survey.util.anime import anime_series_filter, annotate_year_season, calc_season_difference, combine_year_season, is_ongoing_filter_func, special_anime_filter
+from typing import Optional
 
 
 def get_survey_or_404(year: int, season: Anime.AnimeSeason, pre_or_post: bool) -> Survey:
