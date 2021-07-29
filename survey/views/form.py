@@ -10,7 +10,7 @@ from itertools import repeat
 import logging
 from survey.forms import ResponseForm, get_anime_response_form, MissingAnimeForm
 from survey.models import Anime, AnimeName, AnimeResponse, Response, MtmUserResponse
-from survey.util import AnimeUtil
+from survey.util.anime import anime_is_continuing
 from .mixins import SurveyMixin, RequireSurveyOngoingMixin, UserMixin
 
 @method_decorator([never_cache, login_required], name='dispatch')
@@ -37,7 +37,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
         # Get the anime response forms, bound to already stored anime responses whenever possible
         # (Saving what anime an AnimeResponseForm belongs to requires AnimeResponse.anime to be editable, so I just store it in the prefix)
         for anime in anime_list:
-            AnimeResponseForm = get_anime_response_form(survey.is_preseason, AnimeUtil.anime_is_continuing(anime, survey))
+            AnimeResponseForm = get_anime_response_form(survey.is_preseason, anime_is_continuing(anime, survey))
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
                 animeresponseform_dict[anime.id] = AnimeResponseForm(prefix=str(anime.id), instance=animeresponse_queryset.first())
@@ -66,7 +66,7 @@ class FormView(UserMixin, RequireSurveyOngoingMixin, SurveyMixin, ContextMixin, 
 
         # Get the anime response forms, bound to already stored anime responses whenever possible
         for anime in anime_list:
-            AnimeResponseForm = get_anime_response_form(survey.is_preseason, AnimeUtil.anime_is_continuing(anime, survey))
+            AnimeResponseForm = get_anime_response_form(survey.is_preseason, anime_is_continuing(anime, survey))
             animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime) if previous_response else None
             if animeresponse_queryset and animeresponse_queryset.count() == 1:
                 existing_animeresponseform_list.append(AnimeResponseForm(request.POST, prefix=str(anime.id), instance=animeresponse_queryset.first()))

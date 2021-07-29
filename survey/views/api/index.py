@@ -1,8 +1,8 @@
-from django.core.serializers import serialize
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.forms.models import model_to_dict
 from django.views.generic import View
-from survey.models import Survey
-from survey.views.api import JsonResponse
+from survey.views.results import ResultsGenerator
+from survey.models import Anime, Survey
 
 class IndexApi(View):
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -10,7 +10,10 @@ class IndexApi(View):
         try:
             year = int(year_param) if year_param else None
         except ValueError:
-            return JsonResponse([])
+            return JsonResponse({})
         
         survey_queryset = Survey.objects.filter(year=year) if year else Survey.objects.all()
-        return JsonResponse(survey_queryset)
+        survey_dict_list = [model_to_dict(survey, fields=['year', 'season', 'is_preseason']) for survey in survey_queryset]
+        
+        #results_list = [ResultsGenerator(survey).get_anime_results_data() for survey in survey_queryset]
+        return JsonResponse({'surveys': survey_dict_list})

@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.views.generic import TemplateView
 from survey.views.results import ResultsGenerator, ResultsType
 from survey.models import Anime, Survey, Image
-from survey.util import SurveyUtil
+from survey.util.survey import get_survey_anime
 from .mixins import UserMixin
 
 class IndexView(UserMixin, TemplateView):
@@ -27,7 +27,7 @@ class IndexView(UserMixin, TemplateView):
             items[year][season][pre_or_post]['survey'] = survey
 
             if survey.state != Survey.State.FINISHED:
-                anime_queryset, _, _ = SurveyUtil.get_survey_anime(survey)
+                anime_queryset, _, _ = get_survey_anime(survey)
                 items[year][season][pre_or_post]['data'] = Image.objects.filter(anime__in=anime_queryset).order_by('?')[:12]
             else:
                 survey_results = {}

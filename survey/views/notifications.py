@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from survey.models import MissingAnime
-from survey.util import AnimeUtil
+from survey.util.anime import get_name_list
 
 missinganime_admin_perms = [
     'survey.{}_{}'.format(perm_type, perm_model)
@@ -21,7 +21,7 @@ class NotificationsView(View):
             'missingAnimeList': [{
                     'submittedName': missinganime.name,
                     'submittedLink': missinganime.link,
-                    'nameList': AnimeUtil.get_name_list(missinganime.anime) if missinganime.anime else [],
+                    'nameList': get_name_list(missinganime.anime) if missinganime.anime else [],
                     'surveyName': str(missinganime.survey),
                     'reason': missinganime.reason,
                 } for missinganime in missinganime_queryset
