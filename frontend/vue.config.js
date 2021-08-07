@@ -3,6 +3,9 @@ module.exports = {
     outputDir: './dist/static/vue/',
     indexPath: '../../templates/index.html', // Relative to outputDir
     pages: {
-        index: 'src/main.ts',
+        index: {
+            entry: 'src/main.ts',
+            title: '/r/anime Surveys',
+        },
     },
 }
