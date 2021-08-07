@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "debug": "vue-cli-service build --watch --mode development",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
@@ -35,7 +36,7 @@
     "chromedriver": "92",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0",
-    "geckodriver": "^1.20.0",
+    "geckodriver": "^2.0.2",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "ts-node": "^8.10.2",

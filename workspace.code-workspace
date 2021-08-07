@@ -1,0 +1,49 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"type": "node",
+				"request": "launch",
+				"name": "Front-end (Node/Vue)",
+				"runtimeExecutable": "npm",
+				"runtimeArgs": [
+					"run-script",
+					"debug"
+				],
+				"skipFiles": [
+					"<node_internals>/**"
+				],
+				"cwd": "${workspaceFolder}/frontend/"
+			},
+			{
+				"name": "Back-end (Django)",
+				"type": "python",
+				"request": "launch",
+				"program": "${workspaceFolder}\\manage.py",
+				"args": [
+					"runserver"
+				],
+				"django": true,
+				"envFile": "${workspaceFolder}/.env"
+			}
+		],
+		"compounds": [
+			{
+				"name": "Back-end + front-end",
+				"configurations": ["Back-end (Django)", "Front-end (Node/Vue)"],
+				"presentation": {
+					"hidden": false,
+					"group": "",
+					"order": 1
+				}
+			}
+		]
+	}
+}
