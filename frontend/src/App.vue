@@ -1,30 +1,16 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Index</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
+  <TheNavbar/>
   <router-view/>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component';
+import TheNavbar from '@/components/TheNavbar.vue';
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+@Options({
+  components: {
+    TheNavbar,
+  },
+})
+export default class App extends Vue {};
+</script>
