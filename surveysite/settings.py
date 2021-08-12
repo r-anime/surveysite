@@ -130,8 +130,8 @@ MESSAGE_TAGS = {
 }
 MESSAGE_LEVEL = message_constants.DEBUG if DEBUG else message_constants.INFO
 
-LOGIN_REDIRECT_URL = 'survey:index'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'survey:index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
+LOGIN_REDIRECT_URL = 'index'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
 
 WSGI_APPLICATION = 'surveysite.wsgi.application'
 

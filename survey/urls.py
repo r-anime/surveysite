@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.shortcuts import redirect
 from survey.views.api.index import IndexApi
+from survey.views.api.user import UserApi
 from survey.views.index import IndexView
 from survey.views.form import FormView, MissingAnimeView
 from survey.views.notifications import NotificationsView
@@ -20,7 +21,8 @@ def favicon_redirect(request):
 
 # api_patterns = [
 urlpatterns = [
-    path('index/', IndexApi.as_view())
+    path('index/', IndexApi.as_view()),
+    path('user/', UserApi.as_view()),
 ]
 
 # urlpatterns = [

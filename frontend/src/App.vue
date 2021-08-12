@@ -12,5 +12,5 @@ import TheNavbar from '@/components/TheNavbar.vue';
     TheNavbar,
   },
 })
-export default class App extends Vue {};
+export default class App extends Vue {}
 </script>

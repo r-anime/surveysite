@@ -1,35 +1,22 @@
-{% extends "survey/base.html" %}
 {% load account socialaccount %}
-
-{% block title %}Log In - {{ block.super }}{% endblock %}
-
-{% block content %}
 
 {% get_providers as socialaccount_providers %}
 {% if socialaccount_providers %}
 {% for provider in socialaccount_providers %}
 {% if provider.id == "reddit" %}
-<div class="row pt-5 justify-content-center">
-    <div class="col-lg-6">
-        <div class="card">
-            <h5 class="card-header">
-                Log In
-            </h5>
-            <div class="card-body">
-                <p class="card-text">
-                    To fill in surveys, you must be logged in with a {{ provider.name }} account.
-                </p>
-                <a title="{{ provider.name }}" class="btn btn-primary" href="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}">
-                    Log in via {{ provider.name }}
-                </a>
-            </div>
-        </div>
-    </div>
+<div class="modal-header">
+  <h5 class="modal-title" id="loginModalLabel">Log In</h5>
+  <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  To fill in surveys, you must be logged in with a Reddit account.
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+  <a href="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}" class="btn btn-primary">Log in via Reddit</a>
 </div>
 {% endif %}
 {% endfor %}
 {% else %}
 Error: No SocialAccount Providers found.
 {% endif %}
-
-{% endblock %}
