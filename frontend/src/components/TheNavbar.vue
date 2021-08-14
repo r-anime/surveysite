@@ -29,44 +29,39 @@
             </form>
           </template>
           <template v-else>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Log In</button>
+            <ModalButton id="loginModal" variant="primary">Log In</ModalButton>
           </template>
         </div>
       </div>
     </div>
   </nav>
 
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Log In</h5>
-          <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          To fill in surveys, you must be logged in with a Reddit account.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <a :href="loginUrl" class="btn btn-primary">Log in via Reddit</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <Modal id="loginModal"
+         title="Log In"
+         acceptButtonText="Log in via Reddit"
+         :acceptButtonUrl="loginUrl">
+    To fill in surveys, you must be logged in with a Reddit account.
+  </Modal>
 </template>
 
 <script lang="ts">
+import Modal from '@/components/Modal.vue';
+import ModalButton from '@/components/ModalButton.vue';
 import { Options, Vue } from 'vue-class-component';
 import axios from 'axios';
 import Cookie from 'js-cookie';
 
-interface UserData {
-  authenticated: boolean,
-  username: string | undefined,
-  profilePicture: string | undefined,
+class UserData {
+  authenticated!: boolean;
+  username?: string;
+  profilePicture?: string;
 }
 
 @Options({
+  components: {
+    Modal,
+    ModalButton,
+  },
   data() {
     return {
       userData: {} as UserData,
