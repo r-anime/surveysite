@@ -24,7 +24,7 @@
 
             <form method="post" action="/accounts/logout/" class="d-flex my-2 my-md-0">
               <input type="hidden" name="csrfmiddlewaretoken" :value="csrfToken">
-              <input type="hidden" name="next" value="/">
+              <input type="hidden" name="next" :value="currentUrl">
               <button type="submit" class="btn btn-secondary">Log Out</button>
             </form>
           </template>
@@ -39,7 +39,7 @@
   <Modal id="loginModal"
          title="Log In"
          acceptButtonText="Log in via Reddit"
-         :acceptButtonUrl="loginUrl">
+         acceptButtonUrl="/accounts/login/">
     To fill in surveys, you must be logged in with a Reddit account.
   </Modal>
 </template>
@@ -65,9 +65,7 @@ class UserData {
   data() {
     return {
       userData: {} as UserData,
-      authenticated: false,
-      loginUrl: '/accounts/login/?next=' + window.location.href,
-      logoutUrl: '/accounts/login/?next=' + window.location.href,
+      currentUrl: window.location.href,
       csrfToken: Cookie.get('csrftoken') ?? '',
     }
   },
