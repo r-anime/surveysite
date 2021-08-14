@@ -48,11 +48,11 @@
 import Modal from '@/components/Modal.vue';
 import ModalButton from '@/components/ModalButton.vue';
 import { Options, Vue } from 'vue-class-component';
-import axios from 'axios';
 import Cookie from 'js-cookie';
+import Ajax from '@/util/ajax';
 
 class UserData {
-  authenticated!: boolean;
+  authenticated = false;
   username?: string;
   profilePicture?: string;
 }
@@ -70,26 +70,10 @@ class UserData {
     }
   },
   methods: {
-    async getData() {
-      try {
-        const response = await axios.get<UserData>('api/user/');
-        this.userData = response.data;
-      }
-      catch (e) {
-        if (e.response) {
-          //result = 'Server error: ' + e.toString();
-        }
-        else if (e.request) {
-          //result = 'Network error: ' + e.toString();
-        }
-        else {
-          //result = 'Client error: ' + e.toString();
-        }
-      }
-    },
+    
   },
-  mounted() {
-    this.getData();
+  async mounted() {
+    this.userData = await Ajax.get<UserData>('api/user/') ?? new UserData();
   }
 })
 export default class TheNavbar extends Vue {}
