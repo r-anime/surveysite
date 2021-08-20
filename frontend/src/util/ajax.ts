@@ -1,18 +1,64 @@
 import axios from 'axios';
+import _ from 'lodash';
+
+function camelizeKeys(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(v => camelizeKeys(v));
+  } else if (obj != null && obj.constructor === Object) {
+    return Object.keys(obj).reduce(
+      (result, key) => ({
+        ...result,
+        [_.camelCase(key)]: camelizeKeys(obj[key]),
+      }),
+      {},
+    );
+  }
+  return obj;
+}
+
+function decamelizeKeys(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(v => decamelizeKeys(v));
+  } else if (obj != null && obj.constructor === Object) {
+    return Object.keys(obj).reduce(
+      (result, key) => ({
+        ...result,
+        [_.snakeCase(key)]: decamelizeKeys(obj[key]),
+      }),
+      {},
+    );
+  }
+  return obj;
+}
 
 export default class Ajax {
   static async post<T>(url: string, data?: any): Promise<T | null> {
     try {
       const response = await axios.post<T>(url, data);
+
+      // Check if JSON parsing failed
+      if (typeof response.data === 'string') {
+        // Convert NaNs to nulls
+        return <T>JSON.parse(response.data.replace(/\bNaN\b/g, "null"))
+      }
+      
       return response.data;
     } catch (e) {
       this.handleError(e);
       return null;
     }
   }
-  static async get<T>(url: string, data?: any): Promise<T | null> {
+  
+  static async get<T>(url: string): Promise<T | null> {
     try {
-      const response = await axios.get<T>(url, data);
+      const response = await axios.get<T>(url);
+
+      // Check if JSON parsing failed
+      if (typeof response.data === 'string') {
+        // Convert NaNs to nulls
+        return <T>JSON.parse(response.data.replace(/\bNaN\b/g, "null"))
+      }
+
       return response.data;
     } catch (e) {
       this.handleError(e);

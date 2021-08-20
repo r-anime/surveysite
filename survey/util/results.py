@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from django.core.cache import caches
 from django.db.models import Avg
 from enum import Enum
@@ -25,9 +24,6 @@ class ResultsType(Enum):
     DISAPPOINTMENT              = "Disappointment"
     AGE                         = "Average Viewer Age"
     NAME                        = "Anime" # Only used to be able to sort by this column
-
-AnimeResultsDataType = dict[ResultsType, float]
-ResultsDataType = dict[Anime, AnimeResultsDataType]
 
 class ResultsGenerator:
     """Class for generating survey results."""
@@ -63,7 +59,7 @@ class ResultsGenerator:
 
         return anime_info_json, convert_data(anime_series_data), convert_data(special_anime_data)
 
-    def get_anime_results_data(self) -> tuple[ResultsDataType, ResultsDataType]:
+    def get_anime_results_data(self) -> tuple[dict[Anime, dict[ResultsType, float]], dict[Anime, dict[ResultsType, float]]]:
         """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
 
         Returns
@@ -77,7 +73,7 @@ class ResultsGenerator:
             cache_timeout = get_survey_cache_timeout(self.survey)
             return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=3, timeout=cache_timeout)
 
-    def __get_anime_results_data_internal(self) -> tuple[ResultsDataType, ResultsDataType]:
+    def __get_anime_results_data_internal(self) -> tuple[dict[Anime, dict[ResultsType, float]], dict[Anime, dict[ResultsType, float]]]:
         survey = self.survey
 
         _, anime_series_list, special_anime_list = get_survey_anime(survey)
@@ -98,7 +94,7 @@ class ResultsGenerator:
         return anime_series_data, special_anime_data
 
     # Returns a dict of data values for an anime
-    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> AnimeResultsDataType:
+    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> dict[ResultsType, float]:
         survey = self.survey
 
         anime_animeresponse_qs = animeresponse_queryset.filter(anime=anime)

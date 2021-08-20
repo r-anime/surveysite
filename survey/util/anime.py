@@ -3,20 +3,8 @@ from django.conf import settings
 from django.db.models import Q, F
 from django.db.models.manager import BaseManager
 from survey.models import Anime, AnimeName
-from survey.util import DataBase
+from survey.util.data import ImageData
 from typing import Optional
-
-
-@dataclass
-class UrlData(DataBase):
-    small: str
-    medium: str
-    large: str
-
-@dataclass
-class ImageData(DataBase):
-    urls: UrlData
-    alt: str
 
 
 anime_series_filter = Q(anime_type=Anime.AnimeType.TV_SERIES) | Q(anime_type=Anime.AnimeType.ONA_SERIES) | Q(anime_type=Anime.AnimeType.BULK_RELEASE)
@@ -84,12 +72,10 @@ def get_image_url_list(anime: Anime, default: Optional[str] = None) -> list[Imag
     if len(image_set):
         imagedata_list = map(
             lambda image: ImageData(
-                UrlData(
-                    image.file_small.url,
-                    image.file_medium.url,
-                    image.file_large.url
-                ),
-                image.name
+                image.name,
+                image.file_small.url,
+                image.file_medium.url,
+                image.file_large.url
             ),
             image_set
         )
@@ -98,8 +84,10 @@ def get_image_url_list(anime: Anime, default: Optional[str] = None) -> list[Imag
         if not default:
             default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
         return [ImageData(
-            UrlData(default, default, default),
-            'Image unavailable'
+            'Image unavailable',
+            default,
+            default,
+            default
         )]
 
 

@@ -50,12 +50,7 @@ import ModalButton from '@/components/ModalButton.vue';
 import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
 import Ajax from '@/util/ajax';
-
-class UserData {
-  authenticated = false;
-  username?: string;
-  profilePicture?: string;
-}
+import { UserData } from '@/util/data';
 
 @Options({
   components: {
@@ -73,7 +68,7 @@ class UserData {
     
   },
   async mounted() {
-    this.userData = await Ajax.get<UserData>('api/user/') ?? new UserData();
+    this.userData = await Ajax.get<UserData>('api/user/') ?? {};
   }
 })
 export default class TheNavbar extends Vue {}
