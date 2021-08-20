@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import _ from 'lodash';
+
 
 function camelizeKeys(obj: any): any {
   if (Array.isArray(obj)) {
@@ -31,18 +32,32 @@ function decamelizeKeys(obj: any): any {
   return obj;
 }
 
+
+function getResponseData<T>(response: AxiosResponse<T>): T {
+  let responseData: T;
+
+  // Check if JSON parsing failed
+  if (typeof response.data === 'string') {
+    // Convert NaNs to nulls
+    responseData = <T>JSON.parse(response.data.replace(/\bNaN\b/g, 'null'))
+  }
+  else {
+    responseData = response.data;
+  }
+
+  return camelizeKeys(responseData);
+}
+
+function convertRequestData(data?: any): any {
+  return decamelizeKeys(data);
+}
+
+
 export default class Ajax {
   static async post<T>(url: string, data?: any): Promise<T | null> {
     try {
-      const response = await axios.post<T>(url, data);
-
-      // Check if JSON parsing failed
-      if (typeof response.data === 'string') {
-        // Convert NaNs to nulls
-        return <T>JSON.parse(response.data.replace(/\bNaN\b/g, "null"))
-      }
-      
-      return response.data;
+      const response = await axios.post<T>(url, convertRequestData(data));
+      return getResponseData<T>(response);
     } catch (e) {
       this.handleError(e);
       return null;
@@ -52,14 +67,7 @@ export default class Ajax {
   static async get<T>(url: string): Promise<T | null> {
     try {
       const response = await axios.get<T>(url);
-
-      // Check if JSON parsing failed
-      if (typeof response.data === 'string') {
-        // Convert NaNs to nulls
-        return <T>JSON.parse(response.data.replace(/\bNaN\b/g, "null"))
-      }
-
-      return response.data;
+      return getResponseData<T>(response);
     } catch (e) {
       this.handleError(e);
       return null;
