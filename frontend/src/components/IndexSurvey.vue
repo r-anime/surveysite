@@ -54,7 +54,9 @@ import { Options, Vue } from 'vue-class-component';
     IndexSurveyAnime
   },
   props: {
-    survey: {} as SurveyData
+    survey: {
+      type: Object,
+    }
   },
   data() {
     return {
