@@ -2,37 +2,35 @@
   <div class="container-md">
     <div class="row row-cols-1">
       
-      <!-- The lodash stuff returns a survey array like this: [[2020 surveys], [2019 surveys], ...] -->
-      <div class="col" v-for="(surveysInYear, idx0) in _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc'])" :key="idx0">
+      <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
         <div class="row justify-content-center">
           <div class="col col-11 d-flex align-items-center">
-            <h3 class="my-2 p-0">{{ surveysInYear[0].year }}</h3>
+            <h3 class="my-2 p-0">{{ surveysInYear.year }}</h3>
           </div>
         </div>
         
-        <!-- The lodash stuff returns a survey array like this: [[2020 fall surveys], [2020 summer surveys], ...] -->
-        <div class="row justify-content-center" v-for="(surveysInSeason, idx1) in _.orderBy(_.groupBy(surveysInYear, 'season'), ['0.season'], ['desc'])" :key="idx1">
-          <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(surveysInSeason[0].season).toLowerCase()">
+        <div class="row justify-content-center" v-for="(surveysInSeason, idx1) in surveysInYear.surveys" :key="idx1">
+          <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(surveysInSeason.season).toLowerCase()">
             <div class="row row-cols-1">
               <div class="col">
-                <i class="bi" :class="getSeasonIconClass(surveysInSeason[0].season)"></i>
+                <i class="bi" :class="getSeasonIconClass(surveysInSeason.season)"></i>
               </div>
               <div class="col text-season fw-bold">
-                <span>{{ getSeasonName(surveysInSeason[0].season) }}</span>
+                <span>{{ getSeasonName(surveysInSeason.season) }}</span>
               </div>
             </div>
           </div>
           <div class="col col-9 col-sm-10">
             <div class="row h-100">
 
-              <div v-if="_.find(surveysInSeason, { isPreseason: false })" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="_.find(surveysInSeason, { isPreseason: false })"/>
+              <div v-if="surveysInSeason.preseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="surveysInSeason.preseasonSurvey"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
-              <div v-if="_.find(surveysInSeason, { isPreseason: true })" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="_.find(surveysInSeason, { isPreseason: true })"/>
+              <div v-if="surveysInSeason.postseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="surveysInSeason.postseasonSurvey"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
@@ -62,7 +60,9 @@ import _ from 'lodash';
   data() {
     return {
       surveys: [],
-      _: _
+      surveyData: [],
+      _: _,
+      console: console,
     }
   },
   methods: {
@@ -71,6 +71,7 @@ import _ from 'lodash';
       const seasonNameUpper = AnimeSeason[seasonNumber];
       return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase()
     },
+
     getSeasonIconClass(season: string): string {
       const seasonNumber = Number(season);
       switch (seasonNumber) {
@@ -86,9 +87,54 @@ import _ from 'lodash';
           return '';
       }
     },
+
+    // In the future this should use pagination,
+    // the survey list obtained from the API gets appended to the already obtained survey list.
+    async getSeasonData() {
+      let surveys = await Ajax.get<SurveyData[]>('api/index/') ?? [];
+      surveys = surveys.concat(this.surveys);
+
+      // [[2020 surveys], [2019 surveys], ...]
+      const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
+
+      const latestYear = (_.maxBy(surveys, 'year') ?? { year: 0 }).year;
+      const earliestYear = (_.minBy(surveys, 'year') ?? { year: 0 }).year;
+
+      // Just hover over surveyData to see what the end goal is here
+      const surveyData = surveysOrderedGroupedByYear.map(surveyYearGroup => {
+        // { 1: spring surveys, 3: fall surveys }
+        const surveysGroupedBySeason = _.groupBy(surveyYearGroup, 'season');
+
+        const latestSeason = latestYear === surveyYearGroup[0].year ?
+          (_.maxBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.FALL }).season :
+          AnimeSeason.FALL;
+        const earliestSeason = earliestYear === surveyYearGroup[0].year ?
+          (_.minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
+          AnimeSeason.WINTER;
+
+        const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: SurveyData, postseasonSurvey?: SurveyData }[] = [];
+        for (let season = latestSeason; season >= earliestSeason; season--) {
+          const preseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
+          const postseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
+          surveysOrderedGroupedBySeason.push({
+            season: season,
+            preseasonSurvey: preseasonSurvey,
+            postseasonSurvey: postseasonSurvey,
+          })
+        }
+
+        return {
+          year: surveyYearGroup[0].year,
+          surveys: surveysOrderedGroupedBySeason,
+        };
+      });
+
+      this.surveys = surveys;
+      this.surveyData = surveyData;
+    }
   },
   async mounted() {
-    this.surveys = await Ajax.get<SurveyData[]>('api/index/');
+    await this.getSeasonData();
   }
 })
 export default class Index extends Vue {}

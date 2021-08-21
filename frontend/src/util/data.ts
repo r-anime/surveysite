@@ -43,7 +43,7 @@ export interface SurveyAnimeData {
 export interface SurveyData {
     year: number
     season: AnimeSeason
-    is_preseason: boolean
-    most_popular_anime: SurveyAnimeData[]
-    best_anime: SurveyAnimeData[]
+    isPreseason: boolean
+    mostPopularAnime: SurveyAnimeData[]
+    bestAnime: SurveyAnimeData[]
 }
