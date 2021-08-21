@@ -17,6 +17,13 @@ export enum AnimeNameType {
   SHORT_NAME    = 'SH',
 }
 
+export enum AnimeSeason {
+  WINTER = 0,
+  SPRING = 1,
+  SUMMER = 2,
+  FALL   = 3,
+}
+
 export interface AnimeNameData {
   name: string;
   isOfficial: boolean;

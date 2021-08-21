@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import _ from 'lodash';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 function camelizeKeys(obj: any): any {
   if (Array.isArray(obj)) {
@@ -33,19 +33,19 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-function getResponseData<T>(response: AxiosResponse<T>): T {
-  let responseData: T;
+function getResponseData<T>(response: AxiosResponse<any>): T {
+  let responseData;
 
   // Check if JSON parsing failed
   if (typeof response.data === 'string') {
     // Convert NaNs to nulls
-    responseData = <T>JSON.parse(response.data.replace(/\bNaN\b/g, 'null'))
+    responseData = JSON.parse(response.data.replace(/\bNaN\b/g, 'null'))
   }
   else {
     responseData = response.data;
   }
 
-  return camelizeKeys(responseData);
+  return <T>camelizeKeys(responseData);
 }
 
 function convertRequestData(data?: any): any {
@@ -54,6 +54,7 @@ function convertRequestData(data?: any): any {
 
 
 export default class Ajax {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   static async post<T>(url: string, data?: any): Promise<T | null> {
     try {
       const response = await axios.post<T>(url, convertRequestData(data));
@@ -90,6 +91,8 @@ export default class Ajax {
     console.log(errorData.toString());
   }
 }
+
+/* eslint-enable */
 
 export enum ErrorType {
   SERVER,

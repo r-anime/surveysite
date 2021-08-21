@@ -1,5 +1,7 @@
 <template>
-  <TheNavbar/>
+  <div class="mb-5">
+    <TheNavbar/>
+  </div>
   <router-view/>
 </template>
 
