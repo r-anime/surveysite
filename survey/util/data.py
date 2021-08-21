@@ -84,3 +84,16 @@ class AnimeData(DataBase):
         ) for image in image_model_list]
 
         return AnimeData(name_data_list, image_data_list)
+
+@dataclass
+class SurveyAnimeData(DataBase): # NOTE: Change this name, I can already foresee this being confusing
+    anime: AnimeData
+    result: float
+
+@dataclass
+class SurveyData(DataBase):
+    year: int
+    season: Anime.AnimeSeason
+    is_preseason: bool
+    most_popular_anime: list[SurveyAnimeData]
+    best_anime: list[SurveyAnimeData]

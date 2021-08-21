@@ -1,39 +1,41 @@
 <template>
   <div class="container-md">
     <div class="row row-cols-1">
-      <div class="col" v-for="(seasons, year) in surveyData" :key="year">
+      
+      <!-- The lodash stuff returns a survey array like this: [[2020 surveys], [2019 surveys], ...] -->
+      <div class="col" v-for="(surveysInYear, idx0) in _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc'])" :key="idx0">
 
         <div class="row justify-content-center">
           <div class="col col-11 d-flex align-items-center">
-            <h3 class="my-2 p-0">{{ year }}</h3>
+            <h3 class="my-2 p-0">{{ surveysInYear[0].year }}</h3>
           </div>
         </div>
-
-        <div class="row justify-content-center" v-for="(isPreseason, season) in seasons" :key="season">
-
-          <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(season).toLowerCase()">
+        
+        <!-- The lodash stuff returns a survey array like this: [[2020 fall surveys], [2020 summer surveys], ...] -->
+        <div class="row justify-content-center" v-for="(surveysInSeason, idx1) in _.orderBy(_.groupBy(surveysInYear, 'season'), ['0.season'], ['desc'])" :key="idx1">
+          <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(surveysInSeason[0].season).toLowerCase()">
             <div class="row row-cols-1">
               <div class="col">
-                <i class="bi" :class="getSeasonIconClass(season)"></i>
+                <i class="bi" :class="getSeasonIconClass(surveysInSeason[0].season)"></i>
               </div>
               <div class="col text-season fw-bold">
-                <span>{{ getSeasonName(season) }}</span>
+                <span>{{ getSeasonName(surveysInSeason[0].season) }}</span>
               </div>
             </div>
           </div>
           <div class="col col-9 col-sm-10">
             <div class="row h-100">
 
-              <div v-if="isPreseason.false" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="isPreseason.false"/>
+              <div v-if="_.find(surveysInSeason, { isPreseason: false })" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="_.find(surveysInSeason, { isPreseason: false })"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
-              <div v-if="isPreseason.true" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="isPreseason.true"/>
+              <div v-if="_.find(surveysInSeason, { isPreseason: true })" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="_.find(surveysInSeason, { isPreseason: true })"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
-              
+
             </div>
           </div>
           
@@ -49,7 +51,8 @@
 import { Options, Vue } from 'vue-class-component';
 import Survey from '@/components/Survey.vue';
 import Ajax from '@/util/ajax';
-import { AnimeSeason } from '@/util/data';
+import { AnimeSeason, SurveyData } from '@/util/data';
+import _ from 'lodash';
 
 
 @Options({
@@ -58,7 +61,8 @@ import { AnimeSeason } from '@/util/data';
   },
   data() {
     return {
-      surveyData: {}
+      surveys: [],
+      _: _
     }
   },
   methods: {
@@ -84,7 +88,7 @@ import { AnimeSeason } from '@/util/data';
     },
   },
   async mounted() {
-    this.surveyData = await Ajax.get('api/index/');
+    this.surveys = await Ajax.get<SurveyData[]>('api/index/');
   }
 })
 export default class Index extends Vue {}

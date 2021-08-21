@@ -3,15 +3,16 @@
 </template>
 
 <script lang="ts">
+import { SurveyData } from '@/util/data';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
   props: {
-    survey: {}
+    survey: {} as SurveyData
   }
 })
 export default class Survey extends Vue {
-  survey!: any;
+  survey!: SurveyData;
 }
 </script>
 

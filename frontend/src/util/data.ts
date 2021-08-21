@@ -34,3 +34,16 @@ export interface AnimeData {
   names: AnimeNameData[];
   images: ImageData[];
 }
+
+export interface SurveyAnimeData {
+    anime: AnimeData
+    result: number
+}
+
+export interface SurveyData {
+    year: number
+    season: AnimeSeason
+    is_preseason: boolean
+    most_popular_anime: SurveyAnimeData[]
+    best_anime: SurveyAnimeData[]
+}
