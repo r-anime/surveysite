@@ -6,43 +6,53 @@
         <small class="text-muted" style="font-size: 80%;">Finished</small>
       </h5>
     </div>
-    <!-- {% for resulttype, resulttype_results in data.items %}
-        <div class="col col-6 col-lg-12{% if not forloop.last %} mb-lg-3{% endif %}">
-            <div class="row mb-1">
-                <div class="col">
-                    <span>
-                        {% if resulttype.value|lower == 'popularity' %}
-                            Most popular series
-                        {% elif resulttype.value|lower == 'score' %}
-                            {% if survey.is_preseason %}
-                                Most anticipated series
-                            {% else %}
-                                Most highly regarded series
-                            {% endif %}
-                        {% endif %}
-                    </span>
-                </div>
-            </div>
-            <div class="row px-1 align-items-center" style="font-size:70%;">
-                {% for anime_value_pair in resulttype_results %}
-                    <div class="col px-1{% if not forloop.first %} d-lg-flex d-none{% endif %}">
-                        {% if anime_value_pair %}
-                            {% include 'survey/index_ranking_row.html' with anime=anime_value_pair.anime value=anime_value_pair.value only %}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
+    
+    <div class="col col-6 col-lg-12 mb-lg-3">
+      <div class="row mb-1">
+        <div class="col">
+          <span>
+            Most popular series
+          </span>
         </div>
-    {% endfor %} -->
+      </div>
+      <div class="row px-1 align-items-center" style="font-size:70%;">
+        <template v-for="(surveyAnime, idx1) in survey.mostPopularAnime" :key="idx1">
+          <div class="col px-1" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
+            <IndexSurveyAnime :surveyAnime="surveyAnime"/>
+          </div>
+        </template>
+      </div>
+    </div>
+    
+    <div class="col col-6 col-lg-12 mb-lg-3">
+      <div class="row mb-1">
+        <div class="col">
+          <span>
+            {{ survey.isPreseason ? 'Most anticipated series' : 'Most highly regarded series' }}
+          </span>
+        </div>
+      </div>
+      <div class="row px-1 align-items-center" style="font-size:70%;">
+        <template v-for="(surveyAnime, idx1) in survey.bestAnime" :key="idx1">
+          <div class="col px-1" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
+            <IndexSurveyAnime :surveyAnime="surveyAnime"/>
+          </div>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { SurveyData } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';
+import IndexSurveyAnime from '@/components/IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
+  components: {
+    IndexSurveyAnime
+  },
   props: {
     survey: {} as SurveyData
   },
