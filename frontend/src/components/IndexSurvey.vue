@@ -6,7 +6,6 @@
         <small class="text-muted" style="font-size: 80%;">Finished</small>
       </h5>
     </div>
-    {{ survey.openingTime.toDateString() }}
     <!-- {% for resulttype, resulttype_results in data.items %}
         <div class="col col-6 col-lg-12{% if not forloop.last %} mb-lg-3{% endif %}">
             <div class="row mb-1">

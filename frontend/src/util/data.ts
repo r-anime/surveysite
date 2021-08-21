@@ -44,8 +44,8 @@ export interface SurveyData {
     year: number;
     season: AnimeSeason;
     isPreseason: boolean;
-    openingTime: Date;
-    closingTime: Date;
+    openingEpochTime: number;
+    closingEpochTime: number;
     mostPopularAnime: SurveyAnimeData[];
     bestAnime: SurveyAnimeData[];
 }

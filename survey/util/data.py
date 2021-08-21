@@ -27,9 +27,6 @@ def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, ex
                     exclude=self.excluded_fields_per_model.get(o.__class__, None)
                 )
 
-            elif isinstance(o, datetime):
-                return int(o.timestamp() * 1000)
-
             return super().default(o)
 
     return JsonEncoder
@@ -100,5 +97,5 @@ class SurveyData(DataBase):
     is_preseason: bool
     most_popular_anime: list[SurveyAnimeData]
     best_anime: list[SurveyAnimeData]
-    opening_time: datetime
-    closing_time: datetime
+    opening_epoch_time: int
+    closing_epoch_time: int

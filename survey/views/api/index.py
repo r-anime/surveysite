@@ -26,8 +26,8 @@ class IndexApi(View):
                 year        =survey.year,
                 season      =survey.season,
                 is_preseason=survey.is_preseason,
-                opening_time=survey.opening_time,
-                closing_time=survey.closing_time,
+                opening_epoch_time=survey.opening_time.timestamp()*1000,
+                closing_epoch_time=survey.closing_time.timestamp()*1000,
                 most_popular_anime=[SurveyAnimeData(anime=AnimeData.from_model(anime), result=results[ResultsType.POPULARITY]) for (anime, results) in results_sorted_by_popularity],
                 best_anime        =[SurveyAnimeData(anime=AnimeData.from_model(anime), result=results[ResultsType.SCORE     ]) for (anime, results) in results_sorted_by_score     ],
             ))
