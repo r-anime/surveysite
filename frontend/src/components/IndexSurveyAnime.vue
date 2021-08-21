@@ -1,9 +1,9 @@
 <template>
-  <div class="row align-items-center no-gutters">
-    <div class="col col-3 col-lg-4 px-2 py-1">
+  <div class="row align-items-center">
+    <div class="col col-3 col-lg-4">
       <AnimeImages :animeImages="surveyAnime.anime.images" :enableCarouselControls="false"/>
     </div>
-    <div class="col" v-if="surveyAnime.anime.names">
+    <div class="col ps-0" v-if="surveyAnime.anime.names">
       <AnimeNames :animeNames="surveyAnime.anime.names" :showShortName="false"/>
     </div>
   </div>

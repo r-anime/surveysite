@@ -15,9 +15,9 @@
           </span>
         </div>
       </div>
-      <div class="row px-1 align-items-center" style="font-size:70%;">
+      <div class="row align-items-center" style="font-size:70%;">
         <template v-for="(surveyAnime, idx1) in survey.mostPopularAnime" :key="idx1">
-          <div class="col px-1" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
+          <div class="col" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
             <IndexSurveyAnime :surveyAnime="surveyAnime"/>
           </div>
         </template>
@@ -32,9 +32,9 @@
           </span>
         </div>
       </div>
-      <div class="row px-1 align-items-center" style="font-size:70%;">
+      <div class="row align-items-center" style="font-size:70%;">
         <template v-for="(surveyAnime, idx1) in survey.bestAnime" :key="idx1">
-          <div class="col px-1" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
+          <div class="col" :class="idx1==0 ? '' : 'd-lg-flex d-none'">
             <IndexSurveyAnime :surveyAnime="surveyAnime"/>
           </div>
         </template>
