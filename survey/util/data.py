@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from survey.models import Anime, AnimeName, Image
 from django.db.models import Model
 from django.forms.models import model_to_dict
+from datetime import datetime
 from json import JSONEncoder
-from math import isnan
 from typing import Any, Callable, Optional, Tuple, Type
 
 
@@ -26,6 +26,9 @@ def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, ex
                     fields=self.fields_per_model.get(o.__class__, None),
                     exclude=self.excluded_fields_per_model.get(o.__class__, None)
                 )
+
+            elif isinstance(o, datetime):
+                return int(o.timestamp() * 1000)
 
             return super().default(o)
 
@@ -97,3 +100,5 @@ class SurveyData(DataBase):
     is_preseason: bool
     most_popular_anime: list[SurveyAnimeData]
     best_anime: list[SurveyAnimeData]
+    opening_time: datetime
+    closing_time: datetime

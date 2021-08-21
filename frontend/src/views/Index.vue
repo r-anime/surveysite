@@ -25,12 +25,12 @@
             <div class="row h-100">
 
               <div v-if="surveysInSeason.preseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="surveysInSeason.preseasonSurvey"/>
+                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
               <div v-if="surveysInSeason.postseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <Survey :survey="surveysInSeason.postseasonSurvey"/>
+                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </div>
               <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import Survey from '@/components/Survey.vue';
+import IndexSurvey from '@/components/IndexSurvey.vue';
 import Ajax from '@/util/ajax';
 import { AnimeSeason, SurveyData } from '@/util/data';
 import _ from 'lodash';
@@ -55,7 +55,7 @@ import _ from 'lodash';
 
 @Options({
   components: {
-    Survey,
+    IndexSurvey,
   },
   data() {
     return {

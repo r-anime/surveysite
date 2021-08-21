@@ -23,11 +23,13 @@ class IndexApi(View):
             results_sorted_by_popularity = sorted(anime_series_results.items(), reverse=True, key=lambda item: item[1][ResultsType.POPULARITY])[:2]
             results_sorted_by_score      = sorted(anime_series_results.items(), reverse=True, key=lambda item: item[1][ResultsType.SCORE     ])[:2]
             response.append(SurveyData(
-                year         = survey.year,
-                season       = survey.season,
-                is_preseason = survey.is_preseason,
-                most_popular_anime = [SurveyAnimeData(anime = AnimeData.from_model(anime), result = results[ResultsType.POPULARITY]) for (anime, results) in results_sorted_by_popularity],
-                best_anime         = [SurveyAnimeData(anime = AnimeData.from_model(anime), result = results[ResultsType.SCORE     ]) for (anime, results) in results_sorted_by_score     ],
+                year        =survey.year,
+                season      =survey.season,
+                is_preseason=survey.is_preseason,
+                opening_time=survey.opening_time,
+                closing_time=survey.closing_time,
+                most_popular_anime=[SurveyAnimeData(anime=AnimeData.from_model(anime), result=results[ResultsType.POPULARITY]) for (anime, results) in results_sorted_by_popularity],
+                best_anime        =[SurveyAnimeData(anime=AnimeData.from_model(anime), result=results[ResultsType.SCORE     ]) for (anime, results) in results_sorted_by_score     ],
             ))
         
         return JsonResponse(response, encoder=jsonEncoder, safe=False)

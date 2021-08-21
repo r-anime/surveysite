@@ -36,14 +36,16 @@ export interface AnimeData {
 }
 
 export interface SurveyAnimeData {
-    anime: AnimeData
-    result: number
+    anime: AnimeData;
+    result: number;
 }
 
 export interface SurveyData {
-    year: number
-    season: AnimeSeason
-    isPreseason: boolean
-    mostPopularAnime: SurveyAnimeData[]
-    bestAnime: SurveyAnimeData[]
+    year: number;
+    season: AnimeSeason;
+    isPreseason: boolean;
+    openingTime: Date;
+    closingTime: Date;
+    mostPopularAnime: SurveyAnimeData[];
+    bestAnime: SurveyAnimeData[];
 }

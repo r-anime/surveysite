@@ -45,7 +45,7 @@ function getResponseData<T>(response: AxiosResponse<any>): T {
     responseData = response.data;
   }
 
-  return <T>camelizeKeys(responseData);
+  return camelizeKeys(responseData) as T;
 }
 
 function convertRequestData(data?: any): any {
