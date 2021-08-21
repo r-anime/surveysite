@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row h-100">
     <div class="col col-12 mb-1">
       <h5>
         {{ getSurveyName() }}
@@ -24,7 +24,7 @@
       </div>
     </div>
     
-    <div class="col col-6 col-lg-12 mb-lg-3">
+    <div class="col col-6 col-lg-12 mb-lg-3 mt-auto">
       <div class="row mb-1">
         <div class="col">
           <span>

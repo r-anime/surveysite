@@ -6,8 +6,8 @@
 
   <template v-else-if="animeImages.length >= 1">
     <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item" :class="idx==0 ? 'active' : ''">
+      <div class="carousel-inner d-flex align-items-center">
+        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item d-block" :class="idx==0 ? 'active' : ''">
           <img :src="image.urlSmall" :alt="image.name" class="d-block w-100">
         </div>
       </div>
@@ -31,6 +31,7 @@
 <script lang="ts">
 import { ImageData } from '@/util/data';
 import { Options, Vue } from 'vue-class-component';
+import { Carousel } from 'bootstrap';
 
 @Options({
   props: {
@@ -51,6 +52,9 @@ import { Options, Vue } from 'vue-class-component';
   methods: {
     
   },
+  mounted() {
+    new Carousel(`#animeImageCarousel${this.id}`);
+  }
 })
 export default class AnimeImages extends Vue {
   animeImages!: Array<ImageData>;

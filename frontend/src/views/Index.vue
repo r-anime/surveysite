@@ -1,45 +1,43 @@
 <template>
-  <div class="container-md">
-    <div class="row row-cols-1 mb-5">
-      
-      <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
+  <div class="row row-cols-1 mb-5">
+    
+    <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
-        <div class="row justify-content-center">
-          <div class="col col-11 d-flex align-items-center">
-            <h3 class="my-2 p-0">{{ surveysInYear.year }}</h3>
+      <div class="row justify-content-center">
+        <div class="col col-11 d-flex align-items-center">
+          <h3 :class="idx0>0 ? 'mt-5' : ''">{{ surveysInYear.year }}</h3>
+        </div>
+      </div>
+      
+      <div class="row justify-content-center" v-for="(surveysInSeason, idx1) in surveysInYear.surveys" :key="idx1">
+        <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(surveysInSeason.season).toLowerCase()">
+          <div class="row row-cols-1">
+            <div class="col">
+              <i class="bi" :class="getSeasonIconClass(surveysInSeason.season)"></i>
+            </div>
+            <div class="col text-season fw-bold">
+              <span>{{ getSeasonName(surveysInSeason.season) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col col-9 col-sm-10">
+          <div class="row h-100">
+
+            <div v-if="surveysInSeason.preseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+              <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
+            </div>
+            <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+
+            <div v-if="surveysInSeason.postseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+              <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
+            </div>
+            <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+
           </div>
         </div>
         
-        <div class="row justify-content-center" v-for="(surveysInSeason, idx1) in surveysInYear.surveys" :key="idx1">
-          <div class="col col-2 col-sm-1 border rounded-start d-flex justify-content-center align-items-center text-center" :class="'bg-'+getSeasonName(surveysInSeason.season).toLowerCase()">
-            <div class="row row-cols-1">
-              <div class="col">
-                <i class="bi" :class="getSeasonIconClass(surveysInSeason.season)"></i>
-              </div>
-              <div class="col text-season fw-bold">
-                <span>{{ getSeasonName(surveysInSeason.season) }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col col-9 col-sm-10">
-            <div class="row h-100">
-
-              <div v-if="surveysInSeason.preseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
-              </div>
-              <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
-
-              <div v-if="surveysInSeason.postseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
-                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
-              </div>
-              <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
-
-            </div>
-          </div>
-          
-        </div>
-
       </div>
+
     </div>
   </div>
 </template>
