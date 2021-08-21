@@ -27,7 +27,7 @@ urlpatterns = [
     path('accounts/login/', view=SurveyLoginView.as_view(), name='login'),
     path('accounts/logout/', view=SurveyLogoutView.as_view(), name='logout'),
     path('accounts/', include('allauth.urls')),
-    re_path(r'.*', lambda request: render(request, 'index.html'), name='index'),
+    re_path(r'^(?!files|static).*$', lambda request: render(request, 'index.html'), name='index'),
 ]
 
 if settings.DEBUG:

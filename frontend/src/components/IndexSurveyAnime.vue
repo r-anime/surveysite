@@ -1,7 +1,7 @@
 <template>
   <div class="row align-items-center no-gutters">
     <div class="col col-3 col-lg-4 px-2 py-1">
-      SMALL IMAGE
+      <AnimeImages :animeImages="surveyAnime.anime.images" :enableCarouselControls="false"/>
     </div>
     <div class="col" v-if="surveyAnime.anime.names">
       <AnimeNames :animeNames="surveyAnime.anime.names" :showShortName="false"/>
@@ -12,11 +12,13 @@
 <script lang="ts">
 import { SurveyAnimeData } from '@/util/data';
 import AnimeNames from '@/components/AnimeNames.vue';
+import AnimeImages from '@/components/AnimeImages.vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
   components: {
     AnimeNames,
+    AnimeImages,
   },
   props: {
     surveyAnime: {
