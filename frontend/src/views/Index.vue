@@ -23,13 +23,17 @@
           </div>
           <div class="col col-9 col-sm-10">
             <div class="row h-100">
-              <!-- Season data -->
-              <div class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable">
-                abc
+
+              <div v-if="isPreseason.false" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="isPreseason.false"/>
               </div>
-              <div class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable">
-                abc
+              <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+
+              <div v-if="isPreseason.true" class="col col-lg-6 col-12 border p-3 d-lg-block">
+                <Survey :survey="isPreseason.true"/>
               </div>
+              <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+              
             </div>
           </div>
           
@@ -43,14 +47,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue';
+import Survey from '@/components/Survey.vue';
 import Ajax from '@/util/ajax';
 import { AnimeSeason } from '@/util/data';
 
 
 @Options({
   components: {
-    HelloWorld,
+    Survey,
   },
   data() {
     return {
