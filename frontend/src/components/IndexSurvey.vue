@@ -3,18 +3,39 @@
     <div class="col mb-1">
       <h5>
         {{ getSurveyName() }}
-        <small class="text-muted" style="font-size: 80%;">Finished</small>
+        <small v-if="new Date() > closingTime" class="text-muted" style="font-size:80%;">Finished</small>
+        <span v-else-if="new Date() > openingTime" class="badge bg-primary rounded-pill" style="font-size:80%">Ongoing</span>
+        <span v-else class="badge bg-secondary rounded-pill" style="font-size:80%">Upcoming</span>
       </h5>
     </div>
     
-    <div v-for="(surveyAnimeList, resultstype) in survey.animeResults" :key="resultstype" class="col mb-3">
-      <div class="row mb-2">
-        <div class="col bg-primary bg-opacity-75 text-light rounded py-1 px-2 w-100">
-          {{ getResultstypeName(resultstype) }}
+    <template v-if="new Date() > closingTime">
+      <div v-for="(surveyAnimeList, resultstype) in survey.animeResults" :key="resultstype" class="col mb-3">
+        <div class="row mb-2">
+          <div class="col bg-primary bg-opacity-75 text-light rounded py-1 px-2 w-100">
+            {{ getResultstypeName(resultstype) }}
+          </div>
+        </div>
+        <IndexSurveyAnime v-for="(surveyAnime, idx) in surveyAnimeList" :key="idx" :surveyAnime="surveyAnime" class="mb-1" :class="idx==0 ? '' : 'd-lg-flex d-none'"/>
+      </div>
+    </template>
+
+    <template v-else>
+      <div class="col position-relative">
+        <div class="row row-cols-lg-6 row-cols-12 p-3 align-items-center">
+          <div class="col p-1"> <!-- For each image -->
+            <!-- <img src="" alt="" class="img-fluid"> -->
+          </div>
+        </div>
+
+        <div class="row align-items-center justify-content-center h-100 w-100 position-absolute top-0 start-0">
+          <div class="col text-center">
+            {{ new Date() > openingTime ? 'Survey open!' : `Open ${openingTime.toLocaleString()}`}}
+          </div>
         </div>
       </div>
-      <IndexSurveyAnime v-for="(surveyAnime, idx) in surveyAnimeList" :key="idx" :surveyAnime="surveyAnime" class="mb-1" :class="idx==0 ? '' : 'd-lg-flex d-none'"/>
-    </div>
+    </template>
+
   </div>
 </template>
 
@@ -23,6 +44,12 @@ import { ResultsType, SurveyData } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';
 import IndexSurveyAnime from '@/components/IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
+
+enum SurveyState {
+  UPCOMING = 1,
+  ONGOING = 2,
+  FINISHED = 3,
+}
 
 @Options({
   components: {
@@ -35,7 +62,8 @@ import { Options, Vue } from 'vue-class-component';
   },
   data() {
     return {
-
+      openingTime: new Date((this.survey as SurveyData).openingEpochTime),
+      closingTime: new Date((this.survey as SurveyData).closingEpochTime),
     }
   },
   methods: {

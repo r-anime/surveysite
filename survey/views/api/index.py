@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
 from survey.models import Anime, Survey
@@ -19,17 +20,21 @@ class IndexApi(View):
         resultstype_list = [ResultsType.POPULARITY, ResultsType.SCORE]
         response = []
         for survey in survey_list:
-            anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+            anime_results = {}
+            if survey.state == Survey.State.FINISHED:
+                anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+                anime_results = {
+                    resultstype.value: get_top_results(anime_series_results, resultstype, 2)
+                    for resultstype in resultstype_list
+                }
+
             response.append(SurveyData(
                 year         = survey.year,
                 season       = survey.season,
                 is_preseason = survey.is_preseason,
                 opening_epoch_time = survey.opening_time.timestamp() * 1000,
                 closing_epoch_time = survey.closing_time.timestamp() * 1000,
-                anime_results = {
-                    resultstype.value: get_top_results(anime_series_results, resultstype, 2)
-                    for resultstype in resultstype_list
-                },
+                anime_results = anime_results,
             ))
         
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
