@@ -1,6 +1,6 @@
 <template>
   <div class="row align-items-center">
-    <div class="col col-3 col-lg-4">
+    <div class="col col-2">
       <AnimeImages :animeImages="surveyAnime.anime.images" :enableCarouselControls="false"/>
     </div>
     <div class="col ps-0" v-if="surveyAnime.anime.names">

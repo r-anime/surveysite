@@ -4,8 +4,8 @@
     <img :src="animeImages[0].urlSmall" :alt="animeImages[0].name" class="img-fluid">
   </template>
 
-  <template v-else-if="animeImages.length >= 1">
-    <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade" data-bs-ride="carousel">
+  <template v-else-if="animeImages.length > 1">
+    <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade">
       <div class="carousel-inner d-flex align-items-center">
         <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item d-block" :class="idx==0 ? 'active' : ''">
           <img :src="image.urlSmall" :alt="image.name" class="d-block w-100">
@@ -53,7 +53,11 @@ import { Carousel } from 'bootstrap';
     
   },
   mounted() {
-    new Carousel(`#animeImageCarousel${this.id}`);
+    if (this.animeImages.length > 1) {
+      this.$nextTick(() => {
+        new Carousel(`#animeImageCarousel${this.id}`);
+      });
+    }
   }
 })
 export default class AnimeImages extends Vue {

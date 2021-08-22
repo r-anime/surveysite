@@ -35,7 +35,7 @@ import { Options, Vue } from 'vue-class-component';
   methods: {
     
   },
-  mounted() {
+  created() {
     const animeNames = this.animeNames as AnimeNameData[];
     this.japaneseName = animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME);
     this.englishName = animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME);

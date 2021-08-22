@@ -131,7 +131,7 @@ import _ from 'lodash';
       this.surveyData = surveyData;
     }
   },
-  async mounted() {
+  async created() {
     await this.getSeasonData();
   }
 })

@@ -67,7 +67,7 @@ import { UserData } from '@/util/data';
   methods: {
     
   },
-  async mounted() {
+  async created() {
     this.userData = await Ajax.get<UserData>('api/user/') ?? {};
   }
 })
