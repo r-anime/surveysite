@@ -36,16 +36,33 @@ export interface AnimeData {
 }
 
 export interface SurveyAnimeData {
-    anime: AnimeData;
-    result: number;
+  anime: AnimeData;
+  result: number;
 }
 
 export interface SurveyData {
-    year: number;
-    season: AnimeSeason;
-    isPreseason: boolean;
-    openingEpochTime: number;
-    closingEpochTime: number;
-    mostPopularAnime: SurveyAnimeData[];
-    bestAnime: SurveyAnimeData[];
+  year: number;
+  season: AnimeSeason;
+  isPreseason: boolean;
+  openingEpochTime: number;
+  closingEpochTime: number;
+  animeResults: Record<ResultsType, SurveyAnimeData[]>;
+}
+
+export enum ResultsType {
+    POPULARITY                  =  1,
+    POPULARITY_MALE             =  2,
+    POPULARITY_FEMALE           =  3,
+    GENDER_POPULARITY_RATIO     =  4,
+    GENDER_POPULARITY_RATIO_INV =  5,
+    SCORE                       = 11,
+    SCORE_MALE                  = 12,
+    SCORE_FEMALE                = 13,
+    GENDER_SCORE_DIFFERENCE     = 14,
+    GENDER_SCORE_DIFFERENCE_INV = 15,
+    UNDERWATCHED                = 21,
+    SURPRISE                    = 22,
+    DISAPPOINTMENT              = 23,
+    AGE                         = 24,
+    NAME                        = 25,
 }

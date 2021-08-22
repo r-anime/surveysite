@@ -1,10 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from survey.models import Anime, AnimeName, Image
 from django.db.models import Model
 from django.forms.models import model_to_dict
-from datetime import datetime
+from enum import Enum
 from json import JSONEncoder
+from survey.models import Anime, AnimeName, Image
 from typing import Any, Callable, Optional, Tuple, Type
 
 
@@ -95,7 +95,25 @@ class SurveyData(DataBase):
     year: int
     season: Anime.AnimeSeason
     is_preseason: bool
-    most_popular_anime: list[SurveyAnimeData]
-    best_anime: list[SurveyAnimeData]
+    anime_results: dict[ResultsType, list[SurveyAnimeData]]
     opening_epoch_time: int
     closing_epoch_time: int
+
+
+class ResultsType(Enum):
+    """Enum representing all types of result values."""
+    POPULARITY                  =  1 #"Popularity"
+    POPULARITY_MALE             =  2 #"Popularity (Male)"
+    POPULARITY_FEMALE           =  3 #"Popularity (Female)"
+    GENDER_POPULARITY_RATIO     =  4 #"Gender Ratio (♂:♀)"
+    GENDER_POPULARITY_RATIO_INV =  5 #"Gender Ratio (♀:♂)"
+    SCORE                       = 11 #"Score"
+    SCORE_MALE                  = 12 #"Score (Male)"
+    SCORE_FEMALE                = 13 #"Score (Female)"
+    GENDER_SCORE_DIFFERENCE     = 14 #"Gender Score Difference (♂-♀)"
+    GENDER_SCORE_DIFFERENCE_INV = 15 #"Gender Score Difference (♀-♂)"
+    UNDERWATCHED                = 21 #"Underwatched"
+    SURPRISE                    = 22 #"Surprise"
+    DISAPPOINTMENT              = 23 #"Disappointment"
+    AGE                         = 24 #"Average Viewer Age"
+    NAME                        = 25 #"Anime" # Only used to be able to sort by this column

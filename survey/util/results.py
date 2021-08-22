@@ -1,29 +1,11 @@
 from django.core.cache import caches
 from django.db.models import Avg
-from enum import Enum
 from json import JSONEncoder
 from survey.models import Anime, AnimeResponse, Response, Survey, SurveyAdditionRemoval
 from survey.util.anime import get_image_url_list, get_name_list
+from survey.util.data import ResultsType
 from survey.util.survey import get_survey_anime, get_survey_cache_timeout
 
-
-class ResultsType(Enum):
-    """Enum representing all types of result values."""
-    POPULARITY                  = "Popularity"
-    POPULARITY_MALE             = "Popularity (Male)"
-    POPULARITY_FEMALE           = "Popularity (Female)"
-    GENDER_POPULARITY_RATIO     = "Gender Ratio (♂:♀)"
-    GENDER_POPULARITY_RATIO_INV = "Gender Ratio (♀:♂)"
-    UNDERWATCHED                = "Underwatched"
-    SCORE                       = "Score"
-    SCORE_MALE                  = "Score (Male)"
-    SCORE_FEMALE                = "Score (Female)"
-    GENDER_SCORE_DIFFERENCE     = "Gender Score Difference (♂-♀)"
-    GENDER_SCORE_DIFFERENCE_INV = "Gender Score Difference (♀-♂)"
-    SURPRISE                    = "Surprise"
-    DISAPPOINTMENT              = "Disappointment"
-    AGE                         = "Average Viewer Age"
-    NAME                        = "Anime" # Only used to be able to sort by this column
 
 class ResultsGenerator:
     """Class for generating survey results."""
@@ -71,7 +53,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=3, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=4, timeout=cache_timeout)
 
     def __get_anime_results_data_internal(self) -> tuple[dict[Anime, dict[ResultsType, float]], dict[Anime, dict[ResultsType, float]]]:
         survey = self.survey
