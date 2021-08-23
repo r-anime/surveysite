@@ -46,7 +46,12 @@ export interface SurveyData {
   isPreseason: boolean;
   openingEpochTime: number;
   closingEpochTime: number;
-  animeResults: Record<ResultsType, SurveyAnimeData[]>;
+
+  // This has either results data or images, depending on whether the survey is finished or not.
+  // This goes wrong when the current time goes past the survey closing time,
+  // and IndexSurvey.vue tries to display the survey results with the old SurveyData.
+  animeResults?: Record<ResultsType, SurveyAnimeData[]>;
+  animeImages?: ImageData[];
 }
 
 export enum ResultsType {

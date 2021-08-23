@@ -22,14 +22,17 @@
 
     <template v-else>
       <div class="col position-relative">
-        <div class="row row-cols-lg-6 row-cols-12 p-3 align-items-center">
-          <div class="col p-1"> <!-- For each image -->
-            <!-- <img src="" alt="" class="img-fluid"> -->
+        <div class="row row-cols-lg-6 p-3 align-items-center opacity-25">
+          <div v-for="(image, imageIdx) in survey.animeImages"
+               :key="imageIdx"
+               class="col p-1"
+               :class="imageIdx>=8 ? 'd-lg-block d-none' : imageIdx>=6 ? 'd-md-block d-none' : ''">
+            <img :src="image.urlSmall" :alt="image.name" class="img-fluid">
           </div>
         </div>
 
         <div class="row align-items-center justify-content-center h-100 w-100 position-absolute top-0 start-0">
-          <div class="col text-center">
+          <div class="col text-center fs-1" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);">
             {{ new Date() > openingTime ? 'Survey open!' : `Open ${openingTime.toLocaleString()}`}}
           </div>
         </div>

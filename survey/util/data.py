@@ -55,11 +55,28 @@ class ImageData(DataBase):
     url_medium: str
     url_large: str
 
+    @staticmethod
+    def from_model(model: Image) -> ImageData:
+        return ImageData(
+            name=model.name,
+            url_small=model.file_small.url,
+            url_medium=model.file_medium.url,
+            url_large=model.file_large.url,
+        )
+
 @dataclass
 class AnimeNameData(DataBase):
     name: str
     is_official: bool
     type: AnimeName.AnimeNameType
+
+    @staticmethod
+    def from_model(model: AnimeName) -> AnimeNameData:
+        return AnimeNameData(
+            name=model.name,
+            is_official=model.official,
+            type=model.anime_name_type,
+        )
 
 @dataclass
 class AnimeData(DataBase):
@@ -68,22 +85,12 @@ class AnimeData(DataBase):
 
     @staticmethod
     def from_model(model: Anime) -> AnimeData:
-        name_model_list: list[AnimeName] = model.animename_set.all()
-        name_data_list = [AnimeNameData(
-            name.name,
-            name.official,
-            name.anime_name_type
-        ) for name in name_model_list]
-
-        image_model_list: list[Image] = model.image_set.all()
-        image_data_list = [ImageData(
-            image.name,
-            image.file_small.url,
-            image.file_medium.url,
-            image.file_large.url
-        ) for image in image_model_list]
-
-        return AnimeData(name_data_list, image_data_list)
+        name_data_list = [AnimeNameData.from_model(name) for name in model.animename_set.all()]
+        image_data_list = [ImageData.from_model(image) for image in model.image_set.all()]
+        return AnimeData(
+            names=name_data_list,
+            images=image_data_list
+        )
 
 @dataclass
 class SurveyAnimeData(DataBase): # NOTE: Change this name, I can already foresee this being confusing
@@ -95,9 +102,10 @@ class SurveyData(DataBase):
     year: int
     season: Anime.AnimeSeason
     is_preseason: bool
-    anime_results: dict[ResultsType, list[SurveyAnimeData]]
     opening_epoch_time: int
     closing_epoch_time: int
+    anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
+    anime_images: Optional[list[ImageData]]
 
 
 class ResultsType(Enum):
