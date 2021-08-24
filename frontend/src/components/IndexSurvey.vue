@@ -48,11 +48,6 @@ import { getSeasonName } from '@/util/helpers';
 import IndexSurveyAnime from '@/components/IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
 
-enum SurveyState {
-  UPCOMING = 1,
-  ONGOING = 2,
-  FINISHED = 3,
-}
 
 @Options({
   components: {

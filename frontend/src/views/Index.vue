@@ -23,14 +23,14 @@
         <div class="col col-9 col-sm-10">
           <div class="row h-100">
 
-            <div v-if="surveysInSeason.preseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+            <router-link v-if="surveysInSeason.preseasonSurvey" :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
               <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
-            </div>
+            </router-link>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
-            <div v-if="surveysInSeason.postseasonSurvey" class="col col-lg-6 col-12 border p-3 d-lg-block">
+            <router-link v-if="surveysInSeason.postseasonSurvey" :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
               <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
-            </div>
+            </router-link>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
           </div>
@@ -84,6 +84,10 @@ import _ from 'lodash';
         default:
           return '';
       }
+    },
+
+    getSurveyUrl(survey: SurveyData): string {
+      return `/survey/${survey.year}/${survey.season}/${survey.isPreseason ? 'pre' : 'post'}/`;
     },
 
     // In the future this should use pagination,
@@ -140,28 +144,35 @@ export default class Index extends Vue {}
 
 
 <style lang="scss" scoped>
+@import "@/../node_modules/bootstrap/scss/functions";
+@import "@/../node_modules/bootstrap/scss/variables";
+@import "@/../node_modules/bootstrap/scss/utilities";
+
 .bi {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
 .bg-winter {
-    background-color: rgb(123, 171, 193);
+  background-color: rgb(123, 171, 193);
 }
 .bg-spring {
-    background-color: rgb(168, 215, 44);
+  background-color: rgb(168, 215, 44);
 }
 .bg-summer {
-    background-color: rgb(223, 129, 60);
+  background-color: rgb(223, 129, 60);
 }
 .bg-fall {
-    background-color: rgb(253, 215, 10);
+  background-color: rgb(253, 215, 10);
 }
 .bg-unavailable {
-    background-color: rgb(227, 227, 227)!important;
+  background-color: rgb(227, 227, 227)!important;
+}
+.bg-survey:hover {
+  background-color: $gray-100;
 }
 
 .text-season {
-    hyphens: auto;
-    font-size: 90%;
+  hyphens: auto;
+  font-size: 90%;
 }
 </style>
