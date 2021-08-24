@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-//import Home from '../views/Home.vue'
-import Index from '@/views/Index.vue'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import Index from '@/views/Index.vue';
+import NotFound from '@/views/NotFound.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,11 +23,16 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Survey',
     component: () => import('../views/Survey.vue')
   },
-]
+  {
+    path: '/:_(.*)',
+    name: 'NotFound',
+    component: NotFound,
+  }
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
-export default router
+export default router;
