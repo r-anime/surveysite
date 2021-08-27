@@ -80,6 +80,7 @@ class AnimeNameData(DataBase):
 
 @dataclass
 class AnimeData(DataBase):
+    id: int
     names: list[AnimeNameData]
     images: list[ImageData]
 
@@ -88,6 +89,7 @@ class AnimeData(DataBase):
         name_data_list = [AnimeNameData.from_model(name) for name in model.animename_set.all()]
         image_data_list = [ImageData.from_model(image) for image in model.image_set.all()]
         return AnimeData(
+            id=model.id,
             names=name_data_list,
             images=image_data_list
         )
@@ -104,8 +106,10 @@ class SurveyData(DataBase):
     is_preseason: bool
     opening_epoch_time: int
     closing_epoch_time: int
+
     anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
+    anime_list: Optional[list[AnimeData]]
 
 
 class ResultsType(Enum):

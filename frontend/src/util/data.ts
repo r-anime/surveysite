@@ -31,6 +31,7 @@ export interface AnimeNameData {
 }
 
 export interface AnimeData {
+  id: number;
   names: AnimeNameData[];
   images: ImageData[];
 }
@@ -47,11 +48,10 @@ export interface SurveyData {
   openingEpochTime: number;
   closingEpochTime: number;
 
-  // This has either results data or images, depending on whether the survey is finished or not.
-  // This goes wrong when the current time goes past the survey closing time,
-  // and IndexSurvey.vue tries to display the survey results with the old SurveyData.
+  // This has either one of the following three:
   animeResults?: Record<ResultsType, SurveyAnimeData[]>;
   animeImages?: ImageData[];
+  animeList?: AnimeData[];
 }
 
 export enum ResultsType {
