@@ -1,16 +1,16 @@
 <template>
   <div class="row align-items-center">
     <div class="col col-2">
-      <AnimeImages :animeImages="surveyAnime.anime.images" :enableCarouselControls="false"/>
+      <AnimeImages :animeImages="animeResults.anime.images" :enableCarouselControls="false"/>
     </div>
-    <div class="col ps-0" v-if="surveyAnime.anime.names">
-      <AnimeNames :animeNames="surveyAnime.anime.names" :showShortName="false"/>
+    <div class="col ps-0" v-if="animeResults.anime.names">
+      <AnimeNames :animeNames="animeResults.anime.names" :showShortName="false"/>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { SurveyAnimeData } from '@/util/data';
+import { AnimeResultsData } from '@/util/data';
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Options, Vue } from 'vue-class-component';
@@ -21,7 +21,7 @@ import { Options, Vue } from 'vue-class-component';
     AnimeImages,
   },
   props: {
-    surveyAnime: {
+    animeResults: {
       type: Object,
     }
   },
@@ -35,6 +35,6 @@ import { Options, Vue } from 'vue-class-component';
   }
 })
 export default class IndexSurveyAnime extends Vue {
-  surveyAnime!: SurveyAnimeData;
+  animeResults!: AnimeResultsData;
 }
 </script>

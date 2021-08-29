@@ -10,13 +10,13 @@
     </div>
     
     <template v-if="new Date() > closingTime">
-      <div v-for="(surveyAnimeList, resultstype) in survey.animeResults" :key="resultstype" class="col mb-3">
+      <div v-for="(animeResultsList, resultstype) in survey.animeResults" :key="resultstype" class="col mb-3">
         <div class="row mb-2">
           <div class="col bg-primary bg-opacity-75 text-light rounded py-1 px-2 w-100">
             {{ getResultstypeName(resultstype) }}
           </div>
         </div>
-        <IndexSurveyAnime v-for="(surveyAnime, idx) in surveyAnimeList" :key="idx" :surveyAnime="surveyAnime" class="mb-1" :class="idx==0 ? '' : 'd-lg-flex d-none'"/>
+        <IndexSurveyAnime v-for="(animeResults, idx) in animeResultsList" :key="idx" :animeResults="animeResults" class="mb-1" :class="idx==0 ? '' : 'd-lg-flex d-none'"/>
       </div>
     </template>
 
@@ -43,10 +43,11 @@
 </template>
 
 <script lang="ts">
-import { ResultsType, SurveyData } from '@/util/data';
+import { ResultsType } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
+import { IndexSurveyData } from '../Index.vue';
 
 
 @Options({
@@ -60,13 +61,13 @@ import { Options, Vue } from 'vue-class-component';
   },
   data() {
     return {
-      openingTime: new Date((this.survey as SurveyData).openingEpochTime),
-      closingTime: new Date((this.survey as SurveyData).closingEpochTime),
+      openingTime: new Date((this.survey as IndexSurveyData).openingEpochTime),
+      closingTime: new Date((this.survey as IndexSurveyData).closingEpochTime),
     }
   },
   methods: {
     getSurveyName() {
-      const survey = this.survey as SurveyData;
+      const survey = this.survey as IndexSurveyData;
       return `The ${survey.isPreseason ? 'Start' : 'End'} of ${getSeasonName(survey.season)} ${survey.year} Survey`;
     },
     getResultstypeName(resultstype: string): string {
@@ -83,6 +84,6 @@ import { Options, Vue } from 'vue-class-component';
   }
 })
 export default class IndexSurvey extends Vue {
-  survey!: SurveyData;
+  survey!: IndexSurveyData;
 }
 </script>

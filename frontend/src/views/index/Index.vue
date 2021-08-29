@@ -47,8 +47,14 @@
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
 import Ajax from '@/util/ajax';
-import { AnimeSeason, SurveyData } from '@/util/data';
+import { AnimeResultsData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
 import _ from 'lodash';
+
+
+export interface IndexSurveyData extends SurveyData {
+  animeResults?: Record<ResultsType, AnimeResultsData[]>; // For finished surveys
+  animeImages?: ImageData[];                              // For upcoming/ongoing suveys
+}
 
 
 @Options({
@@ -86,14 +92,14 @@ import _ from 'lodash';
       }
     },
 
-    getSurveyUrl(survey: SurveyData): string {
+    getSurveyUrl(survey: IndexSurveyData): string {
       return `/survey/${survey.year}/${survey.season}/${survey.isPreseason ? 'pre' : 'post'}/`;
     },
 
     // In the future this should use pagination,
     // the survey list obtained from the API gets appended to the already obtained survey list.
     async getSeasonData() {
-      let surveys = await Ajax.get<SurveyData[]>('api/index/') ?? [];
+      let surveys = await Ajax.get<IndexSurveyData[]>('api/index/') ?? [];
       surveys = surveys.concat(this.surveys);
 
       // [[2020 surveys], [2019 surveys], ...]

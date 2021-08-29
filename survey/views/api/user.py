@@ -9,7 +9,7 @@ class UserApi(View):
         jsonEncoder = json_encoder_factory()
 
         if not request.user or not request.user.is_authenticated:
-            return JsonResponse(UserData(authenticated=False), encoder=jsonEncoder)
+            return JsonResponse(UserData(authenticated=False), encoder=jsonEncoder, safe=False)
 
         reddit_account_queryset = self.request.user.socialaccount_set.filter(provider='reddit')
         profile_picture = reddit_account_queryset[0].extra_data['icon_img'] if reddit_account_queryset else None

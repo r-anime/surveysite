@@ -45,8 +45,8 @@ class DataBase:
 @dataclass
 class UserData(DataBase):
     authenticated: bool
-    username: Optional[str]
-    profile_picture: Optional[str]
+    username: Optional[str] = None
+    profile_picture: Optional[str] = None
 
 @dataclass
 class ImageData(DataBase):

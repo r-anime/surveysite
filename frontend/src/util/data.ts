@@ -36,9 +36,9 @@ export interface AnimeData {
   images: ImageData[];
 }
 
-export interface SurveyAnimeData {
+export interface AnimeResultsData {
   anime: AnimeData;
-  result: number;
+  result: Record<ResultsType, number>;
 }
 
 export interface SurveyData {
@@ -47,11 +47,6 @@ export interface SurveyData {
   isPreseason: boolean;
   openingEpochTime: number;
   closingEpochTime: number;
-
-  // This has either one of the following three:
-  animeResults?: Record<ResultsType, SurveyAnimeData[]>;
-  animeImages?: ImageData[];
-  animeList?: AnimeData[];
 }
 
 export enum ResultsType {
