@@ -1,3 +1,4 @@
+from survey.views.api.survey import SurveyApi
 from django.urls import path, include
 from django.shortcuts import redirect
 from survey.views.api.index import IndexApi
@@ -23,6 +24,7 @@ def favicon_redirect(request):
 urlpatterns = [
     path('index/', IndexApi.as_view()),
     path('user/', UserApi.as_view()),
+    path('survey/<int:year>/<int:season>/<pre_or_post>/', SurveyApi.as_view()),
 ]
 
 # urlpatterns = [
