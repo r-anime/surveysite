@@ -5,12 +5,10 @@
 <script lang="ts">
 import { SurveyData } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
-import SurveyForm from '@/components/SurveyForm.vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
   components: {
-    SurveyForm
   },
   data() {
     return {

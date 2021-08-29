@@ -9,7 +9,6 @@ class UserApi(View):
         jsonEncoder = json_encoder_factory()
 
         if not request.user or not request.user.is_authenticated:
-            JsonResponse()
             return JsonResponse(UserData(authenticated=False), encoder=jsonEncoder)
 
         reddit_account_queryset = self.request.user.socialaccount_set.filter(provider='reddit')

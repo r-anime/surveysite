@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import IndexSurvey from '@/components/IndexSurvey.vue';
+import IndexSurvey from './components/IndexSurvey.vue';
 import Ajax from '@/util/ajax';
 import { AnimeSeason, SurveyData } from '@/util/data';
 import _ from 'lodash';

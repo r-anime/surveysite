@@ -109,7 +109,6 @@ class SurveyData(DataBase):
 
     anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
-    anime_list: Optional[list[AnimeData]]
 
 
 class ResultsType(Enum):

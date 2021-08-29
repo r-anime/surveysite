@@ -45,7 +45,7 @@
 <script lang="ts">
 import { ResultsType, SurveyData } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';
-import IndexSurveyAnime from '@/components/IndexSurveyAnime.vue';
+import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
 
 
