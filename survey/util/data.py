@@ -4,7 +4,7 @@ from django.db.models import Model
 from django.forms.models import model_to_dict
 from enum import Enum
 from json import JSONEncoder
-from survey.models import Anime, AnimeName, Image
+from survey.models import Anime, AnimeName, Image, Survey
 from typing import Any, Callable, Optional, Tuple, Type
 
 
@@ -102,13 +102,20 @@ class SurveyAnimeData(DataBase): # NOTE: Change this name, I can already foresee
 @dataclass
 class SurveyData(DataBase):
     year: int
-    season: Anime.AnimeSeason
+    season: int
     is_preseason: bool
     opening_epoch_time: int
     closing_epoch_time: int
 
-    anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
-    anime_images: Optional[list[ImageData]]
+    @staticmethod
+    def from_model(model: Survey) -> SurveyData:
+        return SurveyData(
+            year         = model.year,
+            season       = model.season,
+            is_preseason = model.is_preseason,
+            opening_epoch_time = model.opening_time.timestamp() * 1000,
+            closing_epoch_time = model.closing_time.timestamp() * 1000,
+        )
 
 
 class ResultsType(Enum):

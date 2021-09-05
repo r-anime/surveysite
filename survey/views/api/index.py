@@ -1,10 +1,12 @@
-from datetime import datetime
+from __future__ import annotations
+from dataclasses import dataclass
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
 from survey.models import Anime, Image, Survey
-from survey.util.data import ImageData, ResultsType, SurveyAnimeData, SurveyData, json_encoder_factory, AnimeData
+from survey.util.data import DataBase, ImageData, ResultsType, SurveyAnimeData, SurveyData, json_encoder_factory, AnimeData
 from survey.util.survey import get_survey_anime
 from survey.views.results import ResultsGenerator
+from typing import Optional
 
 
 class IndexApi(View):
@@ -34,16 +36,12 @@ class IndexApi(View):
                 anime_images = Image.objects.filter(anime__in=anime_list).order_by('?')[:12]
                 anime_images = [ImageData.from_model(image) for image in anime_images]
 
-            response.append(SurveyData(
-                year         = survey.year,
-                season       = survey.season,
-                is_preseason = survey.is_preseason,
-                opening_epoch_time = survey.opening_time.timestamp() * 1000,
-                closing_epoch_time = survey.closing_time.timestamp() * 1000,
-                anime_results = anime_results,
-                anime_images  = anime_images,
+            response.append(IndexSurveyData.from_model(
+                model=survey,
+                anime_images=anime_images,
+                anime_results=anime_results,
             ))
-        
+
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
 
@@ -54,8 +52,25 @@ def get_top_results(results: dict[Anime, dict[ResultsType, float]], resultstype:
         key=lambda item: item[1][resultstype]
     )[:count]
 
-    return [
-                      # If this does one query per anime when gathering images, then check if this can be optimized
+    return [          # If this does one query per anime when gathering images, then check if this can be optimized
         SurveyAnimeData(anime=AnimeData.from_model(anime), result=anime_results[resultstype])
         for (anime, anime_results) in sorted_results
     ]
+
+@dataclass
+class IndexSurveyData(SurveyData):
+    anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
+    anime_images: Optional[list[ImageData]]
+
+    @staticmethod
+    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]) -> IndexSurveyData:
+        survey_data = SurveyData.from_model(model)
+        return IndexSurveyData(
+            year=survey_data.year,
+            season=survey_data.season,
+            is_preseason=survey_data.is_preseason,
+            opening_epoch_time=survey_data.opening_epoch_time,
+            closing_epoch_time=survey_data.closing_epoch_time,
+            anime_images=anime_images,
+            anime_results=anime_results,
+        )

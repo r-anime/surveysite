@@ -1,27 +1,39 @@
 <template>
   <h1 class="mb-4 mx-n2 shadow">{{ surveyName }}</h1>
+  <p>{{ survey }}</p>
+  <p>{{ animeList }}</p>
 </template>
 
 <script lang="ts">
-import { SurveyData } from '@/util/data';
+import Ajax from '@/util/ajax';
+import { AnimeData, SurveyData } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
+
+interface SurveyFormData {
+  survey: SurveyData;
+  animeList: AnimeData[];
+}
 
 @Options({
   components: {
   },
   data() {
     return {
-      survey: {
-        year: Number(this.$route.params.year),
-        season: Number(this.$route.params.season),
-        isPreseason: (this.$route.params.preOrPost as string).toLowerCase() === 'pre',
-      } as SurveyData,
+      survey: {} as SurveyData,
+      animeList: [] as AnimeData[],
       surveyName: '',
     }
   },
-  mounted() {
-    this.surveyName = this.survey ? getSurveyName(this.survey as SurveyData) : '';
+  async mounted() {
+    const year = this.$route.params.year as number;
+    const season = this.$route.params.season as number;
+    const preOrPostSeason = this.$route.params.preOrPost as string;
+
+    const surveyFormData = await Ajax.get<SurveyFormData>(`api/survey/${year}/${season}/${preOrPostSeason}/`);
+    this.survey = surveyFormData?.survey;
+    this.animeList = surveyFormData?.animeList;
+    this.surveyName = getSurveyName(this.survey);
   }
 })
 export default class Survey extends Vue {}
