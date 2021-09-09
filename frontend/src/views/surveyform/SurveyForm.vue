@@ -10,9 +10,25 @@ import { AnimeData, SurveyData } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 
+
+interface ResponseData {
+  age?: number
+  gender?: string
+}
+
+interface AnimeResponseData {
+  animeId: number
+  score: number
+  watching: boolean
+  underwatched?: boolean
+  expectations?: string
+}
+
 interface SurveyFormData {
-  survey: SurveyData;
-  animeList: AnimeData[];
+  survey: Survey
+  responseData: ResponseData
+  animeDataList: AnimeData[]
+  animeResponseDataList: AnimeResponseData[]
 }
 
 @Options({
@@ -21,7 +37,7 @@ interface SurveyFormData {
   data() {
     return {
       survey: {} as SurveyData,
-      animeList: [] as AnimeData[],
+      animeDataList: [] as AnimeData[],
       surveyName: '',
     }
   },
@@ -31,8 +47,11 @@ interface SurveyFormData {
     const preOrPostSeason = this.$route.params.preOrPost as string;
 
     const surveyFormData = await Ajax.get<SurveyFormData>(`api/survey/${year}/${season}/${preOrPostSeason}/`);
-    this.survey = surveyFormData?.survey;
-    this.animeList = surveyFormData?.animeList;
+    if (surveyFormData === null) return;
+    console.log(surveyFormData);
+
+    this.survey = surveyFormData.survey;
+    this.animeDataList = surveyFormData.animeDataList;
     this.surveyName = getSurveyName(this.survey);
   }
 })
