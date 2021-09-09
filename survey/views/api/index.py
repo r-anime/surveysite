@@ -57,8 +57,9 @@ def get_top_results(results: dict[Anime, dict[ResultsType, float]], resultstype:
         for (anime, anime_results) in sorted_results
     ]
 
+
 @dataclass
-class IndexSurveyData(SurveyData):
+class IndexSurveyData(DataBase):
     anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
 
