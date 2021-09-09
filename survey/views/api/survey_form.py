@@ -27,7 +27,7 @@ class SurveyFormApi(View):
         anime_list, _, _ = get_survey_anime(survey)
 
         response_data = ResponseData.from_model(previous_response) if previous_response else ResponseData()
-        anime_response_data_list: list[AnimeResponseData] = []#[AnimeResponse.objects.filter(response=previous_response, anime=anime) for anime in anime_list]
+        anime_response_data_list: list[AnimeResponseData] = []
         for anime in anime_list:
             previous_animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime)
             if previous_animeresponse_queryset and previous_animeresponse_queryset.count() == 1:
@@ -66,8 +66,8 @@ def get_username_hash(user: User) -> bytes:
 
 @dataclass
 class ResponseData(DataBase):
-    age: Optional[int]
-    gender: Optional[str]
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
     @staticmethod
     def from_model(model: Response) -> ResponseData:

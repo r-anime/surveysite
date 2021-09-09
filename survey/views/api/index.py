@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
 from survey.models import Anime, Image, Survey
-from survey.util.data import DataBase, ImageData, ResultsType, SurveyAnimeData, SurveyData, json_encoder_factory, AnimeData
+from survey.util.data import ImageData, ResultsType, SurveyAnimeData, SurveyData, json_encoder_factory, AnimeData
 from survey.util.survey import get_survey_anime
 from survey.views.results import ResultsGenerator
 from typing import Optional
@@ -59,7 +59,7 @@ def get_top_results(results: dict[Anime, dict[ResultsType, float]], resultstype:
 
 
 @dataclass
-class IndexSurveyData(DataBase):
+class IndexSurveyData(SurveyData):
     anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
 

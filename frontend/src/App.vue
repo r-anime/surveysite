@@ -2,7 +2,7 @@
   <div class="mb-5">
     <TheNavbar/>
   </div>
-  <div class="container-lg">
+  <div class="container-md">
     <router-view/>
   </div>
 </template>
