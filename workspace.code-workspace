@@ -32,6 +32,13 @@
 				],
 				"django": true,
 				"envFile": "${workspaceFolder}/.env"
+			},
+			{
+				"command": "npm run-script debug",
+				"name": "Front-end (Node/Vue) (cmd)",
+				"request": "launch",
+				"type": "node-terminal",
+				"cwd": "${workspaceFolder}/frontend/"
 			}
 		],
 		"compounds": [
@@ -42,6 +49,15 @@
 					"hidden": false,
 					"group": "",
 					"order": 1
+				}
+			},
+			{
+				"name": "Back-end + front-end (cmd)",
+				"configurations": ["Back-end (Django)", "Front-end (Node/Vue) (cmd)"],
+				"presentation": {
+					"hidden": false,
+					"group": "",
+					"order": 2
 				}
 			}
 		]
