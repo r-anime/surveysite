@@ -11,8 +11,8 @@
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
-            <select class="form-control" id="input-gender" v-model="data.responseData.gender">
-              <option :value="null" disabled>Select a gender</option>
+            <select class="form-select" id="input-gender" v-model="data.responseData.gender">
+              <option :value="(null)">-----</option>
               <option value="M">Male</option>
               <option value="F">Female</option>
               <option value="O">Other</option>
@@ -53,15 +53,40 @@
                 </h6>
               </div>
 
-              <div>Input</div>
-
               <!-- Watching checkbox -->
+              <div class="mb-3">
+                <input type="checkbox" class="btn-check" :id="`input-anime-${animeIdx.toString()}-watching`" autocomplete="off" v-model="data.animeResponseDataList[animeIdx].watching">
+                <label class="btn btn-primary" :for="`input-anime-${animeIdx.toString()}-watching`">{{ data.animeResponseDataList[animeIdx].watching }}</label>
+              </div>
 
               <!-- If post-season && series: Underwatched checkbox -->
+              <div class="mb-3"> <!-- v-if="!data.survey.isPreseason" -->
+                <input type="checkbox" class="btn-check" :id="`input-anime-${animeIdx.toString()}-underwatched`" autocomplete="off" v-model="data.animeResponseDataList[animeIdx].underwatched">
+                <label class="btn btn-primary" :for="`input-anime-${animeIdx.toString()}-underwatched`">{{ data.animeResponseDataList[animeIdx].underwatched }}</label>
+              </div>
 
               <!-- Score input -->
+              <div class="mb-3">
+                <label class="form-label" :for="`input-anime-${animeIdx.toString()}-score`">How good do you expect this to be? {{ data.animeResponseDataList[animeIdx].score }}-{{ typeof data.animeResponseDataList[animeIdx].score }}</label>
+                <select class="form-select" :id="`input-anime-${animeIdx.toString()}-score`" v-model="data.animeResponseDataList[animeIdx].score">
+                  <option :value="(null)">-----</option>
+                  <option value="5">5/5 - Great</option>
+                  <option value="4">4/5</option>
+                  <option value="3">3/5 - Average</option>
+                  <option value="2">2/5</option>
+                  <option value="1">1/5 - Bad</option>
+                </select>
+              </div>
 
               <!-- If post-season && series: Expectations selectbox -->
+              <div class="mb-3"> <!-- v-if="!data.survey.isPreseason" -->
+                <label class="form-label" :for="`input-anime-${animeIdx.toString()}-expectations`">Was this a surprise or disappointment? {{ data.animeResponseDataList[animeIdx].expectations }}-{{ typeof data.animeResponseDataList[animeIdx].expectations }}</label>
+                <select class="form-select" :id="`input-anime-${animeIdx.toString()}-expectations`" v-model="data.animeResponseDataList[animeIdx].expectations">
+                  <option :value="(null)">-----</option>
+                  <option value="S">Surprise</option>
+                  <option value="D">Disappointment</option>
+                </select>
+              </div>
             </div></div>
           </div>
         </div>
