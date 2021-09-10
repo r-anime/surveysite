@@ -81,23 +81,23 @@ import AnimeImages from '@/components/AnimeImages.vue';
 
 
 interface ResponseData {
-  age?: number
-  gender?: string
+  age?: number;
+  gender?: string;
 }
 
 interface AnimeResponseData {
-  animeId: number
-  score: number
-  watching: boolean
-  underwatched?: boolean
-  expectations?: string
+  animeId: number;
+  score: number;
+  watching: boolean;
+  underwatched?: boolean;
+  expectations?: string;
 }
 
 interface SurveyFormData {
-  survey: SurveyData
-  responseData: ResponseData
-  animeDataList: AnimeData[]
-  animeResponseDataList: AnimeResponseData[]
+  survey: SurveyData;
+  responseData: ResponseData;
+  animeDataList: AnimeData[];
+  animeResponseDataList: AnimeResponseData[];
 }
 
 @Options({
