@@ -1,4 +1,5 @@
-import { AnimeData, AnimeSeason, AnimeType, SurveyData } from "./data";
+import { filter, orderBy } from "lodash";
+import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, SurveyData } from "./data";
 
 /**
  * Returns the season's name with the first letter capitalized
@@ -23,4 +24,12 @@ export function isAnimeSeries(anime: AnimeData): boolean {
   return anime.animeType == AnimeType.BULK_RELEASE ||
     anime.animeType == AnimeType.ONA_SERIES ||
     anime.animeType == AnimeType.TV_SERIES
+}
+
+export function getAnimeName(anime: AnimeData, animeNameType: AnimeNameType): string | null {
+  const filtered = filter(anime.names, name => name.type == animeNameType);
+  if (!filtered.length) return null;
+
+  const ordered = orderBy(filtered, ['isOfficial', 'name'], ['desc', 'asc']);
+  return ordered[0].name;
 }
