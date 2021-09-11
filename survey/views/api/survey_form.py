@@ -91,7 +91,8 @@ class AnimeResponseData(DataBase):
             score=model.score,
             watching=model.watching,
             underwatched=model.underwatched,
-            expectations=model.expectations,
+            # Bit jank, but since the neutral answer is stored in the DB as an empty string, this otherwise goes wrong on the front-end
+            expectations=model.expectations if model.expectations else None,
         )
 
 @dataclass

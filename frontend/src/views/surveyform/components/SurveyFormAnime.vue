@@ -8,7 +8,7 @@
 
       <!-- Card info -->
       <div class="col"><div class="card-body">
-        <div class="card-title"> <!-- Could the AnimeNames component be used for this? -->
+        <div class="card-title mb-3"> <!-- Could the AnimeNames component be used for this? -->
           <h5 class="mb-1">
             {{ japaneseName }}
             <span style="font-size:60%;" v-if="shortName">({{ shortName }})</span>
@@ -18,44 +18,46 @@
           </h6>
         </div>
 
-        {{ isSurveyPreseason }} - {{ isAnimeNew }}
-
         <!-- Watching checkbox -->
         <div class="mb-3">
+          <span class="mb-1">
+            {{
+              isSurveyPreseason ?
+                isAnimeNew ?
+                  'Will you watch this?' :
+                  'Did you watch this and will you continue watching this?' :
+                'Did you watch this?'
+            }}
+          </span>
+          <br/>
           <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-watching`" autocomplete="off" v-model="animeResponseData.watching">
-          <label class="btn btn-primary" :for="`input-anime-${animeId}-watching`">
-            <template v-if="isSurveyPreseason && isAnimeNew">
-              Will you watch this?
-            </template>
-            <template v-else-if="isSurveyPreseason && !isAnimeNew">
-              Did you watch this and will you continue watching this?
-            </template>
-            <template v-else>
-              Did you watch this?
-            </template>
-            (({{ animeResponseData.watching }}) - {{ typeof animeResponseData.watching }})
+          <label class="btn w-100 mt-1" :class="animeResponseData.watching ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-watching`">
+            {{ animeResponseData.watching ? 'Yes' : 'No' }}
           </label>
         </div>
 
         <!-- If post-season && series: Underwatched checkbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
+          <span class="mb-1">
+            Did you find this underwatched?
+          </span>
+          <br/>
           <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
-          <label class="btn btn-primary" :for="`input-anime-${animeId}-underwatched`">{{ animeResponseData.underwatched }}</label>
+          <label class="btn w-100 mt-1" :class="animeResponseData.underwatched ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-underwatched`">
+            {{ animeResponseData.underwatched ? 'Yes' : 'No' }}
+          </label>
         </div>
 
         <!-- Score input -->
         <div class="mb-3">
           <label class="form-label" :for="`input-anime-${animeId}-score`">
-            <template v-if="isSurveyPreseason && isAnimeNew">
-              How good do you expect this to be?
-            </template>
-            <template v-else-if="isSurveyPreseason && !isAnimeNew">
-              How good do you expect the remainder to be?
-            </template>
-            <template v-else>
-              What did you think of this?
-            </template>
-            ({{ animeResponseData.score }} - {{ typeof animeResponseData.score }})
+            {{
+              isSurveyPreseason ?
+                isAnimeNew ?
+                  'How good do you expect this to be?' :
+                  'How good do you expect the remainder to be?' :
+                'What did you think of this?'
+            }}
           </label>
           <select class="form-select" :id="`input-anime-${animeId}-score`" v-model="animeResponseData.score">
             <option :value="(null)">-----</option>
@@ -69,7 +71,7 @@
 
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
-          <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment? {{ animeResponseData.expectations }}-{{ typeof animeResponseData.expectations }}</label>
+          <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment?</label>
           <select class="form-select" :id="`input-anime-${animeId}-expectations`" v-model="animeResponseData.expectations">
             <option :value="(null)">-----</option>
             <option value="S">Surprise</option>
