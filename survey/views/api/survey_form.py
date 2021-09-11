@@ -27,19 +27,19 @@ class SurveyFormApi(View):
         anime_list, _, _ = get_survey_anime(survey)
 
         response_data = ResponseData.from_model(previous_response) if previous_response else ResponseData()
-        anime_response_data_list: list[AnimeResponseData] = []
+        anime_response_data_dict: dict[int, AnimeResponseData] = {}
         for anime in anime_list:
             previous_animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime)
             if previous_animeresponse_queryset and previous_animeresponse_queryset.count() == 1:
-                anime_response_data_list.append(AnimeResponseData.from_model(previous_animeresponse_queryset.first()))
+                anime_response_data_dict[anime.id] = AnimeResponseData.from_model(previous_animeresponse_queryset.first())
             else:
-                anime_response_data_list.append(AnimeResponseData(anime_id=anime.id))
+                anime_response_data_dict[anime.id] = AnimeResponseData()
         
         response = SurveyFormData(
             survey=SurveyData.from_model(survey),
-            anime_data_list=[AnimeData.from_model(anime) for anime in anime_list],
             response_data=response_data,
-            anime_response_data_list=anime_response_data_list
+            anime_data_dict={anime.id: AnimeData.from_model(anime) for anime in anime_list},
+            anime_response_data_dict=anime_response_data_dict
         )
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
@@ -78,7 +78,6 @@ class ResponseData(DataBase):
 
 @dataclass
 class AnimeResponseData(DataBase):
-    anime_id: int
     score: Optional[int] = None
     watching: Optional[bool] = None
     underwatched: Optional[bool] = None
@@ -87,7 +86,6 @@ class AnimeResponseData(DataBase):
     @staticmethod
     def from_model(model: AnimeResponse) -> AnimeResponseData:
         return AnimeResponseData(
-            anime_id=model.anime.id,
             score=model.score,
             watching=model.watching,
             underwatched=model.underwatched,
@@ -98,5 +96,5 @@ class AnimeResponseData(DataBase):
 class SurveyFormData(DataBase):
     survey: SurveyData
     response_data: ResponseData
-    anime_data_list: list[AnimeData]
-    anime_response_data_list: list[AnimeResponseData]
+    anime_data_dict: dict[int, AnimeData]
+    anime_response_data_dict: dict[int, AnimeResponseData]

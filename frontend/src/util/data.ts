@@ -24,6 +24,16 @@ export enum AnimeSeason {
   FALL   = 3,
 }
 
+export enum AnimeType {
+  TV_SERIES    = 'TV',
+  ONA_SERIES   = 'ONAS',
+  BULK_RELEASE = 'BULK',
+  MOVIE        = 'MV',
+  ONA          = 'ONA',
+  OVA          = 'OVA',
+  TV_SPECIAL   = 'TVSP',
+}
+
 export interface AnimeNameData {
   name: string;
   isOfficial: boolean;
@@ -34,6 +44,7 @@ export interface AnimeData {
   id: number;
   names: AnimeNameData[];
   images: ImageData[];
+  animeType: AnimeType;
 }
 
 export interface AnimeResultsData {

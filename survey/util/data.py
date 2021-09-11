@@ -83,6 +83,7 @@ class AnimeData(DataBase):
     id: int
     names: list[AnimeNameData]
     images: list[ImageData]
+    anime_type: str
 
     @staticmethod
     def from_model(model: Anime) -> AnimeData:
@@ -91,7 +92,8 @@ class AnimeData(DataBase):
         return AnimeData(
             id=model.id,
             names=name_data_list,
-            images=image_data_list
+            images=image_data_list,
+            anime_type=model.anime_type
         )
 
 @dataclass
