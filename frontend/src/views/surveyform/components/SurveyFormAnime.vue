@@ -18,21 +18,45 @@
           </h6>
         </div>
 
+        {{ isSurveyPreseason }} - {{ isAnimeNew }}
+
         <!-- Watching checkbox -->
         <div class="mb-3">
           <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-watching`" autocomplete="off" v-model="animeResponseData.watching">
-          <label class="btn btn-primary" :for="`input-anime-${animeId}-watching`">{{ animeResponseData.watching }}</label>
+          <label class="btn btn-primary" :for="`input-anime-${animeId}-watching`">
+            <template v-if="isSurveyPreseason && isAnimeNew">
+              Will you watch this?
+            </template>
+            <template v-else-if="isSurveyPreseason && !isAnimeNew">
+              Did you watch this and will you continue watching this?
+            </template>
+            <template v-else>
+              Did you watch this?
+            </template>
+            (({{ animeResponseData.watching }}) - {{ typeof animeResponseData.watching }})
+          </label>
         </div>
 
         <!-- If post-season && series: Underwatched checkbox -->
-        <div class="mb-3"> <!-- v-if="!data.survey.isPreseason" -->
+        <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
           <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
           <label class="btn btn-primary" :for="`input-anime-${animeId}-underwatched`">{{ animeResponseData.underwatched }}</label>
         </div>
 
         <!-- Score input -->
         <div class="mb-3">
-          <label class="form-label" :for="`input-anime-${animeId}-score`">How good do you expect this to be? {{ animeResponseData.score }}-{{ typeof animeResponseData.score }}</label>
+          <label class="form-label" :for="`input-anime-${animeId}-score`">
+            <template v-if="isSurveyPreseason && isAnimeNew">
+              How good do you expect this to be?
+            </template>
+            <template v-else-if="isSurveyPreseason && !isAnimeNew">
+              How good do you expect the remainder to be?
+            </template>
+            <template v-else>
+              What did you think of this?
+            </template>
+            ({{ animeResponseData.score }} - {{ typeof animeResponseData.score }})
+          </label>
           <select class="form-select" :id="`input-anime-${animeId}-score`" v-model="animeResponseData.score">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
@@ -44,7 +68,7 @@
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
-        <div class="mb-3"> <!-- v-if="!data.survey.isPreseason" -->
+        <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
           <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment? {{ animeResponseData.expectations }}-{{ typeof animeResponseData.expectations }}</label>
           <select class="form-select" :id="`input-anime-${animeId}-expectations`" v-model="animeResponseData.expectations">
             <option :value="(null)">-----</option>
@@ -61,12 +85,14 @@
 import { Options, Vue } from 'vue-class-component';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { AnimeData, AnimeNameType } from '@/util/data';
-import { getAnimeName } from '@/util/helpers';
+import { getAnimeName, isAnimeSeries } from '@/util/helpers';
 
 @Options({
   props: {
     animeData: Object,
     animeResponseData: Object,
+    isSurveyPreseason: Boolean,
+    isAnimeNew: Boolean,
   },
   components: {
     AnimeImages,
@@ -74,6 +100,7 @@ import { getAnimeName } from '@/util/helpers';
   data() {
     return {
       animeId: (this.animeData as AnimeData)?.id,
+      isAnimeSeries: isAnimeSeries(this.animeData),
       japaneseName: null,
       englishName: null,
       shortName: null,

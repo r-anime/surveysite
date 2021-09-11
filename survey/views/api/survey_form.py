@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from survey.util.anime import anime_is_continuing
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.http.response import HttpResponseForbidden
@@ -39,7 +40,8 @@ class SurveyFormApi(View):
             survey=SurveyData.from_model(survey),
             response_data=response_data,
             anime_data_dict={anime.id: AnimeData.from_model(anime) for anime in anime_list},
-            anime_response_data_dict=anime_response_data_dict
+            anime_response_data_dict=anime_response_data_dict,
+            is_anime_new_dict={anime.id: not anime_is_continuing(anime, survey) for anime in anime_list},
         )
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
@@ -98,3 +100,5 @@ class SurveyFormData(DataBase):
     response_data: ResponseData
     anime_data_dict: dict[int, AnimeData]
     anime_response_data_dict: dict[int, AnimeResponseData]
+
+    is_anime_new_dict: dict[int, bool]

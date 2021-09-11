@@ -93,7 +93,7 @@ class AnimeData(DataBase):
             id=model.id,
             names=name_data_list,
             images=image_data_list,
-            anime_type=model.anime_type
+            anime_type=model.anime_type,
         )
 
 @dataclass

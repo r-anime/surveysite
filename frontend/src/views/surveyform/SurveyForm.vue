@@ -32,7 +32,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)"/>
         </div>
       </div>
     </template>
@@ -47,7 +47,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)"/>
         </div>
       </div>
     </template>
@@ -82,6 +82,7 @@ interface SurveyFormData {
   responseData: ResponseData;
   animeDataDict: Record<number, AnimeData>;
   animeResponseDataDict: Record<number, AnimeResponseData>;
+  isAnimeNewDict: Record<number, boolean>;
 }
 
 @Options({
@@ -91,7 +92,7 @@ interface SurveyFormData {
   data() {
     return {
       surveyName: '',
-      surveyIsPreseason: true,
+      isSurveyPreseason: true,
       csrfToken: Cookie.get('csrftoken') ?? '',
       data: null,
       animeSeriesIds: [],
@@ -111,6 +112,10 @@ interface SurveyFormData {
       const data = this.data as SurveyFormData;
       return data.animeResponseDataDict[id];
     },
+    isAnimeNew(id: number): boolean {
+      const data = this.data as SurveyFormData;
+      return data.isAnimeNewDict[id];
+    },
   },
   async mounted() {
     const year = this.$route.params.year as number;
@@ -122,7 +127,7 @@ interface SurveyFormData {
 
     console.log(surveyFormData);
     this.data = surveyFormData;
-    this.surveyIsPreseason = surveyFormData.survey.isPreseason;
+    this.isSurveyPreseason = surveyFormData.survey.isPreseason;
     this.surveyName = getSurveyName(surveyFormData.survey);
 
     const groupedAnime = groupBy(surveyFormData.animeDataDict, isAnimeSeries);
