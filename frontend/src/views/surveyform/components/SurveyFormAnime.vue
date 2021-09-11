@@ -3,7 +3,7 @@
     <div class="row">
       <!-- Card image -->
       <div class="col-lg-3 col-md-4 col-sm-3 col-4">
-        <AnimeImages :animeImages="animeData.images"/> <!-- Should be rounded with 'rounded-start' -->
+        <AnimeImages :animeImages="animeData.images" imgClass="rounded-start" :alignCenter="false"/> <!-- Should be rounded with 'rounded-start' -->
       </div>
 
       <!-- Card info -->

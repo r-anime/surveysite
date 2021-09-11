@@ -1,14 +1,14 @@
 <template>
 
   <template v-if="animeImages.length === 1">
-    <img :src="animeImages[0].urlSmall" :alt="animeImages[0].name" class="img-fluid">
+    <img :src="animeImages[0].urlSmall" :alt="animeImages[0].name" class="img-fluid" :class="imgClass">
   </template>
 
   <template v-else-if="animeImages.length > 1">
     <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade">
-      <div class="carousel-inner d-flex align-items-center">
-        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item d-block" :class="idx==0 ? 'active' : ''">
-          <img :src="image.urlSmall" :alt="image.name" class="d-block w-100">
+      <div class="carousel-inner d-flex" :class="alignCenter ? 'align-items-center' : ''">
+        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item" :class="(idx==0 ? 'active' : '') + (alignCenter ? ' d-block' : '')">
+          <img :src="image.urlSmall" :alt="image.name" class="w-100" :class="imgClass">
         </div>
       </div>
       <button v-if="enableCarouselControls" class="carousel-control-prev" type="button" :data-bs-target="'#animeImageCarousel'+id" data-bs-slide="prev">
@@ -23,7 +23,7 @@
   </template>
 
   <template v-else>
-    <img src="../assets/image-unavailable.png" alt="Image unavailable" class="img-fluid">
+    <img src="../assets/image-unavailable.png" alt="Image unavailable" class="img-fluid" :class="imgClass">
   </template>
 
 </template>
@@ -42,7 +42,15 @@ import { Carousel } from 'bootstrap';
     enableCarouselControls: {
       type: Boolean,
       default: () => true,
-    }
+    },
+    alignCenter: {
+      type: Boolean,
+      default: () => true,
+    },
+    imgClass: {
+      type: String,
+      default: () => '',
+    },
   },
   data() {
     return {
