@@ -38,6 +38,12 @@ class DataBase:
     def get_fields(cls):
         return list(cls.__dataclass_fields__.keys())
 
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]):
+        fields = cls.get_fields()
+        kwargs = { field: d[field] for field in fields }
+        return cls(**kwargs)
+
     def to_dict(self):
         fields = self.get_fields()
         return { field: value.to_dict() if isinstance(value := getattr(self, field), DataBase) else value for field in fields }

@@ -51,6 +51,8 @@
         </div>
       </div>
     </template>
+
+    <button class="btn btn-primary" @click="submit()">Submit</button>
   </template>
 </template>
 
@@ -59,7 +61,6 @@ import Ajax from '@/util/ajax';
 import { AnimeData, AnimeNameType, SurveyData } from '@/util/data';
 import { getAnimeName, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
-import Cookie from 'js-cookie';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
 
@@ -93,13 +94,20 @@ interface SurveyFormData {
     return {
       surveyName: '',
       isSurveyPreseason: true,
-      csrfToken: Cookie.get('csrftoken') ?? '',
       data: null,
       animeSeriesIds: [],
       specialAnimeIds: [],
     };
   },
   methods: {
+    getApiUrl(): string {
+      const year = this.$route.params.year as number;
+      const season = this.$route.params.season as number;
+      const preOrPostSeason = this.$route.params.preOrPost as string;
+      
+      return `api/survey/${year}/${season}/${preOrPostSeason}/`;
+    },
+
     getResponseData(): ResponseData {
       const data = this.data as SurveyFormData;
       return data.responseData;
@@ -116,13 +124,13 @@ interface SurveyFormData {
       const data = this.data as SurveyFormData;
       return data.isAnimeNewDict[id];
     },
+
+    async submit() {
+      await Ajax.post(this.getApiUrl(), this.data);
+    },
   },
   async mounted() {
-    const year = this.$route.params.year as number;
-    const season = this.$route.params.season as number;
-    const preOrPostSeason = this.$route.params.preOrPost as string;
-
-    const surveyFormData = await Ajax.get<SurveyFormData>(`api/survey/${year}/${season}/${preOrPostSeason}/`);
+    const surveyFormData = await Ajax.get<SurveyFormData>(this.getApiUrl());
     if (surveyFormData === null) return;
 
     console.log(surveyFormData);

@@ -1,15 +1,17 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from survey.util.anime import anime_is_continuing
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.http.response import HttpResponseForbidden
+from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.generic import View
 from hashlib import sha512
+from http import HTTPStatus
+import json
 from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
+from survey.util.anime import anime_is_continuing
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
 from survey.util.survey import get_survey_or_404, get_survey_anime
-from typing import Optional
+from typing import Any, Optional
 
 class SurveyFormApi(View):
     def get(self, request, *args, **kwargs):
@@ -46,6 +48,24 @@ class SurveyFormApi(View):
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
+    def post(self, request, *args, **kwargs):
+        json_data: dict[str, dict[str, Any]] = json.loads(request.body)
+
+        try:
+            response_data = ResponseData.from_dict(json_data['response_data'])
+
+            anime_response_data_dict: dict[int, AnimeResponseData] = {}
+            for anime_id, anime_response_json_data in json_data['anime_response_data_dict'].items():
+                anime_response_data = AnimeResponseData.from_dict(anime_response_json_data)
+                if anime_response_data.contains_data:
+                    anime_response_data_dict[anime_id] = anime_response_data
+        except KeyError:
+            return HttpResponseBadRequest('Request data is invalid')
+
+        print(response_data)
+        print(anime_response_data_dict)
+
+        return HttpResponse(status=HTTPStatus.NO_CONTENT)
 
 
 def try_get_previous_response(user: User, survey: Survey) -> tuple[Response, bool]:
@@ -73,6 +93,7 @@ class ResponseData(DataBase):
 
     @staticmethod
     def from_model(model: Response) -> ResponseData:
+        print(model._meta.get_fields())
         return ResponseData(
             age=model.age,
             gender=model.gender,
@@ -84,6 +105,10 @@ class AnimeResponseData(DataBase):
     watching: Optional[bool] = None
     underwatched: Optional[bool] = None
     expectations: Optional[str] = None
+
+    @property
+    def contains_data(self) -> bool:
+        return self.score is not None or self.watching or self.underwatched or self.expectations is not None
 
     @staticmethod
     def from_model(model: AnimeResponse) -> AnimeResponseData:

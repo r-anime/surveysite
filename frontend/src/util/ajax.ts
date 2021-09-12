@@ -1,4 +1,5 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import Cookies from 'js-cookie';
 import _ from 'lodash';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -57,7 +58,18 @@ export default class Ajax {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   static async post<T>(url: string, data?: any): Promise<T | null> {
     try {
-      const response = await axios.post<T>(url, convertRequestData(data));
+      const csrfToken = Cookies.get('csrftoken');
+      if (!csrfToken) throw new Error("No CSRF token");
+      
+      const requestHeaders = {
+        'X-CSRFToken': csrfToken,
+      };
+      const requestConfig = {
+        headers: requestHeaders,
+      } as AxiosRequestConfig;
+
+      const response = await axios.post<T>(url, convertRequestData(data), requestConfig);
+
       return getResponseData<T>(response);
     } catch (e) {
       this.handleError(e);
