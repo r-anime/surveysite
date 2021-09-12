@@ -45,13 +45,16 @@ class DataBase:
         parsers = cls.dict_field_parsers
 
         # Filter only the known fields from the dict, and parse values if necessary
-        kwargs = {
-            field: (
-                parsers[field](d[field])
-                if field in parsers else
-                d[field]
-            ) for field in fields
-        }
+        try:
+            kwargs = {
+                field: (
+                    parsers[field](d[field])
+                    if field in parsers else
+                    d[field]
+                ) for field in fields
+            }
+        except KeyError as e:
+            raise KeyError('Field ' + str(e) + ' was not found (class ' + cls.__name__ + ')')
         return cls(**kwargs)
 
     def to_dict(self):

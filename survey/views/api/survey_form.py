@@ -8,6 +8,7 @@ from django.views.generic import View
 from hashlib import sha512
 from http import HTTPStatus
 import json
+import logging
 from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
 from survey.util.anime import anime_is_continuing
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
@@ -45,6 +46,7 @@ class SurveyFormApi(View):
             anime_data_dict={anime.id: AnimeData.from_model(anime) for anime in anime_list},
             anime_response_data_dict=anime_response_data_dict,
             is_anime_new_dict={anime.id: not anime_is_continuing(anime, survey) for anime in anime_list},
+            is_response_linked_to_user=previous_response is not None,
         )
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
@@ -54,7 +56,8 @@ class SurveyFormApi(View):
 
         try:
             submit_data = SurveyFromSubmitData.from_dict(json_data)
-        except KeyError:
+        except KeyError as e:
+            logging.error('An error occurred while parsing form submission data: ' + str(e))
             return HttpResponseBadRequest('Request data is invalid')
 
         response_data = submit_data.response_data
@@ -72,7 +75,8 @@ class SurveyFormApi(View):
         return HttpResponse(status=HTTPStatus.NO_CONTENT)
 
 
-def try_get_previous_response(user: User, survey: Survey) -> tuple[Response, bool]:
+
+def try_get_previous_response(user: User, survey: Survey) -> tuple[Optional[Response], bool]:
     username_hash = get_username_hash(user)
     mtmuserresponse_queryset = MtmUserResponse.objects.filter(username_hash=username_hash, survey=survey)
 
@@ -87,6 +91,8 @@ def try_get_previous_response(user: User, survey: Survey) -> tuple[Response, boo
 
 def get_username_hash(user: User) -> bytes:
     return sha512(user.username.encode('utf-8')).digest()
+
+
 
 @dataclass
 class SurveyFromSubmitData(DataBase): # Not a good name
@@ -154,3 +160,4 @@ class SurveyFormData(DataBase):
     anime_data_dict: dict[int, AnimeData]
     anime_response_data_dict: dict[int, AnimeResponseData]
     is_anime_new_dict: dict[int, bool]
+    is_response_linked_to_user: bool
