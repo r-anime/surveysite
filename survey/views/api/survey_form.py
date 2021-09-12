@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.utils.functional import classproperty
 from django.views.generic import View
 from hashlib import sha512
 from http import HTTPStatus
@@ -11,7 +12,7 @@ from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
 from survey.util.anime import anime_is_continuing
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
 from survey.util.survey import get_survey_or_404, get_survey_anime
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 class SurveyFormApi(View):
     def get(self, request, *args, **kwargs):
@@ -52,15 +53,17 @@ class SurveyFormApi(View):
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
 
         try:
-            response_data = ResponseData.from_dict(json_data['response_data'])
-
-            anime_response_data_dict: dict[int, AnimeResponseData] = {}
-            for anime_id, anime_response_json_data in json_data['anime_response_data_dict'].items():
-                anime_response_data = AnimeResponseData.from_dict(anime_response_json_data)
-                if anime_response_data.contains_data:
-                    anime_response_data_dict[anime_id] = anime_response_data
+            submit_data = SurveyFromSubmitData.from_dict(json_data)
         except KeyError:
             return HttpResponseBadRequest('Request data is invalid')
+
+        response_data = submit_data.response_data
+        anime_response_data_dict = submit_data.anime_response_data_dict
+        survey = get_survey_or_404(
+            year=self.kwargs['year'],
+            season=self.kwargs['season'],
+            pre_or_post=self.kwargs['pre_or_post'],
+        )
 
         print(response_data)
         print(anime_response_data_dict)
@@ -84,7 +87,30 @@ def try_get_previous_response(user: User, survey: Survey) -> tuple[Response, boo
 def get_username_hash(user: User) -> bytes:
     return sha512(user.username.encode('utf-8')).digest()
 
+@dataclass
+class SurveyFromSubmitData(DataBase): # Not a good name
+    response_data: ResponseData
+    anime_response_data_dict: dict[int, AnimeResponseData]
+    response_is_linked_to_user: bool
 
+    @classproperty
+    def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
+
+        # Parses the dict and filters empty anime responses
+        def anime_response_data_dict_parser(d: dict[int, dict[str, Any]]) -> dict[int, AnimeResponseData]:
+            result: dict[int, AnimeResponseData] = {}
+            for anime_id, anime_response_json_data in d.items():
+                anime_response_data = AnimeResponseData.from_dict(anime_response_json_data)
+                if anime_response_data.contains_data:
+                    result[anime_id] = anime_response_data
+            return result
+
+        parsers = super().dict_field_parsers
+        parsers.update({
+            'response_data': (lambda d: ResponseData.from_dict(d)),
+            'anime_response_data_dict': anime_response_data_dict_parser,
+        })
+        return parsers
 
 @dataclass
 class ResponseData(DataBase):
@@ -93,7 +119,7 @@ class ResponseData(DataBase):
 
     @staticmethod
     def from_model(model: Response) -> ResponseData:
-        print(model._meta.get_fields())
+        #print(model._meta.get_fields())
         return ResponseData(
             age=model.age,
             gender=model.gender,

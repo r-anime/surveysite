@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from django.db.models import Model
 from django.forms.models import model_to_dict
+from django.utils.functional import classproperty
 from enum import Enum
 from json import JSONEncoder
 from survey.models import Anime, AnimeName, Image, Survey
@@ -39,14 +40,27 @@ class DataBase:
         return list(cls.__dataclass_fields__.keys())
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]):
+    def from_dict(cls, d: dict[str, Any]) -> DataBase:
         fields = cls.get_fields()
-        kwargs = { field: d[field] for field in fields }
+        parsers = cls.dict_field_parsers
+
+        # Filter only the known fields from the dict, and parse values if necessary
+        kwargs = {
+            field: (
+                parsers[field](d[field])
+                if field in parsers else
+                d[field]
+            ) for field in fields
+        }
         return cls(**kwargs)
 
     def to_dict(self):
         fields = self.get_fields()
         return { field: value.to_dict() if isinstance(value := getattr(self, field), DataBase) else value for field in fields }
+
+    @classproperty
+    def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
+        return {}
 
 @dataclass
 class UserData(DataBase):

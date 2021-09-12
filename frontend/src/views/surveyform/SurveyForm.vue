@@ -86,6 +86,12 @@ interface SurveyFormData {
   isAnimeNewDict: Record<number, boolean>;
 }
 
+interface SurveyFromSubmitData {
+  responseData: ResponseData;
+  animeResponseDataDict: Record<number, AnimeResponseData>;
+  responseIsLinkedToUser: boolean;
+}
+
 @Options({
   components: {
     SurveyFormAnime,
@@ -126,7 +132,14 @@ interface SurveyFormData {
     },
 
     async submit() {
-      await Ajax.post(this.getApiUrl(), this.data);
+      const data = this.data as SurveyFormData;
+      const submitData = {
+        responseData: data.responseData,
+        animeResponseDataDict: data.animeResponseDataDict,
+        responseIsLinkedToUser: false,
+      } as SurveyFromSubmitData;
+
+      await Ajax.post(this.getApiUrl(), submitData);
     },
   },
   async mounted() {
