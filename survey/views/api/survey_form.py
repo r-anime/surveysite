@@ -1,7 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.utils.functional import classproperty
 from django.views.generic import View
@@ -16,7 +18,7 @@ from survey.util.survey import get_survey_or_404, get_survey_anime
 from typing import Any, Callable, Optional
 
 class SurveyFormApi(View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs):
         jsonEncoder = json_encoder_factory()
 
         survey = get_survey_or_404(
@@ -25,8 +27,8 @@ class SurveyFormApi(View):
             pre_or_post=self.kwargs['pre_or_post'],
         )
 
-        previous_response, has_user_responded = try_get_previous_response(self.request.user, survey)
-        if has_user_responded and not previous_response:
+        previous_response, has_user_responded = try_get_previous_response(request.user, survey)
+        if has_user_responded and previous_response is None:
             return HttpResponseForbidden('You already respoded to this survey!')
 
         anime_list, _, _ = get_survey_anime(survey)
@@ -51,9 +53,19 @@ class SurveyFormApi(View):
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
-    def post(self, request, *args, **kwargs):
-        json_data: dict[str, dict[str, Any]] = json.loads(request.body)
+    def post(self, request: HttpRequest, *args, **kwargs):
+        survey = get_survey_or_404(
+            year=self.kwargs['year'],
+            season=self.kwargs['season'],
+            pre_or_post=self.kwargs['pre_or_post'],
+        )
+        
+        previous_response, has_user_responded = try_get_previous_response(request.user, survey)
+        if has_user_responded and previous_response is None:
+            return HttpResponseForbidden('You already responded to this survey!')
 
+
+        json_data: dict[str, dict[str, Any]] = json.loads(request.body)
         try:
             submit_data = SurveyFromSubmitData.from_dict(json_data)
         except KeyError as e:
@@ -62,15 +74,58 @@ class SurveyFormApi(View):
 
         response_data = submit_data.response_data
         anime_response_data_dict = submit_data.anime_response_data_dict
-        survey = get_survey_or_404(
-            year=self.kwargs['year'],
-            season=self.kwargs['season'],
-            pre_or_post=self.kwargs['pre_or_post'],
-        )
+        link_response_to_user = submit_data.is_response_linked_to_user
 
-        print(response_data)
-        print(anime_response_data_dict)
-        print(submit_data.is_response_linked_to_user)
+        response = response_data.to_model(previous_response)
+        try:
+            response.full_clean()
+        except ValidationError as e:
+            # TODO: Properly handle errors
+            print(e.error_dict)
+            raise e
+
+        if previous_response is None:
+            response.survey = survey
+
+        new_anime_response_list: list[AnimeResponse] = []
+        existing_anime_response_list: list[AnimeResponse] = []
+        for anime_id, anime_response_data in anime_response_data_dict.items():
+            anime_response_queryset = AnimeResponse.objects.filter(response=previous_response, anime_id=anime_id) if previous_response else None
+            previous_anime_response = None
+            if anime_response_queryset and anime_response_queryset.count() == 1:
+                previous_anime_response = anime_response_queryset.first()
+
+            anime_response = anime_response_data.to_model(previous_anime_response)
+            try:
+                anime_response.full_clean()
+            except ValidationError as e:
+                # TODO: Properly handle errors
+                print(e.error_dict)
+                raise e
+
+            if previous_anime_response is None:
+                new_anime_response_list.append(anime_response)
+            else:
+                existing_anime_response_list.append(anime_response)
+
+        response.save()
+        for anime_response in new_anime_response_list:
+            anime_response.response = response
+        AnimeResponse.objects.bulk_create(new_anime_response_list)
+        AnimeResponse.objects.bulk_update(existing_anime_response_list, ['watching', 'underwatched', 'score', 'expectations'])
+
+        print('Response:', response)
+        print('New anime responses:', new_anime_response_list)
+        print('Existing anime responses:', existing_anime_response_list)
+
+        username_hash = get_username_hash(request.user)
+        mtm, mtm_created = MtmUserResponse.objects.update_or_create(
+            username_hash=username_hash, survey=survey,
+            defaults={
+                'response': response if link_response_to_user else None,
+            }
+        )
+        print('MTM', mtm_created, mtm)
 
         return HttpResponse(status=HTTPStatus.NO_CONTENT)
 
@@ -131,6 +186,17 @@ class ResponseData(DataBase):
             age=model.age,
             gender=model.gender,
         )
+    
+    def to_model(self, model: Optional[Response]=None) -> Response:
+        if model is None:
+            return Response(
+                age=self.age,
+                gender=self.gender
+            )
+        else:
+            model.age = self.age
+            model.gender = self.gender
+            return model
 
 @dataclass
 class AnimeResponseData(DataBase):
@@ -152,6 +218,21 @@ class AnimeResponseData(DataBase):
             # Bit jank, but since the neutral answer is stored in the DB as an empty string, this otherwise goes wrong on the front-end
             expectations=model.expectations if model.expectations else None,
         )
+
+    def to_model(self, model: Optional[AnimeResponse]=None) -> AnimeResponse:
+        if model is None:
+            return AnimeResponse(
+                score=self.score,
+                watching=self.watching,
+                underwatched=self.underwatched,
+                expectations=self.expectations,
+            )
+        else:
+            model.score = self.score
+            model.watching = self.watching
+            model.underwatched = self.underwatched
+            model.expectations = self.expectations
+            return model
 
 @dataclass
 class SurveyFormData(DataBase):
