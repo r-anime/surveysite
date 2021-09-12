@@ -67,6 +67,7 @@ class SurveyFormApi(View):
 
         print(response_data)
         print(anime_response_data_dict)
+        print(submit_data.is_response_linked_to_user)
 
         return HttpResponse(status=HTTPStatus.NO_CONTENT)
 
@@ -91,7 +92,7 @@ def get_username_hash(user: User) -> bytes:
 class SurveyFromSubmitData(DataBase): # Not a good name
     response_data: ResponseData
     anime_response_data_dict: dict[int, AnimeResponseData]
-    response_is_linked_to_user: bool
+    is_response_linked_to_user: bool
 
     @classproperty
     def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
@@ -152,5 +153,4 @@ class SurveyFormData(DataBase):
     response_data: ResponseData
     anime_data_dict: dict[int, AnimeData]
     anime_response_data_dict: dict[int, AnimeResponseData]
-
     is_anime_new_dict: dict[int, bool]

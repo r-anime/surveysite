@@ -59,7 +59,7 @@
                 'What did you think of this?'
             }}
           </label>
-          <select class="form-select" :id="`input-anime-${animeId}-score`" v-model="animeResponseData.score">
+          <select class="form-select" :id="`input-anime-${animeId}-score`" autocomplete="off" v-model="animeResponseData.score">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
             <option value="4">4/5</option>
@@ -72,7 +72,7 @@
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
           <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment?</label>
-          <select class="form-select" :id="`input-anime-${animeId}-expectations`" v-model="animeResponseData.expectations">
+          <select class="form-select" :id="`input-anime-${animeId}-expectations`" autocomplete="off" v-model="animeResponseData.expectations">
             <option :value="(null)">-----</option>
             <option value="S">Surprise</option>
             <option value="D">Disappointment</option>

@@ -52,7 +52,27 @@
       </div>
     </template>
 
-    <button class="btn btn-primary" @click="submit()">Submit</button>
+
+    <div class="row justify-content-end">
+      <div class="col-6 col-md-3 mb-3 form-check">
+        <input class="form-check-input" type="checkbox" id="input-link" autocomplete="off" v-model="data.isResponseLinkedToUser">
+        <label for="input-link">Link this response to your account?</label>
+        <br>
+        <span class="text-muted" style="font-size:80%;">
+          By doing this, you can easily edit your response on any of your devices simply by re-opening this survey while logged in to the same account.
+        </span>
+      </div>
+    </div>
+
+
+    <div class="row justify-content-between">
+      <div class="col-auto">
+        <router-link to="/" class="btn btn-secondary">Back to index</router-link>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" @click="submit()">Submit</button>
+      </div>
+    </div>
   </template>
 </template>
 
@@ -84,12 +104,13 @@ interface SurveyFormData {
   animeDataDict: Record<number, AnimeData>;
   animeResponseDataDict: Record<number, AnimeResponseData>;
   isAnimeNewDict: Record<number, boolean>;
+  isResponseLinkedToUser: boolean;
 }
 
 interface SurveyFromSubmitData {
   responseData: ResponseData;
   animeResponseDataDict: Record<number, AnimeResponseData>;
-  responseIsLinkedToUser: boolean;
+  isResponseLinkedToUser: boolean;
 }
 
 @Options({
@@ -136,7 +157,7 @@ interface SurveyFromSubmitData {
       const submitData = {
         responseData: data.responseData,
         animeResponseDataDict: data.animeResponseDataDict,
-        responseIsLinkedToUser: false,
+        isResponseLinkedToUser: data.isResponseLinkedToUser,
       } as SurveyFromSubmitData;
 
       await Ajax.post(this.getApiUrl(), submitData);

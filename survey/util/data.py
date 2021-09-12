@@ -40,7 +40,7 @@ class DataBase:
         return list(cls.__dataclass_fields__.keys())
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> DataBase:
+    def from_dict(cls, d: dict[str, Any]):
         fields = cls.get_fields()
         parsers = cls.dict_field_parsers
 

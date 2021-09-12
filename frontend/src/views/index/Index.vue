@@ -1,5 +1,5 @@
 <template>
-  <div class="row row-cols-1 mb-5">
+  <div class="row row-cols-1">
     
     <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
