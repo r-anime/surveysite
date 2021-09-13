@@ -59,7 +59,7 @@
                 'What did you think of this?'
             }}
           </label>
-          <select class="form-select" :id="`input-anime-${animeId}-score`" autocomplete="off" v-model="animeResponseData.score">
+          <select class="form-select" :id="`input-anime-${animeId}-score`" autocomplete="off" v-model.number="animeResponseData.score">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
             <option value="4">4/5</option>

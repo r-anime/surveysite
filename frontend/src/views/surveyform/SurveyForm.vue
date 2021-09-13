@@ -7,7 +7,7 @@
         <div class="row">
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
-            <input class="form-control" id="input-age" v-model="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age">
+            <input class="form-control" id="input-age" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age">
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
