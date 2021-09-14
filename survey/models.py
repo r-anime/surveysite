@@ -314,6 +314,7 @@ class AnimeResponse(models.Model):
         max_length=1,
         choices=Expectations.choices,
         blank=True,
+        null=True,
     )
 
     # Relation fields

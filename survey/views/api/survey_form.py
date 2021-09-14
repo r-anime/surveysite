@@ -87,6 +87,10 @@ class SurveyFormApi(View):
         if previous_response is None:
             response.survey = survey
 
+        print('Response:', response)
+        for anime_id, anime_response_data in anime_response_data_dict.items():
+            print(anime_id, anime_response_data)
+
         new_anime_response_list: list[AnimeResponse] = []
         existing_anime_response_list: list[AnimeResponse] = []
         for anime_id, anime_response_data in anime_response_data_dict.items():
@@ -104,6 +108,7 @@ class SurveyFormApi(View):
                 raise e
 
             if previous_anime_response is None:
+                anime_response.anime_id = anime_id
                 new_anime_response_list.append(anime_response)
             else:
                 existing_anime_response_list.append(anime_response)
@@ -113,10 +118,6 @@ class SurveyFormApi(View):
             anime_response.response = response
         AnimeResponse.objects.bulk_create(new_anime_response_list)
         AnimeResponse.objects.bulk_update(existing_anime_response_list, ['watching', 'underwatched', 'score', 'expectations'])
-
-        print('Response:', response)
-        print('New anime responses:', new_anime_response_list)
-        print('Existing anime responses:', existing_anime_response_list)
 
         username_hash = get_username_hash(request.user)
         mtm, mtm_created = MtmUserResponse.objects.update_or_create(
@@ -201,8 +202,8 @@ class ResponseData(DataBase):
 @dataclass
 class AnimeResponseData(DataBase):
     score: Optional[int] = None
-    watching: Optional[bool] = None
-    underwatched: Optional[bool] = None
+    watching: bool = False
+    underwatched: bool = False
     expectations: Optional[str] = None
 
     @property
@@ -215,8 +216,7 @@ class AnimeResponseData(DataBase):
             score=model.score,
             watching=model.watching,
             underwatched=model.underwatched,
-            # Bit jank, but since the neutral answer is stored in the DB as an empty string, this otherwise goes wrong on the front-end
-            expectations=model.expectations if model.expectations else None,
+            expectations=model.expectations,
         )
 
     def to_model(self, model: Optional[AnimeResponse]=None) -> AnimeResponse:
