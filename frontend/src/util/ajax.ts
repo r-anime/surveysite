@@ -34,7 +34,8 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-function getResponseData<T>(response: AxiosResponse<any>): T {
+function getResponseData<T>(response: AxiosResponse<any>): T | null {
+  if (!response.data) return null;
   let responseData;
 
   // Check if JSON parsing failed
@@ -101,6 +102,7 @@ export default class Ajax {
     }
     // TODO: Properly handle this error
     console.log(errorData.toString());
+    console.log(e);
   }
 }
 
