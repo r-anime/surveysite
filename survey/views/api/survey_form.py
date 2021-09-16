@@ -223,14 +223,14 @@ class AnimeResponseData(DataBase):
         if model is None:
             return AnimeResponse(
                 score=self.score,
-                watching=self.watching,
-                underwatched=self.underwatched,
+                watching=self.watching if self.watching is not None else False,
+                underwatched=self.underwatched if self.underwatched is not None else False,
                 expectations=self.expectations,
             )
         else:
             model.score = self.score
-            model.watching = self.watching
-            model.underwatched = self.underwatched
+            model.watching = self.watching if self.watching is not None else False
+            model.underwatched = self.underwatched if self.underwatched is not None else False
             model.expectations = self.expectations
             return model
 

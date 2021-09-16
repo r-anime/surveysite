@@ -282,6 +282,7 @@ class Response(models.Model):
     gender = models.CharField(
         max_length=1,
         choices=Gender.choices,
+        blank=True,
         null=True,
     )
 
