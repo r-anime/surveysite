@@ -68,7 +68,12 @@ import { UserData } from '@/util/data';
     
   },
   async created() {
-    this.userData = await Ajax.get<UserData>('api/user/') ?? {};
+    const response = await Ajax.get<UserData>('api/user/') ?? {};
+    if (!response.isSuccess || response.data == null) {
+      this.userData = {};
+    }
+
+    this.userData = response.data;
   }
 })
 export default class TheNavbar extends Vue {}

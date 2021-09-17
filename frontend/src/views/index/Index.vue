@@ -99,8 +99,10 @@ export interface IndexSurveyData extends SurveyData {
     // In the future this should use pagination,
     // the survey list obtained from the API gets appended to the already obtained survey list.
     async getSeasonData() {
-      let surveys = await Ajax.get<IndexSurveyData[]>('api/index/') ?? [];
-      surveys = surveys.concat(this.surveys);
+      const response = await Ajax.get<IndexSurveyData[]>('api/index/') ?? [];
+      if (!response.isSuccess || response.data == null) return;
+
+      let surveys = response.data.concat(this.surveys);
 
       // [[2020 surveys], [2019 surveys], ...]
       const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);

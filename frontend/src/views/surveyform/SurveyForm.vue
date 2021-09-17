@@ -160,12 +160,17 @@ interface SurveyFromSubmitData {
         isResponseLinkedToUser: data.isResponseLinkedToUser,
       } as SurveyFromSubmitData;
 
-      await Ajax.post(this.getApiUrl(), submitData);
+      const response = await Ajax.post(this.getApiUrl(), submitData);
+      if (response.isSuccess) {
+        this.$router.push({name: 'Index'});
+      }
     },
   },
   async mounted() {
-    const surveyFormData = await Ajax.get<SurveyFormData>(this.getApiUrl());
-    if (surveyFormData === null) return;
+    const response = await Ajax.get<SurveyFormData>(this.getApiUrl());
+    if (!response.isSuccess || response.data == null) return;
+
+    const surveyFormData = response.data;
 
     console.log(surveyFormData);
     this.data = surveyFormData;

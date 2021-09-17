@@ -34,8 +34,8 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-function getResponseData<T>(response: AxiosResponse<any>): T | null {
-  if (!response.data) return null;
+function getResponseData<T>(response: AxiosResponse<any>): Response<T | null> {
+  if (!response.data) return new Response(null, response.status);
   let responseData;
 
   // Check if JSON parsing failed
@@ -47,7 +47,7 @@ function getResponseData<T>(response: AxiosResponse<any>): T | null {
     responseData = response.data;
   }
 
-  return camelizeKeys(responseData) as T;
+  return new Response(camelizeKeys(responseData) as T, response.status);
 }
 
 function convertRequestData(data?: any): any {
@@ -57,7 +57,7 @@ function convertRequestData(data?: any): any {
 
 export default class Ajax {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  static async post<T>(url: string, data?: any): Promise<T | null> {
+  static async post<T>(url: string, data?: any): Promise<Response<T | null>> {
     try {
       const csrfToken = Cookies.get('csrftoken');
       if (!csrfToken) throw new Error("No CSRF token");
@@ -74,17 +74,17 @@ export default class Ajax {
       return getResponseData<T>(response);
     } catch (e) {
       this.handleError(e);
-      return null;
+      throw e;
     }
   }
   
-  static async get<T>(url: string): Promise<T | null> {
+  static async get<T>(url: string): Promise<Response<T | null>> {
     try {
       const response = await axios.get<T>(url);
       return getResponseData<T>(response);
     } catch (e) {
       this.handleError(e);
-      return null;
+      throw e;
     }
   }
 
@@ -107,6 +107,14 @@ export default class Ajax {
 }
 
 /* eslint-enable */
+
+export class Response<T> {
+  constructor(public data: T, public statusCode: number) { }
+
+  get isSuccess(): boolean {
+    return 200 <= this.statusCode && this.statusCode < 300;
+  }
+}
 
 export enum ErrorType {
   SERVER,
