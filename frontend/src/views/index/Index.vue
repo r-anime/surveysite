@@ -46,9 +46,10 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
-import Ajax from '@/util/ajax';
+import Ajax, { Response } from '@/util/ajax';
 import { AnimeResultsData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
 import _ from 'lodash';
+import NotificationService from '@/util/notification-service';
 
 
 export interface IndexSurveyData extends SurveyData {
@@ -100,7 +101,10 @@ export interface IndexSurveyData extends SurveyData {
     // the survey list obtained from the API gets appended to the already obtained survey list.
     async getSeasonData() {
       const response = await Ajax.get<IndexSurveyData[]>('api/index/') ?? [];
-      if (!response.isSuccess || response.data == null) return;
+      if (Response.isErrorData(response.data)) {
+        NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
+        return;
+      }
 
       let surveys = response.data.concat(this.surveys);
 

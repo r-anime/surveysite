@@ -49,8 +49,9 @@ import Modal from '@/components/Modal.vue';
 import ModalButton from '@/components/ModalButton.vue';
 import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
-import Ajax from '@/util/ajax';
+import Ajax, { Response } from '@/util/ajax';
 import { UserData } from '@/util/data';
+import NotificationService from '@/util/notification-service';
 
 @Options({
   components: {
@@ -69,8 +70,10 @@ import { UserData } from '@/util/data';
   },
   async created() {
     const response = await Ajax.get<UserData>('api/user/') ?? {};
-    if (!response.isSuccess || response.data == null) {
+    if (Response.isErrorData(response.data)) {
+      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
       this.userData = {};
+      return;
     }
 
     this.userData = response.data;

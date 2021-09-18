@@ -128,7 +128,7 @@ class SurveyFormApi(View):
         )
         print('MTM', mtm_created, mtm)
 
-        return JsonResponse(status=HTTPStatus.NO_CONTENT)
+        return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
 
 
 

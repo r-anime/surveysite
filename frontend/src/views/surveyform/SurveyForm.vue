@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import Ajax from '@/util/ajax';
+import Ajax, { Response } from '@/util/ajax';
 import { AnimeData, AnimeNameType, SurveyData } from '@/util/data';
 import { getAnimeName, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
@@ -162,39 +162,26 @@ interface SurveyFromSubmitData {
       } as SurveyFromSubmitData;
 
       const response = await Ajax.post(this.getApiUrl(), submitData);
-      if (response.isSuccess) {
-        this.$router.push({name: 'Index'});
+      if (Response.isErrorData(response.data)) {
+        // Should also handle validation errors
+        NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
+        return;
       }
-      else {
-        const notification = {
-          message: 'An error occurred while submitting your response.',
-          color: 'danger',
-        } as Notification;
-        
-        NotificationService.push(notification);
-      }
+      
+      this.$router.push({name: 'Index'});
     },
   },
   async mounted() {
     const response = await Ajax.get<SurveyFormData>(this.getApiUrl());
-    if (!response.isSuccess || response.data == null) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const errors: string[] = (response.data as any)?.errors?.global ?? ['An unknown error occurred'];
-      for (const error of errors) {
-        const notification = {
-          message: error,
-          color: 'danger',
-        } as Notification;
+    if (Response.isErrorData(response.data)) {
+      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
 
-        NotificationService.push(notification);
-      }
       this.$router.push({name: 'Index'});
       return;
     }
 
     const surveyFormData = response.data;
 
-    console.log(surveyFormData);
     this.data = surveyFormData;
     this.isSurveyPreseason = surveyFormData.survey.isPreseason;
     this.surveyName = getSurveyName(surveyFormData.survey);

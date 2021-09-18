@@ -358,7 +358,7 @@ class MtmUserResponse(models.Model):
     )
 
     def __str__(self) -> str:
-        return 'Survey: "{}", has response: {}' % (self.survey, self.response is not None)
+        return 'Username hash: "{}", survey: "{}", has response: {}'.format(self.username_hash, self.survey, self.response is not None)
 
 
 

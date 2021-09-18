@@ -4,11 +4,23 @@ export default class NotificationService {
   private static eventHandlers: EventHandler[] = [];
 
   static push(notification: Notification): void {
-    console.log('pushed:');
-    console.log(notification);
     for (let handler of this.eventHandlers) {
       handler(notification);
-      console.log('to a handler');
+    }
+  }
+
+  static pushList(notificationList: Notification[]): void {
+    for (const notification of notificationList) {
+      this.push(notification);
+    }
+  }
+
+  static pushMsgList(messageList: string[], color: Color): void {
+    for (const message of messageList) {
+      this.push({
+        message: message,
+        color: color,
+      });
     }
   }
 
