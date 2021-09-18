@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.utils.functional import classproperty
 from django.views.generic import View
 from hashlib import sha512
@@ -14,6 +13,7 @@ import logging
 from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
 from survey.util.anime import anime_is_continuing
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
+from survey.util.http import JsonErrorResponse
 from survey.util.survey import get_survey_or_404, get_survey_anime
 from typing import Any, Callable, Optional
 
@@ -29,7 +29,7 @@ class SurveyFormApi(View):
 
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
-            return HttpResponseForbidden('You already respoded to this survey!')
+            return JsonErrorResponse('You already respoded to this survey!', HTTPStatus.FORBIDDEN)
 
         anime_list, _, _ = get_survey_anime(survey)
 
@@ -62,7 +62,7 @@ class SurveyFormApi(View):
         
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
-            return HttpResponseForbidden('You already responded to this survey!')
+            return JsonErrorResponse('You already respoded to this survey!', HTTPStatus.FORBIDDEN)
 
 
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
@@ -70,7 +70,7 @@ class SurveyFormApi(View):
             submit_data = SurveyFromSubmitData.from_dict(json_data)
         except KeyError as e:
             logging.error('An error occurred while parsing form submission data: ' + str(e))
-            return HttpResponseBadRequest('Request data is invalid')
+            return JsonErrorResponse('Request data is invalid', HTTPStatus.BAD_REQUEST)
 
         response_data = submit_data.response_data
         anime_response_data_dict = submit_data.anime_response_data_dict
@@ -128,7 +128,7 @@ class SurveyFormApi(View):
         )
         print('MTM', mtm_created, mtm)
 
-        return HttpResponse(status=HTTPStatus.NO_CONTENT)
+        return JsonResponse(status=HTTPStatus.NO_CONTENT)
 
 
 

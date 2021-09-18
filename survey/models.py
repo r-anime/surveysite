@@ -357,6 +357,9 @@ class MtmUserResponse(models.Model):
         editable=False,
     )
 
+    def __str__(self) -> str:
+        return 'Username hash: "{}", survey: "{}", has response: {}' % (self.username_hash, self.survey, self.response is not None)
+
 
 
 class MissingAnime(models.Model):

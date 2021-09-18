@@ -1,6 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
+
+// TODO: Clean-up this file
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 function camelizeKeys(obj: any): any {
@@ -74,7 +77,7 @@ export default class Ajax {
 
       return getResponseData<T>(response);
     } catch (e) {
-      this.handleError(e);
+      this.createErrorResponse(e);
       throw e;
     }
   }
@@ -84,26 +87,30 @@ export default class Ajax {
       const response = await axios.get<T>(url);
       return getResponseData<T>(response);
     } catch (e) {
-      this.handleError(e);
-      throw e;
+      const response = this.createErrorResponse(e);
+      if (response == null)
+        throw e;
+      else
+        return response;
     }
   }
 
-  private static handleError(e: any): void {
+  private static createErrorResponse(e: any): Response<null> | null {
     const errorData = new ErrorData();
     errorData.errorString = e.toString();
     if (e.response) {
-      errorData.errorType = ErrorType.SERVER;
+      // Server error
+      return getResponseData(e.response);
     }
     else if (e.request) {
-      errorData.errorType = ErrorType.NETWORK;
+      // Network error
+      return new Response(null, e.request.status);
     }
     else {
-      errorData.errorType = ErrorType.CLIENT;
+      // Client error
+      // TODO: handle this error
+      return null;
     }
-    // TODO: Properly handle this error
-    console.log(errorData.toString());
-    console.log(e);
   }
 }
 
