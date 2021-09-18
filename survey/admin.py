@@ -105,6 +105,8 @@ class ImageInlineFormSet(BaseInlineFormSet):
 
             if self.request:
                 messages.info(self.request, 'Removed alpha channel from image.')
+        else:
+            image_org_noalpha = image_org
 
         image_formats = {
             'jpg': {
