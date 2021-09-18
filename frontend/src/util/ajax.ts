@@ -67,6 +67,7 @@ export default class Ajax {
       };
       const requestConfig = {
         headers: requestHeaders,
+        validateStatus: status => true,
       } as AxiosRequestConfig;
 
       const response = await axios.post<T>(url, convertRequestData(data), requestConfig);

@@ -83,6 +83,7 @@ import { getAnimeName, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
+import NotificationService, { Notification } from '@/util/notification-service';
 
 
 interface ResponseData {
@@ -163,6 +164,14 @@ interface SurveyFromSubmitData {
       const response = await Ajax.post(this.getApiUrl(), submitData);
       if (response.isSuccess) {
         this.$router.push({name: 'Index'});
+      }
+      else {
+        const notification = {
+          message: 'An error occurred while submitting your response.',
+          color: 'danger',
+        } as Notification;
+        
+        NotificationService.push(notification);
       }
     },
   },
