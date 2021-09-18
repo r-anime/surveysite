@@ -177,7 +177,20 @@ interface SurveyFromSubmitData {
   },
   async mounted() {
     const response = await Ajax.get<SurveyFormData>(this.getApiUrl());
-    if (!response.isSuccess || response.data == null) return;
+    if (!response.isSuccess || response.data == null) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errors: string[] = (response?.data as any)?.errors?.global ?? ['An unknown error occurred'];
+      for (const error of errors) {
+        const notification = {
+          message: error,
+          color: 'danger',
+        } as Notification;
+
+        NotificationService.push(notification);
+      }
+      this.$router.push({name: 'Index'});
+      return;
+    }
 
     const surveyFormData = response.data;
 

@@ -29,7 +29,7 @@ class SurveyFormApi(View):
 
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
-            return JsonErrorResponse('You already respoded to this survey!', HTTPStatus.FORBIDDEN)
+            return JsonErrorResponse('You already responded to this survey!', HTTPStatus.FORBIDDEN)
 
         anime_list, _, _ = get_survey_anime(survey)
 
@@ -62,7 +62,7 @@ class SurveyFormApi(View):
         
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
-            return JsonErrorResponse('You already respoded to this survey!', HTTPStatus.FORBIDDEN)
+            return JsonErrorResponse('You already responded to this survey!', HTTPStatus.FORBIDDEN)
 
 
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
