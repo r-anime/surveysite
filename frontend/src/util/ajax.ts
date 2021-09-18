@@ -2,8 +2,6 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
 
-// TODO: Clean-up this file
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 function camelizeKeys(obj: any): any {
@@ -37,24 +35,11 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-function getResponseData<T>(response: AxiosResponse<any>): Response<T | null> {
-  if (!response.data) return new Response(null, response.status);
-  let responseData;
-
-  // Check if JSON parsing failed
-  if (typeof response.data === 'string') {
-    // Convert NaNs to nulls
-    responseData = JSON.parse(response.data.replace(/\bNaN\b/g, 'null'))
+function fixResponseDataIfJsonParsingFailed(responseData: any) {
+  if (typeof responseData === 'string') {
+    responseData = JSON.parse(responseData.replace(/\bNaN\b/g, 'null'));
   }
-  else {
-    responseData = response.data;
-  }
-
-  return new Response(camelizeKeys(responseData) as T, response.status);
-}
-
-function convertRequestData(data?: any): any {
-  return decamelizeKeys(data);
+  return responseData;
 }
 
 
@@ -63,19 +48,20 @@ export default class Ajax {
   static async post<T>(url: string, data?: any): Promise<Response<T | null>> {
     try {
       const csrfToken = Cookies.get('csrftoken');
-      if (!csrfToken) throw new Error("No CSRF token");
+      if (!csrfToken) throw new Error("No CSRF token.");
       
       const requestHeaders = {
         'X-CSRFToken': csrfToken,
       };
       const requestConfig = {
         headers: requestHeaders,
-        validateStatus: status => true,
+        transformRequest: [decamelizeKeys],
+        transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
       } as AxiosRequestConfig;
 
-      const response = await axios.post<T>(url, convertRequestData(data), requestConfig);
+      const response = await axios.post<T>(url, data, requestConfig);
 
-      return getResponseData<T>(response);
+      return new Response(response.data, response.status);
     } catch (e) {
       this.createErrorResponse(e);
       throw e;
@@ -84,8 +70,13 @@ export default class Ajax {
   
   static async get<T>(url: string): Promise<Response<T | null>> {
     try {
-      const response = await axios.get<T>(url);
-      return getResponseData<T>(response);
+      const requestConfig = {
+        transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
+      } as AxiosRequestConfig;
+
+      const response = await axios.get<T>(url, requestConfig);
+
+      return new Response(response.data, response.status);
     } catch (e) {
       const response = this.createErrorResponse(e);
       if (response == null)
@@ -96,18 +87,13 @@ export default class Ajax {
   }
 
   private static createErrorResponse(e: any): Response<null> | null {
-    const errorData = new ErrorData();
-    errorData.errorString = e.toString();
-    if (e.response) {
-      // Server error
-      return getResponseData(e.response);
+    if (e.response) { // Server error
+      return new Response(e.response.data, e.response.status);
     }
-    else if (e.request) {
-      // Network error
+    else if (e.request) { // Network error
       return new Response(null, e.request.status);
     }
-    else {
-      // Client error
+    else { // Client error
       // TODO: handle this error
       return null;
     }
@@ -121,20 +107,5 @@ export class Response<T> {
 
   get isSuccess(): boolean {
     return 200 <= this.statusCode && this.statusCode < 300;
-  }
-}
-
-export enum ErrorType {
-  SERVER,
-  NETWORK,
-  CLIENT,
-}
-
-export class ErrorData {
-  errorType!: ErrorType;
-  errorString!: string;
-
-  toString(): string {
-    return `A ${ErrorType[this.errorType].toLowerCase()} error occurred: ${this.errorString}`;
   }
 }

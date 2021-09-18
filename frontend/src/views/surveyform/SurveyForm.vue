@@ -179,7 +179,7 @@ interface SurveyFromSubmitData {
     const response = await Ajax.get<SurveyFormData>(this.getApiUrl());
     if (!response.isSuccess || response.data == null) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const errors: string[] = (response?.data as any)?.errors?.global ?? ['An unknown error occurred'];
+      const errors: string[] = (response.data as any)?.errors?.global ?? ['An unknown error occurred'];
       for (const error of errors) {
         const notification = {
           message: error,

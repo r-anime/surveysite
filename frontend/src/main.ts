@@ -7,6 +7,6 @@ import "@/assets/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap";
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000/';
+axios.defaults.baseURL = '/';
 
 createApp(App).use(router).mount('#app');
