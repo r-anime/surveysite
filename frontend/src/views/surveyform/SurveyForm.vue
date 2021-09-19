@@ -7,16 +7,18 @@
         <div class="row">
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
-            <input class="form-control" id="input-age" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age">
+            <input class="form-control" id="input-age" :class="validationErrors?.response?.age ? 'is-invalid' : ''" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
+            <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.response?.age"/>
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
-            <select class="form-select" id="input-gender" v-model="getResponseData().gender">
+            <select class="form-select" id="input-gender" :class="validationErrors?.response?.gender ? 'is-invalid' : ''" v-model="getResponseData().gender" aria-describedby="input-gender-invalid">
               <option :value="(null)">-----</option>
               <option value="M">Male</option>
               <option value="F">Female</option>
               <option value="O">Other</option>
             </select>
+            <FormValidationErrors id="input-gender-invalid" :validationErrors="validationErrors?.response?.gender"/>
           </div>
         </div>
       </div>
@@ -32,7 +34,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="getAnimeResponseValidationErrors(animeId)"/>
         </div>
       </div>
     </template>
@@ -47,7 +49,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="getAnimeResponseValidationErrors(animeId)"/>
         </div>
       </div>
     </template>
@@ -83,7 +85,8 @@ import { getAnimeName, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
-import NotificationService, { Notification } from '@/util/notification-service';
+import NotificationService from '@/util/notification-service';
+import FormValidationErrors from '@/components/FormValidationErrors.vue';
 
 
 interface ResponseData {
@@ -117,6 +120,7 @@ interface SurveyFromSubmitData {
 @Options({
   components: {
     SurveyFormAnime,
+    FormValidationErrors,
   },
   data() {
     return {
@@ -125,6 +129,7 @@ interface SurveyFromSubmitData {
       data: null,
       animeSeriesIds: [],
       specialAnimeIds: [],
+      validationErrors: null,
     };
   },
   methods: {
@@ -148,6 +153,13 @@ interface SurveyFromSubmitData {
       const data = this.data as SurveyFormData;
       return data.animeResponseDataDict[id];
     },
+    getAnimeResponseValidationErrors(id: number) {
+      if (this.validationErrors?.animeResponse) {
+        return this.validationErrors.animeResponse[id] ?? null;
+      } else {
+        return null;
+      }
+    },
     isAnimeNew(id: number): boolean {
       const data = this.data as SurveyFormData;
       return data.isAnimeNewDict[id];
@@ -165,10 +177,23 @@ interface SurveyFromSubmitData {
       if (Response.isErrorData(response.data)) {
         // Should also handle validation errors
         NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
-        return;
+
+        const validationErrors = response.data.errors.validation ?? null;
+        if (validationErrors != null) {
+          this.validationErrors = validationErrors;
+          NotificationService.push({
+            message: 'One or more of your responses are invalid',
+            color: 'danger'
+          });
+          console.log(validationErrors);
+        }
+      } else {
+        NotificationService.push({
+          message: 'Your response was successfully sent!',
+          color: 'success',
+        });
+        this.$router.push({name: 'Index'});
       }
-      
-      this.$router.push({name: 'Index'});
     },
   },
   async mounted() {

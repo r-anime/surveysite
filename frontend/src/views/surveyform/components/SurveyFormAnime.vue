@@ -59,7 +59,7 @@
                 'What did you think of this?'
             }}
           </label>
-          <select class="form-select" :id="`input-anime-${animeId}-score`" autocomplete="off" v-model.number="animeResponseData.score">
+          <select class="form-select" :id="`input-anime-${animeId}-score`" :class="validationErrors?.score ? 'is-invalid' : ''" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeId}-score-invalid`">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
             <option value="4">4/5</option>
@@ -67,16 +67,18 @@
             <option value="2">2/5</option>
             <option value="1">1/5 - Bad</option>
           </select>
+          <FormValidationErrors :id="`input-anime-${animeId}-score-invalid`" :validationErrors="validationErrors?.score"/>
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
           <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment?</label>
-          <select class="form-select" :id="`input-anime-${animeId}-expectations`" autocomplete="off" v-model="animeResponseData.expectations">
+          <select class="form-select" :id="`input-anime-${animeId}-expectations`" :class="validationErrors?.expectations ? 'is-invalid' : ''" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeId}-expectations-invalid`">
             <option :value="(null)">-----</option>
             <option value="S">Surprise</option>
             <option value="D">Disappointment</option>
           </select>
+          <FormValidationErrors :id="`input-anime-${animeId}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
         </div>
       </div></div>
     </div>
@@ -88,6 +90,7 @@ import { Options, Vue } from 'vue-class-component';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { AnimeData, AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries } from '@/util/helpers';
+import FormValidationErrors from '@/components/FormValidationErrors.vue';
 
 @Options({
   props: {
@@ -95,9 +98,11 @@ import { getAnimeName, isAnimeSeries } from '@/util/helpers';
     animeResponseData: Object,
     isSurveyPreseason: Boolean,
     isAnimeNew: Boolean,
+    validationErrors: Object,
   },
   components: {
     AnimeImages,
+    FormValidationErrors,
   },
   data() {
     return {

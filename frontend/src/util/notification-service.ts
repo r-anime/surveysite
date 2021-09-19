@@ -4,7 +4,7 @@ export default class NotificationService {
   private static eventHandlers: EventHandler[] = [];
 
   static push(notification: Notification): void {
-    for (let handler of this.eventHandlers) {
+    for (const handler of this.eventHandlers) {
       handler(notification);
     }
   }

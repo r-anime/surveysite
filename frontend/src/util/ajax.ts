@@ -1,8 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types */
 
 function camelizeKeys(obj: any): any {
   if (Array.isArray(obj)) {
@@ -46,7 +46,6 @@ function fixResponseDataIfJsonParsingFailed(responseData: any) {
 }
 
 export default class Ajax {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   static async post<T>(url: string, data?: any): Promise<Response<T | ErrorData>> {
     try {
       const csrfToken = Cookies.get('csrftoken');
@@ -106,18 +105,16 @@ export default class Ajax {
   }
 }
 
-/* eslint-enable */
-
 export class Response<T> {
   constructor(public data: T, public statusCode: number) { }
 
   static isErrorData(responseData: any): responseData is ErrorData {
-    return 'errors' in responseData;
+    if (typeof responseData === 'string') return false;
+    return 'errors' in (responseData ?? {});
   }
 
   getGlobalErrors(unknownError: string | null = 'An unknown error occurred.'): string[] {
     // Not pretty but works
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.data as any)?.errors?.global ?? (unknownError ? [unknownError] : []);
   }
 
@@ -133,6 +130,9 @@ export class Response<T> {
 export interface ErrorData {
   isError: true;
   errors: {
-    global: string[]
+    global: string[],
+    validation?: Record<string, any>,
   };
 }
+
+/* eslint-enable */

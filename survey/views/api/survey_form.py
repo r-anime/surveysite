@@ -76,13 +76,14 @@ class SurveyFormApi(View):
         anime_response_data_dict = submit_data.anime_response_data_dict
         link_response_to_user = submit_data.is_response_linked_to_user
 
+        validation_errors = {}
+
         response = response_data.to_model(previous_response)
         try:
             response.full_clean()
         except ValidationError as e:
-            # TODO: Properly handle errors
-            print(e.error_dict)
-            raise e
+            print('Error:', e.message_dict)
+            validation_errors['response'] = e.message_dict
 
         if previous_response is None:
             response.survey = survey
@@ -99,15 +100,18 @@ class SurveyFormApi(View):
             try:
                 anime_response.full_clean()
             except ValidationError as e:
-                # TODO: Properly handle errors
-                print(e.error_dict)
-                raise e
+                if 'anime_response' not in validation_errors:
+                    validation_errors['anime_response'] = {}
+                validation_errors['anime_response'][anime_id] = e.message_dict
 
             if previous_anime_response is None:
                 anime_response.anime_id = anime_id
                 new_anime_response_list.append(anime_response)
             else:
                 existing_anime_response_list.append(anime_response)
+
+        if validation_errors:
+            return JsonErrorResponse({'validation': validation_errors}, HTTPStatus.BAD_REQUEST)
 
         response.save()
         for anime_response in new_anime_response_list:
