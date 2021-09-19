@@ -87,10 +87,6 @@ class SurveyFormApi(View):
         if previous_response is None:
             response.survey = survey
 
-        print('Response:', response)
-        for anime_id, anime_response_data in anime_response_data_dict.items():
-            print(anime_id, anime_response_data)
-
         new_anime_response_list: list[AnimeResponse] = []
         existing_anime_response_list: list[AnimeResponse] = []
         for anime_id, anime_response_data in anime_response_data_dict.items():
@@ -120,13 +116,12 @@ class SurveyFormApi(View):
         AnimeResponse.objects.bulk_update(existing_anime_response_list, ['watching', 'underwatched', 'score', 'expectations'])
 
         username_hash = get_username_hash(request.user)
-        mtm, mtm_created = MtmUserResponse.objects.update_or_create(
+        MtmUserResponse.objects.update_or_create(
             username_hash=username_hash, survey=survey,
             defaults={
                 'response': response if link_response_to_user else None,
             }
         )
-        print('MTM', mtm_created, mtm)
 
         return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
 

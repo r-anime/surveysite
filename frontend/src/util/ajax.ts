@@ -132,5 +132,7 @@ export class Response<T> {
 
 export interface ErrorData {
   isError: true;
-  errors: {global: string[]};
+  errors: {
+    global: string[]
+  };
 }

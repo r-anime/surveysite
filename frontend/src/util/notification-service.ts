@@ -25,7 +25,6 @@ export default class NotificationService {
   }
 
   static subscribe(func: EventHandler): void {
-    console.log('subscribed a function');
     this.eventHandlers.push(func);
   }
 
