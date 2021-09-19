@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -26,6 +27,11 @@ class SurveyFormApi(View):
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
         )
+
+        if survey.state == Survey.State.UPCOMING:
+            return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
+        elif survey.state == Survey.State.FINISHED:
+            return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
 
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
@@ -59,6 +65,12 @@ class SurveyFormApi(View):
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
         )
+
+        if survey.state == Survey.State.UPCOMING:
+            return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
+        elif survey.state == Survey.State.FINISHED and (survey.closing_time - datetime.now()).total_seconds() < 15 * 60:
+            # Users can still submit responses 15 minutes after the survey has closed
+            return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
         
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
