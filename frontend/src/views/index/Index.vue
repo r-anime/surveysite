@@ -23,14 +23,22 @@
         <div class="col col-9 col-sm-10">
           <div class="row h-100">
 
-            <router-link v-if="surveysInSeason.preseasonSurvey" :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
-              <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
-            </router-link>
+            <template v-if="surveysInSeason.preseasonSurvey">
+              <div v-if="new Date() < new Date(surveysInSeason.preseasonSurvey.openingEpochTime)" class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+              <router-link v-else-if="new Date() < new Date(surveysInSeason.preseasonSurvey.closingEpochTime)" :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
+              </router-link>
+              <router-link v-else :to="`${getSurveyUrl(surveysInSeason.preseasonSurvey)}results/`" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey"></router-link>
+            </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
-            <router-link v-if="surveysInSeason.postseasonSurvey" :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
-              <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
-            </router-link>
+            <template v-if="surveysInSeason.postseasonSurvey">
+              <div v-if="new Date() < new Date(surveysInSeason.postseasonSurvey.openingEpochTime)" class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
+              <router-link v-else-if="new Date() < new Date(surveysInSeason.postseasonSurvey.closingEpochTime)" :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
+              </router-link>
+              <router-link v-else :to="`${getSurveyUrl(surveysInSeason.postseasonSurvey)}results/`" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey"></router-link>
+            </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
           </div>
