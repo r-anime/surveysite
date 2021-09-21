@@ -3,13 +3,13 @@
     <div class="col mb-1">
       <h5>
         {{ getSurveyName() }}
-        <small v-if="new Date() > closingTime" class="text-muted" style="font-size:80%;">Finished</small>
-        <span v-else-if="new Date() > openingTime" class="badge bg-primary rounded-pill" style="font-size:80%">Ongoing</span>
-        <span v-else class="badge bg-secondary rounded-pill" style="font-size:80%">Upcoming</span>
+        <small v-if="surveyIsFinished()" class="text-muted" style="font-size:80%;">Finished</small>
+        <span v-else-if="surveyIsUpcoming()" class="badge bg-secondary rounded-pill" style="font-size:80%">Upcoming</span>
+        <span v-else class="badge bg-primary rounded-pill" style="font-size:80%">Ongoing</span>
       </h5>
     </div>
     
-    <template v-if="new Date() > closingTime">
+    <template v-if="surveyIsFinished()">
       <div v-for="(animeResultsList, resultstype) in survey.animeResults" :key="resultstype" class="col mb-3">
         <div class="row mb-2">
           <div class="col bg-primary bg-opacity-75 text-light rounded py-1 px-2 w-100">
@@ -33,7 +33,7 @@
 
         <div class="row align-items-center justify-content-center h-100 w-100 position-absolute top-0 start-0">
           <div class="col text-center fs-1" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);">
-            {{ new Date() > openingTime ? 'Survey open!' : `Open ${openingTime.toLocaleString()}`}}
+            {{ surveyIsUpcoming() ? `Open ${openingTime.toLocaleString()}` : 'Survey open!' }}
           </div>
         </div>
       </div>
@@ -66,6 +66,13 @@ import { IndexSurveyData } from '../Index.vue';
     }
   },
   methods: {
+    surveyIsUpcoming(): boolean {
+      return new Date() < this.openingTime;
+    },
+    surveyIsFinished(): boolean {
+      return this.closingTime < new Date();
+    },
+
     getSurveyName() {
       const survey = this.survey as IndexSurveyData;
       return `The ${survey.isPreseason ? 'Start' : 'End'} of ${getSeasonName(survey.season)} ${survey.year} Survey`;

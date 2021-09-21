@@ -24,20 +24,22 @@
           <div class="row h-100">
 
             <template v-if="surveysInSeason.preseasonSurvey">
-              <div v-if="new Date() < new Date(surveysInSeason.preseasonSurvey.openingEpochTime)" class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
-              <router-link v-else-if="new Date() < new Date(surveysInSeason.preseasonSurvey.closingEpochTime)" :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+              <div v-if="surveyIsUpcoming(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
+              </div>
+              <router-link v-else :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </router-link>
-              <router-link v-else :to="`${getSurveyUrl(surveysInSeason.preseasonSurvey)}results/`" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey"></router-link>
             </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
             <template v-if="surveysInSeason.postseasonSurvey">
-              <div v-if="new Date() < new Date(surveysInSeason.postseasonSurvey.openingEpochTime)" class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
-              <router-link v-else-if="new Date() < new Date(surveysInSeason.postseasonSurvey.closingEpochTime)" :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+              <div v-if="surveyIsUpcoming(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
+              </div>
+              <router-link v-else :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </router-link>
-              <router-link v-else :to="`${getSurveyUrl(surveysInSeason.postseasonSurvey)}results/`" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey"></router-link>
             </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
@@ -79,6 +81,13 @@ export interface IndexSurveyData extends SurveyData {
     }
   },
   methods: {
+    surveyIsUpcoming(survey: SurveyData): boolean {
+      return new Date() < new Date(survey.openingEpochTime);
+    },
+    surveyIsFinished(survey: SurveyData): boolean {
+      return new Date(survey.closingEpochTime) < new Date();
+    },
+
     getSeasonName(season: string): string {
       const seasonNumber = Number(season);
       const seasonNameUpper = AnimeSeason[seasonNumber];
@@ -102,7 +111,9 @@ export interface IndexSurveyData extends SurveyData {
     },
 
     getSurveyUrl(survey: IndexSurveyData): string {
-      return `/survey/${survey.year}/${survey.season}/${survey.isPreseason ? 'pre' : 'post'}/`;
+      const preOrPost = survey.isPreseason ? 'pre' : 'post';
+      const resultsOrEmpty = this.surveyIsFinished(survey) ? 'results/' : '';
+      return `/survey/${survey.year}/${survey.season}/${preOrPost}/${resultsOrEmpty}`;
     },
 
     // In the future this should use pagination,
