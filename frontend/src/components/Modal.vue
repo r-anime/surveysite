@@ -1,5 +1,5 @@
 <template>
-  <button :class="`btn btn-${modalButtonVariant}`" data-bs-toggle="modal" :data-bs-target="`#${modalId}`">
+  <button :class="`btn btn-${modalButtonVariant} ${modalButtonClass}`" data-bs-toggle="modal" :data-bs-target="`#${modalId}`">
     {{ modalButtonText }}
   </button>
 
@@ -21,8 +21,7 @@
             <button v-if="acceptButtonCallback"
                   type="button"
                   class="btn btn-primary"
-                  data-bs-dismiss="modal"
-                  @click="acceptButtonCallback">
+                  @click="acceptButtonCallbackWrapper">
               {{ acceptButtonText }}
             </button>
 
@@ -53,11 +52,16 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { Modal as BootstrapModal } from 'bootstrap';
 
 @Options({
   props: {
     modalTitle: String,
 
+    modalButtonClass: {
+      type: String,
+      default: '',
+    },
     modalButtonVariant: {
       type: String,
       default: 'primary',
@@ -73,7 +77,7 @@ import { Options, Vue } from 'vue-class-component';
       default: null,
     },
     acceptButtonCallback: {
-      type: Function,
+      type: Function, // Should be a function that returns a Promise<boolean>
       default: null,
     },
     acceptButtonText: {
@@ -81,6 +85,13 @@ import { Options, Vue } from 'vue-class-component';
       default: 'Ok',
     },
   },
+  methods: {
+    async acceptButtonCallbackWrapper() {
+      if (this.acceptButtonCallback && await this.acceptButtonCallback()) {
+        BootstrapModal.getInstance(`#${this.modalId}`)?.hide();
+      }
+    }
+  }
 })
 export default class Modal extends Vue {
   private static componentId = 0;

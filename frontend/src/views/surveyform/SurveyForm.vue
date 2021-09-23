@@ -28,7 +28,14 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
         <div class="col-auto" id="modal-button-container-series">
-          <button variant="light" class="btn btn-light p-n2">Is an anime missing?</button> <!-- Doesn't do anything yet -->
+          <Modal modalTitle="Request a Missing Anime to Be Added"
+                 modalButtonClass="p-n2"
+                 modalButtonVariant="light"
+                 modalButtonText="Is an anime missing?"
+                 acceptButtonText="Send"
+                 :acceptButtonCallback="sendMissingAnimeData">
+            <input type="text" v-model="modalData.a">
+          </Modal>
         </div>
       </h3>
 
@@ -43,7 +50,14 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
         <div class="col-auto" id="modal-button-container-series">
-          <button variant="light" class="btn btn-light p-n2">Is an anime missing?</button> <!-- Doesn't do anything yet -->
+          <Modal modalTitle="Request a Missing Anime to Be Added"
+                 modalButtonClass="p-n2"
+                 modalButtonVariant="light"
+                 modalButtonText="Is an anime missing?"
+                 acceptButtonText="Send"
+                 :acceptButtonCallback="sendMissingAnimeData">
+            <input type="text" v-model="modalData.a">
+          </Modal>
         </div>
       </h3>
 
@@ -87,6 +101,7 @@ import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
 import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import Modal from '@/components/Modal.vue';
 
 
 interface ResponseData {
@@ -121,6 +136,7 @@ interface SurveyFromSubmitData {
   components: {
     SurveyFormAnime,
     FormValidationErrors,
+    Modal,
   },
   data() {
     return {
@@ -130,6 +146,7 @@ interface SurveyFromSubmitData {
       animeSeriesIds: [],
       specialAnimeIds: [],
       validationErrors: null,
+      modalData: {a: 'test'},
     };
   },
   methods: {
@@ -139,6 +156,15 @@ interface SurveyFromSubmitData {
       const preOrPostSeason = this.$route.params.preOrPost as string;
       
       return `api/survey/${year}/${season}/${preOrPostSeason}/`;
+    },
+
+    async sendMissingAnimeData(): Promise<boolean> {
+      try {
+        await Ajax.post('api/nonexistentsomething/', this.modalData);
+      } catch {
+        return false;
+      }
+      return true;
     },
 
     getResponseData(): ResponseData {
