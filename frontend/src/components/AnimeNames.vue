@@ -18,11 +18,11 @@ import { Options, Vue } from 'vue-class-component';
   props: {
     animeNames: {
       type: Array,
-      default: () => [{}],
+      default: [],
     },
     showShortName: {
       type: Boolean,
-      default: () => true,
+      default: true,
     },
   },
   data() {
@@ -32,18 +32,12 @@ import { Options, Vue } from 'vue-class-component';
       shortName: null,
     }
   },
-  methods: {
-    
-  },
   created() {
     const animeNames = this.animeNames as AnimeNameData[];
     this.japaneseName = animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME);
     this.englishName = animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME);
     this.shortName = animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME);
-  }
+  },
 })
-export default class AnimeNames extends Vue {
-  animeNames!: Array<AnimeNameData>;
-  showShortName!: boolean;
-}
+export default class AnimeNames extends Vue {}
 </script>

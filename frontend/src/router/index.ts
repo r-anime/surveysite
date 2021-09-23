@@ -5,23 +5,13 @@ import NotFound from '@/views/NotFound.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    //name: 'Home',
-    //component: Home
     name: 'Index',
     component: Index
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
-  {
     path: '/survey/:year/:season/:preOrPost/',
     name: 'Survey',
-    component: () => import('../views/surveyform/SurveyForm.vue')
+    component: () => import('../views/surveyform/SurveyForm.vue'), // Lazy-load complex components
   },
   {
     path: '/:_(.*)',
@@ -32,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes: routes,
 });
 
 export default router;

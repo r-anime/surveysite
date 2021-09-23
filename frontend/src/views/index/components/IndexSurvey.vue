@@ -55,9 +55,7 @@ import { IndexSurveyData } from '../Index.vue';
     IndexSurveyAnime
   },
   props: {
-    survey: {
-      type: Object,
-    }
+    survey: Object,
   },
   data() {
     return {
@@ -73,7 +71,7 @@ import { IndexSurveyData } from '../Index.vue';
       return this.closingTime < new Date();
     },
 
-    getSurveyName() {
+    getSurveyName(): string {
       const survey = this.survey as IndexSurveyData;
       return `The ${survey.isPreseason ? 'Start' : 'End'} of ${getSeasonName(survey.season)} ${survey.year} Survey`;
     },

@@ -76,7 +76,6 @@ export interface IndexSurveyData extends SurveyData {
     return {
       surveys: [],
       surveyData: [],
-      _: _,
       console: console,
     }
   },

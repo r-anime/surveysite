@@ -29,7 +29,6 @@
 </template>
 
 <script lang="ts">
-import { ImageData } from '@/util/data';
 import { Options, Vue } from 'vue-class-component';
 import { Carousel } from 'bootstrap';
 
@@ -37,28 +36,20 @@ import { Carousel } from 'bootstrap';
   props: {
     animeImages: {
       type: Array,
-      default: () => [{}],
+      default: [],
     },
     enableCarouselControls: {
       type: Boolean,
-      default: () => true,
+      default: true,
     },
     alignCenter: {
       type: Boolean,
-      default: () => true,
+      default: true,
     },
     imgClass: {
       type: String,
-      default: () => '',
+      default: '',
     },
-  },
-  data() {
-    return {
-      
-    }
-  },
-  methods: {
-    
   },
   mounted() {
     if (this.animeImages.length > 1) {
@@ -69,10 +60,6 @@ import { Carousel } from 'bootstrap';
   }
 })
 export default class AnimeImages extends Vue {
-  animeImages!: Array<ImageData>;
-  enableCarouselControls!: boolean;
-
-  // https://stackoverflow.com/a/61010067
   id = 0;
   private static componentId = 0;
 

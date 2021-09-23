@@ -3,9 +3,13 @@
     <div class="container-fluid">
       <router-link to="/" class="navbar-brand">/r/anime Surveys</router-link>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-      >
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -61,9 +65,6 @@ import NotificationService from '@/util/notification-service';
       csrfToken: Cookie.get('csrftoken') ?? '',
     }
   },
-  methods: {
-    
-  },
   async created() {
     const response = await Ajax.get<UserData>('api/user/') ?? {};
     if (Response.isErrorData(response.data)) {
@@ -73,7 +74,7 @@ import NotificationService from '@/util/notification-service';
     }
 
     this.userData = response.data;
-  }
+  },
 })
 export default class TheNavbar extends Vue {}
 </script>
