@@ -29,24 +29,22 @@
             </form>
           </template>
           <template v-else>
-            <ModalButton id="loginModal" variant="primary">Log In</ModalButton>
+            <Modal modalId="loginModal"
+                   modalTitle="Log In"
+                   modalButtonText="Log In"
+                   acceptButtonText="Log in via Reddit"
+                   acceptButtonUrl="/accounts/login/">
+              To fill in surveys, you must be logged in with a Reddit account.
+            </Modal>
           </template>
         </div>
       </div>
     </div>
   </nav>
-
-  <Modal id="loginModal"
-         title="Log In"
-         acceptButtonText="Log in via Reddit"
-         acceptButtonUrl="/accounts/login/">
-    To fill in surveys, you must be logged in with a Reddit account.
-  </Modal>
 </template>
 
 <script lang="ts">
 import Modal from '@/components/Modal.vue';
-import ModalButton from '@/components/ModalButton.vue';
 import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
 import Ajax, { Response } from '@/util/ajax';
@@ -56,7 +54,6 @@ import NotificationService from '@/util/notification-service';
 @Options({
   components: {
     Modal,
-    ModalButton,
   },
   data() {
     return {
