@@ -56,7 +56,6 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
   props: {
-    modalId: String,
     modalTitle: String,
 
     modalButtonVariant: {
@@ -83,5 +82,8 @@ import { Options, Vue } from 'vue-class-component';
     },
   },
 })
-export default class Modal extends Vue {}
+export default class Modal extends Vue {
+  private static componentId = 0;
+  modalId = `modal${Modal.componentId++}`;
+}
 </script>

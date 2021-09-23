@@ -29,8 +29,7 @@
             </form>
           </template>
           <template v-else>
-            <Modal modalId="loginModal"
-                   modalTitle="Log In"
+            <Modal modalTitle="Log In"
                    modalButtonText="Log In"
                    acceptButtonText="Log in via Reddit"
                    acceptButtonUrl="/accounts/login/">
