@@ -28,7 +28,7 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :isSurveyPreseason="isSurveyPreseason"/>
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="data.survey"/>
         </div>
       </h3>
 
@@ -43,7 +43,7 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :isSurveyPreseason="isSurveyPreseason"/>
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="data.survey"/>
         </div>
       </h3>
 

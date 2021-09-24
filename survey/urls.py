@@ -1,7 +1,8 @@
-from survey.views.api.survey_form import SurveyFormApi
-from django.urls import path, include
+from django.urls import path
 from django.shortcuts import redirect
 from survey.views.api.index import IndexApi
+from survey.views.api.survey_form import SurveyFormApi
+from survey.views.api.survey_missing_anime import SurveyMissingAnimeApi
 from survey.views.api.user import UserApi
 from survey.views.index import IndexView
 from survey.views.form import FormView, MissingAnimeView
@@ -25,6 +26,7 @@ urlpatterns = [
     path('index/', IndexApi.as_view()),
     path('user/', UserApi.as_view()),
     path('survey/<int:year>/<int:season>/<pre_or_post>/', SurveyFormApi.as_view()),
+    path('survey/<int:year>/<int:season>/<pre_or_post>/missinganime/', SurveyMissingAnimeApi.as_view())
 ]
 
 # urlpatterns = [

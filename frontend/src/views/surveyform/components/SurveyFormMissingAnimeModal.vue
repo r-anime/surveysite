@@ -12,7 +12,7 @@
       <li>Only <b>subbed</b> and <b>widely-available</b> anime from this season will be added to the survey.</li>
       <li>
         OVAs and other irregularly-releasing anime will only be added
-        <template v-if="isSurveyPreseason">
+        <template v-if="survey.isPreseason">
           to pre-season surveys when they're <b>starting</b>
         </template>
         <template v-else>
@@ -20,7 +20,7 @@
         </template>
         this season.
       </li>
-      <li>Compilation movies and recaps will <b>not</b> be added unless they <template v-if="isSurveyPreseason">will</template> make noticable changes to the original.</li>
+      <li>Compilation movies and recaps will <b>not</b> be added unless they <template v-if="survey.isPreseason">will</template> make noticable changes to the original.</li>
     </ul>
 
     <div>
@@ -51,11 +51,12 @@ import { Vue, Options } from "vue-class-component";
 import Modal from '@/components/Modal.vue';
 import Ajax, { Response } from "@/util/ajax";
 import NotificationService from "@/util/notification-service";
+import { SurveyData } from "@/util/data";
 
 @Options({
   props: {
     missingAnimeData: Object,
-    isSurveyPreseason: Boolean,
+    survey: Object,
   },
   components: {
     Modal,
@@ -63,12 +64,20 @@ import NotificationService from "@/util/notification-service";
   methods: {
     async sendMissingAnimeData(): Promise<boolean> {
       try {
-        const result = await Ajax.post('api/nonexistentsomething/', this.missingAnimeData);
+        const survey = this.survey as SurveyData;
+        const preOrPost = survey.isPreseason ? 'pre' : 'post';
+
+        const result = await Ajax.post(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
         if (Response.isErrorData(result.data)) {
           NotificationService.pushMsgList(result.getGlobalErrors(), 'danger');
           // TODO: Handle validation errors
           return false;
         }
+
+        NotificationService.push({
+          message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
+          color: 'success',
+        });
       } catch {
         return false;
       }
