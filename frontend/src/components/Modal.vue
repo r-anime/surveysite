@@ -5,13 +5,13 @@
 
   <teleport to="#modals">
     <div class="modal fade" :id="modalId" tabindex="-1" :aria-labelledby="`${modalId}Label`" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" :id="`${modalId}Label`">{{ modalTitle }}</h5>
             <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body p-4">
             <slot></slot>
           </div>
           <div class="modal-footer">
@@ -19,9 +19,9 @@
 
 
             <button v-if="acceptButtonCallback"
-                  type="button"
-                  class="btn btn-primary"
-                  @click="acceptButtonCallbackWrapper">
+                    type="button"
+                    class="btn btn-primary"
+                    @click="acceptButtonCallbackWrapper">
               {{ acceptButtonText }}
             </button>
 
@@ -32,8 +32,8 @@
             </a>
 
             <router-link v-else-if="acceptButtonRoute"
-                        :to="acceptButtonRoute"
-                        class="btn btn-primary">
+                         :to="acceptButtonRoute"
+                         class="btn btn-primary">
               {{ acceptButtonText }}
             </router-link>
 

@@ -37,9 +37,20 @@ function decamelizeKeys(obj: any): any {
 
 function fixResponseDataIfJsonParsingFailed(responseData: any) {
   if (!responseData) {
+    // Response data is null
     return responseData;
   } else if (typeof responseData === 'string') {
-    return JSON.parse(responseData.replace(/\bNaN\b/g, 'null'));
+    try {
+      // Try to parse the response after replacing NaNs with nulls
+      return JSON.parse(responseData.replace(/\bNaN\b/g, 'null'));
+    } catch (e) {
+      // The response was not JSON
+      if (e instanceof SyntaxError) {
+        throw new Error('The server returned an invalid response');
+      } else {
+        throw e;
+      }
+    }
   } else {
     return responseData;
   }
@@ -64,8 +75,8 @@ export default class Ajax {
 
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = this.createErrorResponse(e);
-      if (Response.isErrorData(response)) {
+      const response = Ajax.createErrorResponse(e);
+      if (Response.isErrorData(response.data)) {
         return response;
       } else {
         // Server did not return ErrorData, so something is wrong
@@ -84,8 +95,8 @@ export default class Ajax {
 
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = this.createErrorResponse(e);
-      if (Response.isErrorData(response)) {
+      const response = Ajax.createErrorResponse(e);
+      if (Response.isErrorData(response.data)) {
         return response;
       } else {
         // Server did not return ErrorData, so something is wrong

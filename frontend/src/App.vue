@@ -5,7 +5,7 @@
   <div class="container-md mb-5">
     <router-view/>
   </div>
-  <div class="position-fixed bottom-0 start-50 translate-middle-x">
+  <div class="position-fixed bottom-0 start-50 translate-middle-x" style="z-index:100000;"> <!-- Notifications ALWAYS have to be on top -->
     <TheNotifications/>
   </div>
 </template>

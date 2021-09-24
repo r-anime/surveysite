@@ -27,15 +27,8 @@
     <template v-if="animeSeriesIds && animeSeriesIds.length">
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
-        <div class="col-auto" id="modal-button-container-series">
-          <Modal modalTitle="Request a Missing Anime to Be Added"
-                 modalButtonClass="p-n2"
-                 modalButtonVariant="light"
-                 modalButtonText="Is an anime missing?"
-                 acceptButtonText="Send"
-                 :acceptButtonCallback="sendMissingAnimeData">
-            <input type="text" v-model="modalData.a">
-          </Modal>
+        <div class="col-auto">
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :isSurveyPreseason="isSurveyPreseason"/>
         </div>
       </h3>
 
@@ -49,15 +42,8 @@
     <template v-if="specialAnimeIds && specialAnimeIds.length">
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
-        <div class="col-auto" id="modal-button-container-series">
-          <Modal modalTitle="Request a Missing Anime to Be Added"
-                 modalButtonClass="p-n2"
-                 modalButtonVariant="light"
-                 modalButtonText="Is an anime missing?"
-                 acceptButtonText="Send"
-                 :acceptButtonCallback="sendMissingAnimeData">
-            <input type="text" v-model="modalData.a">
-          </Modal>
+        <div class="col-auto">
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :isSurveyPreseason="isSurveyPreseason"/>
         </div>
       </h3>
 
@@ -101,7 +87,7 @@ import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
 import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import Modal from '@/components/Modal.vue';
+import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 
 
 interface ResponseData {
@@ -132,11 +118,17 @@ interface SurveyFromSubmitData {
   isResponseLinkedToUser: boolean;
 }
 
+interface MissingAnimeData {
+  name: string;
+  link: string;
+  description: string;
+}
+
 @Options({
   components: {
     SurveyFormAnime,
     FormValidationErrors,
-    Modal,
+    SurveyFormMissingAnimeModal,
   },
   data() {
     return {
@@ -146,7 +138,13 @@ interface SurveyFromSubmitData {
       animeSeriesIds: [],
       specialAnimeIds: [],
       validationErrors: null,
-      modalData: {a: 'test'},
+
+      // Needed here because we want the same data shared by the two identical modals
+      missingAnimeData: {
+        name: '',
+        link: '',
+        description: '',
+      } as MissingAnimeData,
     };
   },
   methods: {
@@ -156,15 +154,6 @@ interface SurveyFromSubmitData {
       const preOrPostSeason = this.$route.params.preOrPost as string;
       
       return `api/survey/${year}/${season}/${preOrPostSeason}/`;
-    },
-
-    async sendMissingAnimeData(): Promise<boolean> {
-      try {
-        await Ajax.post('api/nonexistentsomething/', this.modalData);
-      } catch {
-        return false;
-      }
-      return true;
     },
 
     getResponseData(): ResponseData {
