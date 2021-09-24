@@ -64,11 +64,12 @@ export default class Ajax {
 
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = this.createErrorResponse<T>(e);
-      if (response == null) {
-        throw e;
-      } else {
+      const response = this.createErrorResponse(e);
+      if (Response.isErrorData(response)) {
         return response;
+      } else {
+        // Server did not return ErrorData, so something is wrong
+        throw e;
       }
     }
   }
@@ -83,17 +84,18 @@ export default class Ajax {
 
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = this.createErrorResponse<T>(e);
-      if (response == null) {
-        throw e;
-      } else {
+      const response = this.createErrorResponse(e);
+      if (Response.isErrorData(response)) {
         return response;
+      } else {
+        // Server did not return ErrorData, so something is wrong
+        throw e;
       }
     }
   }
 
-  private static createErrorResponse<T>(e: any): Response<T | ErrorData> | null {
-    if (e.response) { // Server error
+  private static createErrorResponse(e: any): Response<ErrorData> {
+    if (e.response) { // Server error, data returned should always be ErrorData
       return new Response(e.response.data, e.response.status);
     }
     else if (e.request) { // Network error
@@ -106,7 +108,7 @@ export default class Ajax {
 }
 
 export class Response<T> {
-  constructor(public data: T, public statusCode: number) { }
+  constructor(public data: T, public statusCode: number) {}
 
   static isErrorData(responseData: any): responseData is ErrorData {
     if (typeof responseData === 'string') return false;
@@ -128,7 +130,6 @@ export class Response<T> {
 }
 
 export interface ErrorData {
-  isError: true;
   errors: {
     global: string[],
     validation?: Record<string, any>,

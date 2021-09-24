@@ -27,7 +27,7 @@
               <div v-if="surveyIsUpcoming(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </div>
-              <router-link v-else :to="getSurveyUrl(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+              <router-link v-else :to="getSurveyRoute(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </router-link>
             </template>
@@ -37,7 +37,7 @@
               <div v-if="surveyIsUpcoming(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </div>
-              <router-link v-else :to="getSurveyUrl(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
+              <router-link v-else :to="getSurveyRoute(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset bg-survey">
                 <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </router-link>
             </template>
@@ -60,6 +60,7 @@ import Ajax, { Response } from '@/util/ajax';
 import { AnimeResultsData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
+import { RouteLocationRaw } from 'vue-router';
 
 
 export interface IndexSurveyData extends SurveyData {
@@ -109,10 +110,15 @@ export interface IndexSurveyData extends SurveyData {
       }
     },
 
-    getSurveyUrl(survey: IndexSurveyData): string {
-      const preOrPost = survey.isPreseason ? 'pre' : 'post';
-      const resultsOrEmpty = this.surveyIsFinished(survey) ? 'results/' : '';
-      return `/survey/${survey.year}/${survey.season}/${preOrPost}/${resultsOrEmpty}`;
+    getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
+      return {
+        name: this.surveyIsFinished(survey) ? 'SurveyResults' : 'SurveyForm',
+        params: {
+          year: survey.year,
+          season: survey.season,
+          preOrPost: survey.isPreseason ? 'pre' : 'post',
+        },
+      };
     },
 
     // In the future this should use pagination,

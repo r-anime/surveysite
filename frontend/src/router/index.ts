@@ -10,8 +10,13 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/survey/:year/:season/:preOrPost/',
-    name: 'Survey',
+    name: 'SurveyForm',
     component: () => import('../views/surveyform/SurveyForm.vue'), // Lazy-load complex components
+  },
+  {
+    path: '/survey/:year/:season/:preOrPost/results/',
+    name: 'SurveyResults',
+    component: () => import('../views/surveyresults/SurveyResults.vue'),
   },
   {
     path: '/:_(.*)',
