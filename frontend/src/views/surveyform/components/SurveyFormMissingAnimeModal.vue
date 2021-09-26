@@ -25,18 +25,21 @@
 
     <div>
       <div class="mb-2">
-        <label class="form-label" :for="`${componentId}-name`">Anime name:</label>
-        <input class="form-control" :id="`${componentId}-name`" maxlength="128" type="text" v-model="missingAnimeData.name">
+        <label class="form-label" :for="`input-missinganime-${componentId}-name`">Anime name:</label>
+        <input class="form-control" :id="`input-missinganime-${componentId}-name`" :class="{'is-invalid': validationErrors?.missingAnime?.name}" maxlength="128" type="text" v-model="missingAnimeData.name" :aria-describedby="`input-missinganime-${componentId}-name-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-name-errors`" :validationErrors="validationErrors?.missingAnime?.name"/>
       </div>
 
       <div class="mb-2">
-        <label class="form-label" :for="`${componentId}-link`">Link to anime:</label>
-        <input class="form-control" :id="`${componentId}-link`" maxlength="200" type="url" v-model="missingAnimeData.link">
+        <label class="form-label" :for="`input-missinganime-${componentId}-link`">Link to anime:</label>
+        <input class="form-control" :id="`input-missinganime-${componentId}-link`" :class="{'is-invalid': validationErrors?.missingAnime?.link}" maxlength="200" type="url" v-model="missingAnimeData.link" :aria-describedby="`input-missinganime-${componentId}-link-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-link-errors`" :validationErrors="validationErrors?.missingAnime?.link"/>
       </div>
 
       <div class="mb-2">
-        <label class="form-label" :for="`${componentId}-description`">Extra information (optional):</label>
-        <textarea class="form-control" :id="`${componentId}-description`" rows="3" v-model="missingAnimeData.description"></textarea>
+        <label class="form-label" :for="`input-missinganime-${componentId}-description`">Extra information (optional):</label>
+        <textarea class="form-control" :id="`input-missinganime-${componentId}-description`" :class="{'is-invalid': validationErrors?.missingAnime?.description}" rows="3" v-model="missingAnimeData.description" :aria-describedby="`input-missinganime-${componentId}-description-errors`"></textarea>
+        <FormValidationErrors :id="`input-missinganime-${componentId}-description-errors`" :validationErrors="validationErrors?.missingAnime?.description"/>
       </div>
     </div>
 
@@ -52,6 +55,7 @@ import Modal from '@/components/Modal.vue';
 import Ajax, { Response } from "@/util/ajax";
 import NotificationService from "@/util/notification-service";
 import { SurveyData } from "@/util/data";
+import FormValidationErrors from '@/components/FormValidationErrors.vue';
 
 @Options({
   props: {
@@ -60,6 +64,12 @@ import { SurveyData } from "@/util/data";
   },
   components: {
     Modal,
+    FormValidationErrors,
+  },
+  data() {
+    return {
+      validationErrors: null,
+    };
   },
   methods: {
     async sendMissingAnimeData(): Promise<boolean> {
@@ -67,24 +77,34 @@ import { SurveyData } from "@/util/data";
         const survey = this.survey as SurveyData;
         const preOrPost = survey.isPreseason ? 'pre' : 'post';
 
-        const result = await Ajax.post(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
-        if (Response.isErrorData(result.data)) {
-          NotificationService.pushMsgList(result.getGlobalErrors(), 'danger');
-          // TODO: Handle validation errors
+        const response = await Ajax.post(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
+        if (Response.isErrorData(response.data)) {
+          NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
+          
+          const validationErrors = response.data.errors.validation ?? null;
+          if (validationErrors != null) {
+            this.validationErrors = validationErrors;
+            NotificationService.push({
+              message: 'One or more fields are invalid',
+              color: 'danger'
+            });
+            console.log(validationErrors);
+          }
           return false;
         }
-
-        NotificationService.push({
-          message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
-          color: 'success',
-        });
       } catch {
         return false;
       }
 
+      NotificationService.push({
+        message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
+        color: 'success',
+      });
+
       this.missingAnimeData.name = '';
       this.missingAnimeData.link = '';
       this.missingAnimeData.description = '';
+      this.validationErrors = null;
       return true;
     },
   }

@@ -7,12 +7,12 @@
         <div class="row">
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
-            <input class="form-control" id="input-age" :class="validationErrors?.response?.age ? 'is-invalid' : ''" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
+            <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.response?.age}" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
             <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.response?.age"/>
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
-            <select class="form-select" id="input-gender" :class="validationErrors?.response?.gender ? 'is-invalid' : ''" v-model="getResponseData().gender" aria-describedby="input-gender-invalid">
+            <select class="form-select" id="input-gender" :class="{'is-invalid': validationErrors?.response?.gender}" v-model="getResponseData().gender" aria-describedby="input-gender-invalid">
               <option :value="(null)">-----</option>
               <option value="M">Male</option>
               <option value="F">Female</option>
