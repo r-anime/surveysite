@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
 
@@ -57,86 +57,83 @@ function fixResponseDataIfJsonParsingFailed(responseData: any) {
 }
 
 export default class Ajax {
+  private static _axios = axios.create({
+    transformRequest: [decamelizeKeys, JSON.stringify],
+    transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
+    baseURL: '/',
+  });
+
   static async post<T>(url: string, data?: any): Promise<Response<T | ErrorData>> {
     try {
-      const csrfToken = Cookies.get('csrftoken');
-      if (!csrfToken) throw new Error("No CSRF token.");
-      
-      const requestHeaders = {
-        'X-CSRFToken': csrfToken,
-      };
       const requestConfig = {
-        headers: requestHeaders,
-        transformRequest: [decamelizeKeys, JSON.stringify],
-        transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
+        headers: {
+          'X-CSRFToken': Ajax.getCsrfToken(),
+        },
       } as AxiosRequestConfig;
 
-      const response = await axios.post<T>(url, data, requestConfig);
-
+      const response = await Ajax._axios.post<T>(url, data, requestConfig);
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = Ajax.createErrorResponse(e);
-      if (Response.isErrorData(response.data)) {
-        return response;
-      } else {
-        // Server did not return ErrorData, so something is wrong
-        throw e;
-      }
+      return Response.createErrorResponse(e as AxiosError);
     }
   }
   
   static async get<T>(url: string): Promise<Response<T | ErrorData>> {
     try {
-      const requestConfig = {
-        transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
-      } as AxiosRequestConfig;
-
-      const response = await axios.get<T>(url, requestConfig);
-
+      const response = await Ajax._axios.get<T>(url);
       return new Response(response.data, response.status);
     } catch (e) {
-      const response = Ajax.createErrorResponse(e);
-      if (Response.isErrorData(response.data)) {
-        return response;
-      } else {
-        // Server did not return ErrorData, so something is wrong
-        throw e;
-      }
+      return Response.createErrorResponse(e as AxiosError);
     }
   }
 
-  private static createErrorResponse(e: any): Response<ErrorData> {
-    if (e.response) { // Server error, data returned should always be ErrorData
-      return new Response(e.response.data, e.response.status);
-    }
-    else if (e.request) { // Network error
-      return Response.createNetworkErrorResponse(e.request.status);
-    }
-    else { // Client error
-      return Response.createClientErrorResponse(e);
-    }
+  private static getCsrfToken(): string {
+    const csrfToken = Cookies.get('csrftoken');
+    if (!csrfToken) throw new Error("No CSRF token.");
+    return csrfToken;
   }
 }
 
 export class Response<T> {
   constructor(public data: T, public statusCode: number) {}
 
+  getGlobalErrors(unknownError: string | null = 'An unknown error occurred.'): string[] {
+    if (Response.isErrorData(this.data)) {
+      return this.data.errors.global ?? (unknownError ? [unknownError] : []);
+    } else {
+      return [];
+    }
+  }
+
   static isErrorData(responseData: any): responseData is ErrorData {
     if (typeof responseData === 'string') return false;
     return 'errors' in (responseData ?? {});
   }
-
-  getGlobalErrors(unknownError: string | null = 'An unknown error occurred.'): string[] {
-    // Not pretty but works
-    return (this.data as any)?.errors?.global ?? (unknownError ? [unknownError] : []);
-  }
-
-  static createClientErrorResponse(error: Error): Response<ErrorData> {
-    return new Response({errors: {global: [`${error.name}: ${error.message}`]}} as ErrorData, 999);
-  }
-
-  static createNetworkErrorResponse(statusCode: number): Response<ErrorData> {
-    return new Response({errors: {global: [`While sending a request, an Http${statusCode} was encountered.`]}} as ErrorData, statusCode);
+  
+  static createErrorResponse(e: AxiosError<ErrorData>): Response<ErrorData> {
+    if (e.response) {
+      // Server error, data returned by server should always be ErrorData so double-check
+      if (Response.isErrorData(e.response.data)) {
+        return new Response(e.response.data, e.response.status);
+      } else {
+        throw e;
+      }
+    }
+    else if (e.request) {
+      // Network error
+      const request: XMLHttpRequest = e.request;
+      const errorData: ErrorData = { errors: {
+        global: [`While sending a request, an Http${request.status} was encountered.`]
+      }};
+      return new Response(errorData, request.status);
+    }
+    else {
+      // Client error, return error response with custom status code
+      const errorData: ErrorData = { errors: {
+        global: [`${e.name}: ${e.message}`]
+      }};
+      return new Response(errorData, 999);
+    }
   }
 }
 
