@@ -47,11 +47,6 @@ export interface AnimeData {
   animeType: AnimeType;
 }
 
-export interface AnimeResultsData {
-  anime: AnimeData;
-  result: Record<ResultsType, number>;
-}
-
 export interface SurveyData {
   year: number;
   season: AnimeSeason;

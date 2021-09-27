@@ -66,12 +66,6 @@ class DataBase:
         return {}
 
 @dataclass
-class UserData(DataBase):
-    authenticated: bool
-    username: Optional[str] = None
-    profile_picture: Optional[str] = None
-
-@dataclass
 class ImageData(DataBase):
     name: str
     url_small: str
@@ -118,11 +112,6 @@ class AnimeData(DataBase):
             images=image_data_list,
             anime_type=model.anime_type,
         )
-
-@dataclass
-class SurveyAnimeData(DataBase): # NOTE: Change this name, I can already foresee this being confusing
-    anime: AnimeData
-    result: float
 
 @dataclass
 class SurveyData(DataBase):

@@ -59,7 +59,7 @@ class SurveyFormApi(View):
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
-    def post(self, request: HttpRequest, *args, **kwargs):
+    def put(self, request: HttpRequest, *args, **kwargs):
         survey = get_survey_or_404(
             year=self.kwargs['year'],
             season=self.kwargs['season'],

@@ -10,7 +10,6 @@
 </template>
 
 <script lang="ts">
-import { AnimeResultsData } from '@/util/data';
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Options, Vue } from 'vue-class-component';
@@ -24,7 +23,5 @@ import { Options, Vue } from 'vue-class-component';
     animeResults: Object,
   },
 })
-export default class IndexSurveyAnime extends Vue {
-  animeResults!: AnimeResultsData;
-}
+export default class IndexSurveyAnime extends Vue {}
 </script>

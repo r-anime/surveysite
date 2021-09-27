@@ -1,7 +1,8 @@
-from django.contrib.auth.models import User
+from dataclasses import dataclass
+from typing import Optional
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
-from survey.util.data import UserData, json_encoder_factory
+from survey.util.data import DataBase, json_encoder_factory
 
 
 class UserApi(View):
@@ -19,3 +20,10 @@ class UserApi(View):
             username=request.user.first_name if request.user.first_name else request.user.username,
             profile_picture=profile_picture
         ), encoder=jsonEncoder, safe=False)
+
+
+@dataclass
+class UserData(DataBase):
+    authenticated: bool
+    username: Optional[str] = None
+    profile_picture: Optional[str] = None

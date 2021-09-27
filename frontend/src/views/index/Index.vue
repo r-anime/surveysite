@@ -57,15 +57,20 @@
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
 import Ajax, { Response } from '@/util/ajax';
-import { AnimeResultsData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
+import { AnimeData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import { RouteLocationRaw } from 'vue-router';
 
 
+interface IndexSurveyAnimeData {
+  anime: AnimeData;
+  result: number;
+}
+
 export interface IndexSurveyData extends SurveyData {
-  animeResults?: Record<ResultsType, AnimeResultsData[]>; // For finished surveys
-  animeImages?: ImageData[];                              // For upcoming/ongoing suveys
+  animeResults?: Record<ResultsType, IndexSurveyAnimeData[]>; // For finished surveys
+  animeImages?: ImageData[];                                  // For upcoming/ongoing suveys
 }
 
 

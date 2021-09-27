@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
 from survey.models import Anime, Image, Survey
-from survey.util.data import ImageData, ResultsType, SurveyAnimeData, SurveyData, json_encoder_factory, AnimeData
+from survey.util.data import DataBase, ImageData, ResultsType, SurveyData, json_encoder_factory, AnimeData
 from survey.util.survey import get_survey_anime
 from survey.views.results import ResultsGenerator
 from typing import Optional
@@ -52,19 +52,19 @@ def get_top_results(results: dict[Anime, dict[ResultsType, float]], resultstype:
         key=lambda item: item[1][resultstype]
     )[:count]
 
-    return [          # If this does one query per anime when gathering images, then check if this can be optimized
-        SurveyAnimeData(anime=AnimeData.from_model(anime), result=anime_results[resultstype])
+    return [                 # If this does one query per anime when gathering images, then check if this can be optimized
+        IndexSurveyAnimeData(anime=AnimeData.from_model(anime), result=anime_results[resultstype])
         for (anime, anime_results) in sorted_results
     ]
 
 
 @dataclass
 class IndexSurveyData(SurveyData):
-    anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]
+    anime_results: Optional[dict[ResultsType, list[IndexSurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
 
     @staticmethod
-    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultsType, list[SurveyAnimeData]]]) -> IndexSurveyData:
+    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultsType, list[IndexSurveyAnimeData]]]) -> IndexSurveyData:
         survey_data = SurveyData.from_model(model)
         return IndexSurveyData(
             year=survey_data.year,
@@ -75,3 +75,8 @@ class IndexSurveyData(SurveyData):
             anime_images=anime_images,
             anime_results=anime_results,
         )
+
+@dataclass
+class IndexSurveyAnimeData(DataBase):
+    anime: AnimeData
+    result: float

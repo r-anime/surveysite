@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
 
@@ -62,8 +62,31 @@ export default class Ajax {
     transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys],
     baseURL: '/',
   });
+  
+  
+  static async get<T>(url: string): Promise<Response<T | ErrorData>> {
+    return await Ajax.performRequestFn(Ajax._axios.get, url);
+  }
 
   static async post<T>(url: string, data?: any): Promise<Response<T | ErrorData>> {
+    return await Ajax.performRequestFnWithData(Ajax._axios.post, url, data);
+  }
+
+  static async put<T>(url: string, data?: any): Promise<Response<T | ErrorData>> {
+    return await Ajax.performRequestFnWithData(Ajax._axios.put, url, data);
+  }
+
+
+  private static async performRequestFn<T>(axiosFn: AxiosRequestFn<T>, url: string): Promise<Response<T | ErrorData>> {
+    try {
+      const response = await axiosFn(url);
+      return new Response(response.data, response.status);
+    } catch (e) {
+      return Response.createErrorResponse(e as AxiosError);
+    }
+  }
+
+  private static async performRequestFnWithData<T>(axiosFn: AxiosRequestFnWithData<T>, url: string, data?: any): Promise<Response<T | ErrorData>> {
     try {
       const requestConfig = {
         headers: {
@@ -71,16 +94,7 @@ export default class Ajax {
         },
       } as AxiosRequestConfig;
 
-      const response = await Ajax._axios.post<T>(url, data, requestConfig);
-      return new Response(response.data, response.status);
-    } catch (e) {
-      return Response.createErrorResponse(e as AxiosError);
-    }
-  }
-  
-  static async get<T>(url: string): Promise<Response<T | ErrorData>> {
-    try {
-      const response = await Ajax._axios.get<T>(url);
+      const response = await axiosFn(url, data, requestConfig);
       return new Response(response.data, response.status);
     } catch (e) {
       return Response.createErrorResponse(e as AxiosError);
@@ -93,6 +107,10 @@ export default class Ajax {
     return csrfToken;
   }
 }
+
+type AxiosRequestFn<T> = (url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+type AxiosRequestFnWithData<T> = (url: string, data?: any, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+
 
 export class Response<T> {
   constructor(public data: T, public statusCode: number) {}

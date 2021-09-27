@@ -188,7 +188,7 @@ interface MissingAnimeData {
         isResponseLinkedToUser: data.isResponseLinkedToUser,
       } as SurveyFromSubmitData;
 
-      const response = await Ajax.post(this.getApiUrl(), submitData);
+      const response = await Ajax.put(this.getApiUrl(), submitData);
       if (Response.isErrorData(response.data)) {
         // Should also handle validation errors
         NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');

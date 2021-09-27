@@ -77,7 +77,7 @@ import FormValidationErrors from '@/components/FormValidationErrors.vue';
         const survey = this.survey as SurveyData;
         const preOrPost = survey.isPreseason ? 'pre' : 'post';
 
-        const response = await Ajax.post(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
+        const response = await Ajax.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
         if (Response.isErrorData(response.data)) {
           NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
           
