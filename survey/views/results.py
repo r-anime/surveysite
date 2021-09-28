@@ -85,10 +85,10 @@ class ResultsView(BaseResultsView):
                     TablePairSegment(('Most Anticipated' if survey.is_preseason else 'Best') + ' Anime of the Season by Gender', ResultsType.SCORE_MALE, ResultsType.SCORE_FEMALE, ResultsType.SCORE, row_count=5),
                     TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, extra_result_type=ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
                 ]),
-                HiddenSegmentGroup('Impressions - Expectations', [
-                    _(TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5)),
-                    _(TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5)),
-                ]),
+                _(HiddenSegmentGroup('Impressions - Expectations', [
+                    TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
+                    TableWithTop3Segment('Most Disappointing Anime', ResultsType.DISAPPOINTMENT, ResultsType.SCORE, top_count=5),
+                ])),
             ]),
             SegmentGroup('Anime OVAs / ONAs / Movies / Specials', [
                 TableWithTop3Segment('Most Popular Anime OVAs / ONAs / Movies / Specials', ResultsType.POPULARITY, is_for_series=False, top_count=5),
