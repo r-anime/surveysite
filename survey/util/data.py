@@ -27,7 +27,7 @@ def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, ex
                     fields=self.fields_per_model.get(o.__class__, None),
                     exclude=self.excluded_fields_per_model.get(o.__class__, None)
                 )
-
+            
             return super().default(o)
 
     return JsonEncoder
@@ -132,7 +132,7 @@ class SurveyData(DataBase):
         )
 
 
-class ResultsType(Enum):
+class ResultsType(int, Enum):
     """Enum representing all types of result values."""
     POPULARITY                  =  1 #"Popularity"
     POPULARITY_MALE             =  2 #"Popularity (Male)"

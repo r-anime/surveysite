@@ -1,4 +1,5 @@
 import { filter, orderBy } from "lodash";
+import { RouteLocation } from "vue-router";
 import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, SurveyData } from "./data";
 
 /**
@@ -9,6 +10,14 @@ import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, SurveyData } from "./
 export function getSeasonName(season: AnimeSeason): string {
   const seasonNameUpper = AnimeSeason[season];
   return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase()
+}
+
+export function getSurveyApiUrl(route: RouteLocation): string {
+  const year = route.params['year'];
+  const season = route.params['season'];
+  const preOrPostSeason = route.params['preOrPost'];
+  
+  return `api/survey/${year}/${season}/${preOrPostSeason}/`;
 }
 
 /**

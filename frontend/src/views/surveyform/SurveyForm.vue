@@ -81,7 +81,7 @@
 <script lang="ts">
 import Ajax, { Response } from '@/util/ajax';
 import { AnimeData, AnimeNameType, SurveyData } from '@/util/data';
-import { getAnimeName, getSurveyName, isAnimeSeries } from '@/util/helpers';
+import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import { groupBy, map, orderBy } from 'lodash';
@@ -148,14 +148,6 @@ interface MissingAnimeData {
     };
   },
   methods: {
-    getApiUrl(): string {
-      const year = this.$route.params.year as number;
-      const season = this.$route.params.season as number;
-      const preOrPostSeason = this.$route.params.preOrPost as string;
-      
-      return `api/survey/${year}/${season}/${preOrPostSeason}/`;
-    },
-
     getResponseData(): ResponseData {
       const data = this.data as SurveyFormData;
       return data.responseData;
@@ -188,7 +180,7 @@ interface MissingAnimeData {
         isResponseLinkedToUser: data.isResponseLinkedToUser,
       } as SurveyFromSubmitData;
 
-      const response = await Ajax.put(this.getApiUrl(), submitData);
+      const response = await Ajax.put(getSurveyApiUrl(this.$route), submitData);
       if (Response.isErrorData(response.data)) {
         // Should also handle validation errors
         NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
@@ -212,7 +204,7 @@ interface MissingAnimeData {
     },
   },
   async mounted() {
-    const response = await Ajax.get<SurveyFormData>(this.getApiUrl());
+    const response = await Ajax.get<SurveyFormData>(getSurveyApiUrl(this.$route));
     if (Response.isErrorData(response.data)) {
       NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
 

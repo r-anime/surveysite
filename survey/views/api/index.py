@@ -26,7 +26,7 @@ class IndexApi(View):
             anime_results = None
             anime_images = None
             if survey.state == Survey.State.FINISHED:
-                anime_series_results, _ = ResultsGenerator(survey).get_anime_results_data()
+                anime_series_results = ResultsGenerator(survey).get_anime_results_data()
                 anime_results = {
                     resultstype.value: get_top_results(anime_series_results, resultstype, 2)
                     for resultstype in resultstype_list
@@ -45,16 +45,16 @@ class IndexApi(View):
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
 
-def get_top_results(results: dict[Anime, dict[ResultsType, float]], resultstype: ResultsType, count: int, descending: bool=True):
+def get_top_results(results: dict[int, dict[ResultsType, float]], resultstype: ResultsType, count: int, descending: bool=True):
     sorted_results = sorted(
         results.items(),
         reverse=descending,
         key=lambda item: item[1][resultstype]
     )[:count]
 
-    return [                 # If this does one query per anime when gathering images, then check if this can be optimized
-        IndexSurveyAnimeData(anime=AnimeData.from_model(anime), result=anime_results[resultstype])
-        for (anime, anime_results) in sorted_results
+    return [                 # Check how this can be optimized
+        IndexSurveyAnimeData(anime=AnimeData.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resultstype])
+        for (anime_id, anime_results) in sorted_results
     ]
 
 

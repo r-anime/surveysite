@@ -1,14 +1,13 @@
 from django.core.cache import caches
 from django.db.models import Avg
-from json import JSONEncoder
-from survey.models import Anime, AnimeResponse, Response, Survey, SurveyAdditionRemoval
-from survey.util.anime import get_image_url_list, get_name_list
+from survey.models import AnimeResponse, Response, Survey, SurveyAdditionRemoval
 from survey.util.data import ResultsType
 from survey.util.survey import get_survey_anime, get_survey_cache_timeout
 
 
 class ResultsGenerator:
     """Class for generating survey results."""
+    survey: Survey
 
     def __init__(self, survey: Survey):
         """Creates a survey results generator.
@@ -20,45 +19,24 @@ class ResultsGenerator:
         """
         self.survey = survey
 
-    def get_anime_results_data_json(self):
-        anime_series_data, special_anime_data = self.get_anime_results_data()
-        encoder = JSONEncoder()
-
-        anime_info_json = encoder.encode({
-            anime.id: {
-                'official_name_list': get_name_list(anime),
-                'type': anime.anime_type,
-                'image_list': [image_data.to_dict() for image_data in get_image_url_list(anime)],
-            } for anime in list(anime_series_data.keys()) + list(special_anime_data.keys())
-        })
-
-        def convert_data(anime_data):
-            return encoder.encode({
-                anime.id: {
-                    results_type.name.lower(): value for results_type, value in results.items()
-                } for anime, results in anime_data.items()
-            })
-
-        return anime_info_json, convert_data(anime_series_data), convert_data(special_anime_data)
-
-    def get_anime_results_data(self) -> tuple[dict[Anime, dict[ResultsType, float]], dict[Anime, dict[ResultsType, float]]]:
+    def get_anime_results_data(self) -> dict[int, dict[ResultsType, float]]:
         """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
 
         Returns
         -------
-        ({Anime: {ResultsType: any}}, {Anime: {ResultsType: any}})
+        ({anime_id: {ResultsType: any}}, {anime_id: {ResultsType: any}})
             A dict for anime series and one for special anime, where each anime has an associated dict of result values.
         """
         if self.survey.state != Survey.State.FINISHED:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=4, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=5, timeout=cache_timeout)
 
-    def __get_anime_results_data_internal(self) -> tuple[dict[Anime, dict[ResultsType, float]], dict[Anime, dict[ResultsType, float]]]:
+    def __get_anime_results_data_internal(self) -> dict[int, dict[ResultsType, float]]:
         survey = self.survey
 
-        _, anime_series_list, special_anime_list = get_survey_anime(survey)
+        anime_list, _, _ = get_survey_anime(survey)
         animeresponse_queryset = AnimeResponse.objects.filter(response__survey=survey)
         surveyadditionsremovals_queryset = SurveyAdditionRemoval.objects.filter(survey=survey)
 
@@ -67,13 +45,9 @@ class ResultsGenerator:
         total_female_response_count = Response.objects.filter(survey=survey, gender=Response.Gender.FEMALE).count()
 
         # Get a dict of data values for each anime (i.e. a dict with for each anime a dict with data values, dict[anime][data])
-        anime_series_data = {
-            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) for anime in anime_series_list
+        return {
+            anime.id: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) for anime in anime_list
         }
-        special_anime_data = {
-            anime: self.__get_data_for_anime(anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) for anime in special_anime_list
-        }
-        return anime_series_data, special_anime_data
 
     # Returns a dict of data values for an anime
     def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> dict[ResultsType, float]:
@@ -153,4 +127,4 @@ class ResultsGenerator:
 
 
 def div0(a: float, b: float) -> float:
-    return a / b if b > 0 else float('NaN')
+    return a / b if b != 0 else float('NaN')
