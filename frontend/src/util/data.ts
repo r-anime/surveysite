@@ -11,6 +11,12 @@ export interface ImageData {
   urlLarge: string;
 }
 
+export enum Gender {
+  MALE = 'M',
+  FEMALE = 'F',
+  OTHER = 'O',
+}
+
 export enum AnimeNameType {
   JAPANESE_NAME = 'JP',
   ENGLISH_NAME  = 'EN',
