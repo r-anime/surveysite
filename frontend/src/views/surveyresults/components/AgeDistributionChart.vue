@@ -4,10 +4,10 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { Chart, ChartConfiguration, CategoryScale, LinearScale, BarController, BarElement } from "chart.js";
+import { Chart, ChartConfiguration, Plugin, Tooltip } from "chart.js";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import _ from "lodash";
-
-Chart.register(CategoryScale, LinearScale, BarController, BarElement);
+import { AnyObject } from "chart.js/types/basic";
 
 // Make sure to load this component only after ageDistribution is not undefined/null!
 @Options({
@@ -18,23 +18,26 @@ Chart.register(CategoryScale, LinearScale, BarController, BarElement);
 export default class AgeDistributionChart extends Vue {
   ageDistribution!: Record<number, number>
 
-  mounted() {
+  mounted(): void {
     this.loadChart();
   }
 
   private loadChart(): void {
     const textColor = "#080421";
     const chartDataColor = "#537cf9";
-    const chartDatalabelColor = textColor;
-    const chartGridColor = "#cce"
+    const chartGridColor = "#cce";
     function chartPercentageFormatter(value: string | number) {
-        return value + "%";
+      return value + "%";
     }
 
-    const maxAge = _.max(Object.values(this.ageDistribution))!;
+    const maxAge = _.max(Object.values(this.ageDistribution));
+    if (maxAge == null) {
+      throw ReferenceError('maxAge was null or undefined');
+    }
 
     const chartElem = this.$refs['ageDist'] as HTMLCanvasElement;
     const chartConfig: ChartConfiguration<'bar', number[], number> = {
+      plugins: [ChartDataLabels, Tooltip] as Plugin<'bar', AnyObject>[],
       type: 'bar',
       data: {
         labels: Object.keys(this.ageDistribution).map(k => Number(k)),
@@ -48,6 +51,9 @@ export default class AgeDistributionChart extends Vue {
         backgroundColor: chartDataColor,
         borderColor: chartGridColor,
         plugins: {
+          datalabels: {
+            display: false,
+          },
           legend: {
             display: false,
           },
@@ -57,7 +63,7 @@ export default class AgeDistributionChart extends Vue {
           },
           tooltip: {
             callbacks: {
-              label: tooltipItem => chartPercentageFormatter(tooltipItem.parsed.y),
+              label: tooltipItem => chartPercentageFormatter(tooltipItem.parsed.y.toFixed(2)),
             },
           },
         },
