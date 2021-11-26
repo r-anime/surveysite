@@ -12,7 +12,7 @@
         </p>
       </div></div>
       <div class="row mt-2"><div class="col">
-        <canvas id="age-distribution-chart"></canvas>
+        <AgeDistributionChart v-if="surveyResultsData" :ageDistribution="surveyResultsData.miscellaneous.ageDistribution"/>
       </div></div>
     </div>
     <div class="col-md-4">
@@ -26,11 +26,12 @@
 </template>
 
 <script lang="ts">
-import Ajax, { Response } from "@/util/ajax";
-import { AnimeData, Gender, ResultsType, SurveyData } from "@/util/data";
-import { getSurveyApiUrl, getSurveyName } from "@/util/helpers";
-import NotificationService from "@/util/notification-service";
-import { Vue, Options } from "vue-class-component";
+import Ajax, { Response } from '@/util/ajax';
+import { AnimeData, Gender, ResultsType, SurveyData } from '@/util/data';
+import { getSurveyApiUrl, getSurveyName } from '@/util/helpers';
+import NotificationService from '@/util/notification-service';
+import { Vue, Options } from 'vue-class-component';
+import AgeDistributionChart from './components/AgeDistributionChart.vue';
 
 interface SurveyResultsData {
   results: Record<number, Record<ResultsType, number>>;
@@ -43,22 +44,17 @@ interface SurveyResultsData {
   }
 }
 
-@Options({})
+@Options({
+  components: {
+    AgeDistributionChart,
+  },
+})
 export default class SurveyResults extends Vue {
-  private pageTitle?: string;
-  private surveyResultsData?: SurveyResultsData;
-
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  data() {
-    return {
-      pageTitle: this.pageTitle,
-      surveyResultsData: this.surveyResultsData,
-    }
-  }
+  pageTitle: string|null = null;
+  surveyResultsData: SurveyResultsData|null = null;
 
   async mounted(): Promise<void> {
     const response = await Ajax.get<SurveyResultsData>(getSurveyApiUrl(this.$route) + 'results/');
-    console.log(response);
     if (Response.isErrorData(response.data)) {
       NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
 
