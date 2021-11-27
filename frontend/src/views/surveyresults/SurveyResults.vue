@@ -1,28 +1,30 @@
-<template v-if="pageTitle">
-  <h1 class="mb-4 mx-n2 p-3 shadow bg-primary bg-opacity-75 text-light">{{ pageTitle }}</h1>
-  <div class="row">
-    <div class="col-md-8">
-      <div class="row"><div class="col">
-        <p>
-          Thanks everyone for filling in this survey! There were [[ TODO: Response count ]] responses,
-          and the average age of everyone who answered was [[ TODO: Average age ]].
-        </p>
-        <p>
-          Anime with a popularity of less than 2% will not be displayed here, as their data may be inaccurate.
-        </p>
-      </div></div>
-      <div class="row mt-2"><div class="col">
-        <AgeDistributionChart v-if="surveyResultsData" :ageDistribution="surveyResultsData.miscellaneous.ageDistribution"/>
-      </div></div>
+<template>
+  <template v-if="surveyResultsData">
+    <h1 class="mb-4 mx-n2 p-3 shadow bg-primary bg-opacity-75 text-light">{{ pageTitle }}</h1>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row"><div class="col">
+          <p>
+            Thanks everyone for filling in this survey! There were {{ surveyResultsData.miscellaneous.responseCount }} responses,
+            and the average age of everyone who answered was {{ averageAge }}.
+          </p>
+          <p>
+            Anime with a popularity of less than 2% will not be displayed here, as their data may be inaccurate.
+          </p>
+        </div></div>
+        <div class="row mt-2"><div class="col">
+          <AgeDistributionChart :ageDistribution="surveyResultsData.miscellaneous.ageDistribution"/>
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <GenderDistributionChart :genderDistribution="surveyResultsData.miscellaneous.genderDistribution"/>
+      </div>
     </div>
-    <div class="col-md-4">
-      <canvas id="gender-distribution-chart"></canvas>
-    </div>
-  </div>
-  
-  {{ $route.path }}
-  <br/>
-  {{ surveyResultsData }}
+    
+    {{ $route.path }}
+    <br/>
+    {{ surveyResultsData }}
+  </template>
 </template>
 
 <script lang="ts">
@@ -30,8 +32,10 @@ import Ajax, { Response } from '@/util/ajax';
 import { AnimeData, Gender, ResultsType, SurveyData } from '@/util/data';
 import { getSurveyApiUrl, getSurveyName } from '@/util/helpers';
 import NotificationService from '@/util/notification-service';
+import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
+import GenderDistributionChart from './components/GenderDistributionChart.vue';
 
 interface SurveyResultsData {
   results: Record<number, Record<ResultsType, number>>;
@@ -47,11 +51,13 @@ interface SurveyResultsData {
 @Options({
   components: {
     AgeDistributionChart,
+    GenderDistributionChart,
   },
 })
 export default class SurveyResults extends Vue {
-  pageTitle: string|null = null;
   surveyResultsData: SurveyResultsData|null = null;
+  pageTitle?: string;
+  averageAge?: string;
 
   async mounted(): Promise<void> {
     const response = await Ajax.get<SurveyResultsData>(getSurveyApiUrl(this.$route) + 'results/');
@@ -63,6 +69,9 @@ export default class SurveyResults extends Vue {
     }
 
     this.surveyResultsData = response.data;
+    this.averageAge = _.sum(
+      Object.entries(this.surveyResultsData.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
+    ).toFixed(2);
     this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
   }
 }
