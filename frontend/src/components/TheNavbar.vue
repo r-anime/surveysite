@@ -27,8 +27,8 @@
             </div>
 
             <form method="post" action="/accounts/logout/" class="d-flex my-2 my-md-0">
-              <input type="hidden" name="csrfmiddlewaretoken" :value="csrfToken">
-              <input type="hidden" name="next" :value="currentUrl">
+              <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
+              <input type="hidden" name="next" :value="getCurrentUrl()">
               <button type="submit" class="btn btn-secondary">Log Out</button>
             </form>
           </template>
@@ -58,14 +58,11 @@ import NotificationService from '@/util/notification-service';
   components: {
     Modal,
   },
-  data() {
-    return {
-      userData: {} as UserData,
-      currentUrl: window.location.href,
-      csrfToken: Cookie.get('csrftoken') ?? '',
-    }
-  },
-  async created() {
+})
+export default class TheNavbar extends Vue {
+  userData: Partial<UserData> = {};
+
+  async created(): Promise<void> {
     const response = await Ajax.get<UserData>('api/user/') ?? {};
     if (Response.isErrorData(response.data)) {
       NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
@@ -74,7 +71,14 @@ import NotificationService from '@/util/notification-service';
     }
 
     this.userData = response.data;
-  },
-})
-export default class TheNavbar extends Vue {}
+  }
+  
+  getCurrentUrl(): string {
+    return window.location.href;
+  }
+
+  getCsrfToken(): string {
+    return Cookie.get('csrftoken') ?? '';
+  }
+}
 </script>

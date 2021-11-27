@@ -31,13 +31,11 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { Carousel } from 'bootstrap';
+import { ImageData } from '@/util/data';
 
 @Options({
   props: {
-    animeImages: {
-      type: Array,
-      default: [],
-    },
+    animeImages: Array,
     enableCarouselControls: {
       type: Boolean,
       default: true,
@@ -51,21 +49,23 @@ import { Carousel } from 'bootstrap';
       default: '',
     },
   },
-  mounted() {
-    if (this.animeImages.length > 1) {
-      this.$nextTick(() => {
-        new Carousel(`#animeImageCarousel${this.id}`);
-      });
-    }
-  }
 })
 export default class AnimeImages extends Vue {
+  animeImages!: ImageData[]; // Not defining other props since they're not necessary
   id = 0;
   private static componentId = 0;
 
   created(): void {
     this.id = AnimeImages.componentId;
     AnimeImages.componentId++;
+  }
+
+  mounted(): void {
+    if (this.animeImages.length > 1) {
+      this.$nextTick(() => {
+        new Carousel(`#animeImageCarousel${this.id}`);
+      });
+    }
   }
 }
 </script>

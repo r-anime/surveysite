@@ -61,6 +61,7 @@ import { AnimeData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/ut
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import { RouteLocationRaw } from 'vue-router';
+import { getSeasonName } from '@/util/helpers';
 
 
 interface IndexSurveyAnimeData {
@@ -102,11 +103,7 @@ export default class Index extends Vue {
     return new Date(survey.closingEpochTime) < new Date();
   }
 
-  getSeasonName(season: string): string {
-    const seasonNumber = Number(season);
-    const seasonNameUpper = AnimeSeason[seasonNumber];
-    return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase()
-  }
+  getSeasonName = getSeasonName;
 
   getSeasonIconClass(season: string): string {
     const seasonNumber = Number(season);

@@ -16,29 +16,25 @@ import { Options, Vue } from 'vue-class-component';
 import NotificatonService, { Notification } from '@/util/notification-service';
 import { Toast } from 'bootstrap';
 
-@Options({
-  data() {
-    return {
-      notifications: [] as Notification[],
-    }
-  },
-  methods: {
-    addNotification(notification: Notification) {
-      const idx = this.notifications.length;
-      this.notifications.push(notification);
+@Options({})
+export default class TheNavbar extends Vue {
+  notifications: Notification[] = [];
 
-      this.$nextTick(() => {
-        const toast = new Toast(`#toast-${idx}`, {
-          autohide: true,
-          delay: 5000,
-        });
-        toast.show();
-      });
-    },
-  },
-  async mounted() {
+  created(): void {
     NotificatonService.subscribe(this.addNotification);
   }
-})
-export default class TheNavbar extends Vue {}
+
+  addNotification(notification: Notification): void {
+    const idx = this.notifications.length;
+    this.notifications.push(notification);
+
+    this.$nextTick(() => {
+      const toast = new Toast(`#toast-${idx}`, {
+        autohide: true,
+        delay: 5000,
+      });
+      toast.show();
+    });
+  }
+}
 </script>

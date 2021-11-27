@@ -16,28 +16,20 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
   props: {
-    animeNames: {
-      type: Array,
-      default: [],
-    },
+    animeNames: Array,
     showShortName: {
       type: Boolean,
       default: true,
     },
   },
-  data() {
-    return {
-      japaneseName: null,
-      englishName: null,
-      shortName: null,
-    }
-  },
-  created() {
-    const animeNames = this.animeNames as AnimeNameData[];
-    this.japaneseName = animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME);
-    this.englishName = animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME);
-    this.shortName = animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial) ?? animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME);
-  },
 })
-export default class AnimeNames extends Vue {}
+export default class AnimeNames extends Vue {
+  animeNames!: AnimeNameData[];
+  japaneseName = this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial)
+    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME) ?? null;
+  englishName = this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial)
+    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME) ?? null;
+  shortName = this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial)
+    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME) ?? null;
+}
 </script>

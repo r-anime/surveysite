@@ -7,7 +7,8 @@ import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, SurveyData } from "./
  * @param season The season
  * @returns The season's name
  */
-export function getSeasonName(season: AnimeSeason): string {
+export function getSeasonName(season: AnimeSeason|number|string): string {
+  if (typeof season === 'string') season = Number(season);
   const seasonNameUpper = AnimeSeason[season];
   return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase()
 }
