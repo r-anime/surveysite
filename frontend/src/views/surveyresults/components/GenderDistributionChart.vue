@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { Chart, ChartConfiguration, Plugin, Tooltip } from "chart.js";
+import { Chart, ChartConfiguration, Plugin, Title, Tooltip } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import _ from "lodash";
 import { AnyObject } from "chart.js/types/basic";
@@ -38,7 +38,7 @@ export default class GenderDistributionChart extends Vue {
 
     const chartElem = this.$refs['genderDist'] as HTMLCanvasElement;
     const chartConfig: ChartConfiguration<'bar', number[], string> = {
-      plugins: [ChartDataLabels, Tooltip] as Plugin<'bar', AnyObject>[],
+      plugins: [ChartDataLabels, Title, Tooltip] as Plugin<'bar', AnyObject>[],
       type: 'bar',
       data: {
         labels: Object.keys(this.genderDistribution).map(k => {
@@ -69,9 +69,6 @@ export default class GenderDistributionChart extends Vue {
               color: textColor,
               offset: 2,
               formatter: value => chartPercentageFormatter(value.toFixed(2)),
-          },
-          legend: {
-            display: false,
           },
           title: {
             display: true,
