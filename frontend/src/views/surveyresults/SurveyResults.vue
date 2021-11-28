@@ -23,23 +23,19 @@
 
     <div class="row">
       <div class="col col-4">
-        Test
+        Popularity test
       </div>
       <div class="col">
-        <div class="row align-items-center hoverable" v-for="(animeResults, idx) in getRanking(1, true).slice(0, 10)" :key="idx">
-          <div class="col col-0-5">
-            #{{ idx + 1 }}
-          </div>
-          <div class="col col-2 justify-content-center d-flex">
-            <AnimeImages :animeImages="getAnimeData(animeResults.anime).images" :enableCarouselControls="false" maxHeight="7.5em"/>
-          </div>
-          <div class="col">
-            <AnimeNames :animeNames="getAnimeData(animeResults.anime).names" :showShortName="false"/>
-          </div>
-          <div class="col col-1">
-            {{ animeResults.result.toFixed(2) }}
-          </div>
-        </div>
+        <SimpleResultsTable :ranking="getRanking(1)" :top="3"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-4">
+        Score test
+      </div>
+      <div class="col">
+        <SimpleResultsTable :ranking="getRanking(11)" :top="3"/>
       </div>
     </div>
     
@@ -60,6 +56,7 @@ import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
+import SimpleResultsTable from './components/SimpleResultsTable.vue';
 
 interface SurveyResultsData {
   results: Record<number, Record<ResultsType, number>>;
@@ -76,6 +73,7 @@ interface SurveyResultsData {
   components: {
     AgeDistributionChart,
     GenderDistributionChart,
+    SimpleResultsTable,
     AnimeNames,
     AnimeImages,
   },
@@ -102,21 +100,19 @@ export default class SurveyResults extends Vue {
     this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
   }
 
-  getRanking(resultsType: ResultsType, descending = false): { anime: number, result: number }[] {
-    const resultsTable: { anime: number, result: number }[] = [];
+  getRanking(resultsType: ResultsType, ascending = false): { anime: AnimeData, result: number }[] {
+    let resultsTable: { anime: AnimeData, result: number }[] = [];
+
     const animeIds = Object.keys(this.surveyResultsData!.results);
     animeIds.forEach(animeId => resultsTable.push({
-      anime: Number(animeId),
+      anime: this.surveyResultsData!.anime[Number(animeId)],
       result: this.surveyResultsData!.results[Number(animeId)][resultsType],
     }));
+    resultsTable = resultsTable.filter(item => item.result != null);
     resultsTable.sort((a, b) => a.result - b.result);
 
-    if (descending) resultsTable.reverse();
+    if (!ascending) resultsTable.reverse();
     return resultsTable;
-  }
-
-  getAnimeData(animeId: string | number): AnimeData {
-    return this.surveyResultsData!.anime[Number(animeId)];
   }
 }
 </script>
