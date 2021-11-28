@@ -1,13 +1,13 @@
 <template>
 
   <template v-if="animeImages.length === 1">
-    <img :src="animeImages[0].urlSmall" :alt="animeImages[0].name" class="img-fluid" :class="imgClass">
+    <img :src="animeImages[0].urlSmall" :alt="animeImages[0].name" class="img-fluid" :class="imgClass" :style="maxHeight ? { maxHeight: maxHeight } : {}">
   </template>
 
   <template v-else-if="animeImages.length > 1">
     <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade">
       <div class="carousel-inner d-flex" :class="alignCenter ? 'align-items-center' : ''">
-        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item" :class="(idx==0 ? 'active' : '') + (alignCenter ? ' d-block' : '')">
+        <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item" :class="(idx==0 ? 'active' : '') + (alignCenter ? ' d-block' : '')" :style="maxHeight ? { maxHeight: maxHeight } : {}">
           <img :src="image.urlSmall" :alt="image.name" class="w-100" :class="imgClass">
         </div>
       </div>
@@ -45,6 +45,10 @@ import { ImageData } from '@/util/data';
       default: true,
     },
     imgClass: {
+      type: String,
+      default: '',
+    },
+    maxHeight: {
       type: String,
       default: '',
     },
