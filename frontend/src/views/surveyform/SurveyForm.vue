@@ -1,5 +1,5 @@
 <template>
-  <h1 class="mb-4 mx-n2 p-3 shadow bg-primary bg-opacity-75 text-light" v-if="surveyName">{{ surveyName }}!</h1>
+  <h1 class="page-title" v-if="surveyName">{{ surveyName }}!</h1>
 
   <template v-if="data">
     <div class="row mb-5">

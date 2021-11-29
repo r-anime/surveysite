@@ -1,5 +1,5 @@
 <template>
-  <div class="row align-items-center hoverable" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
+  <div class="row align-items-center hoverable py-2" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
     <div class="col col-0-5">
       #{{ idx + 1 }}
     </div>

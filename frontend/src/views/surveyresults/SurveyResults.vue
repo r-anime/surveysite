@@ -1,6 +1,6 @@
 <template>
   <template v-if="surveyResultsData">
-    <h1 class="mb-4 mx-n2 p-3 shadow bg-primary bg-opacity-75 text-light">{{ pageTitle }}</h1>
+    <h1 class="page-title">{{ pageTitle }}</h1>
     <div class="row">
       <div class="col-md-8">
         <div class="row"><div class="col">
@@ -21,21 +21,38 @@
       </div>
     </div>
 
-    <div class="row">
+    <h3 class="section-title">Popularity</h3>
+    <h5 class="subsection-title">Most Popular Anime Series</h5>
+    <div class="row mt-3">
       <div class="col col-4">
         Popularity test
       </div>
       <div class="col">
-        <SimpleResultsTable :ranking="getRanking(1)" :top="3"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularity)" :top="3"/>
       </div>
     </div>
 
+    <h3 class="section-title">Impressions</h3>
+    <h5 class="subsection-title">
+      {{ surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season' }}
+    </h5>
     <div class="row">
       <div class="col col-4">
         Score test
       </div>
       <div class="col">
-        <SimpleResultsTable :ranking="getRanking(11)" :top="3"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.score)" :top="3"/>
+      </div>
+    </div>
+
+    <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
+    <h5 class="subsection-title">Most Popular Anime OVAs / ONAs / Movies / Specials</h5>
+    <div class="row">
+      <div class="col col-4">
+        Popularity special test
+      </div>
+      <div class="col">
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularity, false)" :top="3"/>
       </div>
     </div>
     
@@ -50,7 +67,7 @@ import Ajax, { Response } from '@/util/ajax';
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { AnimeData, Gender, ResultsType, SurveyData } from '@/util/data';
-import { getSurveyApiUrl, getSurveyName } from '@/util/helpers';
+import { getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import NotificationService from '@/util/notification-service';
 import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
@@ -81,8 +98,13 @@ interface SurveyResultsData {
 export default class SurveyResults extends Vue {
   /* eslint-disable @typescript-eslint/no-non-null-assertion */
   surveyResultsData: SurveyResultsData|null = null;
+  surveyIsPreseason = true;
   pageTitle?: string;
   averageAge?: string;
+  readonly resultsType: Record<string, ResultsType> = {
+    popularity: ResultsType.POPULARITY,
+    score: ResultsType.SCORE,
+  };
 
   async mounted(): Promise<void> {
     const response = await Ajax.get<SurveyResultsData>(getSurveyApiUrl(this.$route) + 'results/');
@@ -94,20 +116,27 @@ export default class SurveyResults extends Vue {
     }
 
     this.surveyResultsData = response.data;
+    this.surveyIsPreseason = this.surveyResultsData.survey.isPreseason;
     this.averageAge = _.sum(
       Object.entries(this.surveyResultsData.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
     ).toFixed(2);
     this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
   }
 
-  getRanking(resultsType: ResultsType, ascending = false): { anime: AnimeData, result: number }[] {
+  getRanking(resultsType: ResultsType, filterOnAnimeSeries = true, ascending = false): { anime: AnimeData, result: number }[] {
     let resultsTable: { anime: AnimeData, result: number }[] = [];
 
     const animeIds = Object.keys(this.surveyResultsData!.results);
-    animeIds.forEach(animeId => resultsTable.push({
-      anime: this.surveyResultsData!.anime[Number(animeId)],
-      result: this.surveyResultsData!.results[Number(animeId)][resultsType],
-    }));
+    animeIds.forEach(animeIdStr => {
+      const animeId = Number(animeIdStr);
+      const animeData = this.surveyResultsData!.anime[animeId];
+      if (isAnimeSeries(animeData) === filterOnAnimeSeries) return;
+
+      resultsTable.push({
+        anime: animeData,
+        result: this.surveyResultsData!.results[animeId][resultsType],
+      });
+    });
     resultsTable = resultsTable.filter(item => item.result != null);
     resultsTable.sort((a, b) => a.result - b.result);
 
@@ -116,3 +145,16 @@ export default class SurveyResults extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@use '@/assets/main';
+
+.section-title {
+  @extend .title-color;
+  @extend .rounded, .shadow, .mt-4, .p-3;
+}
+
+.subsection-title {
+  @extend .text-center, .mt-4;
+}
+</style>

@@ -10,3 +10,12 @@ $enable-negative-margins: true;
   flex: 0 0 auto;
   width: calc(100% / 24);
 }
+
+.title-color {
+  @extend .bg-primary, .bg-opacity-75, .text-light;
+}
+
+.page-title {
+  @extend .title-color;
+  @extend .mb-4, .mx-n2, .p-3, .shadow;
+}
