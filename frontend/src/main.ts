@@ -1,6 +1,5 @@
 import "@/assets/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import "bootstrap";
 
 import { BarController, BarElement, CategoryScale, Chart, LinearScale, Title, Tooltip } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';

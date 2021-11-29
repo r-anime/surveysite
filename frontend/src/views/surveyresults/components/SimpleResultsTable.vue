@@ -1,4 +1,10 @@
 <template>
+  <div class="row align-items-center py-2 fw-bold" lang="en">
+    <div class="col col-0-5"></div>
+    <div class="col col-2"></div>
+    <div class="col">Anime</div>
+    <div class="col col-1">{{ resultName }}</div>
+  </div>
   <div class="row align-items-center hoverable py-2" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
     <div class="col col-0-5">
       #{{ idx + 1 }}
@@ -27,6 +33,7 @@ import { Vue, Options } from 'vue-class-component';
   },
   props: {
     ranking: Object, // { anime: AnimeData, result: number }
+    resultName: String,
     top: Number,
   },
 })

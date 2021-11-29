@@ -28,7 +28,7 @@
         Popularity test
       </div>
       <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularity)" :top="3"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularity.value)" :resultName="resultsType.popularity.name" :top="3"/>
       </div>
     </div>
 
@@ -41,7 +41,7 @@
         Score test
       </div>
       <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.score)" :top="3"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.score.value)" :resultName="resultsType.score.name" :top="3"/>
       </div>
     </div>
 
@@ -52,7 +52,7 @@
         Popularity special test
       </div>
       <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularity, false)" :top="3"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularity.value, false)" :resultName="resultsType.popularity.name" :top="3"/>
       </div>
     </div>
     
@@ -101,9 +101,10 @@ export default class SurveyResults extends Vue {
   surveyIsPreseason = true;
   pageTitle?: string;
   averageAge?: string;
-  readonly resultsType: Record<string, ResultsType> = {
-    popularity: ResultsType.POPULARITY,
-    score: ResultsType.SCORE,
+  readonly resultsType: Record<string, { value: ResultsType, name: string }> = {
+    // Someone please tell me why "hyphens: auto" doesn't work unless I do it manually
+    popularity: { value: ResultsType.POPULARITY, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty' },
+    score: { value: ResultsType.SCORE, name: 'Sco\u00ADre' },
   };
 
   async mounted(): Promise<void> {
@@ -147,7 +148,7 @@ export default class SurveyResults extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/main';
+@use '@/assets/main'; // TODO: Include only what's necessary, this is inefficient
 
 .section-title {
   @extend .title-color;
