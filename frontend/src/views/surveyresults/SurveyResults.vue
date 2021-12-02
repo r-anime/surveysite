@@ -102,7 +102,7 @@ export default class SurveyResults extends Vue {
   pageTitle?: string;
   averageAge?: string;
   readonly resultsType: Record<string, { value: ResultsType, name: string }> = {
-    // Someone please tell me why "hyphens: auto" doesn't work unless I do it manually
+    // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
     popularity: { value: ResultsType.POPULARITY, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty' },
     score: { value: ResultsType.SCORE, name: 'Sco\u00ADre' },
   };
@@ -124,14 +124,14 @@ export default class SurveyResults extends Vue {
     this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
   }
 
-  getRanking(resultsType: ResultsType, filterOnAnimeSeries = true, ascending = false): { anime: AnimeData, result: number }[] {
+  getRanking(resultsType: ResultsType, forAnimeSeries = true, ascending = false): { anime: AnimeData, result: number }[] {
     let resultsTable: { anime: AnimeData, result: number }[] = [];
 
     const animeIds = Object.keys(this.surveyResultsData!.results);
     animeIds.forEach(animeIdStr => {
       const animeId = Number(animeIdStr);
       const animeData = this.surveyResultsData!.anime[animeId];
-      if (isAnimeSeries(animeData) === filterOnAnimeSeries) return;
+      if (isAnimeSeries(animeData) !== forAnimeSeries) return;
 
       resultsTable.push({
         anime: animeData,
