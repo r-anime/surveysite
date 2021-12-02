@@ -19,3 +19,19 @@ $enable-negative-margins: true;
   @extend .title-color;
   @extend .mb-4, .mx-n2, .p-3, .shadow;
 }
+
+.show-if-collapsed {
+  display: none;
+}
+.show-if-not-collapsed {
+  display: initial;
+}
+
+.collapsed {
+  .show-if-collapsed {
+    display: initial;
+  }
+  .show-if-not-collapsed {
+    display: none;
+  }
+}

@@ -32,6 +32,28 @@
       </div>
     </div>
 
+    <button class="btn title-color w-100 collapsed mt-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-thing-rename-this" aria-expanded="false" aria-controls="collapse-thing-rename-this">
+      <h4>
+        <span class="show-if-collapsed">Show</span>
+        <span class="show-if-not-collapsed">Hide</span>
+        Popularity - By Gender
+      </h4>
+    </button>
+    <div class="row collapse" id="collapse-thing-rename-this">
+      <div class="col col-6">
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale.value)" :resultName="resultsType.popularityMale.name" :top="5"/>
+      </div>
+      <div class="col col-6">
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale.value)" :resultName="resultsType.popularityFemale.name" :top="5"/>
+      </div>
+      <div class="col col-6">
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale.value)" :resultName="resultsType.popularityRatioMale.name" :top="5"/>
+      </div>
+      <div class="col col-6">
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale.value)" :resultName="resultsType.popularityRatioFemale.name" :top="5"/>
+      </div>
+    </div>
+
     <h3 class="section-title">Impressions</h3>
     <h5 class="subsection-title">
       {{ surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season' }}
@@ -101,9 +123,14 @@ export default class SurveyResults extends Vue {
   surveyIsPreseason = true;
   pageTitle?: string;
   averageAge?: string;
+
   readonly resultsType: Record<string, { value: ResultsType, name: string }> = {
     // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
     popularity: { value: ResultsType.POPULARITY, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty' },
+    popularityMale: { value: ResultsType.POPULARITY_MALE, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)' },
+    popularityFemale: { value: ResultsType.POPULARITY_FEMALE, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Female)' },
+    popularityRatioMale: { value: ResultsType.GENDER_POPULARITY_RATIO, name: 'Male:Female' },
+    popularityRatioFemale: { value: ResultsType.GENDER_POPULARITY_RATIO_INV, name: 'Female:Male' },
     score: { value: ResultsType.SCORE, name: 'Sco\u00ADre' },
   };
 
