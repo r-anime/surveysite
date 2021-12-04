@@ -5,7 +5,7 @@
     <div class="col">Anime</div>
     <div class="col col-1">{{ resultName }}</div>
   </div>
-  <div class="row align-items-center hoverable py-2" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
+  <div class="row align-items-center hoverable py-1" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
     <div class="col col-0-5">
       #{{ idx + 1 }}
     </div>
@@ -32,7 +32,7 @@ import { Vue, Options } from 'vue-class-component';
     AnimeImages,
   },
   props: {
-    ranking: Object, // { anime: AnimeData, result: number }
+    ranking: Object, // { anime: AnimeData, result: number }[]
     resultName: String,
     top: Number,
   },

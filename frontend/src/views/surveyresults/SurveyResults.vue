@@ -23,14 +23,7 @@
 
     <h3 class="section-title">Popularity</h3>
     <h5 class="subsection-title">Most Popular Anime Series</h5>
-    <div class="row mt-3">
-      <div class="col col-4">
-        Popularity test
-      </div>
-      <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularity.value)" :resultName="resultsType.popularity.name" :top="3"/>
-      </div>
-    </div>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity.value)" :resultName="resultsType.popularity.name"/>
 
     <button class="btn title-color w-100 collapsed mt-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-thing-rename-this" aria-expanded="false" aria-controls="collapse-thing-rename-this">
       <h4>
@@ -58,25 +51,11 @@
     <h5 class="subsection-title">
       {{ surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season' }}
     </h5>
-    <div class="row">
-      <div class="col col-4">
-        Score test
-      </div>
-      <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.score.value)" :resultName="resultsType.score.name" :top="3"/>
-      </div>
-    </div>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.score.value)" :resultName="resultsType.score.name"/>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <h5 class="subsection-title">Most Popular Anime OVAs / ONAs / Movies / Specials</h5>
-    <div class="row">
-      <div class="col col-4">
-        Popularity special test
-      </div>
-      <div class="col">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularity.value, false)" :resultName="resultsType.popularity.name" :top="3"/>
-      </div>
-    </div>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity.value, false)" :resultName="resultsType.popularity.name"/>
     
     {{ $route.path }}
     <br/>
@@ -96,6 +75,7 @@ import { Vue, Options } from 'vue-class-component';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import SimpleResultsTable from './components/SimpleResultsTable.vue';
+import TableWithTop3 from './components/TableWithTop3.vue';
 
 interface SurveyResultsData {
   results: Record<number, Record<ResultsType, number>>;
@@ -105,7 +85,7 @@ interface SurveyResultsData {
     responseCount: number;
     ageDistribution: Record<number, number>;
     genderDistribution: Record<Gender, number>;
-  }
+  };
 }
 
 @Options({
@@ -113,6 +93,7 @@ interface SurveyResultsData {
     AgeDistributionChart,
     GenderDistributionChart,
     SimpleResultsTable,
+    TableWithTop3,
     AnimeNames,
     AnimeImages,
   },
