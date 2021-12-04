@@ -160,16 +160,3 @@ export default class SurveyResults extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-@use '@/assets/main'; // TODO: Include only what's necessary, this is inefficient
-
-.section-title {
-  @extend .title-color;
-  @extend .rounded, .shadow, .mt-4, .p-3;
-}
-
-.subsection-title {
-  @extend .text-center, .mt-4;
-}
-</style>

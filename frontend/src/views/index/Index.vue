@@ -186,10 +186,6 @@ export default class Index extends Vue {
 
 
 <style lang="scss" scoped>
-@import "@/../node_modules/bootstrap/scss/functions";
-@import "@/../node_modules/bootstrap/scss/variables";
-@import "@/../node_modules/bootstrap/scss/utilities";
-
 .bi {
   font-size: 2rem;
 }

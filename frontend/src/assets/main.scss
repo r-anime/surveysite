@@ -6,14 +6,12 @@ $enable-negative-margins: true;
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.col-0-5 {
-  flex: 0 0 auto;
-  width: calc(100% / 24);
-}
-
-.col-1-5 {
-  flex: 0 0 auto;
-  width: calc(100% / 24 * 3);
+// col-$i-5 classes, corresponding to cols with a width halfway between col-$i and col-($i+1)
+@for $i from 0 through 11 {
+  .col-#{$i}-5 {
+    flex: 0 0 auto;
+    width: calc(100% / 24 * (1 + #{$i} * 2));
+  }
 }
 
 .title-color {
@@ -24,6 +22,18 @@ $enable-negative-margins: true;
   @extend .title-color;
   @extend .mb-4, .mx-n2, .p-3, .shadow;
 }
+
+
+// TODO: Only used for SurveyResults.vue - figure out how to properly add that there later
+.section-title {
+  @extend .title-color;
+  @extend .rounded, .shadow, .mt-4, .p-3;
+}
+
+.subsection-title {
+  @extend .text-center, .mt-4;
+}
+// ---
 
 .text-smaller {
   font-size: 90%;
