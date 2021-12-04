@@ -23,7 +23,7 @@
 
     <h3 class="section-title">Popularity</h3>
     <h5 class="subsection-title">Most Popular Anime Series</h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity.value)" :resultName="resultsType.popularity.name"/>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity)" :resultTypes="resultsType.popularity.resultTypes"/>
 
     <button class="btn title-color w-100 collapsed mt-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-thing-rename-this" aria-expanded="false" aria-controls="collapse-thing-rename-this">
       <h4>
@@ -32,18 +32,18 @@
         Popularity - By Gender
       </h4>
     </button>
-    <div class="row collapse" id="collapse-thing-rename-this">
+    <div class="row collapse text-smaller" id="collapse-thing-rename-this">
       <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale.value)" :resultName="resultsType.popularityMale.name" :top="5"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale)" :resultTypes="resultsType.popularityMale.resultTypes" :top="5"/>
       </div>
       <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale.value)" :resultName="resultsType.popularityFemale.name" :top="5"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale)" :resultTypes="resultsType.popularityFemale.resultTypes" :top="5"/>
       </div>
       <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale.value)" :resultName="resultsType.popularityRatioMale.name" :top="5"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale)" :resultTypes="resultsType.popularityRatioMale.resultTypes" :top="5"/>
       </div>
       <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale.value)" :resultName="resultsType.popularityRatioFemale.name" :top="5"/>
+        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale)" :resultTypes="resultsType.popularityRatioFemale.resultTypes" :top="5"/>
       </div>
     </div>
 
@@ -51,11 +51,11 @@
     <h5 class="subsection-title">
       {{ surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season' }}
     </h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.score.value)" :resultName="resultsType.score.name"/>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.score)" :resultTypes="resultsType.score.resultTypes"/>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <h5 class="subsection-title">Most Popular Anime OVAs / ONAs / Movies / Specials</h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity.value, false)" :resultName="resultsType.popularity.name"/>
+    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity, false)" :resultTypes="resultsType.popularity.resultTypes"/>
     
     {{ $route.path }}
     <br/>
@@ -105,14 +105,13 @@ export default class SurveyResults extends Vue {
   pageTitle?: string;
   averageAge?: string;
 
-  readonly resultsType: Record<string, { value: ResultsType, name: string }> = {
-    // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
-    popularity: { value: ResultsType.POPULARITY, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty' },
-    popularityMale: { value: ResultsType.POPULARITY_MALE, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)' },
-    popularityFemale: { value: ResultsType.POPULARITY_FEMALE, name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Female)' },
-    popularityRatioMale: { value: ResultsType.GENDER_POPULARITY_RATIO, name: 'Male:Female' },
-    popularityRatioFemale: { value: ResultsType.GENDER_POPULARITY_RATIO_INV, name: 'Female:Male' },
-    score: { value: ResultsType.SCORE, name: 'Sco\u00ADre' },
+  readonly resultsType: Record<string, { value: ResultsType, resultTypes: ResultsType[] }> = {
+    popularity: { value: ResultsType.POPULARITY, resultTypes: [ResultsType.POPULARITY] },
+    popularityMale: { value: ResultsType.POPULARITY_MALE, resultTypes: [ResultsType.POPULARITY_MALE, ResultsType.POPULARITY] },
+    popularityFemale: { value: ResultsType.POPULARITY_FEMALE, resultTypes: [ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY] },
+    popularityRatioMale: { value: ResultsType.GENDER_POPULARITY_RATIO, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY] },
+    popularityRatioFemale: { value: ResultsType.GENDER_POPULARITY_RATIO_INV, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO_INV, ResultsType.POPULARITY] },
+    score: { value: ResultsType.SCORE, resultTypes: [ResultsType.SCORE] },
   };
 
   async mounted(): Promise<void> {
@@ -132,8 +131,8 @@ export default class SurveyResults extends Vue {
     this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
   }
 
-  getRanking(resultsType: ResultsType, forAnimeSeries = true, ascending = false): { anime: AnimeData, result: number }[] {
-    let resultsTable: { anime: AnimeData, result: number }[] = [];
+  getRanking(resultsTypeData: { value: ResultsType, resultTypes: ResultsType[] }, forAnimeSeries = true, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
+    let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
 
     const animeIds = Object.keys(this.surveyResultsData!.results);
     animeIds.forEach(animeIdStr => {
@@ -141,9 +140,11 @@ export default class SurveyResults extends Vue {
       const animeData = this.surveyResultsData!.anime[animeId];
       if (isAnimeSeries(animeData) !== forAnimeSeries) return;
 
+      const extraResult: ResultsType|undefined = resultsTypeData.resultTypes[1];
       resultsTable.push({
         anime: animeData,
-        result: this.surveyResultsData!.results[animeId][resultsType],
+        result: this.surveyResultsData!.results[animeId][resultsTypeData.value],
+        extraResult: extraResult ? this.surveyResultsData!.results[animeId][extraResult] : undefined,
       });
     });
     resultsTable = resultsTable.filter(item => item.result != null);

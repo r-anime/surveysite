@@ -20,6 +20,10 @@ $enable-negative-margins: true;
   @extend .mb-4, .mx-n2, .p-3, .shadow;
 }
 
+.text-smaller {
+  font-size: 90%;
+}
+
 .show-if-collapsed {
   display: none;
 }

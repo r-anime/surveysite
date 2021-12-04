@@ -1,10 +1,10 @@
 <template>
   <div class="row">
     <div class="col col-4">
-      {{ resultName }}
+      {{ resultTypes }}
     </div>
     <div class="col">
-      <SimpleResultsTable :ranking="ranking" :resultName="resultName" :top="10"/>
+      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :top="10"/>
     </div>
   </div>
 </template>
@@ -18,8 +18,8 @@ import SimpleResultsTable from './SimpleResultsTable.vue';
     SimpleResultsTable,
   },
   props: {
-    ranking: Object, // { anime: AnimeData, result: number }[]
-    resultName: String,
+    ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
+    resultTypes: Array,
   },
 })
 export default class TableWithTop3 extends Vue {
