@@ -25,25 +25,34 @@
     <h5 class="subsection-title">Most Popular Anime Series</h5>
     <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity)" :resultTypes="resultsType.popularity.resultTypes"/>
 
-    <button class="btn title-color w-100 collapsed mt-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-thing-rename-this" aria-expanded="false" aria-controls="collapse-thing-rename-this">
-      <h4>
-        <span class="show-if-collapsed">Show</span>
-        <span class="show-if-not-collapsed">Hide</span>
-        Popularity - By Gender
-      </h4>
-    </button>
-    <div class="row collapse text-smaller" id="collapse-thing-rename-this">
-      <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale)" :resultTypes="resultsType.popularityMale.resultTypes" :top="5"/>
-      </div>
-      <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale)" :resultTypes="resultsType.popularityFemale.resultTypes" :top="5"/>
-      </div>
-      <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale)" :resultTypes="resultsType.popularityRatioMale.resultTypes" :top="5"/>
-      </div>
-      <div class="col col-6">
-        <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale)" :resultTypes="resultsType.popularityRatioFemale.resultTypes" :top="5"/>
+    <div class="row justify-content-center mt-4">
+      <div class="col col-11">
+        <div class="row">
+          <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-popularity-gender" aria-expanded="false" aria-controls="collapsable-popularity-gender">
+            <h4>
+              <span class="show-if-collapsed">Show</span>
+              <span class="show-if-not-collapsed">Hide</span>
+              Popularity - By Gender
+            </h4>
+          </button>
+        </div>
+        <div class="row collapse text-smaller border rounded" id="collapsable-popularity-gender">
+          <h5 class="col col-12 subsection-title">Most Popular Anime Series by Gender</h5>
+          <div class="col col-6 mt-3 pe-4">
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale)" :resultTypes="resultsType.popularityMale.resultTypes" :top="5"/>
+          </div>
+          <div class="col col-6 mt-3 ps-4">
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale)" :resultTypes="resultsType.popularityFemale.resultTypes" :top="5"/>
+          </div>
+          <h5 class="col col-12 subsection-title">Biggest Differences in Popularity by Gender</h5>
+          <p class="col col-12 text-center">Expressed as the ratio of male popularity to female popularity (and vice versa).</p>
+          <div class="col col-6 mt-3 pe-4">
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale)" :resultTypes="resultsType.popularityRatioMale.resultTypes" :top="5"/>
+          </div>
+          <div class="col col-6 mt-3 ps-4">
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale)" :resultTypes="resultsType.popularityRatioFemale.resultTypes" :top="5"/>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -56,10 +65,6 @@
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <h5 class="subsection-title">Most Popular Anime OVAs / ONAs / Movies / Specials</h5>
     <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity, false)" :resultTypes="resultsType.popularity.resultTypes"/>
-    
-    {{ $route.path }}
-    <br/>
-    {{ surveyResultsData }}
   </template>
 </template>
 

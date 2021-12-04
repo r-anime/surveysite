@@ -3,8 +3,8 @@
     <div class="col col-0-5"></div>
     <div class="col col-2"></div>
     <div class="col">Anime</div>
-    <div class="col col-1">{{ resultNames[0] }}</div>
-    <div class="col col-1 text-smaller" v-if="hasExtraResult">{{ resultNames[1] }}</div>
+    <div class="col col-2 text-end">{{ resultNames[0] }}</div>
+    <div class="col col-1-5 text-end text-smaller" v-if="hasExtraResult">{{ resultNames[1] }}</div>
   </div>
   <div class="row align-items-center hoverable py-1" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
     <div class="col col-0-5">
@@ -16,10 +16,10 @@
     <div class="col">
       <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
     </div>
-    <div class="col col-1">
+    <div class="col col-2 text-end">
       {{ resultFormatters[0](animeResult.result) }}
     </div>
-    <div class="col col-1 text-smaller" v-if="hasExtraResult">
+    <div class="col col-1-5 text-end text-smaller" v-if="hasExtraResult">
       {{ resultFormatters[1](animeResult.extraResult) }}
     </div>
   </div>

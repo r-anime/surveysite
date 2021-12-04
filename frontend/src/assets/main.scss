@@ -11,6 +11,11 @@ $enable-negative-margins: true;
   width: calc(100% / 24);
 }
 
+.col-1-5 {
+  flex: 0 0 auto;
+  width: calc(100% / 24 * 3);
+}
+
 .title-color {
   @extend .bg-primary, .bg-opacity-75, .text-light;
 }
