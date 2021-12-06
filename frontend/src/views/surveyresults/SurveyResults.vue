@@ -47,10 +47,10 @@
           <h5 class="col col-12 subsection-title mb-1">Biggest Differences in Popularity by Gender</h5>
           <p class="col col-12 text-center">Expressed as the ratio of male popularity to female popularity (and vice versa).</p>
           <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioMale)" :resultTypes="resultsType.popularityRatioMale.resultTypes" :top="3"/>
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatio)" :resultTypes="resultsType.popularityRatio.resultTypes" :top="3"/>
           </div>
           <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatioFemale)" :resultTypes="resultsType.popularityRatioFemale.resultTypes" :top="3"/>
+            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatio, false, true)" :resultTypes="resultsType.popularityRatio.resultTypes" :top="3"/>
           </div>
         </div>
       </div>
@@ -113,10 +113,10 @@
           <h5 class="col col-12 subsection-title mb-1">Biggest Differences in Score by Gender</h5>
           <p class="col col-12 text-center">Expressed in how much higher an anime was scored by men compared to women (and vice versa).</p>
           <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiffMale)" :resultTypes="resultsType.scoreDiffMale.resultTypes" :top="3"/>
+            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiff)" :resultTypes="resultsType.scoreDiff.resultTypes" :top="3"/>
           </div>
           <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiffFemale)" :resultTypes="resultsType.scoreDiffFemale.resultTypes" :top="3"/>
+            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiff, false, true)" :resultTypes="resultsType.scoreDiff.resultTypes" :top="3"/>
           </div>
         </div>
       </div>
@@ -202,13 +202,11 @@ export default class SurveyResults extends Vue {
     popularity: { value: ResultsType.POPULARITY, resultTypes: [ResultsType.POPULARITY] },
     popularityMale: { value: ResultsType.POPULARITY_MALE, resultTypes: [ResultsType.POPULARITY_MALE, ResultsType.POPULARITY] },
     popularityFemale: { value: ResultsType.POPULARITY_FEMALE, resultTypes: [ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY] },
-    popularityRatioMale: { value: ResultsType.GENDER_POPULARITY_RATIO, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY] },
-    popularityRatioFemale: { value: ResultsType.GENDER_POPULARITY_RATIO_INV, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO_INV, ResultsType.POPULARITY] },
+    popularityRatio: { value: ResultsType.GENDER_POPULARITY_RATIO, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY] },
     score: { value: ResultsType.SCORE, resultTypes: [ResultsType.SCORE] },
     scoreMale: { value: ResultsType.SCORE_MALE, resultTypes: [ResultsType.SCORE_MALE, ResultsType.SCORE] },
     scoreFemale: { value: ResultsType.SCORE_FEMALE, resultTypes: [ResultsType.SCORE_FEMALE, ResultsType.SCORE] },
-    scoreDiffMale: { value: ResultsType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE] },
-    scoreDiffFemale: { value: ResultsType.GENDER_SCORE_DIFFERENCE_INV, resultTypes: [ResultsType.GENDER_SCORE_DIFFERENCE_INV, ResultsType.SCORE] },
+    scoreDiff: { value: ResultsType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE] },
     age: { value: ResultsType.AGE, resultTypes: [ResultsType.AGE] },
     underwatched: { value: ResultsType.UNDERWATCHED, resultTypes: [ResultsType.UNDERWATCHED, ResultsType.POPULARITY] },
     surprise: { value: ResultsType.SURPRISE, resultTypes: [ResultsType.SURPRISE, ResultsType.SCORE] },

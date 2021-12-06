@@ -138,12 +138,12 @@ class ResultsType(int, Enum):
     POPULARITY_MALE             =  2 #"Popularity (Male)"
     POPULARITY_FEMALE           =  3 #"Popularity (Female)"
     GENDER_POPULARITY_RATIO     =  4 #"Gender Ratio (♂:♀)"
-    GENDER_POPULARITY_RATIO_INV =  5 #"Gender Ratio (♀:♂)"
+    #GENDER_POPULARITY_RATIO_INV =  5 #"Gender Ratio (♀:♂)" # Should preferably not be used
     SCORE                       = 11 #"Score"
     SCORE_MALE                  = 12 #"Score (Male)"
     SCORE_FEMALE                = 13 #"Score (Female)"
     GENDER_SCORE_DIFFERENCE     = 14 #"Gender Score Difference (♂-♀)"
-    GENDER_SCORE_DIFFERENCE_INV = 15 #"Gender Score Difference (♀-♂)"
+    #GENDER_SCORE_DIFFERENCE_INV = 15 #"Gender Score Difference (♀-♂)" # Should preferably not be used
     UNDERWATCHED                = 21 #"Underwatched"
     SURPRISE                    = 22 #"Surprise"
     DISAPPOINTMENT              = 23 #"Disappointment"

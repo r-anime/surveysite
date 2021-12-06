@@ -49,18 +49,18 @@ export default class SimpleResultsTable extends Vue {
 
   hasExtraResult = false;
 
+  private readonly invalidValue = 'N/A';
+
   private readonly resultTypeDataMap: Partial<Record<ResultsType, { name: string, formatter: (value: number) => string }>> = {
     // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
     [ResultsType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: this.percentageFormatter },
     [ResultsType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: this.percentageFormatter },
     [ResultsType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: this.percentageFormatter },
     [ResultsType.GENDER_POPULARITY_RATIO]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: this.genderRatioFormatter },
-    [ResultsType.GENDER_POPULARITY_RATIO_INV]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: value => this.genderRatioFormatter(value, true) },
     [ResultsType.SCORE]: { name: 'Sco\u00ADre', formatter: this.numberFormatter },
     [ResultsType.SCORE_MALE]: { name: 'Sco\u00ADre (Male)', formatter: this.numberFormatter },
     [ResultsType.SCORE_FEMALE]: { name: 'Sco\u00ADre (Female)', formatter: this.numberFormatter },
     [ResultsType.GENDER_SCORE_DIFFERENCE]: { name: 'Score Diff.', formatter: this.scoreDiffFormatter },
-    [ResultsType.GENDER_SCORE_DIFFERENCE_INV]: { name: 'Score Diff.', formatter: this.scoreDiffFormatter },
     [ResultsType.AGE]: { name: 'Avg. Age', formatter: this.numberFormatter },
     [ResultsType.UNDERWATCHED]: { name: 'Un\u00ADder\u00ADwatch\u00ADed', formatter: this.percentageFormatter },
     [ResultsType.SURPRISE]: { name: 'Sur\u00ADprise', formatter: this.percentageFormatter },
@@ -77,23 +77,28 @@ export default class SimpleResultsTable extends Vue {
   }
 
   private percentageFormatter(value: number): string {
-    if (!value) return 'N/A';
+    if (!value) return this.invalidValue;
     return value.toFixed(1) + '%';
   }
 
-  private genderRatioFormatter(value: number, inverted = false): string {
-    if (!value) return 'N/A';
-    return value.toFixed(2) + ' ' + (inverted ? 'F:M' : 'M:F');
+  private genderRatioFormatter(value: number): string {
+    if (!value) return this.invalidValue;
+
+    const shouldInvert = value < 1;
+    if (shouldInvert && value === 0) return this.invalidValue;
+    return (shouldInvert ? 1 / value : value).toFixed(2) + ' ' + (shouldInvert ? 'F:M' : 'M:F');
   }
 
   private numberFormatter(value: number): string {
-    if (!value) return 'N/A';
+    if (!value) return this.invalidValue;
     return value.toFixed(2);
   }
 
-  private scoreDiffFormatter(value: number, inverted = false): string {
-    if (!value) return 'N/A';
-    return value.toFixed(2) + ' ' + (inverted ? 'F' : 'M');
+  private scoreDiffFormatter(value: number): string {
+    if (!value) return this.invalidValue;
+
+    const shouldInvert = value < 0;
+    return (shouldInvert ? -value : value).toFixed(2) + ' ' + (shouldInvert ? 'F' : 'M');
   }
 }
 </script>

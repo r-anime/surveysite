@@ -67,8 +67,6 @@ class ResultsGenerator:
 
         male_popularity = div0(male_watcher_response_count, total_male_response_count)
         female_popularity = div0(female_watcher_response_count, total_female_response_count)
-        gender_popularity_ratio = div0(male_popularity, female_popularity)
-        gender_popularity_ratio_inv = div0(female_popularity, male_popularity)
 
         score_animeresponse_qs = anime_animeresponse_qs.filter(score__isnull=False) if survey.is_preseason else watchers_animeresponse_qs.filter(score__isnull=False)
         # The aggregate becomes None when there are no scores which causes errors, hence "or NaN" being necessary
@@ -77,17 +75,15 @@ class ResultsGenerator:
         female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
         return {
-            ResultsType.POPULARITY:                  div0(       watcher_response_count, scaled_total_response_count) * 100.0,
-            ResultsType.POPULARITY_MALE:             div0(  male_watcher_response_count,   total_male_response_count) * 100.0,
-            ResultsType.POPULARITY_FEMALE:           div0(female_watcher_response_count, total_female_response_count) * 100.0,
-            ResultsType.GENDER_POPULARITY_RATIO:     gender_popularity_ratio,
-            ResultsType.GENDER_POPULARITY_RATIO_INV: gender_popularity_ratio_inv,
+            ResultsType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count) * 100.0,
+            ResultsType.POPULARITY_MALE:               male_popularity * 100.0,
+            ResultsType.POPULARITY_FEMALE:           female_popularity * 100.0,
+            ResultsType.GENDER_POPULARITY_RATIO:     div0(male_popularity, female_popularity),
             ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count) * 100.0,
             ResultsType.SCORE:                              average_score,
             ResultsType.SCORE_MALE:                    male_average_score,
             ResultsType.SCORE_FEMALE:                female_average_score,
             ResultsType.GENDER_SCORE_DIFFERENCE:     male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
-            ResultsType.GENDER_SCORE_DIFFERENCE_INV: female_average_score - male_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
             ResultsType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count) * 100.0,
             ResultsType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count) * 100.0,
             ResultsType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
