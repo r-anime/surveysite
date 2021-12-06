@@ -236,6 +236,8 @@ export default class SurveyResults extends Vue {
     const animeIds = Object.keys(this.surveyResultsData!.results);
     animeIds.forEach(animeIdStr => {
       const animeId = Number(animeIdStr);
+      if (this.surveyResultsData!.results[animeId][ResultsType.POPULARITY] < 0.02) return;
+
       const animeData = this.surveyResultsData!.anime[animeId];
       if (isAnimeSeries(animeData) === forSpecialAnime) return;
 

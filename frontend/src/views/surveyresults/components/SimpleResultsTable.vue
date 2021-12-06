@@ -78,7 +78,7 @@ export default class SimpleResultsTable extends Vue {
 
   private percentageFormatter(value: number): string {
     if (!value) return this.invalidValue;
-    return value.toFixed(1) + '%';
+    return (value * 100).toFixed(1) + '%';
   }
 
   private genderRatioFormatter(value: number): string {

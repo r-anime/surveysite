@@ -31,7 +31,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=5, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=6, timeout=cache_timeout)
 
     def __get_anime_results_data_internal(self) -> dict[int, dict[ResultsType, float]]:
         survey = self.survey
@@ -75,17 +75,17 @@ class ResultsGenerator:
         female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
         return {
-            ResultsType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count) * 100.0,
-            ResultsType.POPULARITY_MALE:               male_popularity * 100.0,
-            ResultsType.POPULARITY_FEMALE:           female_popularity * 100.0,
+            ResultsType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count),
+            ResultsType.POPULARITY_MALE:               male_popularity,
+            ResultsType.POPULARITY_FEMALE:           female_popularity,
             ResultsType.GENDER_POPULARITY_RATIO:     div0(male_popularity, female_popularity),
-            ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count) * 100.0,
+            ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count),
             ResultsType.SCORE:                              average_score,
             ResultsType.SCORE_MALE:                    male_average_score,
             ResultsType.SCORE_FEMALE:                female_average_score,
             ResultsType.GENDER_SCORE_DIFFERENCE:     male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
-            ResultsType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count) * 100.0,
-            ResultsType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count) * 100.0,
+            ResultsType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count),
+            ResultsType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count),
             ResultsType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
         }
 
