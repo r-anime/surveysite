@@ -37,20 +37,24 @@
           </button>
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-gender">
-          <h5 class="col col-12 subsection-title mb-1">Most Popular Anime Series by Gender</h5>
-          <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityMale)" :resultTypes="resultsType.popularityMale.resultTypes" :top="3"/>
+          <div class="col-12">
+            <TablePair
+              :leftRanking="getRanking(resultsType.popularityMale)"
+              :leftResultTypes="resultsType.popularityMale.resultTypes"
+              :rightRanking="getRanking(resultsType.popularityFemale)"
+              :rightResultTypes="resultsType.popularityFemale.resultTypes"
+              title="Most Popular Anime Series by Gender"
+              :top="3"
+            />
           </div>
-          <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityFemale)" :resultTypes="resultsType.popularityFemale.resultTypes" :top="3"/>
-          </div>
-          <h5 class="col col-12 subsection-title mb-1">Biggest Differences in Popularity by Gender</h5>
-          <p class="col col-12 text-center">Expressed as the ratio of male popularity to female popularity (and vice versa).</p>
-          <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatio)" :resultTypes="resultsType.popularityRatio.resultTypes" :top="3"/>
-          </div>
-          <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.popularityRatio, false, true)" :resultTypes="resultsType.popularityRatio.resultTypes" :top="3"/>
+          <div class="col-12">
+            <TablePair
+              :leftRanking="getRanking(resultsType.popularityRatio)"
+              :leftResultTypes="resultsType.popularityRatio.resultTypes"
+              title="Biggest Differences in Popularity by Gender"
+              description="Expressed as the ratio of male popularity to female popularity (and vice versa)."
+              :top="3"
+            />
           </div>
         </div>
       </div>
@@ -74,12 +78,13 @@
               <TableWithTop3 :ranking="getRanking(resultsType.underwatched)" :resultTypes="resultsType.underwatched.resultTypes" :top="5"/>
             </div>
           </template>
-          <h5 class="col col-12 subsection-title mb-1">Average Age per Anime</h5>
-          <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.age)" :resultTypes="resultsType.age.resultTypes" :top="3"/>
-          </div>
-          <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.age, false, true)" :resultTypes="resultsType.age.resultTypes" :top="3"/>
+          <div class="col-12">
+            <TablePair
+              :leftRanking="getRanking(resultsType.age)"
+              :leftResultTypes="resultsType.age.resultTypes"
+              title="Average Age per Anime"
+              :top="3"
+            />
           </div>
         </div>
       </div>
@@ -103,20 +108,24 @@
           </button>
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
-          <h5 class="col col-12 subsection-title mb-1">Best Anime of the Season by Gender</h5>
-          <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreMale)" :resultTypes="resultsType.scoreMale.resultTypes" :top="5"/>
+          <div class="col-12">
+            <TablePair
+              :leftRanking="getRanking(resultsType.scoreMale)"
+              :leftResultTypes="resultsType.scoreMale.resultTypes"
+              :rightRanking="getRanking(resultsType.scoreFemale)"
+              :rightResultTypes="resultsType.scoreFemale.resultTypes"
+              title="Best Anime of the Season by Gender"
+              :top="5"
+            />
           </div>
-          <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreFemale)" :resultTypes="resultsType.scoreFemale.resultTypes" :top="5"/>
-          </div>
-          <h5 class="col col-12 subsection-title mb-1">Biggest Differences in Score by Gender</h5>
-          <p class="col col-12 text-center">Expressed in how much higher an anime was scored by men compared to women (and vice versa).</p>
-          <div class="col col-6 mt-3 pe-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiff)" :resultTypes="resultsType.scoreDiff.resultTypes" :top="3"/>
-          </div>
-          <div class="col col-6 mt-3 ps-4">
-            <SimpleResultsTable :ranking="getRanking(resultsType.scoreDiff, false, true)" :resultTypes="resultsType.scoreDiff.resultTypes" :top="3"/>
+          <div class="col-12">
+            <TablePair
+              :leftRanking="getRanking(resultsType.scoreDiff)"
+              :leftResultTypes="resultsType.scoreDiff.resultTypes"
+              title="Biggest Differences in Score by Gender"
+              description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."
+              :top="3"
+            />
           </div>
         </div>
       </div>
@@ -168,6 +177,7 @@ import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import SimpleResultsTable from './components/SimpleResultsTable.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
+import TablePair from './components/TablePair.vue';
 
 interface SurveyResultsData {
   results: Record<number, Record<ResultsType, number>>;
@@ -186,6 +196,7 @@ interface SurveyResultsData {
     GenderDistributionChart,
     SimpleResultsTable,
     TableWithTop3,
+    TablePair,
     AnimeNames,
     AnimeImages,
   },
