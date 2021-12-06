@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="col-md col-12">
-      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :top="10"/>
+      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :top="top"/>
     </div>
   </div>
 </template>
@@ -53,6 +53,7 @@ import AnimeNames from '@/components/AnimeNames.vue';
   props: {
     ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
     resultTypes: Array,
+    top: Number,
   },
 })
 export default class TableWithTop3 extends Vue {}

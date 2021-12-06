@@ -51,12 +51,20 @@ export default class SimpleResultsTable extends Vue {
 
   private readonly resultTypeDataMap: Partial<Record<ResultsType, { name: string, formatter: (value: number) => string }>> = {
     // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
-    [ResultsType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: this.popularityFormatter },
-    [ResultsType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: this.popularityFormatter },
-    [ResultsType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: this.popularityFormatter },
+    [ResultsType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: this.percentageFormatter },
+    [ResultsType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: this.percentageFormatter },
+    [ResultsType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: this.percentageFormatter },
     [ResultsType.GENDER_POPULARITY_RATIO]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: this.genderRatioFormatter },
     [ResultsType.GENDER_POPULARITY_RATIO_INV]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: value => this.genderRatioFormatter(value, true) },
-    [ResultsType.SCORE]: { name: 'Sco\u00ADre', formatter: this.scoreFormatter },
+    [ResultsType.SCORE]: { name: 'Sco\u00ADre', formatter: this.numberFormatter },
+    [ResultsType.SCORE_MALE]: { name: 'Sco\u00ADre (Male)', formatter: this.numberFormatter },
+    [ResultsType.SCORE_FEMALE]: { name: 'Sco\u00ADre (Female)', formatter: this.numberFormatter },
+    [ResultsType.GENDER_SCORE_DIFFERENCE]: { name: 'Score Diff.', formatter: this.scoreDiffFormatter },
+    [ResultsType.GENDER_SCORE_DIFFERENCE_INV]: { name: 'Score Diff.', formatter: this.scoreDiffFormatter },
+    [ResultsType.AGE]: { name: 'Avg. Age', formatter: this.numberFormatter },
+    [ResultsType.UNDERWATCHED]: { name: 'Un\u00ADder\u00ADwatch\u00ADed', formatter: this.percentageFormatter },
+    [ResultsType.SURPRISE]: { name: 'Sur\u00ADprise', formatter: this.percentageFormatter },
+    [ResultsType.DISAPPOINTMENT]: { name: 'Dis\u00ADa\u00ADppoint\u00ADment', formatter: this.percentageFormatter },
   };
 
   created(): void {
@@ -68,7 +76,7 @@ export default class SimpleResultsTable extends Vue {
     }
   }
 
-  private popularityFormatter(value: number): string {
+  private percentageFormatter(value: number): string {
     if (!value) return 'N/A';
     return value.toFixed(1) + '%';
   }
@@ -78,9 +86,14 @@ export default class SimpleResultsTable extends Vue {
     return value.toFixed(2) + ' ' + (inverted ? 'F:M' : 'M:F');
   }
 
-  private scoreFormatter(value: number): string {
+  private numberFormatter(value: number): string {
     if (!value) return 'N/A';
     return value.toFixed(2);
+  }
+
+  private scoreDiffFormatter(value: number, inverted = false): string {
+    if (!value) return 'N/A';
+    return value.toFixed(2) + ' ' + (inverted ? 'F' : 'M');
   }
 }
 </script>
