@@ -1,5 +1,5 @@
 <template>
-  Could not find "{{ $route.path }}"
+  Could not find "{{ $route.path ?? $route.params.paramMatch }}"
 </template>
 
 <script lang="ts">
