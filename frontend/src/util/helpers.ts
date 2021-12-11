@@ -1,6 +1,6 @@
 import { filter, orderBy } from "lodash";
 import { RouteLocation } from "vue-router";
-import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, SurveyData } from "./data";
+import { AnimeData, AnimeNameType, AnimeSeason, AnimeType } from "./data";
 
 /**
  * Returns the season's name with the first letter capitalized
@@ -23,10 +23,10 @@ export function getSurveyApiUrl(route: RouteLocation): string {
 
 /**
  * Gets the survey's name with proper title capitalization
- * @param survey The survey
- * @returns The survey's name
+ * @param survey The survey data
+ * @returns The survey's name, e.g. 'The End of Fall 2021 Survey'
  */
-export function getSurveyName(survey: SurveyData): string {
+export function getSurveyName(survey: { isPreseason: boolean, season: AnimeSeason, year: number }): string {
   return `The ${survey.isPreseason ? 'Start' : 'End'} of ${getSeasonName(survey.season)} ${survey.year} Survey`;
 }
 
