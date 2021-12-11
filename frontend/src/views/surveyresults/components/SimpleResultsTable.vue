@@ -10,24 +10,29 @@
       </tr>
     </thead>
     <tbody role="rowgroup">
-      <tr role="row" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
+      <tr role="row" v-for="animeResult in processedRanking" :key="animeResult?.rank ?? -1">
         <td role="cell" aria-colindex="1" class="table-col-rank">
-          #{{ idx + 1 }}
+          {{ animeResult ? `#${animeResult.rank}` : '' }}
         </td>
-        <td role="cell" aria-colindex="2" class="table-col-image">
-          <AnimeImages :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
+        <td role="cell" aria-colindex="2" class="table-col-image" :style="animeResult ? { 'height': '7.5em' } : {}">
+          <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
         </td>
         <td role="cell" aria-colindex="3" class="table-col-name">
-          <div class="mx-2">
-            <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
-          </div>
-          <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
+          <template v-if="animeResult">
+            <div class="mx-2">
+              <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
+            </div>
+            <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
+          </template>
+          <template v-else>
+            ...
+          </template>
         </td>
         <td role="cell" aria-colindex="4" class="table-col-main">
-          {{ resultFormatters[0](animeResult.result) }}
+          {{ animeResult ? resultFormatters[0](animeResult.result) : '...' }}
         </td>
         <td role="cell" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">
-          {{ resultFormatters[1](animeResult.extraResult) }}
+          {{ animeResult ? resultFormatters[1](animeResult.extraResult) : '...' }}
         </td>
       </tr>
     </tbody>
@@ -49,13 +54,18 @@ import { AnimeData, ResultsType } from '@/util/data';
     ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
     resultTypes: Array,
     top: Number,
+    bottom: Number, // Optional
   },
 })
-export default class SimpleResultsTable extends Vue {
-  ranking!: { anime: AnimeData, result: number, extraResult?: number, progressBarValue?: number }[]; // progessBarValue is set in this class
+export default class SimpleResultsTable extends Vue { // TODO: Clean this class up
+  ranking!: { anime: AnimeData, result: number, extraResult?: number }[]; // progessBarValue is set in this class
   resultTypes!: ResultsType[];
-  resultNames: string[] = [];
-  resultFormatters: ((value: number) => string)[] = [];
+  top!: number;
+  bottom?: number;
+
+  processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number }|null)[] = [];
+  resultNames: string[] = []; // [resultName, extraResultName]
+  resultFormatters: ((value: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
 
   hasExtraResult = false;
 
@@ -116,9 +126,29 @@ export default class SimpleResultsTable extends Vue {
         break;
     }
 
-    for (let row of this.ranking) {
-      const progressBarValue = (progressBarValueParser(row.result) - progressBarMin) / (progressBarMax - progressBarMin);
-      row.progressBarValue = Math.max(Math.min(progressBarValue, 1), 0);
+    function progressBarValueFn(result: number) {
+      const progressBarValue = (progressBarValueParser(result) - progressBarMin) / (progressBarMax - progressBarMin);
+      return Math.max(Math.min(progressBarValue, 1), 0);
+    }
+
+    for (let rowIdx = 0; rowIdx < this.top; rowIdx++) {
+      const row = this.ranking[rowIdx];
+      this.processedRanking.push(Object.assign({
+        progressBarValue: progressBarValueFn(row.result),
+        rank: rowIdx + 1,
+      }, row));
+    }
+
+    if (this.bottom != null) {
+      this.processedRanking.push(null);
+
+      for (let rowIdx = this.ranking.length - this.bottom; rowIdx < this.ranking.length; rowIdx++) {
+        const row = this.ranking[rowIdx];
+        this.processedRanking.push(Object.assign({
+          progressBarValue: progressBarValueFn(row.result),
+          rank: rowIdx + 1,
+        }, row));
+      }
     }
   }
 

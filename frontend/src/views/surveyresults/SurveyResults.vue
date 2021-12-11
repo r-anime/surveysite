@@ -101,6 +101,7 @@
       :ranking="getRanking(resultsType.score)"
       :resultTypes="resultsType.score.resultTypes"
       :top="10"
+      :bottom="5"
       :title="surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season'"
     /> <!-- Bottom 5 missing -->
 
