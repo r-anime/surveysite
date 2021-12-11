@@ -1,35 +1,44 @@
 <template>
-  <div class="row align-items-center py-2 fw-bold" lang="en">
-    <div class="col col-0-5"></div>
-    <div class="col col-2"></div>
-    <div class="col">Anime</div>
-    <div class="col col-2 text-end">{{ resultNames[0] }}</div>
-    <div class="col col-1-5 text-end text-smaller" v-if="hasExtraResult">{{ resultNames[1] }}</div>
-  </div>
-  <div class="row align-items-center hoverable py-1" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
-    <div class="col col-0-5">
-      #{{ idx + 1 }}
-    </div>
-    <div class="col col-2 justify-content-center d-flex">
-      <AnimeImages :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
-    </div>
-    <div class="col">
-      <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
-    </div>
-    <div class="col col-2 text-end">
-      {{ resultFormatters[0](animeResult.result) }}
-    </div>
-    <div class="col col-1-5 text-end text-smaller" v-if="hasExtraResult">
-      {{ resultFormatters[1](animeResult.extraResult) }}
-    </div>
-  </div>
+  <table role="table" :aria-colcount="3 + resultNames.length" class="table table-hover table-borderless">
+    <thead role="rowgroup">
+      <tr role="row">
+        <th role="columnheader" scope="col" aria-colindex="1" aria-label="Rank" class="table-col-rank"></th>
+        <th role="columnheader" scope="col" aria-colindex="2" aria-label="Image" class="table-col-image"></th>
+        <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name">Anime</th>
+        <th role="columnheader" scope="col" aria-colindex="4" class="table-col-main">{{ resultNames[0] }}</th>
+        <th role="columnheader" scope="col" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">{{ resultNames[1] }}</th>
+      </tr>
+    </thead>
+    <tbody role="rowgroup">
+      <tr role="row" v-for="(animeResult, idx) in ranking.slice(0, top ?? undefined)" :key="idx">
+        <td role="cell" aria-colindex="1" class="table-col-rank">
+          #{{ idx + 1 }}
+        </td>
+        <td role="cell" aria-colindex="2" class="table-col-image">
+          <AnimeImages :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
+        </td>
+        <td role="cell" aria-colindex="3" class="table-col-name">
+          <div>
+            <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
+          </div>
+          <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
+        </td>
+        <td role="cell" aria-colindex="4" class="table-col-main">
+          {{ resultFormatters[0](animeResult.result) }}
+        </td>
+        <td role="cell" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">
+          {{ resultFormatters[1](animeResult.extraResult) }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Vue, Options } from 'vue-class-component';
-import { ResultsType } from '@/util/data';
+import { AnimeData, ResultsType } from '@/util/data';
 
 @Options({
   components: {
@@ -43,6 +52,7 @@ import { ResultsType } from '@/util/data';
   },
 })
 export default class SimpleResultsTable extends Vue {
+  ranking!: { anime: AnimeData, result: number, extraResult?: number, progressBarValue?: number }[]; // progessBarValue is set in this class
   resultTypes!: ResultsType[];
   resultNames: string[] = [];
   resultFormatters: ((value: number) => string)[] = [];
@@ -74,6 +84,42 @@ export default class SimpleResultsTable extends Vue {
       this.resultNames.push(this.resultTypeDataMap[resultType]?.name ?? 'ERR');
       this.resultFormatters.push(this.resultTypeDataMap[resultType]?.formatter ?? (() => 'ERR'));
     }
+
+    let progressBarMin: number;
+    let progressBarMax: number;
+    let progressBarValueParser = (value: number) => value;
+
+    switch (this.resultTypes[0]) {
+      case ResultsType.SCORE:
+      case ResultsType.SCORE_MALE:
+      case ResultsType.SCORE_FEMALE:
+        progressBarMin = 1.0;
+        progressBarMax = 5.0;
+        break;
+      case ResultsType.GENDER_SCORE_DIFFERENCE:
+        progressBarMin = 0;
+        progressBarMax = 1.5;
+        progressBarValueParser = value => Math.abs(value);
+        break;
+      case ResultsType.GENDER_POPULARITY_RATIO:
+        progressBarMin = 0;
+        progressBarMax = 10.0;
+        progressBarValueParser = value => value >= 1.0 ? value : 1.0 / value;
+        break;
+      case ResultsType.AGE:
+        progressBarMin = 20.0;
+        progressBarMax = 30.0;
+        break;
+      default: // For percentages
+        progressBarMin = 0;
+        progressBarMax = 0.85;
+        break;
+    }
+
+    for (let row of this.ranking) {
+      const progressBarValue = (progressBarValueParser(row.result) - progressBarMin) / (progressBarMax - progressBarMin);
+      row.progressBarValue = Math.max(Math.min(progressBarValue, 1), 0);
+    }
   }
 
   private percentageFormatter(value: number): string {
@@ -102,3 +148,39 @@ export default class SimpleResultsTable extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.table-col-rank {
+  width: 5%!important;
+}
+.table-col-image {
+  width: 15%!important;
+}
+.table-col-name {
+  width: auto!important;
+  position: relative!important;
+  z-index: 10;
+}
+.table-col-main {
+  width: 10%!important;
+  position: relative!important;
+  text-align: right!important;
+}
+.table-col-extra {
+  width: 7%!important;
+  font-size: 80%;
+  position: relative!important;
+  text-align: right!important;
+}
+.table-row-progress-bar {
+  position: absolute;
+  top: 10%;
+  height: 80%;
+  z-index: -10;
+  background-color: #bbdaf9;
+}
+
+td {
+  vertical-align: middle;
+}
+</style>
