@@ -18,7 +18,7 @@
           <AnimeImages :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
         </td>
         <td role="cell" aria-colindex="3" class="table-col-name">
-          <div>
+          <div class="mx-2">
             <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
           </div>
           <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>

@@ -22,11 +22,15 @@
     </div>
 
     <h3 class="section-title">Popularity</h3>
-    <h5 class="subsection-title">Most Popular Anime Series</h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity)" :resultTypes="resultsType.popularity.resultTypes" :top="10"/>
+    <TableWithTop3
+      :ranking="getRanking(resultsType.popularity)"
+      :resultTypes="resultsType.popularity.resultTypes"
+      :top="10"
+      title="Most Popular Anime Series"
+    />
 
     <div class="row justify-content-center mt-4">
-      <div class="col col-11">
+      <div class="col-11">
         <div class="row">
           <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-popularity-gender" aria-expanded="false" aria-controls="collapsable-popularity-gender">
             <h4>
@@ -61,7 +65,7 @@
     </div>
 
     <div class="row justify-content-center mt-4">
-      <div class="col col-11">
+      <div class="col-11">
         <div class="row">
           <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-popularity-miscellaneous" aria-expanded="false" aria-controls="collapsable-popularity-miscellaneous">
             <h4>
@@ -72,12 +76,14 @@
           </button>
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-miscellaneous">
-          <template v-if="!surveyIsPreseason">
-            <h5 class="col col-12 subsection-title mb-1">Most Underwatched Anime</h5>
-            <div class="col-12">
-              <TableWithTop3 :ranking="getRanking(resultsType.underwatched)" :resultTypes="resultsType.underwatched.resultTypes" :top="5"/>
-            </div>
-          </template>
+          <div class="col-12" v-if="!surveyIsPreseason">
+            <TableWithTop3
+              :ranking="getRanking(resultsType.underwatched)"
+              :resultTypes="resultsType.underwatched.resultTypes"
+              :top="5"
+              title="Most Underwatched Anime"
+            />
+          </div>
           <div class="col-12">
             <TablePair
               :leftRanking="getRanking(resultsType.age)"
@@ -91,13 +97,15 @@
     </div>
 
     <h3 class="section-title">Impressions</h3>
-    <h5 class="subsection-title">
-      {{ surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season' }}
-    </h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.score)" :resultTypes="resultsType.score.resultTypes" :top="10"/> <!-- Bottom 5 -->
+    <TableWithTop3
+      :ranking="getRanking(resultsType.score)"
+      :resultTypes="resultsType.score.resultTypes"
+      :top="10"
+      :title="surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season'"
+    /> <!-- Bottom 5 missing -->
 
-    <div class="row justify-content-center mt-4" v-if="!surveyIsPreseason">
-      <div class="col col-11">
+    <div class="row justify-content-center mt-4">
+      <div class="col-11">
         <div class="row">
           <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-score-gender" aria-expanded="false" aria-controls="collapsable-score-gender">
             <h4>
@@ -114,7 +122,7 @@
               :leftResultTypes="resultsType.scoreMale.resultTypes"
               :rightRanking="getRanking(resultsType.scoreFemale)"
               :rightResultTypes="resultsType.scoreFemale.resultTypes"
-              title="Best Anime of the Season by Gender"
+              :title="surveyIsPreseason ? 'Most Anticipated Anime of the Season by Gender' : 'Best Anime of the Season by Gender'"
               :top="5"
             />
           </div>
@@ -132,7 +140,7 @@
     </div>
 
     <div class="row justify-content-center mt-4" v-if="!surveyIsPreseason">
-      <div class="col col-11">
+      <div class="col-11">
         <div class="row">
           <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-score-gender" aria-expanded="false" aria-controls="collapsable-score-gender">
             <h4>
@@ -143,24 +151,41 @@
           </button>
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
-          <h5 class="col col-12 subsection-title mb-1">Most Surprising Anime</h5>
           <div class="col-12">
-            <TableWithTop3 :ranking="getRanking(resultsType.surprise)" :resultTypes="resultsType.surprise.resultTypes" :top="5"/>
+            <TableWithTop3
+              :ranking="getRanking(resultsType.surprise)"
+              :resultTypes="resultsType.surprise.resultTypes"
+              :top="5"
+              title="Most Surprising Anime"
+            />
           </div>
-          <h5 class="col col-12 subsection-title mb-1">Most Disappointing Anime</h5>
           <div class="col-12">
-            <TableWithTop3 :ranking="getRanking(resultsType.disappointment)" :resultTypes="resultsType.disappointment.resultTypes" :top="5"/>
+            <TableWithTop3
+              :ranking="getRanking(resultsType.disappointment)"
+              :resultTypes="resultsType.disappointment.resultTypes"
+              :top="5"
+              title="Most Disappointing Anime"
+            />
           </div>
         </div>
       </div>
     </div>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
-    <h5 class="subsection-title">Most Popular Anime OVAs / ONAs / Movies / Specials</h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.popularity, true)" :resultTypes="resultsType.popularity.resultTypes" :top="5"/>
+    <TableWithTop3
+      :ranking="getRanking(resultsType.popularity, true)"
+      :resultTypes="resultsType.popularity.resultTypes"
+      :top="5"
+      title="Most Popular Anime OVAs / ONAs / Movies / Specials"
+    />
 
-    <h5 class="subsection-title">Best Anime OVAs / ONAs / Movies / Specials</h5>
-    <TableWithTop3 class="mt-3" :ranking="getRanking(resultsType.score, true)" :resultTypes="resultsType.score.resultTypes" :top="5"/>
+    <TableWithTop3
+      v-if="!surveyIsPreseason"
+      :ranking="getRanking(resultsType.score, true)"
+      :resultTypes="resultsType.score.resultTypes"
+      :top="5"
+      title="Best Anime OVAs / ONAs / Movies / Specials"
+    />
   </template>
 </template>
 
