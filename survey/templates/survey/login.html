@@ -19,9 +19,10 @@
                 <p class="card-text">
                     To fill in surveys, you must be logged in with a {{ provider.name }} account.
                 </p>
-                <a title="{{ provider.name }}" class="btn btn-primary" href="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}">
-                    Log in via {{ provider.name }}
-                </a>
+                <form method="post" action="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}" class="form-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-md">Log in via {{ provider.name }}</button>
+                </form>
             </div>
         </div>
     </div>
