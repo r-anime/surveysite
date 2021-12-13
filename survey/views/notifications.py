@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.http.response import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -12,11 +11,15 @@ missinganime_admin_perms = [
     for perm_model in ['anime', 'animename', 'image', 'video', 'missinganime']
 ]
 
-@method_decorator([never_cache, login_required], name='dispatch')
+@method_decorator([never_cache], name='dispatch')
 class NotificationsView(View):
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({})
+
         missinganime_queryset = MissingAnime.objects.filter(user=request.user, user_has_read=False, admin_has_reviewed=True)
         missinganime_queryset.update(user_has_read=True)
+
         response = {
             'missingAnimeList': [{
                     'submittedName': missinganime.name,

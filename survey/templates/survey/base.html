@@ -90,29 +90,31 @@
             "{% url 'survey:notifications' %}",
             function(data) {
 
-                for (let missingAnime of data.missingAnimeList) {
-                    const requestAccepted = Boolean(missingAnime.nameList.length);
-                    const requestAcceptedStr = requestAccepted ? "accepted" : "denied";
+                if (data.missingAnimeList) {
+                    for (let missingAnime of data.missingAnimeList) {
+                        const requestAccepted = Boolean(missingAnime.nameList.length);
+                        const requestAcceptedStr = requestAccepted ? "accepted" : "denied";
 
-                    const title = "Request " + requestAcceptedStr;
-                    const message = ce("div", [
-                        "Your request to add ",
-                        ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
-                        " to " + missingAnime.surveyName + " got " + requestAcceptedStr + "!",
-                        !requestAccepted && missingAnime.reason ? [
-                            ce("br"),
-                            ce("b", "Reason:"),
-                            ce("br"),
-                            ce("i", missingAnime.reason),
-                        ] : [],
-                    ]);
-                    vueToasts.$bvToast.toast(
-                        message, {
-                            title: title,
-                            noAutoHide: true,
-                            solid: true,
-                        }
-                    );
+                        const title = "Request " + requestAcceptedStr;
+                        const message = ce("div", [
+                            "Your request to add ",
+                            ce("a", { attrs: { href: missingAnime.submittedLink } }, missingAnime.submittedName),
+                            " to " + missingAnime.surveyName + " got " + requestAcceptedStr + "!",
+                            !requestAccepted && missingAnime.reason ? [
+                                ce("br"),
+                                ce("b", "Reason:"),
+                                ce("br"),
+                                ce("i", missingAnime.reason),
+                            ] : [],
+                        ]);
+                        vueToasts.$bvToast.toast(
+                            message, {
+                                title: title,
+                                noAutoHide: true,
+                                solid: true,
+                            }
+                        );
+                    }
                 }
 
                 if (data.unreviewedMissingAnimeList) {
