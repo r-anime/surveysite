@@ -36,7 +36,7 @@
             <Modal modalTitle="Log In"
                    modalButtonText="Log In"
                    acceptButtonText="Log in via Reddit"
-                   acceptButtonUrl="/accounts/login/">
+                   :acceptButtonPost="userData.authenticationUrl">
               To fill in surveys, you must be logged in with a Reddit account.
             </Modal>
           </template>
@@ -77,8 +77,8 @@ export default class TheNavbar extends Vue {
     return window.location.href;
   }
 
-  getCsrfToken(): string {
-    return Cookie.get('csrftoken') ?? '';
+  getCsrfToken(): string | undefined {
+    return Cookie.get('csrftoken');
   }
 }
 </script>

@@ -2,6 +2,7 @@ export interface UserData {
   authenticated: boolean;
   username?: string;
   profilePicture?: string;
+  authenticationUrl?: string;
 }
 
 export interface ImageData {

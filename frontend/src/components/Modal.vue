@@ -31,6 +31,11 @@
               {{ acceptButtonText }}
             </a>
 
+            <form v-else-if="acceptButtonPost" method="POST" :action="acceptButtonPost">
+              <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
+              <button type="submit" class="btn btn-primary">{{ acceptButtonText }}</button>
+            </form>
+
             <router-link v-else-if="acceptButtonRoute"
                          :to="acceptButtonRoute"
                          class="btn btn-primary">
@@ -53,6 +58,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { Modal as BootstrapModal } from 'bootstrap';
+import Cookie from 'js-cookie';
 
 @Options({
   props: {
@@ -68,33 +74,35 @@ import { Modal as BootstrapModal } from 'bootstrap';
     },
     modalButtonText: String,
 
-    acceptButtonUrl: {
-      type: String,
-      default: null,
-    },
-    acceptButtonRoute: {
-      type: Object,
-      default: null,
-    },
-    acceptButtonCallback: {
-      type: Function, // Should be a function that returns a Promise<boolean>
-      default: null,
-    },
+    acceptButtonUrl: String,
+    acceptButtonPost: String, // Identical to acceptButtonUrl, but performs a POST request to the specified URL instead of a GET request,
+    acceptButtonRoute: Object,
+    acceptButtonCallback: Function, // Should be a function that returns a Promise<boolean>
+
     acceptButtonText: {
       type: String,
       default: 'Ok',
     },
   },
-  methods: {
-    async acceptButtonCallbackWrapper() {
-      if (this.acceptButtonCallback && await this.acceptButtonCallback()) {
-        BootstrapModal.getInstance(`#${this.modalId}`)?.hide();
-      }
-    }
-  }
 })
 export default class Modal extends Vue {
+  acceptButtonCallback?: () => Promise<unknown>;
+
+  modalId?: string;
   private static componentId = 0;
-  modalId = `modal${Modal.componentId++}`;
+
+  created(): void {
+    this.modalId = `modal${Modal.componentId++}`;
+  }
+
+  getCsrfToken(): string | undefined {
+    return Cookie.get('csrftoken');
+  }
+
+  async acceptButtonCallbackWrapper(): Promise<void> {
+    if (this.acceptButtonCallback && await this.acceptButtonCallback()) {
+      BootstrapModal.getInstance(`#${this.modalId}`)?.hide();
+    }
+  }
 }
 </script>
