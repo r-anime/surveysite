@@ -1,8 +1,15 @@
 from allauth.socialaccount.providers import registry
-from django.urls.base import reverse
-from django.views.generic import View
 from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.urls.base import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic.base import View
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class IndexView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'index.html')
 
 class SurveyLoginView(View):
     def get(self, request, *args, **kwargs):
