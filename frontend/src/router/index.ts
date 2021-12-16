@@ -34,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
   }, {
     path: '/survey/:year/:season/:preOrPost/',
     name: 'SurveyForm',
-    component: () => import('../views/surveyform/SurveyForm.vue'), // Lazy-load complex components
+    component: () => import('../views/surveyform/SurveyForm.vue'),
     beforeEnter: confirmValidSurveyRouteParams,
     meta: {
       subtitleFn: (params: RouteParams) => getSurveyName({
@@ -46,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
   }, {
     path: '/survey/:year/:season/:preOrPost/results/',
     name: 'SurveyResults',
-    component: () => import('../views/surveyresults/SurveyResults.vue'),
+    component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResults.vue'),
     beforeEnter: confirmValidSurveyRouteParams,
     meta: {
       subtitleFn: (params: RouteParams) => getSurveyName({
@@ -55,6 +55,15 @@ const routes: Array<RouteRecordRaw> = [
         year: Number(params.year),
       }) + ' Results',
     },
+    children: [{
+      path: '',
+      name: 'SurveyResultsSummary',
+      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsSummary.vue'),
+    }, {
+      path: 'full/',
+      name: 'SurveyResultsFull',
+      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsFull.vue'),
+    }],
   }, {
     path: '/:paramMatch(.*)*',
     name: 'NotFound',
