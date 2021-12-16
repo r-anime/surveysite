@@ -24,7 +24,7 @@
   </template>
 
   <template v-else>
-    <img src="../assets/image-unavailable.png" alt="Image unavailable" class="img-fluid" :class="imgClassInternal">
+    <img src="../assets/image-unavailable.png" alt="Image unavailable" class="img-fluid" :class="imgClassInternal" :style="maxHeight ? { maxHeight: maxHeight } : {}">
   </template>
 
 </template>
