@@ -7,23 +7,11 @@
 
 <script lang="ts">
 import Ajax, { Response } from '@/util/ajax';
-import { AnimeData, Gender, ResultsType, SurveyData } from '@/util/data';
 import { getSurveyApiUrl, getSurveyName } from '@/util/helpers';
 import NotificationService from '@/util/notification-service';
 import { computed } from '@vue/runtime-core';
 import { Vue, Options } from 'vue-class-component';
-
-// TODO: Move to own file
-interface SurveyResultsData {
-  results: Record<number, Record<ResultsType, number>>;
-  anime: Record<number, AnimeData>;
-  survey: SurveyData;
-  miscellaneous: {
-    responseCount: number;
-    ageDistribution: Record<number, number>;
-    genderDistribution: Record<Gender, number>;
-  };
-}
+import { SurveyResultsData } from './data/survey-results-data';
 
 @Options({
   provide() {

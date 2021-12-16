@@ -194,7 +194,7 @@
 <script lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { AnimeData, Gender, ResultsType, SurveyData } from '@/util/data';
+import { AnimeData, ResultsType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
 import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
@@ -204,18 +204,7 @@ import SimpleResultsTable from './components/SimpleResultsTable.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
 import { ComputedRef } from '@vue/reactivity';
-
-// TODO: Move to own file
-interface SurveyResultsData {
-  results: Record<number, Record<ResultsType, number>>;
-  anime: Record<number, AnimeData>;
-  survey: SurveyData;
-  miscellaneous: {
-    responseCount: number;
-    ageDistribution: Record<number, number>;
-    genderDistribution: Record<Gender, number>;
-  };
-}
+import { SurveyResultsData } from './data/survey-results-data';
 
 @Options({
   components: {
