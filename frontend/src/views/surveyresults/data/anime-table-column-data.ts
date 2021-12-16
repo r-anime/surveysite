@@ -3,8 +3,9 @@ import { ResultsType } from "@/util/data";
 type CssClass = string | Record<string, boolean> | (string | Record<string, boolean>)[];
 type CssStyle = string | Record<string, string | string[]> | (string | Record<string, string | string[]>)[];
 
+// TODO: Simplify class / make class less generic
 export class AnimeTableColumnData {
-  constructor(resultType: ResultsType, cssClass: CssClass = {}, cssStyle: CssStyle = {}, width = 10) {
+  constructor(resultType: ResultsType, width = 10, cssStyle: CssStyle = {}, cssClass: CssClass = {}) {
     this.resultType = resultType;
     this.cssClass = cssClass;
     this.cssStyle = cssStyle;

@@ -44,6 +44,7 @@ import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Vue, Options } from 'vue-class-component';
 import { AnimeData, ResultsType } from '@/util/data';
+import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 
 @Options({
   components: {
@@ -69,30 +70,12 @@ export default class SimpleResultsTable extends Vue { // TODO: Clean this class 
 
   hasExtraResult = false;
 
-  private readonly invalidValue = 'N/A';
-
-  private readonly resultTypeDataMap: Partial<Record<ResultsType, { name: string, formatter: (value: number) => string }>> = {
-    // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
-    [ResultsType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: this.percentageFormatter },
-    [ResultsType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: this.percentageFormatter },
-    [ResultsType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: this.percentageFormatter },
-    [ResultsType.GENDER_POPULARITY_RATIO]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: this.genderRatioFormatter },
-    [ResultsType.SCORE]: { name: 'Sco\u00ADre', formatter: this.numberFormatter },
-    [ResultsType.SCORE_MALE]: { name: 'Sco\u00ADre (Male)', formatter: this.numberFormatter },
-    [ResultsType.SCORE_FEMALE]: { name: 'Sco\u00ADre (Female)', formatter: this.numberFormatter },
-    [ResultsType.GENDER_SCORE_DIFFERENCE]: { name: 'Score Diff.', formatter: this.scoreDiffFormatter },
-    [ResultsType.AGE]: { name: 'Avg. Age', formatter: this.numberFormatter },
-    [ResultsType.UNDERWATCHED]: { name: 'Un\u00ADder\u00ADwatch\u00ADed', formatter: this.percentageFormatter },
-    [ResultsType.SURPRISE]: { name: 'Sur\u00ADprise', formatter: this.percentageFormatter },
-    [ResultsType.DISAPPOINTMENT]: { name: 'Dis\u00ADa\u00ADppoint\u00ADment', formatter: this.percentageFormatter },
-  };
-
   created(): void {
     this.hasExtraResult = this.resultTypes.length === 2;
 
     for (let resultType of this.resultTypes) {
-      this.resultNames.push(this.resultTypeDataMap[resultType]?.name ?? 'ERR');
-      this.resultFormatters.push(this.resultTypeDataMap[resultType]?.formatter ?? (() => 'ERR'));
+      this.resultNames.push(getResultTypeName(resultType));
+      this.resultFormatters.push(getResultTypeFormatter(resultType));
     }
 
     let progressBarMin: number;
@@ -150,31 +133,6 @@ export default class SimpleResultsTable extends Vue { // TODO: Clean this class 
         }, row));
       }
     }
-  }
-
-  private percentageFormatter(value: number): string {
-    if (!value) return this.invalidValue;
-    return (value * 100).toFixed(1) + '%';
-  }
-
-  private genderRatioFormatter(value: number): string {
-    if (!value) return this.invalidValue;
-
-    const shouldInvert = value < 1;
-    if (shouldInvert && value === 0) return this.invalidValue;
-    return (shouldInvert ? 1 / value : value).toFixed(2) + ' ' + (shouldInvert ? 'F:M' : 'M:F');
-  }
-
-  private numberFormatter(value: number): string {
-    if (!value) return this.invalidValue;
-    return value.toFixed(2);
-  }
-
-  private scoreDiffFormatter(value: number): string {
-    if (!value) return this.invalidValue;
-
-    const shouldInvert = value < 0;
-    return (shouldInvert ? -value : value).toFixed(2) + ' ' + (shouldInvert ? 'F' : 'M');
   }
 }
 </script>

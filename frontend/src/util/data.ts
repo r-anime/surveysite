@@ -77,5 +77,4 @@ export enum ResultsType {
     SURPRISE                    = 22,
     DISAPPOINTMENT              = 23,
     AGE                         = 24,
-    NAME                        = 25,
 }
