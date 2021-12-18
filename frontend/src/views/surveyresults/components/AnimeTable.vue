@@ -8,8 +8,7 @@
         <th role="columnheader"
             scope="col"
             :aria-colindex="columnIdx + 4"
-            class="hoverable"
-            :class="column.cssClass"
+            class="table-col-result hoverable"
             :style="column.cssStyle"
             @click="sortByResultType(column.resultType)"
             v-for="(column, columnIdx) in columns"
@@ -32,7 +31,7 @@
             <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
           </div>
         </td>
-        <td role="cell" :aria-colindex="columnIdx + 4" :class="column.cssClass" :style="column.cssStyle" v-for="(column, columnIdx) in columns" :key="columnIdx">
+        <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" :style="column.cssStyle" v-for="(column, columnIdx) in columns" :key="columnIdx">
           {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
         </td>
       </tr>
@@ -84,17 +83,17 @@ export default class AnimeTable extends Vue {
     if (this.activeSort.resultType == resultType) {
       descending = !this.activeSort.descending;
     }
-    this.activeSort = {
-      resultType: resultType,
-      descending: descending,
-    };
+
+    this.activeSort.resultType = resultType;
+    this.activeSort.descending = descending;
 
     this.processedEntries = _.orderBy(this.processedEntries, entry => {
-      if (resultType == null) return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME);
-      else {
-        if (entry.data[resultType] == null || entry.data[resultType] === 0) return descending ? -1000 : 1000;
-        else return entry.data[resultType];
-      }
+      if (resultType == null)
+        return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME);
+      else if (entry.data[resultType] == null || entry.data[resultType] === 0)
+        return descending ? -1000 : 1000;
+      else
+        return entry.data[resultType];
     }, descending ? 'desc' : 'asc');
   }
 }
@@ -108,8 +107,12 @@ export default class AnimeTable extends Vue {
   width: 8%!important;
 }
 .table-col-name {
-  width: auto!important;
+  width: 25%!important;
   position: relative!important;
+}
+.table-col-result {
+  text-align: right!important;
+  width: auto!important;
 }
 
 td {

@@ -42,7 +42,9 @@ export default class SurveyResultsFull extends Vue {
     for (const objectKey in ResultsType) {
       if (!isNaN(Number(objectKey))) continue; // Only get string keys
       const resultType = Number(ResultsType[objectKey]) as ResultsType;
-      this.tableColumns.push(new AnimeTableColumnData(resultType, 5));
+      this.tableColumns.push({
+        resultType: resultType,
+      });
     }
 
     for (const animeIdStr in this.surveyResultsData.results) {
