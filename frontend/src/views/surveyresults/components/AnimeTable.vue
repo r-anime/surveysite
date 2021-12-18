@@ -1,42 +1,50 @@
 <template>
-  <table role="table" :aria-colcount="3 + columns.length" class="table table-hover">
-    <thead role="rowgroup">
-      <tr role="row">
-        <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank hoverable" aria-label="Rank"></th>
-        <th role="columnheader" scope="col" aria-colindex="2" class="table-col-image hoverable" aria-label="Image"></th>
-        <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name hoverable" @click="sortByResultType(null)">Anime</th>
-        <th role="columnheader"
-            scope="col"
-            :aria-colindex="columnIdx + 4"
-            class="table-col-result hoverable"
-            :style="column.cssStyle"
-            @click="sortByResultType(column.resultType)"
-            v-for="(column, columnIdx) in columns"
-            :key="columnIdx"
-        >
-          {{ getResultTypeName(column.resultType) }}
-        </th>
-      </tr>
-    </thead>
-    <tbody role="rowgroup">
-      <tr role="row" v-for="(entry, entryIdx) in processedEntries" :key="entry.anime.id">
-        <td role="cell" aria-colindex="1" class="table-col-rank">
-          #{{ entryIdx + 1 }}
-        </td>
-        <td role="cell" aria-colindex="2" class="table-col-image" style="height:5em;">
-          <AnimeImages :animeImages="entry.anime.images" :enableCarouselControls="false" maxHeight="5em"/>
-        </td>
-        <td role="cell" aria-colindex="3" class="table-col-name">
-          <div class="mx-2">
-            <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
-          </div>
-        </td>
-        <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" :style="column.cssStyle" v-for="(column, columnIdx) in columns" :key="columnIdx">
-          {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div>
+    <div class="row row-cols-4">
+      <div class="col form-check" v-for="column in columns" :key="column.resultType">
+        <input class="form-check-input" :id="`columnCheckbox${column.resultType}`" type="checkbox" v-model="enabledColumns[column.resultType]"/>
+        <label class="form-check-label" :for="`columnCheckbox${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
+      </div>
+    </div>
+    <table role="table" :aria-colcount="3 + columns.length" class="table table-hover">
+      <thead role="rowgroup">
+        <tr role="row">
+          <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank hoverable" aria-label="Rank"></th>
+          <th role="columnheader" scope="col" aria-colindex="2" class="table-col-image hoverable" aria-label="Image"></th>
+          <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name hoverable" @click="sortByResultType(null)">Anime</th>
+          <th v-for="(column, columnIdx) in processedColumns"
+              :key="column.resultType"
+              role="columnheader"
+              scope="col"
+              :aria-colindex="columnIdx + 4"
+              class="table-col-result hoverable"
+              :style="column.cssStyle"
+              @click="sortByResultType(column.resultType)"
+          >
+            {{ getResultTypeName(column.resultType) }}
+          </th>
+        </tr>
+      </thead>
+      <tbody role="rowgroup">
+        <tr role="row" v-for="(entry, entryIdx) in processedEntries" :key="entry.anime.id">
+          <td role="cell" aria-colindex="1" class="table-col-rank">
+            #{{ entryIdx + 1 }}
+          </td>
+          <td role="cell" aria-colindex="2" class="table-col-image" style="height:5em;">
+            <AnimeImages :animeImages="entry.anime.images" :enableCarouselControls="false" maxHeight="5em"/>
+          </td>
+          <td role="cell" aria-colindex="3" class="table-col-name">
+            <div class="mx-2">
+              <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
+            </div>
+          </td>
+          <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
+            {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script lang="ts">
@@ -47,6 +55,7 @@ import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/
 import { AnimeNameType, ResultsType } from '@/util/data';
 import { AnimeTableEntryData } from '../data/anime-table-entry-data';
 import _ from 'lodash';
+import { AnimeTableColumnData } from '../data/anime-table-column-data';
 
 @Options({
   props: {
@@ -59,9 +68,14 @@ import _ from 'lodash';
   }
 })
 export default class AnimeTable extends Vue {
+  columns!: AnimeTableColumnData[];
   entries!: AnimeTableEntryData[];
 
+  // Works, creates a new array as props are getters
+  processedColumns: AnimeTableColumnData[] = this.columns;
   processedEntries: AnimeTableEntryData[] = this.entries;
+
+  enabledColumns: Partial<Record<ResultsType, boolean>> = {};
 
   getResultTypeFormatter = getResultTypeFormatter;
   getResultTypeName = getResultTypeName;
@@ -76,6 +90,13 @@ export default class AnimeTable extends Vue {
 
   created(): void {
     this.sortByResultType(null);
+    for (const column of this.columns) {
+      this.enabledColumns[column.resultType] = true;
+    }
+
+    this.$watch(() => this.enabledColumns, () => {
+      this.processedColumns = _.filter(this.columns, column => this.enabledColumns[column.resultType] as boolean);
+    }, { deep: true });
   }
 
   sortByResultType(resultType: ResultsType | null): void {
