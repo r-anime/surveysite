@@ -9,15 +9,15 @@
     <table role="table" :aria-colcount="3 + columns.length" class="table table-hover">
       <thead role="rowgroup">
         <tr role="row">
-          <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank hoverable" aria-label="Rank"></th>
-          <th role="columnheader" scope="col" aria-colindex="2" class="table-col-image hoverable" aria-label="Image"></th>
-          <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name hoverable" @click="sortByResultType(null)">Anime</th>
+          <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank" aria-label="Rank"></th>
+          <th role="columnheader" scope="col" aria-colindex="2" class="table-col-image" aria-label="Image"></th>
+          <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name clickable" @click="sortByResultType(null)">Anime</th>
           <th v-for="(column, columnIdx) in processedColumns"
               :key="column.resultType"
               role="columnheader"
               scope="col"
               :aria-colindex="columnIdx + 4"
-              class="table-col-result hoverable"
+              class="table-col-result clickable"
               :style="column.cssStyle"
               @click="sortByResultType(column.resultType)"
           >
@@ -99,8 +99,12 @@ export default class AnimeTable extends Vue {
     }, { deep: true });
   }
 
+  /**
+   * Sort columns by a particular result type
+   * @param resultType Result type to sort by, or null to sort by (Japanese) name
+   */
   sortByResultType(resultType: ResultsType | null): void {
-    let descending = true;
+    let descending = resultType != null; // When sorting by name, sort ascending first, otherwise descending
     if (this.activeSort.resultType == resultType) {
       descending = !this.activeSort.descending;
     }

@@ -6,6 +6,16 @@ $enable-negative-margins: true;
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+.clickable {
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  &:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
 // col-$i-5 classes, corresponding to cols with a width halfway between col-$i and col-($i+1)
 @for $i from 0 through 11 {
   .col-#{$i}-5 {

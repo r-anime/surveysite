@@ -1,10 +1,10 @@
 <template>
   <div>
     <h3 class="section-title">Anime Series</h3>
-    <AnimeTable :columns="tableColumns" :entries="tableEntriesOfSeries"/>
+    <AnimeTable :columns="tableColumnsOfSeries" :entries="tableEntriesOfSeries"/>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
-    <AnimeTable :columns="tableColumns" :entries="tableEntriesOfSpecial"/>
+    <AnimeTable :columns="tableColumnsOfSpecial" :entries="tableEntriesOfSpecial"/>
 
     <router-link :to="{ name: 'SurveyResultsSummary' }">To results summary</router-link>
   </div>
@@ -32,21 +32,68 @@ export default class SurveyResultsFull extends Vue {
   surveyResultsDataRef!: ComputedRef<SurveyResultsData>;
   surveyResultsData?: SurveyResultsData;
 
-  tableColumns: AnimeTableColumnData[] = [];
+  tableColumnsOfSeries: AnimeTableColumnData[] = [];
+  tableColumnsOfSpecial: AnimeTableColumnData[] = [];
   tableEntriesOfSeries: AnimeTableEntryData[] = [];
   tableEntriesOfSpecial: AnimeTableEntryData[] = [];
 
   created(): void {
     this.surveyResultsData = this.surveyResultsDataRef.value;
 
-    for (const objectKey in ResultsType) {
-      if (!isNaN(Number(objectKey))) continue; // Only get string keys
-      const resultType = Number(ResultsType[objectKey]) as ResultsType;
-      this.tableColumns.push({
+    // Columns
+    const resultTypesOfSeries: ResultsType[] = this.surveyResultsData.survey.isPreseason ? [
+      ResultsType.POPULARITY,
+      ResultsType.POPULARITY_MALE,
+      ResultsType.POPULARITY_FEMALE,
+      ResultsType.GENDER_POPULARITY_RATIO,
+      ResultsType.AGE,
+      ResultsType.SCORE,
+      ResultsType.SCORE_MALE,
+      ResultsType.SCORE_FEMALE,
+      ResultsType.GENDER_SCORE_DIFFERENCE,
+    ] : [
+      ResultsType.POPULARITY,
+      ResultsType.POPULARITY_MALE,
+      ResultsType.POPULARITY_FEMALE,
+      ResultsType.GENDER_POPULARITY_RATIO,
+      ResultsType.AGE,
+      ResultsType.UNDERWATCHED,
+      ResultsType.SCORE,
+      ResultsType.SCORE_MALE,
+      ResultsType.SCORE_FEMALE,
+      ResultsType.GENDER_SCORE_DIFFERENCE,
+      ResultsType.SURPRISE,
+      ResultsType.DISAPPOINTMENT,
+    ];
+    const resultTypesOfSpecial: ResultsType[] = this.surveyResultsData.survey.isPreseason ? [
+      ResultsType.POPULARITY,
+      ResultsType.POPULARITY_MALE,
+      ResultsType.POPULARITY_FEMALE,
+      ResultsType.GENDER_POPULARITY_RATIO,
+      ResultsType.AGE,
+    ] : [
+      ResultsType.POPULARITY,
+      ResultsType.POPULARITY_MALE,
+      ResultsType.POPULARITY_FEMALE,
+      ResultsType.GENDER_POPULARITY_RATIO,
+      ResultsType.AGE,
+      ResultsType.SCORE,
+      ResultsType.SCORE_MALE,
+      ResultsType.SCORE_FEMALE,
+      ResultsType.GENDER_SCORE_DIFFERENCE,
+    ];
+    for (const resultType of resultTypesOfSeries) {
+      this.tableColumnsOfSeries.push({
+        resultType: resultType,
+      });
+    }
+    for (const resultType of resultTypesOfSpecial) {
+      this.tableColumnsOfSpecial.push({
         resultType: resultType,
       });
     }
 
+    // Entries
     for (const animeIdStr in this.surveyResultsData.results) {
       const animeId = Number(animeIdStr);
       // TODO: Toggle for: if (this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) continue;
