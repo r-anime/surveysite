@@ -123,7 +123,7 @@ export default class Index extends Vue {
 
   getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
     return {
-      name: this.surveyIsFinished(survey) ? 'SurveyResults' : 'SurveyForm',
+      name: this.surveyIsFinished(survey) ? 'SurveyResultsSummary' : 'SurveyForm',
       params: {
         year: survey.year,
         season: survey.season,

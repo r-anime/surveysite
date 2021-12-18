@@ -244,7 +244,7 @@ export default class SurveyResultsSummary extends Vue {
     disappointment: { value: ResultsType.DISAPPOINTMENT, resultTypes: [ResultsType.DISAPPOINTMENT, ResultsType.SCORE] },
   };
 
-  async created(): Promise<void> {
+  created(): void {
     this.surveyResultsData = this.surveyResultsDataRef.value;
     this.surveyIsPreseason = this.surveyResultsData.survey.isPreseason;
     this.averageAge = _.sum(
