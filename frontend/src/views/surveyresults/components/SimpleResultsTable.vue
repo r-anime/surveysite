@@ -58,13 +58,13 @@ import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
     bottom: Number, // Optional
   },
 })
-export default class SimpleResultsTable extends Vue { // TODO: Clean this class up
-  ranking!: { anime: AnimeData, result: number, extraResult?: number }[]; // progessBarValue is set in this class
+export default class SimpleResultsTable extends Vue { // TODO: Replace this class with the AnimeTable component
+  ranking!: { anime: AnimeData, result: number, extraResult?: number }[];
   resultTypes!: ResultsType[];
   top!: number;
   bottom?: number;
 
-  processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number }|null)[] = [];
+  processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
   resultNames: string[] = []; // [resultName, extraResultName]
   resultFormatters: ((value: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
 

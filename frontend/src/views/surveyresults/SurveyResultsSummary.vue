@@ -229,7 +229,7 @@ export default class SurveyResultsSummary extends Vue {
   averageAge?: string;
 
   // TODO: Super scuffed, please change how this works
-  readonly resultsType: Record<string, { value: ResultsType, resultTypes: ResultsType[] }> = {
+  readonly resultsType: Record<string, { value: ResultsType, resultTypes: [ResultsType] | [ResultsType, ResultsType] }> = {
     popularity: { value: ResultsType.POPULARITY, resultTypes: [ResultsType.POPULARITY] },
     popularityMale: { value: ResultsType.POPULARITY_MALE, resultTypes: [ResultsType.POPULARITY_MALE, ResultsType.POPULARITY] },
     popularityFemale: { value: ResultsType.POPULARITY_FEMALE, resultTypes: [ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY] },

@@ -1,7 +1,7 @@
 <template>
   <h1 class="page-title" v-if="surveyName">{{ surveyName }}!</h1>
 
-  <template v-if="data">
+  <template v-if="surveyFormData">
     <div class="row mb-5">
       <div class="col-12 col-md-4">
         <div class="row">
@@ -28,7 +28,7 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="data.survey"/>
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
         </div>
       </h3>
 
@@ -43,7 +43,7 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="data.survey"/>
+          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
         </div>
       </h3>
 
@@ -57,7 +57,7 @@
 
     <div class="row justify-content-end">
       <div class="col-6 col-md-3 mb-3 form-check">
-        <input class="form-check-input" type="checkbox" id="input-link" autocomplete="off" v-model="data.isResponseLinkedToUser">
+        <input class="form-check-input" type="checkbox" id="input-link" autocomplete="off" v-model="surveyFormData.isResponseLinkedToUser">
         <label for="input-link">Link this response to your account?</label>
         <br>
         <span class="text-muted" style="font-size:80%;">
@@ -124,86 +124,32 @@ interface MissingAnimeData {
   description: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ValidationError = Record<string, any>;
+
 @Options({
   components: {
     SurveyFormAnime,
     FormValidationErrors,
     SurveyFormMissingAnimeModal,
   },
-  data() {
-    return {
-      surveyName: '',
-      isSurveyPreseason: true,
-      data: null,
-      animeSeriesIds: [],
-      specialAnimeIds: [],
-      validationErrors: null,
+})
+export default class SurveyForm extends Vue {
+  surveyName = '';
+  isSurveyPreseason = true;
+  surveyFormData: SurveyFormData | null = null;
+  animeSeriesIds: number[] = [];
+  specialAnimeIds: number[] = [];
+  validationErrors: ValidationError | null = null;
 
-      // Needed here because we want the same data shared by the two identical modals
-      missingAnimeData: {
-        name: '',
-        link: '',
-        description: '',
-      } as MissingAnimeData,
-    };
-  },
-  methods: {
-    getResponseData(): ResponseData {
-      const data = this.data as SurveyFormData;
-      return data.responseData;
-    },
-    getAnimeData(id: number): AnimeData {
-      const data = this.data as SurveyFormData;
-      return data.animeDataDict[id];
-    },
-    getAnimeResponseData(id: number): AnimeResponseData {
-      const data = this.data as SurveyFormData;
-      return data.animeResponseDataDict[id];
-    },
-    getAnimeResponseValidationErrors(id: number) {
-      if (this.validationErrors?.animeResponse) {
-        return this.validationErrors.animeResponse[id] ?? null;
-      } else {
-        return null;
-      }
-    },
-    isAnimeNew(id: number): boolean {
-      const data = this.data as SurveyFormData;
-      return data.isAnimeNewDict[id];
-    },
+  // Needed here because we want the same data shared by the two identical modals
+  missingAnimeData: MissingAnimeData = {
+    name: '',
+    link: '',
+    description: '',
+  };
 
-    async submit() {
-      const data = this.data as SurveyFormData;
-      const submitData = {
-        responseData: data.responseData,
-        animeResponseDataDict: data.animeResponseDataDict,
-        isResponseLinkedToUser: data.isResponseLinkedToUser,
-      } as SurveyFromSubmitData;
-
-      const response = await Ajax.put(getSurveyApiUrl(this.$route), submitData);
-      if (Response.isErrorData(response.data)) {
-        // Should also handle validation errors
-        NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
-
-        const validationErrors = response.data.errors.validation ?? null;
-        if (validationErrors != null) {
-          this.validationErrors = validationErrors;
-          NotificationService.push({
-            message: 'One or more of your responses are invalid',
-            color: 'danger'
-          });
-          console.log(validationErrors);
-        }
-      } else {
-        NotificationService.push({
-          message: 'Your response was successfully sent!',
-          color: 'success',
-        });
-        this.$router.push({name: 'Index'});
-      }
-    },
-  },
-  async mounted() {
+  async created(): Promise<void> {
     const response = await Ajax.get<SurveyFormData>(getSurveyApiUrl(this.$route));
     if (Response.isErrorData(response.data)) {
       NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
@@ -214,7 +160,7 @@ interface MissingAnimeData {
 
     const surveyFormData = response.data;
 
-    this.data = surveyFormData;
+    this.surveyFormData = surveyFormData;
     this.isSurveyPreseason = surveyFormData.survey.isPreseason;
     this.surveyName = getSurveyName(surveyFormData.survey);
 
@@ -223,7 +169,62 @@ interface MissingAnimeData {
     this.animeSeriesIds = map(orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
     const specialAnime = groupedAnime.false;
     this.specialAnimeIds = map(orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
-  },
-})
-export default class SurveyForm extends Vue {}
+  }
+
+  async submit(): Promise<void> {
+    const surveyFormData = this.surveyFormData as SurveyFormData;
+    const submitData = {
+      responseData: surveyFormData.responseData,
+      animeResponseDataDict: surveyFormData.animeResponseDataDict,
+      isResponseLinkedToUser: surveyFormData.isResponseLinkedToUser,
+    } as SurveyFromSubmitData;
+
+    const response = await Ajax.put(getSurveyApiUrl(this.$route), submitData);
+    if (Response.isErrorData(response.data)) {
+      // Should also handle validation errors
+      NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
+
+      const validationErrors = response.data.errors.validation ?? null;
+      if (validationErrors != null) {
+        this.validationErrors = validationErrors;
+        NotificationService.push({
+          message: 'One or more of your responses are invalid',
+          color: 'danger'
+        });
+        console.log(validationErrors);
+      }
+    } else {
+      NotificationService.push({
+        message: 'Your response was successfully sent!',
+        color: 'success',
+      });
+      this.$router.push({name: 'Index'});
+    }
+  }
+
+  getResponseData(): ResponseData | undefined {
+    return this.surveyFormData?.responseData;
+  }
+
+  getAnimeData(id: number): AnimeData | undefined {
+    return this.surveyFormData?.animeDataDict[id];
+  }
+
+  getAnimeResponseData(id: number): AnimeResponseData | undefined {
+    return this.surveyFormData?.animeResponseDataDict[id];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getAnimeResponseValidationErrors(id: number): any {
+    if (this.validationErrors?.animeResponse) {
+      return this.validationErrors.animeResponse[id] ?? null;
+    } else {
+      return null;
+    }
+  }
+
+  isAnimeNew(id: number): boolean | undefined {
+    return this.surveyFormData?.isAnimeNewDict[id];
+  }
+}
 </script>

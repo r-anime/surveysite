@@ -57,6 +57,12 @@ import NotificationService from "@/util/notification-service";
 import { SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 
+interface MissingAnimeData {
+  name: string;
+  link: string;
+  description: string;
+}
+
 @Options({
   props: {
     missingAnimeData: Object,
@@ -66,51 +72,50 @@ import FormValidationErrors from '@/components/FormValidationErrors.vue';
     Modal,
     FormValidationErrors,
   },
-  data() {
-    return {
-      validationErrors: null,
-    };
-  },
-  methods: {
-    async sendMissingAnimeData(): Promise<boolean> {
-      try {
-        const survey = this.survey as SurveyData;
-        const preOrPost = survey.isPreseason ? 'pre' : 'post';
-
-        const response = await Ajax.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
-        if (Response.isErrorData(response.data)) {
-          NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
-          
-          const validationErrors = response.data.errors.validation ?? null;
-          if (validationErrors != null) {
-            this.validationErrors = validationErrors;
-            NotificationService.push({
-              message: 'One or more fields are invalid',
-              color: 'danger'
-            });
-            console.log(validationErrors);
-          }
-          return false;
-        }
-      } catch {
-        return false;
-      }
-
-      NotificationService.push({
-        message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
-        color: 'success',
-      });
-
-      this.missingAnimeData.name = '';
-      this.missingAnimeData.link = '';
-      this.missingAnimeData.description = '';
-      this.validationErrors = null;
-      return true;
-    },
-  }
 })
 export default class SurveyFormMissingAnimeModal extends Vue {
+  survey!: SurveyData;
+  missingAnimeData!: MissingAnimeData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  validationErrors: Record<string, any> | null = null;
+
   private static globalId = 0;
   componentId = `missing-anime-modal-${SurveyFormMissingAnimeModal.globalId++}`;
+
+  async sendMissingAnimeData(): Promise<boolean> {
+    try {
+      const survey = this.survey as SurveyData;
+      const preOrPost = survey.isPreseason ? 'pre' : 'post';
+
+      const response = await Ajax.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
+      if (Response.isErrorData(response.data)) {
+        NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
+        
+        const validationErrors = response.data.errors.validation ?? null;
+        if (validationErrors != null) {
+          this.validationErrors = validationErrors;
+          NotificationService.push({
+            message: 'One or more fields are invalid',
+            color: 'danger'
+          });
+          console.log(validationErrors);
+        }
+        return false;
+      }
+    } catch {
+      return false;
+    }
+
+    NotificationService.push({
+      message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
+      color: 'success',
+    });
+
+    this.missingAnimeData.name = '';
+    this.missingAnimeData.link = '';
+    this.missingAnimeData.description = '';
+    this.validationErrors = null;
+    return true;
+  }
 }
 </script>
