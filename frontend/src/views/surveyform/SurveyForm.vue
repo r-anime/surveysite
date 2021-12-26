@@ -79,18 +79,18 @@
 </template>
 
 <script lang="ts">
-import Ajax, { Response } from '@/util/ajax';
 import { AnimeData, AnimeNameType } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
-import { groupBy, map, orderBy } from 'lodash';
+import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 import { MissingAnimeData } from './data/missing-anime-data';
 import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
 import { ValidationErrorData } from './data/validation-error-data';
+import HttpService from '@/util/http-service';
 
 
 @Options({
@@ -116,56 +116,50 @@ export default class SurveyForm extends Vue {
   };
 
   async created(): Promise<void> {
-    const response = await Ajax.get<SurveyFormData>(getSurveyApiUrl(this.$route));
-    if (Response.isErrorData(response.data)) {
-      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
+    await HttpService.get<SurveyFormData>(getSurveyApiUrl(this.$route), surveyFormData => {
+      this.surveyFormData = surveyFormData;
+      this.isSurveyPreseason = surveyFormData.survey.isPreseason;
+      this.surveyName = getSurveyName(surveyFormData.survey);
 
+      const groupedAnime = _.groupBy(surveyFormData.animeDataDict, isAnimeSeries);
+      const animeSeries = groupedAnime.true;
+      this.animeSeriesIds = _.map(_.orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+      const specialAnime = groupedAnime.false;
+      this.specialAnimeIds = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    }, failureResponse => {
+      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
       this.$router.push({name: 'Index'});
-      return;
-    }
-
-    const surveyFormData = response.data;
-
-    this.surveyFormData = surveyFormData;
-    this.isSurveyPreseason = surveyFormData.survey.isPreseason;
-    this.surveyName = getSurveyName(surveyFormData.survey);
-
-    const groupedAnime = groupBy(surveyFormData.animeDataDict, isAnimeSeries);
-    const animeSeries = groupedAnime.true;
-    this.animeSeriesIds = map(orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
-    const specialAnime = groupedAnime.false;
-    this.specialAnimeIds = map(orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    });
   }
 
   async submit(): Promise<void> {
-    const surveyFormData = this.surveyFormData as SurveyFormData;
+    if (!this.surveyFormData) {
+      return;
+    }
+
     const submitData: SurveyFormSubmitData = {
-      responseData: surveyFormData.responseData,
-      animeResponseDataDict: surveyFormData.animeResponseDataDict,
-      isResponseLinkedToUser: surveyFormData.isResponseLinkedToUser,
-    } as SurveyFormSubmitData;
+      responseData: this.surveyFormData.responseData,
+      animeResponseDataDict: this.surveyFormData.animeResponseDataDict,
+      isResponseLinkedToUser: this.surveyFormData.isResponseLinkedToUser,
+    };
 
-    const response = await Ajax.put(getSurveyApiUrl(this.$route), submitData);
-    if (Response.isErrorData(response.data)) {
-      // Should also handle validation errors
-      NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
-
-      const validationErrors = response.data.errors.validation ?? null;
-      if (validationErrors != null) {
-        this.validationErrors = validationErrors;
-        NotificationService.push({
-          message: 'One or more of your responses are invalid',
-          color: 'danger'
-        });
-        console.log(validationErrors);
-      }
-    } else {
+    await HttpService.put(getSurveyApiUrl(this.$route), submitData, () => {
       NotificationService.push({
         message: 'Your response was successfully sent!',
         color: 'success',
       });
       this.$router.push({name: 'Index'});
-    }
+    }, failureResponse => {
+      NotificationService.pushMsgList(failureResponse.errors.global ?? [], 'danger');
+
+      if (failureResponse.errors) {
+        this.validationErrors = failureResponse.errors.validation ?? null;
+        NotificationService.push({
+          message: 'One or more of your responses are invalid',
+          color: 'danger'
+        });
+      }
+    });
   }
 
   getResponseData(): ResponseData | undefined {

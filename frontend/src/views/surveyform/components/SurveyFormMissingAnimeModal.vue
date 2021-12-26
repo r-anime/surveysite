@@ -52,12 +52,12 @@
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
 import Modal from '@/components/Modal.vue';
-import Ajax, { Response } from "@/util/ajax";
 import NotificationService from "@/util/notification-service";
 import { SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import { MissingAnimeData } from "../data/missing-anime-data";
 import { ValidationErrorData } from "../data/validation-error-data";
+import HttpService from "@/util/http-service";
 
 @Options({
   props: {
@@ -78,39 +78,34 @@ export default class SurveyFormMissingAnimeModal extends Vue {
   componentId = `missing-anime-modal-${SurveyFormMissingAnimeModal.globalId++}`;
 
   async sendMissingAnimeData(): Promise<boolean> {
-    try {
-      const survey = this.survey as SurveyData;
-      const preOrPost = survey.isPreseason ? 'pre' : 'post';
+    const survey = this.survey as SurveyData;
+    const preOrPost = survey.isPreseason ? 'pre' : 'post';
 
-      const response = await Ajax.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData);
-      if (Response.isErrorData(response.data)) {
-        NotificationService.pushMsgList(response.getGlobalErrors(null), 'danger');
-        
-        const validationErrors = response.data.errors.validation ?? null;
-        if (validationErrors != null) {
-          this.validationErrors = validationErrors;
-          NotificationService.push({
-            message: 'One or more fields are invalid',
-            color: 'danger'
-          });
-          console.log(validationErrors);
-        }
-        return false;
+    return await HttpService.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData, () => {
+      NotificationService.push({
+        message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
+        color: 'success',
+      });
+
+      this.missingAnimeData.name = '';
+      this.missingAnimeData.link = '';
+      this.missingAnimeData.description = '';
+      this.validationErrors = null;
+
+      return true;
+    }, failureResponse => {
+      NotificationService.pushMsgList(failureResponse.errors.global ?? [], 'danger');
+      
+      const validationErrors = failureResponse.errors.validation ?? null;
+      if (validationErrors != null) {
+        this.validationErrors = validationErrors;
+        NotificationService.push({
+          message: 'One or more fields are invalid',
+          color: 'danger'
+        });
       }
-    } catch {
       return false;
-    }
-
-    NotificationService.push({
-      message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
-      color: 'success',
     });
-
-    this.missingAnimeData.name = '';
-    this.missingAnimeData.link = '';
-    this.missingAnimeData.description = '';
-    this.validationErrors = null;
-    return true;
   }
 }
 </script>

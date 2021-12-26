@@ -62,31 +62,32 @@ export default class HttpService {
     transformRequest: [decamelizeKeys, JSON.stringify], // TODO: Perform decamelizing on backend
     transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys], // TODO: Perform camelizing on backend and send nulls instead of NaNs
     baseURL: '/',
+    validateStatus: statusCode => (statusCode >= 200 && statusCode < 300) || (statusCode >= 400 && statusCode < 500),
   });
 
-  static async get<TResponse>(url: string, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
-    await this.performRequestFn(this._axios.get, url, successFn, failureFn);
+  static async get<TResponse, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
+    return await this.performRequestFn(this._axios.get, url, successFn, failureFn);
   }
 
-  static async post<TResponse, TRequest>(url: string, data: TRequest, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
-    await this.performDataRequestFn(this._axios.post, url, data, successFn, failureFn);
+  static async post<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
+    return await this.performDataRequestFn(this._axios.post, url, data, successFn, failureFn);
   }
 
-  static async put<TResponse, TRequest>(url: string, data: TRequest, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
-    await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
+  static async put<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
+    return await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
   }
 
-  static async delete<TResponse, TRequest>(url: string, data: TRequest, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
-    await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
+  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
+    return await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
   }
 
 
-  private static async performRequestFn<TResponse>(axiosRequestFn: AxiosRequestFn<TResponse | ValidationErrorData>, url: string, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
+  private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ValidationErrorData>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
     const response = await axiosRequestFn(url);
-    this.processResponse(response, successFn, failureFn);
+    return this.processResponse(response, successFn, failureFn);
   }
 
-  private static async performDataRequestFn<TResponse, TRequest>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ValidationErrorData>, url: string, data: TRequest, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): Promise<void> {
+  private static async performDataRequestFn<TResponse, TRequest, TResult>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ValidationErrorData, TRequest>, url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): Promise<TResult> {
     const config: AxiosRequestConfig = {
       headers: {
         'X-CSRFToken': this.getCsrfToken(),
@@ -94,16 +95,16 @@ export default class HttpService {
     };
     const response = await axiosDataRequestFn(url, data, config);
 
-    this.processResponse(response, successFn, failureFn);
+    return this.processResponse(response, successFn, failureFn);
   }
 
 
-  private static processResponse<TResponse>(response: AxiosResponse<TResponse | ValidationErrorData>, successFn: (response: TResponse) => void, failureFn?: (response: ValidationErrorData) => void): void {
+  private static processResponse<TResponse, TResult>(response: AxiosResponse<TResponse | ValidationErrorData>, successFn: (response: TResponse) => TResult, failureFn?: (response: ValidationErrorData) => TResult): TResult {
     if (this.isResponseSuccess(response)) {
-      successFn(response.data);
+      return successFn(response.data);
     } else if (this.isResponseValidationErrorData(response)) {
       if (failureFn) {
-        failureFn(response.data);
+        return failureFn(response.data);
       } else {
         throw new Error('The server responded with validation errors, but no failure handler was given.');
       }
@@ -129,10 +130,13 @@ export default class HttpService {
   }
 }
 
-type AxiosRequestFn<T> = (url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+type AxiosRequestFn<TResponse> = (url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AxiosDataRequestFn<T> = (url: string, data?: any, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 
 type ValidationErrorData = {
-  errors: { global?: string[] } & { [key: string]: string[] }
+  errors: {
+    global?: string[],
+    validation?: Record<string, string[] | Record<string, string[]>>,
+  },
 };
