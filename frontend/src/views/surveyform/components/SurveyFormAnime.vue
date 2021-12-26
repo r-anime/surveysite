@@ -104,20 +104,21 @@ import FormValidationErrors from '@/components/FormValidationErrors.vue';
     AnimeImages,
     FormValidationErrors,
   },
-  data() {
-    return {
-      animeId: (this.animeData as AnimeData)?.id,
-      isAnimeSeries: isAnimeSeries(this.animeData),
-      japaneseName: null,
-      englishName: null,
-      shortName: null,
-    };
-  },
-  mounted() {
+})
+export default class SurveyFormAnime extends Vue {
+  animeData!: AnimeData;
+
+  isAnimeSeries = isAnimeSeries(this.animeData);
+  animeId = this.animeData.id;
+
+  japaneseName: string | null = null;
+  englishName: string | null = null;
+  shortName: string | null = null;
+
+  created(): void {
     this.japaneseName = getAnimeName(this.animeData, AnimeNameType.JAPANESE_NAME);
     this.englishName = getAnimeName(this.animeData, AnimeNameType.ENGLISH_NAME);
     this.shortName = getAnimeName(this.animeData, AnimeNameType.SHORT_NAME);
   }
-})
-export default class SurveyFormAnime extends Vue {}
+}
 </script>

@@ -56,12 +56,8 @@ import Ajax, { Response } from "@/util/ajax";
 import NotificationService from "@/util/notification-service";
 import { SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
-
-interface MissingAnimeData {
-  name: string;
-  link: string;
-  description: string;
-}
+import { MissingAnimeData } from "../data/missing-anime-data";
+import { ValidationErrorData } from "../data/validation-error-data";
 
 @Options({
   props: {
@@ -76,8 +72,7 @@ interface MissingAnimeData {
 export default class SurveyFormMissingAnimeModal extends Vue {
   survey!: SurveyData;
   missingAnimeData!: MissingAnimeData;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  validationErrors: Record<string, any> | null = null;
+  validationErrors: ValidationErrorData | null = null;
 
   private static globalId = 0;
   componentId = `missing-anime-modal-${SurveyFormMissingAnimeModal.globalId++}`;

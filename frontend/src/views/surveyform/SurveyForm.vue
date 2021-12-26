@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import Ajax, { Response } from '@/util/ajax';
-import { AnimeData, AnimeNameType, SurveyData } from '@/util/data';
+import { AnimeData, AnimeNameType } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -88,44 +88,10 @@ import { groupBy, map, orderBy } from 'lodash';
 import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
+import { MissingAnimeData } from './data/missing-anime-data';
+import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
+import { ValidationErrorData } from './data/validation-error-data';
 
-
-interface ResponseData {
-  age?: number;
-  gender?: string;
-}
-
-interface AnimeResponseData {
-  animeId: number;
-  score: number;
-  watching: boolean;
-  underwatched?: boolean;
-  expectations?: string;
-}
-
-interface SurveyFormData {
-  survey: SurveyData;
-  responseData: ResponseData;
-  animeDataDict: Record<number, AnimeData>;
-  animeResponseDataDict: Record<number, AnimeResponseData>;
-  isAnimeNewDict: Record<number, boolean>;
-  isResponseLinkedToUser: boolean;
-}
-
-interface SurveyFromSubmitData {
-  responseData: ResponseData;
-  animeResponseDataDict: Record<number, AnimeResponseData>;
-  isResponseLinkedToUser: boolean;
-}
-
-interface MissingAnimeData {
-  name: string;
-  link: string;
-  description: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ValidationError = Record<string, any>;
 
 @Options({
   components: {
@@ -140,7 +106,7 @@ export default class SurveyForm extends Vue {
   surveyFormData: SurveyFormData | null = null;
   animeSeriesIds: number[] = [];
   specialAnimeIds: number[] = [];
-  validationErrors: ValidationError | null = null;
+  validationErrors: ValidationErrorData | null = null;
 
   // Needed here because we want the same data shared by the two identical modals
   missingAnimeData: MissingAnimeData = {
@@ -173,11 +139,11 @@ export default class SurveyForm extends Vue {
 
   async submit(): Promise<void> {
     const surveyFormData = this.surveyFormData as SurveyFormData;
-    const submitData = {
+    const submitData: SurveyFormSubmitData = {
       responseData: surveyFormData.responseData,
       animeResponseDataDict: surveyFormData.animeResponseDataDict,
       isResponseLinkedToUser: surveyFormData.isResponseLinkedToUser,
-    } as SurveyFromSubmitData;
+    } as SurveyFormSubmitData;
 
     const response = await Ajax.put(getSurveyApiUrl(this.$route), submitData);
     if (Response.isErrorData(response.data)) {
