@@ -50,7 +50,7 @@
 import Modal from '@/components/Modal.vue';
 import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
-import Ajax, { Response } from '@/util/ajax';
+import HttpService from '@/util/http-service';
 import { UserData } from '@/util/data';
 import NotificationService from '@/util/notification-service';
 
@@ -63,14 +63,12 @@ export default class TheNavbar extends Vue {
   userData: Partial<UserData> = {};
 
   async created(): Promise<void> {
-    const response = await Ajax.get<UserData>('api/user/') ?? {};
-    if (Response.isErrorData(response.data)) {
-      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
+    await HttpService.get<UserData>('api/user/', userData => {
+      this.userData = userData;
+    }, errorResponse => {
+      NotificationService.pushMsgList(errorResponse.errors.global ?? ['An unknown error occurred'], 'danger');
       this.userData = {};
-      return;
-    }
-
-    this.userData = response.data;
+    });
   }
   
   getCurrentUrl(): string {

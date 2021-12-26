@@ -56,12 +56,12 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
-import Ajax, { Response } from '@/util/ajax';
 import { AnimeData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import { RouteLocationRaw } from 'vue-router';
 import { getSeasonName } from '@/util/helpers';
+import HttpService from '@/util/http-service';
 
 
 interface IndexSurveyAnimeData {
@@ -92,7 +92,9 @@ export default class Index extends Vue {
   }[] = [];
 
   async created(): Promise<void> {
-    await this.getSeasonData();
+    await HttpService.get<IndexSurveyData[]>('api/index/', this.getSeasonData, failureResponse => {
+      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
+    });
   }
 
   surveyIsUpcoming(survey: SurveyData): boolean {
@@ -132,16 +134,9 @@ export default class Index extends Vue {
     };
   }
 
-  // In the future this should use pagination,
-  // the survey list obtained from the API gets appended to the already obtained survey list.
-  async getSeasonData(): Promise<void> {
-    const response = await Ajax.get<IndexSurveyData[]>('api/index/') ?? [];
-    if (Response.isErrorData(response.data)) {
-      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
-      return;
-    }
-
-    let surveys = response.data.concat(this.surveys);
+  // TODO: This should use pagination, the survey list obtained from the API should get appended to the already obtained survey list.
+  async getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
+    const surveys = newSurveys.concat(this.surveys); // TODO: Get distinct surveys only
 
     // [[2020 surveys], [2019 surveys], ...]
     const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
@@ -149,7 +144,7 @@ export default class Index extends Vue {
     const latestYear = (_.maxBy(surveys, 'year') ?? { year: 0 }).year;
     const earliestYear = (_.minBy(surveys, 'year') ?? { year: 0 }).year;
 
-    // Just check the type to see what the end goal is here
+    // Group surveys by year, and then season (keeping gaps between year/seasons)
     const surveyData = surveysOrderedGroupedByYear.map(surveyYearGroup => {
       // { 1: spring surveys, 3: fall surveys }
       const surveysGroupedBySeason = _.groupBy(surveyYearGroup, 'season');

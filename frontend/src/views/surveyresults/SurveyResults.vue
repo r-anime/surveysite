@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts">
-import Ajax, { Response } from '@/util/ajax';
 import { getSurveyApiUrl, getSurveyName } from '@/util/helpers';
+import HttpService from '@/util/http-service';
 import NotificationService from '@/util/notification-service';
 import { computed } from '@vue/runtime-core';
 import { Vue, Options } from 'vue-class-component';
@@ -25,16 +25,13 @@ export default class SurveyResults extends Vue {
   pageTitle?: string;
 
   async created(): Promise<void> {
-    const response = await Ajax.get<SurveyResultsData>(getSurveyApiUrl(this.$route) + 'results/');
-    if (Response.isErrorData(response.data)) {
-      NotificationService.pushMsgList(response.getGlobalErrors(), 'danger');
-
+    await HttpService.get<SurveyResultsData>(getSurveyApiUrl(this.$route) + 'results/', surveyResultsData => {
+      this.surveyResultsData = surveyResultsData;
+      this.pageTitle = getSurveyName(surveyResultsData.survey) + ' Results!';
+    }, failureResponse => {
+      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
       this.$router.push({name: 'Index'});
-      return;
-    }
-
-    this.surveyResultsData = response.data;
-    this.pageTitle = getSurveyName(this.surveyResultsData.survey) + ' Results!';
+    });
   }
 }
 </script>
