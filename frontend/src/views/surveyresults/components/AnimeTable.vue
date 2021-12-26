@@ -82,6 +82,12 @@ export default class AnimeTable extends Vue {
 
   created(): void {
     this.sortByResultType(null);
+
+    this.$watch(() => this.entries, (newEntries: AnimeTableEntryData[]) => {
+      this.processedEntries = newEntries;
+      this.activeSort.descending = !this.activeSort.descending; // Not exactly pretty, but prevent swapping the order
+      this.sortByResultType(this.activeSort.resultType);
+    });
   }
 
   /**

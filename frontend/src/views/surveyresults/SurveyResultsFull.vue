@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" v-model="filterBelowPopularityThreshold" id="filterBelowPopularityThreshold">
+      <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
+    </div>
     <h3 class="section-title">Anime Series</h3>
     <div class="row row-cols-4">
       <div class="col form-check" v-for="column in tableDataOfSeries.columns" :key="`series${column.resultType}`">
@@ -56,6 +60,8 @@ export default class SurveyResultsFull extends Vue {
 
   tableDataOfSeries = new TableData();
   tableDataOfSpecial = new TableData();
+
+  filterBelowPopularityThreshold = true;
 
   getResultTypeName = getResultTypeName;
 
@@ -116,21 +122,32 @@ export default class SurveyResultsFull extends Vue {
     }
 
     // Entries
-    for (const animeIdStr in this.surveyResultsData.results) {
-      const animeId = Number(animeIdStr);
-      // TODO: Toggle for: if (this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) continue;
-
-      const animeTableEntry: AnimeTableEntryData = {
-        anime: this.surveyResultsData.anime[animeId],
-        data: this.surveyResultsData.results[animeId],
+    this.$watch(() => this.filterBelowPopularityThreshold, (filterEnabled: boolean) => {
+      if (!this.surveyResultsData) {
+        return;
       }
 
-      if (isAnimeSeries(animeTableEntry.anime)) {
-        this.tableDataOfSeries.entries.push(animeTableEntry);
-      } else {
-        this.tableDataOfSpecial.entries.push(animeTableEntry);
+      this.tableDataOfSeries.entries = [];
+      this.tableDataOfSpecial.entries = [];
+
+      for (const animeIdStr in this.surveyResultsData.results) {
+        const animeId = Number(animeIdStr);
+        if (filterEnabled && this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) continue;
+
+        const animeTableEntry: AnimeTableEntryData = {
+          anime: this.surveyResultsData.anime[animeId],
+          data: this.surveyResultsData.results[animeId],
+        }
+
+        if (isAnimeSeries(animeTableEntry.anime)) {
+          this.tableDataOfSeries.entries.push(animeTableEntry);
+        } else {
+          this.tableDataOfSpecial.entries.push(animeTableEntry);
+        }
       }
-    }
+    }, {
+      immediate: true,
+    });
   }
 }
 </script>
