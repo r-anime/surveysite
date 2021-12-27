@@ -78,3 +78,6 @@ export enum ResultsType {
     DISAPPOINTMENT              = 23,
     AGE                         = 24,
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ValidationErrorData extends Record<string, ValidationErrorData | string[] | undefined> { }

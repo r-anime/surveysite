@@ -53,10 +53,9 @@
 import { Vue, Options } from "vue-class-component";
 import Modal from '@/components/Modal.vue';
 import NotificationService from "@/util/notification-service";
-import { SurveyData } from "@/util/data";
+import { SurveyData, ValidationErrorData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import { MissingAnimeData } from "../data/missing-anime-data";
-import { ValidationErrorData } from "../data/validation-error-data";
 import HttpService from "@/util/http-service";
 
 @Options({

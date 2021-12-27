@@ -79,7 +79,7 @@
 </template>
 
 <script lang="ts">
-import { AnimeData, AnimeNameType } from '@/util/data';
+import { AnimeData, AnimeNameType, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -89,7 +89,6 @@ import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 import { MissingAnimeData } from './data/missing-anime-data';
 import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
-import { ValidationErrorData } from './data/validation-error-data';
 import HttpService from '@/util/http-service';
 
 
@@ -174,10 +173,10 @@ export default class SurveyForm extends Vue {
     return this.surveyFormData?.animeResponseDataDict[id];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getAnimeResponseValidationErrors(id: number): any {
-    if (this.validationErrors?.animeResponse) {
-      return this.validationErrors.animeResponse[id] ?? null;
+  getAnimeResponseValidationErrors(id: number): ValidationErrorData | null {
+    if (this.validationErrors?.animeResponse && !Array.isArray(this.validationErrors.animeResponse)) {
+      const validationErrors = this.validationErrors.animeResponse[id] ?? null;
+      return Array.isArray(validationErrors) ? null : validationErrors;
     } else {
       return null;
     }
