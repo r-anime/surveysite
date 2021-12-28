@@ -56,23 +56,13 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
-import { AnimeData, AnimeSeason, ImageData, ResultsType, SurveyData } from '@/util/data';
+import { AnimeSeason, SurveyData } from '@/util/data';
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import { RouteLocationRaw } from 'vue-router';
 import { getSeasonName } from '@/util/helpers';
 import HttpService from '@/util/http-service';
-
-
-interface IndexSurveyAnimeData {
-  anime: AnimeData;
-  result: number;
-}
-
-export interface IndexSurveyData extends SurveyData {
-  animeResults?: Record<ResultsType, IndexSurveyAnimeData[]>; // For finished surveys
-  animeImages?: ImageData[];                                  // For upcoming/ongoing suveys
-}
+import { IndexSurveyData } from './data/index-survey-data';
 
 
 @Options({

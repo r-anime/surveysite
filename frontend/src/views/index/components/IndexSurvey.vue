@@ -47,7 +47,7 @@ import { ResultsType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
-import { IndexSurveyData } from '../Index.vue';
+import { IndexSurveyData } from '../data/index-survey-data';
 
 
 @Options({

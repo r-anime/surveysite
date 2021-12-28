@@ -44,7 +44,7 @@
     </div>
 
     <small>
-      Anime addition requests will be linked to your account; you will be notified on this site when a request went through or was denied.
+      Anime addition requests will be linked to your account - you will be notified on this site when a request went through or was denied.
     </small>
   </Modal>
 </template>

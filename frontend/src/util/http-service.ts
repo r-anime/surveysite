@@ -109,6 +109,8 @@ export default class HttpService {
       } else {
         throw new Error('The server responded with validation errors, but no failure handler was given.');
       }
+    } else if (response.status === 401 || response.status === 403) {
+      throw new Error('User unauthenticated');
     } else {
       throw new Error('The server responded with invalid data.');
     }
