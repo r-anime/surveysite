@@ -13,12 +13,12 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div v-if="userData" class="collapse navbar-collapse" id="navbarNav">
         <div class="navbar-nav ms-auto">
           <template v-if="userData.authenticated">
             <div class="navbar-text me-3 my-2 my-md-0">
               Logged in as
-              <img v-if="userData.profilePicture" class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" :src="userData.profilePicture">
+              <img v-if="userData.profilePictureUrl" class="mx-1 my-n3 align-middle rounded border" style="width:auto;height:35px;" :src="userData.profilePictureUrl">
               <svg v-else xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi mx-1 my-n2" viewBox="0 0 16 16">
                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                 <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12z"/>
@@ -60,14 +60,14 @@ import NotificationService from '@/util/notification-service';
   },
 })
 export default class TheNavbar extends Vue {
-  userData: Partial<UserData> = {};
+  userData: UserData | null = null;
 
   async created(): Promise<void> {
     await HttpService.get<UserData>('api/user/', userData => {
       this.userData = userData;
     }, errorResponse => {
       NotificationService.pushMsgList(errorResponse.errors.global ?? ['An unknown error occurred'], 'danger');
-      this.userData = {};
+      this.userData = null;
     });
   }
   

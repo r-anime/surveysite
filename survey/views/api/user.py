@@ -1,5 +1,5 @@
 from allauth.socialaccount.providers import registry as auth_provider_registry
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
@@ -13,16 +13,14 @@ class UserApi(View):
         if not request.user or not request.user.is_authenticated:
             auth_provider = auth_provider_registry.by_id('reddit', request)
             auth_url = auth_provider.get_login_url(request)
-            return JsonResponse(UserData(
-                authenticated=False,
+            return JsonResponse(AnonymousUserData(
                 authentication_url=auth_url,
             ), encoder=jsonEncoder, safe=False)
 
         reddit_account_queryset = self.request.user.socialaccount_set.filter(provider='reddit')
         profile_picture = reddit_account_queryset[0].extra_data['icon_img'] if reddit_account_queryset else None
             
-        return JsonResponse(UserData(
-            authenticated=True,
+        return JsonResponse(AuthenticatedUserData(
             username=request.user.first_name if request.user.first_name else request.user.username,
             profile_picture=profile_picture,
         ), encoder=jsonEncoder, safe=False)
@@ -31,6 +29,14 @@ class UserApi(View):
 @dataclass
 class UserData(DataBase):
     authenticated: bool
-    username: Optional[str] = None
-    profile_picture: Optional[str] = None
-    authentication_url: Optional[str] = None
+
+@dataclass
+class AnonymousUserData(UserData):
+    authenticated: bool = field(default=False, init=False)
+    authentication_url: str
+
+@dataclass
+class AuthenticatedUserData(UserData):
+    authenticated: bool = field(default=True, init=False)
+    username: str
+    profile_picture_url: str

@@ -1,8 +1,14 @@
-export interface UserData {
-  authenticated: boolean;
-  username?: string;
-  profilePicture?: string;
-  authenticationUrl?: string;
+export type UserData = AuthenticatedUserData | AnonymousUserData;
+
+export interface AuthenticatedUserData {
+  authenticated: true;
+  username: string;
+  profilePictureUrl: string;
+}
+
+export interface AnonymousUserData {
+  authenticated: false;
+  authenticationUrl: string;
 }
 
 export interface ImageData {
