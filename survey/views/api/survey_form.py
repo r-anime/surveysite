@@ -1,10 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.http.request import HttpRequest
+from django.utils.decorators import method_decorator
 from django.utils.functional import classproperty
 from django.views.generic import View
 from hashlib import sha512
@@ -18,6 +20,10 @@ from survey.util.http import JsonErrorResponse
 from survey.util.survey import get_survey_or_404, get_survey_anime
 from typing import Any, Callable, Optional
 
+# TODO: Just the PUT request for now,
+# in the future unauthenticated users should maybe still be able to see the survey's anime
+# but not be able to respond to the survey
+@method_decorator(login_required, name='put')
 class SurveyFormApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
         jsonEncoder = json_encoder_factory()

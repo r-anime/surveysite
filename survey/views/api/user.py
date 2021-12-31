@@ -18,11 +18,12 @@ class UserApi(View):
             ), encoder=jsonEncoder, safe=False)
 
         reddit_account_queryset = self.request.user.socialaccount_set.filter(provider='reddit')
-        profile_picture = reddit_account_queryset[0].extra_data['icon_img'] if reddit_account_queryset else None
+        profile_picture_url = reddit_account_queryset[0].extra_data['icon_img'] if reddit_account_queryset else None
             
         return JsonResponse(AuthenticatedUserData(
             username=request.user.first_name if request.user.first_name else request.user.username,
-            profile_picture=profile_picture,
+            profile_picture_url=profile_picture_url,
+            is_staff=request.user.is_staff,
         ), encoder=jsonEncoder, safe=False)
 
 
@@ -38,5 +39,6 @@ class AnonymousUserData(UserData):
 @dataclass
 class AuthenticatedUserData(UserData):
     authenticated: bool = field(default=True, init=False)
+    is_staff: bool
     username: str
     profile_picture_url: str

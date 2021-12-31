@@ -79,7 +79,7 @@
 </template>
 
 <script lang="ts">
-import { AnimeData, AnimeNameType, ValidationErrorData } from '@/util/data';
+import { AnimeData, AnimeNameType, SurveyData, UserData, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -90,6 +90,7 @@ import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModa
 import { MissingAnimeData } from './data/missing-anime-data';
 import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
 import HttpService from '@/util/http-service';
+import UserService from '@/util/user-service';
 
 
 @Options({
@@ -115,7 +116,13 @@ export default class SurveyForm extends Vue {
   };
 
   async created(): Promise<void> {
+    const userData = await UserService.getUserData();
     await HttpService.get<SurveyFormData>(getSurveyApiUrl(this.$route), surveyFormData => {
+      if (!this.checkAuthentication(userData, surveyFormData.survey)) {
+        this.$router.push({ name: 'Index' });
+        return;
+      }
+
       this.surveyFormData = surveyFormData;
       this.isSurveyPreseason = surveyFormData.survey.isPreseason;
       this.surveyName = getSurveyName(surveyFormData.survey);
@@ -184,6 +191,36 @@ export default class SurveyForm extends Vue {
 
   isAnimeNew(id: number): boolean | undefined {
     return this.surveyFormData?.isAnimeNewDict[id];
+  }
+
+  private checkAuthentication(userData: UserData | null, surveyData: SurveyData): boolean {
+    if (!userData) {
+      return false;
+    }
+
+    // TODO: Does this work with timezones and stuff? Test and/or replace this
+    const currentTime = new Date();
+    const isSurveyOpen = new Date(surveyData.openingEpochTime) < currentTime && currentTime < new Date(surveyData.closingEpochTime);
+
+    if (isSurveyOpen) {
+      if (!userData.authenticated) {
+        NotificationService.push({
+          message: 'You need to be loggged in to fill in a survey!',
+          color: 'danger',
+        });
+        return false;
+      }
+    } else {
+      if (!userData.authenticated || !userData.isStaff) {
+        NotificationService.push({
+          message: getSurveyName(surveyData) + ' is closed!',
+          color: 'warning',
+        });
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 </script>

@@ -26,7 +26,11 @@ const confirmValidSurveyRouteParams: NavigationGuard = to => {
   }
 }
 
-const routes: Array<RouteRecordRaw> = [
+type SurveyRouteMeta = {
+  subtitleFn?: (params: RouteParams) => string;
+};
+
+const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
   {
     path: '/',
     name: 'Index',
@@ -78,10 +82,10 @@ const router = createRouter({
 
 router.beforeResolve(to => {
   let title = '/r/anime Surveys';
+  const routeMeta = to.meta as SurveyRouteMeta;
 
-  const subtitleFn = to.meta.subtitleFn as ((params: RouteParams) => string) | undefined;
-  if (subtitleFn != null) {
-    title += ' - ' + subtitleFn(to.params);
+  if (routeMeta.subtitleFn != null) {
+    title += ' - ' + routeMeta.subtitleFn(to.params);
   }
   document.title = title;
 });

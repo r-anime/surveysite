@@ -4,6 +4,7 @@ export interface AuthenticatedUserData {
   authenticated: true;
   username: string;
   profilePictureUrl: string;
+  isStaff: boolean;
 }
 
 export interface AnonymousUserData {
