@@ -33,7 +33,7 @@
 
         <div class="row align-items-center justify-content-center h-100 w-100 position-absolute top-0 start-0">
           <div class="col text-center fs-1" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);">
-            {{ isSurveyUpcoming ? `Open ${openingTime.toLocaleString()}` : 'Survey open!' }}
+            {{ isSurveyUpcoming ? `Open ${openingTime.format('MMM D, HH:mm')}!` : 'Survey open!' }}
           </div>
         </div>
       </div>
@@ -48,6 +48,7 @@ import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
 import { IndexSurveyData } from '../data/index-survey-data';
+import dayjs from 'dayjs';
 
 
 @Options({
@@ -61,10 +62,10 @@ import { IndexSurveyData } from '../data/index-survey-data';
 export default class IndexSurvey extends Vue {
   survey!: IndexSurveyData;
   surveyName = getSurveyName(this.survey);
-  openingTime = new Date(this.survey.openingEpochTime);
-  closingTime = new Date(this.survey.closingEpochTime);
-  isSurveyUpcoming = new Date() < this.openingTime;
-  isSurveyFinished = this.closingTime < new Date();
+  openingTime = dayjs(this.survey.openingEpochTime);
+  closingTime = dayjs(this.survey.closingEpochTime);
+  isSurveyUpcoming = dayjs() < this.openingTime;
+  isSurveyFinished = this.closingTime < dayjs();
 
   getResultsTypeName(resultsType: string): string {
     const resultsTypeNumber = Number(resultsType);

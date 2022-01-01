@@ -6,6 +6,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import dayjs from 'dayjs';
 
 Chart.register(CategoryScale, LinearScale, BarController, BarElement, ChartDataLabels, Title, Tooltip);
 

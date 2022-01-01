@@ -63,6 +63,7 @@ import { RouteLocationRaw } from 'vue-router';
 import { getSeasonName } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import { IndexSurveyData } from './data/index-survey-data';
+import dayjs from 'dayjs';
 
 
 @Options({
@@ -88,11 +89,11 @@ export default class Index extends Vue {
   }
 
   surveyIsUpcoming(survey: SurveyData): boolean {
-    return new Date() < new Date(survey.openingEpochTime);
+    return dayjs() < dayjs(survey.openingEpochTime);
   }
 
   surveyIsFinished(survey: SurveyData): boolean {
-    return new Date(survey.closingEpochTime) < new Date();
+    return dayjs(survey.closingEpochTime) < dayjs();
   }
 
   getSeasonName = getSeasonName;

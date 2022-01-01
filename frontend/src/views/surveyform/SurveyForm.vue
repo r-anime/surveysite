@@ -91,6 +91,7 @@ import { MissingAnimeData } from './data/missing-anime-data';
 import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
 import HttpService from '@/util/http-service';
 import UserService from '@/util/user-service';
+import dayjs from 'dayjs';
 
 
 @Options({
@@ -198,9 +199,8 @@ export default class SurveyForm extends Vue {
       return false;
     }
 
-    // TODO: Does this work with timezones and stuff? Test and/or replace this
-    const currentTime = new Date();
-    const isSurveyOpen = new Date(surveyData.openingEpochTime) < currentTime && currentTime < new Date(surveyData.closingEpochTime);
+    const currentTime = dayjs();
+    const isSurveyOpen = dayjs(surveyData.openingEpochTime) < currentTime && currentTime < dayjs(surveyData.closingEpochTime);
 
     if (isSurveyOpen) {
       if (!userData.authenticated) {
