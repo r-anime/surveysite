@@ -1,10 +1,8 @@
 from collections import OrderedDict
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import JsonResponse
-from django.utils.decorators import method_decorator
 from django.views.generic import View
 from http import HTTPStatus
 from survey.models import Response, Survey

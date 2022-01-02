@@ -127,7 +127,8 @@ export default class Index extends Vue {
 
   // TODO: This should use pagination, the survey list obtained from the API should get appended to the already obtained survey list.
   async getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
-    const surveys = newSurveys.concat(this.surveys); // TODO: Get distinct surveys only
+    // No need to get distinct surveys here as the _.find() takes care of that
+    const surveys = newSurveys.concat(this.surveys);
 
     // [[2020 surveys], [2019 surveys], ...]
     const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
@@ -155,7 +156,7 @@ export default class Index extends Vue {
           season: season,
           preseasonSurvey: preseasonSurvey,
           postseasonSurvey: postseasonSurvey,
-        })
+        });
       }
 
       return {

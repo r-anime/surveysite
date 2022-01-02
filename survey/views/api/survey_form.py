@@ -20,8 +20,8 @@ from survey.util.http import JsonErrorResponse
 from survey.util.survey import get_survey_or_404, get_survey_anime
 from typing import Any, Callable, Optional
 
-# TODO: Just the PUT request for now,
-# in the future unauthenticated users should maybe still be able to see the survey's anime
+# TODO: Just the PUT request,
+# in the future unauthenticated users should still be able to see the survey
 # but not be able to respond to the survey
 @method_decorator(login_required, name='put')
 class SurveyFormApi(View):
