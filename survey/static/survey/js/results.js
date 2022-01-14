@@ -37,6 +37,11 @@ const columnTypes = {
         label: "Gen\u00adder Ra\u00adtio",
         formatter: genderRatioFormatter,
     },
+    gender_popularity_ratio_inv: {
+        key: "gender_popularity_ratio_inv",
+        label: "Gen\u00adder Ra\u00adtio",
+        formatter: genderRatioInvFormatter,
+    },
     age: {
         key: "age",
         label: "Avg. Age",
@@ -66,6 +71,11 @@ const columnTypes = {
         key: "gender_score_difference",
         label: "Score Diff.",
         formatter: genderScoreDiffFormatter,
+    },
+    gender_score_difference_inv: {
+        key: "gender_score_difference_inv",
+        label: "Score Diff.",
+        formatter: genderScoreDiffInvFormatter,
     },
     surprise: {
         key: "surprise",

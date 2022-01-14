@@ -72,7 +72,7 @@ class ResultsView(BaseResultsView):
                 TableWithTop3Segment('Most Popular Anime Series', ResultsType.POPULARITY, top_count=10),
                 HiddenSegmentGroup('Popularity - By Gender', [
                     TablePairSegment('Most Popular Anime by Gender', ResultsType.POPULARITY_MALE, ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY, row_count=5),
-                    TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, extra_result_type=ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
+                    TablePairSegment('Biggest Differences in Popularity by Gender', ResultsType.GENDER_POPULARITY_RATIO, inverse_result_type=ResultsType.GENDER_POPULARITY_RATIO_INV, extra_result_type=ResultsType.POPULARITY, row_count=3, description="Expressed as the ratio of male popularity to female popularity (and vice versa)."),
                 ]),
                 HiddenSegmentGroup('Popularity - Miscellaneous', [
                     _(TableWithTop3Segment('Most Underwatched Anime', ResultsType.UNDERWATCHED, ResultsType.POPULARITY, top_count=5)),
@@ -83,7 +83,7 @@ class ResultsView(BaseResultsView):
                 TableWithTop3Segment(('Most (and Least) Anticipated' if survey.is_preseason else 'Best (and Worst)') + ' Anime of the Season', ResultsType.SCORE, top_count=10, bottom_count=5),
                 HiddenSegmentGroup('Impressions - By Gender', [
                     TablePairSegment(('Most Anticipated' if survey.is_preseason else 'Best') + ' Anime of the Season by Gender', ResultsType.SCORE_MALE, ResultsType.SCORE_FEMALE, ResultsType.SCORE, row_count=5),
-                    TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, extra_result_type=ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
+                    TablePairSegment('Biggest Differences in Score by Gender', ResultsType.GENDER_SCORE_DIFFERENCE, inverse_result_type=ResultsType.GENDER_SCORE_DIFFERENCE_INV, extra_result_type=ResultsType.SCORE, row_count=3, description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."),
                 ]),
                 _(HiddenSegmentGroup('Impressions - Expectations', [
                     TableWithTop3Segment('Most Surprising Anime', ResultsType.SURPRISE, ResultsType.SCORE, top_count=5),
