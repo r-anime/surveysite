@@ -1,5 +1,5 @@
 <template>
-  <div class="row row-cols-1 h-100">
+  <div class="row row-cols-1">
     <div class="col mb-1">
       <h5>
         {{ surveyName }}

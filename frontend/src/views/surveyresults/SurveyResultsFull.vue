@@ -7,8 +7,8 @@
     <h3 class="section-title">Anime Series</h3>
     <div class="row row-cols-4">
       <div class="col form-check" v-for="column in tableDataOfSeries.columns" :key="`series${column.resultType}`">
-        <input class="form-check-input" :id="`columnCheckbox${column.resultType}`" type="checkbox" v-model="tableDataOfSeries.isColumnVisible[column.resultType]"/>
-        <label class="form-check-label" :for="`columnCheckbox${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
+        <input class="form-check-input" :id="`columnCheckboxSeries${column.resultType}`" type="checkbox" v-model="tableDataOfSeries.isColumnVisible[column.resultType]"/>
+        <label class="form-check-label" :for="`columnCheckboxSeries${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
     <AnimeTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries"/>
@@ -16,8 +16,8 @@
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <div class="row row-cols-4">
       <div class="col form-check" v-for="column in tableDataOfSpecial.columns" :key="`special${column.resultType}`">
-        <input class="form-check-input" :id="`columnCheckbox${column.resultType}`" type="checkbox" v-model="tableDataOfSpecial.isColumnVisible[column.resultType]"/>
-        <label class="form-check-label" :for="`columnCheckbox${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
+        <input class="form-check-input" :id="`columnCheckboxSpecial${column.resultType}`" type="checkbox" v-model="tableDataOfSpecial.isColumnVisible[column.resultType]"/>
+        <label class="form-check-label" :for="`columnCheckboxSpecial${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
     <AnimeTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
