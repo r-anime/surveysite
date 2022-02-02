@@ -1,42 +1,47 @@
 <template>
-  <table role="table" :aria-colcount="3 + resultNames.length" class="table table-hover table-borderless">
-    <thead role="rowgroup">
-      <tr role="row">
-        <th role="columnheader" scope="col" aria-colindex="1" aria-label="Rank" class="table-col-rank"></th>
-        <th role="columnheader" scope="col" aria-colindex="2" aria-label="Image" class="table-col-image"></th>
-        <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name">Anime</th>
-        <th role="columnheader" scope="col" aria-colindex="4" class="table-col-main">{{ resultNames[0] }}</th>
-        <th role="columnheader" scope="col" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">{{ resultNames[1] }}</th>
-      </tr>
-    </thead>
-    <tbody role="rowgroup">
-      <tr role="row" v-for="animeResult in processedRanking" :key="animeResult?.rank ?? -1">
-        <td role="cell" aria-colindex="1" class="table-col-rank">
-          {{ animeResult ? `#${animeResult.rank}` : '' }}
-        </td>
-        <td role="cell" aria-colindex="2" class="table-col-image" :style="animeResult ? { 'height': '7.5em' } : {}">
-          <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
-        </td>
-        <td role="cell" aria-colindex="3" class="table-col-name">
-          <template v-if="animeResult">
-            <div class="mx-2">
-              <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
-            </div>
-            <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
-          </template>
-          <template v-else>
-            ...
-          </template>
-        </td>
-        <td role="cell" aria-colindex="4" class="table-col-main">
-          {{ animeResult ? resultFormatters[0](animeResult.result) : '...' }}
-        </td>
-        <td role="cell" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">
-          {{ animeResult ? resultFormatters[1](animeResult.extraResult) : '...' }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="mb-2">
+    <table role="table" :aria-colcount="3 + resultNames.length" class="table table-hover table-borderless mb-0">
+      <thead role="rowgroup">
+        <tr role="row">
+          <th role="columnheader" scope="col" aria-colindex="1" aria-label="Rank" class="table-col-rank"></th>
+          <th role="columnheader" scope="col" aria-colindex="2" aria-label="Image" class="table-col-image"></th>
+          <th role="columnheader" scope="col" aria-colindex="3" class="table-col-name">Anime</th>
+          <th role="columnheader" scope="col" aria-colindex="4" class="table-col-main">{{ resultNames[0] }}</th>
+          <th role="columnheader" scope="col" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">{{ resultNames[1] }}</th>
+        </tr>
+      </thead>
+      <tbody role="rowgroup">
+        <tr role="row" v-for="animeResult in processedRanking" :key="animeResult?.rank ?? -1">
+          <td role="cell" aria-colindex="1" class="table-col-rank">
+            {{ animeResult ? `#${animeResult.rank}` : '' }}
+          </td>
+          <td role="cell" aria-colindex="2" class="table-col-image" :style="animeResult ? { 'height': '7.5em' } : {}">
+            <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
+          </td>
+          <td role="cell" aria-colindex="3" class="table-col-name">
+            <template v-if="animeResult">
+              <div class="mx-2">
+                <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
+              </div>
+              <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
+            </template>
+            <template v-else>
+              ...
+            </template>
+          </td>
+          <td role="cell" aria-colindex="4" class="table-col-main">
+            {{ animeResult ? resultFormatters[0](animeResult.result) : '...' }}
+          </td>
+          <td role="cell" aria-colindex="5" class="table-col-extra" v-if="hasExtraResult">
+            {{ animeResult ? resultFormatters[1](animeResult.extraResult) : '...' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-end text-smaller">
+      <router-link :to="{ name: 'SurveyResultsFull', query: { sort: resultTypes[0] } }">To full results »</router-link>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

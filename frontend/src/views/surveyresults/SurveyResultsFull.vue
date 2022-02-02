@@ -22,7 +22,15 @@
     </div>
     <AnimeTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
-    <router-link :to="{ name: 'SurveyResultsSummary' }">To results summary</router-link>
+    <div class="row g-0">
+      <div class="col-auto pe-1">
+        <router-link :to="{ name: 'Index' }" class="btn btn-secondary">Back to index</router-link>
+      </div>
+      <div class="col-auto px-1">
+        <router-link :to="{ name: 'SurveyResultsSummary' }" class="btn btn-secondary">Back to results summary</router-link>
+      </div>
+      <div class="col"></div>
+    </div>
   </div>
 </template>
 

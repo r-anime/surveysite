@@ -187,7 +187,15 @@
       title="Best Anime OVAs / ONAs / Movies / Specials"
     />
 
-    <router-link :to="{ name: 'SurveyResultsFull' }">To full results</router-link>
+    <div class="row g-0">
+      <div class="col-auto pe-1">
+        <router-link :to="{ name: 'Index' }" class="btn btn-secondary">Back to index</router-link>
+      </div>
+      <div class="col"></div>
+      <div class="col-auto ps-1">
+        <router-link :to="{ name: 'SurveyResultsFull' }" class="btn btn-primary">To full results</router-link>
+      </div>
+    </div>
   </div>
 </template>
 
