@@ -59,7 +59,7 @@ import { AnimeTableColumnData } from '../data/anime-table-column-data';
     AnimeNames,
   }
 })
-export default class AnimeTable extends Vue {
+export default class FullResultsTable extends Vue {
   columns!: AnimeTableColumnData[];
   entries!: AnimeTableEntryData[];
 

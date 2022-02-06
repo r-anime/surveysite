@@ -11,7 +11,7 @@
         <label class="form-check-label" :for="`columnCheckboxSeries${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
-    <AnimeTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries"/>
+    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries"/>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <div class="row row-cols-4">
@@ -20,7 +20,7 @@
         <label class="form-check-label" :for="`columnCheckboxSpecial${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
-    <AnimeTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
+    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
       <div class="col-auto pe-1">
@@ -39,7 +39,7 @@ import { ResultsType } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { ComputedRef } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
-import AnimeTable from './components/AnimeTable.vue';
+import FullResultsTable from './components/FullResultsTable.vue';
 import { AnimeTableColumnData } from './data/anime-table-column-data';
 import { AnimeTableEntryData } from './data/anime-table-entry-data';
 import { SurveyResultsData } from './data/survey-results-data';
@@ -56,7 +56,7 @@ class TableData {
 
 @Options({
   components: {
-    AnimeTable,
+    FullResultsTable,
   },
   inject: [
     'surveyResultsDataRef',
