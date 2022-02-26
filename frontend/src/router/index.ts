@@ -78,6 +78,13 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
 const router = createRouter({
   history: createWebHistory(),
   routes: routes,
+  scrollBehavior: (to, from, savedPosition) => {
+    return to.hash ? {
+      el: to.hash,
+    } : {
+      top: 0,
+    };
+  },
 });
 
 router.beforeResolve(to => {
