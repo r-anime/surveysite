@@ -53,6 +53,7 @@ import { AnimeTableColumnData } from '../data/anime-table-column-data';
   props: {
     columns: Array,
     entries: Array,
+    isAnimeSeries: Boolean,
   },
   components: {
     AnimeImages,
@@ -62,6 +63,7 @@ import { AnimeTableColumnData } from '../data/anime-table-column-data';
 export default class FullResultsTable extends Vue {
   columns!: AnimeTableColumnData[];
   entries!: AnimeTableEntryData[];
+  isAnimeSeries!: boolean;
 
   get processedColumns(): AnimeTableColumnData[] {
     return this.columns;
@@ -80,8 +82,18 @@ export default class FullResultsTable extends Vue {
     descending: true,
   }
 
+  private get sortRouteQueryKey(): string {
+    return this.isAnimeSeries ? 'sortSeries' : 'sortSpecial';
+  }
+
   created(): void {
-    this.sortByResultType(null);
+    const sortValueRaw = this.$route.query[this.sortRouteQueryKey];
+    if (sortValueRaw && !Array.isArray(sortValueRaw)) {
+      const sortValue: ResultsType = Number(sortValueRaw);
+      this.sortByResultType(sortValue);
+    } else {
+      this.sortByResultType(null);
+    }
 
     this.$watch(() => this.entries, (newEntries: AnimeTableEntryData[]) => {
       this.processedEntries = newEntries;
@@ -102,6 +114,7 @@ export default class FullResultsTable extends Vue {
 
     this.activeSort.resultType = resultType;
     this.activeSort.descending = descending;
+    this.$route.query[this.sortRouteQueryKey] = resultType != null ? resultType.toString() : null;
 
     this.processedEntries = _.orderBy(this.processedEntries, entry => {
       if (resultType == null)

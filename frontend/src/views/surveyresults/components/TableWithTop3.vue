@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="col-md col-12">
-      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :top="top" :bottom="bottom"/>
+      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :isAnimeSeries="isAnimeSeries" :top="top" :bottom="bottom"/>
     </div>
   </div>
 </template>
@@ -55,6 +55,7 @@ import AnimeNames from '@/components/AnimeNames.vue';
   props: {
     ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
     resultTypes: Array,
+    isAnimeSeries: Boolean, // Only used for the link under the table
     top: Number,
     bottom: Number, // Optional
     title: String,

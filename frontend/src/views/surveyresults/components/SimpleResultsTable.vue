@@ -39,7 +39,7 @@
       </tbody>
     </table>
     <div class="text-end text-smaller">
-      <router-link :to="{ name: 'SurveyResultsFull', query: { sort: resultTypes[0] } }">To full results »</router-link>
+      <router-link :to="fullResultsRoute">To full results »</router-link>
     </div>
   </div>
 </template>
@@ -50,6 +50,7 @@ import AnimeImages from '@/components/AnimeImages.vue';
 import { Vue, Options } from 'vue-class-component';
 import { AnimeData, ResultsType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
+import { RouteLocationNormalized } from 'vue-router';
 
 @Options({
   components: {
@@ -59,6 +60,10 @@ import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
   props: {
     ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
     resultTypes: Array,
+    isAnimeSeries: {
+      type: Boolean,
+      default: true,
+    }, // Only used for the link
     top: Number,
     bottom: Number, // Optional
   },
@@ -66,6 +71,7 @@ import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 export default class SimpleResultsTable extends Vue { // TODO: Replace this class with the AnimeTable component
   ranking!: { anime: AnimeData, result: number, extraResult?: number }[];
   resultTypes!: ResultsType[];
+  isAnimeSeries!: boolean;
   top!: number;
   bottom?: number;
 
@@ -74,6 +80,14 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
   resultFormatters: ((value: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
 
   hasExtraResult = false;
+
+  get fullResultsRoute(): Partial<RouteLocationNormalized> {
+    return {
+      name: 'SurveyResultsFull',
+      query: { [this.isAnimeSeries ? 'sortSeries' : 'sortSpecial']: this.resultTypes[0].toString() },
+      hash: this.isAnimeSeries ? '#tableSeries' : '#tableSpecial',
+    };
+  }
 
   created(): void {
     this.hasExtraResult = this.resultTypes.length === 2;

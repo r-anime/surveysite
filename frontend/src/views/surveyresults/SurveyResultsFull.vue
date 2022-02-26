@@ -4,7 +4,7 @@
       <input class="form-check-input" type="checkbox" v-model="filterBelowPopularityThreshold" id="filterBelowPopularityThreshold">
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
-    <h3 class="section-title">Anime Series</h3>
+    <h3 class="section-title" id="tableSeries">Anime Series</h3>
     <div class="row row-cols-4">
       <div class="col form-check" v-for="column in tableDataOfSeries.columns" :key="`series${column.resultType}`">
         <input class="form-check-input" :id="`columnCheckboxSeries${column.resultType}`" type="checkbox" v-model="tableDataOfSeries.isColumnVisible[column.resultType]"/>
@@ -13,7 +13,7 @@
     </div>
     <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries"/>
 
-    <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
+    <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
     <div class="row row-cols-4">
       <div class="col form-check" v-for="column in tableDataOfSpecial.columns" :key="`special${column.resultType}`">
         <input class="form-check-input" :id="`columnCheckboxSpecial${column.resultType}`" type="checkbox" v-model="tableDataOfSpecial.isColumnVisible[column.resultType]"/>
