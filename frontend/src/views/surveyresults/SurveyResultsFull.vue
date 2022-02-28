@@ -11,7 +11,7 @@
         <label class="form-check-label" :for="`columnCheckboxSeries${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
-    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries"/>
+    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" :isAnimeSeries="true"/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
     <div class="row row-cols-4">
@@ -20,7 +20,7 @@
         <label class="form-check-label" :for="`columnCheckboxSpecial${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
       </div>
     </div>
-    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
+    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries" :isAnimeSeries="false"/>
 
     <div class="row g-0">
       <div class="col-auto pe-1">
