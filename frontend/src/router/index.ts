@@ -79,11 +79,18 @@ const router = createRouter({
   history: createWebHistory(),
   routes: routes,
   scrollBehavior: (to, from, savedPosition) => {
-    return to.hash ? {
-      el: to.hash,
-    } : {
-      top: 0,
-    };
+    // Don't scroll when we're still in the same view, and the hash is either identical or removed
+    if (to.name === from.name && (to.hash === from.hash || !to.hash)) {
+      return;
+    }
+
+    if (to.hash) {
+      return new Promise(resolve => setTimeout(() => resolve({ el: to.hash }), 700));
+    } else if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
   },
 });
 

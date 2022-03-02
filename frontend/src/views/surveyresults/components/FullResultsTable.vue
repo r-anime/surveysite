@@ -68,7 +68,6 @@ export default class FullResultsTable extends Vue {
   get processedColumns(): AnimeTableColumnData[] {
     return this.columns;
   }
-  // Works, creates a new array
   processedEntries: AnimeTableEntryData[] = this.entries;
 
   getResultTypeFormatter = getResultTypeFormatter;
@@ -114,11 +113,23 @@ export default class FullResultsTable extends Vue {
 
     this.activeSort.resultType = resultType;
     this.activeSort.descending = descending;
-    this.$route.query[this.sortRouteQueryKey] = resultType != null ? resultType.toString() : null;
+
+    // Overwrite this sort query with the one currently in the route
+    const newSortQuery = Object.assign({}, this.$route.query);
+    if (resultType != null) {
+      const query = { [this.sortRouteQueryKey]: resultType.toString() };
+      Object.assign(newSortQuery, query);
+    }
+    else {
+      if (newSortQuery[this.sortRouteQueryKey]) {
+        delete newSortQuery[this.sortRouteQueryKey];
+      }
+    }
+    this.$router.replace({ name: 'SurveyResultsFull', query: newSortQuery, hash: this.$route.hash });
 
     this.processedEntries = _.orderBy(this.processedEntries, entry => {
       if (resultType == null)
-        return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME);
+        return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase();
       else if (entry.data[resultType] == null || entry.data[resultType] === 0)
         return descending ? -1000 : 1000;
       else
@@ -128,12 +139,9 @@ export default class FullResultsTable extends Vue {
 
   getColumnSortCssClass(resultType: ResultsType | null): Record<string, boolean> {
     const sortedOnColumn = this.activeSort.resultType === resultType;
-    const sortTypeIsName = resultType == null;
     return {
-      'table-col-sort-desc': sortedOnColumn && !sortTypeIsName && this.activeSort.descending,
-      'table-col-sort-asc': sortedOnColumn && !sortTypeIsName && !this.activeSort.descending,
-      'table-col-sort-name-desc': sortedOnColumn && sortTypeIsName && this.activeSort.descending,
-      'table-col-sort-name-asc': sortedOnColumn && sortTypeIsName && !this.activeSort.descending,
+      'table-col-sort-desc': sortedOnColumn && this.activeSort.descending,
+      'table-col-sort-asc': sortedOnColumn && !this.activeSort.descending,
       'table-col-sort-none': !sortedOnColumn,
     };
   }
@@ -160,28 +168,23 @@ export default class FullResultsTable extends Vue {
 }
 
 .table-col-sortable {
-  $sort-icon-width: 0.8rem;
+  $sort-icon-width: 0.6rem;
+  $height-multiplier: 1.53;
 
   background-position: right center;
   background-repeat: no-repeat;
-  background-size: $sort-icon-width;
+  background-size: $sort-icon-width $sort-icon-width*$height-multiplier;
   padding-right: $table-cell-padding-x + $sort-icon-width;
 }
 
 .table-col-sort-none {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' fill-opacity='0.5' class='bi bi-arrow-down-up' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' view-box='0 0 101 101' preserveAspectRatio='none'><path fill='black' opacity='.3' d='M51 1l25 23 24 22H1l25-22zM51 101l25-23 24-22H1l25 22z'/></svg>");
 }
 .table-col-sort-asc {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sort-up' viewBox='0 0 16 16'><path d='M3.5 12.5a.5.5 0 0 1-1 0V3.707L1.354 4.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2 2a.5.5 0 1 1-.707.708L3.5 3.707V12.5zm3.5-9a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' view-box='0 0 101 101' preserveAspectRatio='none'><path fill='black' d='M51 1l25 23 24 22H1l25-22z'/><path fill='black' opacity='.3' d='M51 101l25-23 24-22H1l25 22z'/></svg>");
 }
 .table-col-sort-desc {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sort-down' viewBox='0 0 16 16'><path d='M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293V2.5zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z'/></svg>");
-}
-.table-col-sort-name-asc {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sort-alpha-down' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M10.082 5.629 9.664 7H8.598l1.789-5.332h1.234L13.402 7h-1.12l-.419-1.371h-1.781zm1.57-.785L11 2.687h-.047l-.652 2.157h1.351z'/><path d='M12.96 14H9.028v-.691l2.579-3.72v-.054H9.098v-.867h3.785v.691l-2.567 3.72v.054h2.645V14zM4.5 2.5a.5.5 0 0 0-1 0v9.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L4.5 12.293V2.5z'/></svg>");
-}
-.table-col-sort-name-desc {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sort-alpha-up-alt' viewBox='0 0 16 16'><path d='M12.96 7H9.028v-.691l2.579-3.72v-.054H9.098v-.867h3.785v.691l-2.567 3.72v.054h2.645V7z'/><path fill-rule='evenodd' d='M10.082 12.629 9.664 14H8.598l1.789-5.332h1.234L13.402 14h-1.12l-.419-1.371h-1.781zm1.57-.785L11 9.688h-.047l-.652 2.156h1.351z'/><path d='M4.5 13.5a.5.5 0 0 1-1 0V3.707L2.354 4.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2 2a.5.5 0 1 1-.707.708L4.5 3.707V13.5z'/></svg>");
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' view-box='0 0 101 101' preserveAspectRatio='none'><path fill='black' opacity='.3' d='M51 1l25 23 24 22H1l25-22z'/><path fill='black' d='M51 101l25-23 24-22H1l25 22z'/></svg>");
 }
 
 td {
