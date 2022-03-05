@@ -5,21 +5,15 @@
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
     <h3 class="section-title" id="tableSeries">Anime Series</h3>
-    <div class="row row-cols-4">
-      <div class="col form-check" v-for="column in tableDataOfSeries.columns" :key="`series${column.resultType}`">
-        <input class="form-check-input" :id="`columnCheckboxSeries${column.resultType}`" type="checkbox" v-model="tableDataOfSeries.isColumnVisible[column.resultType]"/>
-        <label class="form-check-label" :for="`columnCheckboxSeries${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
-      </div>
-    </div>
+    <DropdownMultiSelect :items="tableDataOfSeries.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event)">
+      Columns
+    </DropdownMultiSelect>
     <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" :isAnimeSeries="true"/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
-    <div class="row row-cols-4">
-      <div class="col form-check" v-for="column in tableDataOfSpecial.columns" :key="`special${column.resultType}`">
-        <input class="form-check-input" :id="`columnCheckboxSpecial${column.resultType}`" type="checkbox" v-model="tableDataOfSpecial.isColumnVisible[column.resultType]"/>
-        <label class="form-check-label" :for="`columnCheckboxSpecial${column.resultType}`">{{ getResultTypeName(column.resultType) }}</label>
-      </div>
-    </div>
+    <DropdownMultiSelect :items="tableDataOfSpecial.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event, false)">
+      Columns
+    </DropdownMultiSelect>
     <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries" :isAnimeSeries="false"/>
 
     <div class="row g-0">
@@ -35,7 +29,8 @@
 </template>
 
 <script lang="ts">
-import { ResultsType } from '@/util/data';
+import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
+import { ResultsType, SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { ComputedRef } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
@@ -57,6 +52,7 @@ class TableData {
 @Options({
   components: {
     FullResultsTable,
+    DropdownMultiSelect,
   },
   inject: [
     'surveyResultsDataRef',
@@ -70,8 +66,6 @@ export default class SurveyResultsFull extends Vue {
   tableDataOfSpecial = new TableData();
 
   filterBelowPopularityThreshold = true;
-
-  getResultTypeName = getResultTypeName;
 
   created(): void {
     this.surveyResultsData = this.surveyResultsDataRef.value;
@@ -156,6 +150,15 @@ export default class SurveyResultsFull extends Vue {
     }, {
       immediate: true,
     });
+  }
+
+  mapColumn(column: AnimeTableColumnData): SelectorItem {
+    return { id: column.resultType, name: getResultTypeName(column.resultType) };
+  }
+
+  selectionChanged(ids: ResultsType[], isAnimeSeries = true): void {
+    const table = isAnimeSeries ? this.tableDataOfSeries : this.tableDataOfSpecial;
+    table.columns.forEach(column => table.isColumnVisible[column.resultType] = ids.includes(column.resultType));
   }
 }
 </script>

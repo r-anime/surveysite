@@ -70,21 +70,26 @@ export interface SurveyData {
 }
 
 export enum ResultsType {
-    POPULARITY                  =  1,
-    POPULARITY_MALE             =  2,
-    POPULARITY_FEMALE           =  3,
-    GENDER_POPULARITY_RATIO     =  4,
-    //GENDER_POPULARITY_RATIO_INV =  5, // Should preferably not be used
-    SCORE                       = 11,
-    SCORE_MALE                  = 12,
-    SCORE_FEMALE                = 13,
-    GENDER_SCORE_DIFFERENCE     = 14,
-    //GENDER_SCORE_DIFFERENCE_INV = 15, // Should preferably not be used
-    UNDERWATCHED                = 21,
-    SURPRISE                    = 22,
-    DISAPPOINTMENT              = 23,
-    AGE                         = 24,
+  POPULARITY                  =  1,
+  POPULARITY_MALE             =  2,
+  POPULARITY_FEMALE           =  3,
+  GENDER_POPULARITY_RATIO     =  4,
+  //GENDER_POPULARITY_RATIO_INV =  5, // Should preferably not be used
+  SCORE                       = 11,
+  SCORE_MALE                  = 12,
+  SCORE_FEMALE                = 13,
+  GENDER_SCORE_DIFFERENCE     = 14,
+  //GENDER_SCORE_DIFFERENCE_INV = 15, // Should preferably not be used
+  UNDERWATCHED                = 21,
+  SURPRISE                    = 22,
+  DISAPPOINTMENT              = 23,
+  AGE                         = 24,
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ValidationErrorData extends Record<string, ValidationErrorData | string[] | undefined> { }
+
+export interface SelectorItem {
+  id: number;
+  name: string;
+}
