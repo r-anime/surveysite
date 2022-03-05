@@ -4,11 +4,22 @@
       <slot></slot>
     </button>
     <ul class="dropdown-menu" :aria-labelledby="dropdownId">
-      <li v-for="item in items" :key="item.id" class="form-check">
-        <input class="form-check-input" type="checkbox" :id="'item'+item.id" v-model="selectedItems[item.id]">
-        <label class="form-check-label" :for="'item'+item.id">
-          {{ item.name }}
-        </label>
+      <li class="px-2" v-for="item in items" :key="item.id">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" :id="'item'+item.id" :value="item.id" v-model="selectedItemIds">
+          <label class="form-check-label" :for="'item'+item.id">
+            {{ item.name }}
+          </label>
+        </div>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li class="px-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="itemAll" v-model="selectAll">
+          <label class="form-check-label" for="itemAll">
+            Select all
+          </label>
+        </div>
       </li>
     </ul>
   </div>
@@ -38,7 +49,14 @@ export default class DropdownMultiSelect extends Vue {
   items!: SelectorItem[];
   defaultSelectedItemIds!: number[] | boolean;
 
-  selectedItems: Record<number, boolean> = {};
+  selectedItemIds: number[] = [];
+
+  set selectAll(value: boolean) {
+    this.selectedItemIds = value ? this.items.map(item => item.id) : [];
+  }
+  get selectAll(): boolean {
+    return this.items.length === this.selectedItemIds.length;
+  }
 
   dropdownId?: string;
   private static componentId = 0;
@@ -48,13 +66,13 @@ export default class DropdownMultiSelect extends Vue {
 
     const def = this.defaultSelectedItemIds;
     if (typeof def === 'boolean') {
-      this.items.forEach(item => this.selectedItems[item.id] = def);
+      this.selectedItemIds = def ? this.items.map(item => item.id) : [];
     } else {
-      this.items.forEach(item => this.selectedItems[item.id] = def.includes(item.id));
+      Object.assign(this.selectedItemIds, this.defaultSelectedItemIds);
     }
 
-    this.$watch(() => this.selectedItems, (newSelectedItems: Record<number, boolean>) => {
-      this.$emit('selectionChanged', Object.entries(newSelectedItems).filter(item => item[1]).map(item => Number(item[0])));
+    this.$watch(() => this.selectedItemIds, (newSelectedItemIds: number[]) => {
+      this.$emit('selectionChanged', newSelectedItemIds);
     }, { deep: true });
   }
 }
