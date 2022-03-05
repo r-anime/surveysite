@@ -24,20 +24,20 @@
           <div class="row h-100">
 
             <template v-if="surveysInSeason.preseasonSurvey">
-              <div v-if="surveyIsUpcoming(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset hoverable">
+              <div v-if="surveyIsUpcoming(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
                 <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </div>
-              <router-link v-else :to="getSurveyRoute(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset hoverable">
+              <router-link v-else :to="getSurveyRoute(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
                 <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
               </router-link>
             </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
             <template v-if="surveysInSeason.postseasonSurvey">
-              <div v-if="surveyIsUpcoming(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset hoverable">
+              <div v-if="surveyIsUpcoming(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
                 <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </div>
-              <router-link v-else :to="getSurveyRoute(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset hoverable">
+              <router-link v-else :to="getSurveyRoute(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
                 <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
               </router-link>
             </template>

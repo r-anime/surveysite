@@ -1,10 +1,9 @@
 <template>
-  <table role="table" :aria-colcount="3 + columns.length" class="table table-hover">
+  <table role="table" :aria-colcount="3 + columns.length" class="table table-bordered">
     <thead role="rowgroup">
       <tr role="row">
         <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank align-middle" aria-label="Rank"></th>
-        <th role="columnheader" scope="col" aria-colindex="2" class="table-col-image align-middle" aria-label="Image"></th>
-        <th role="columnheader" scope="col" aria-colindex="3" :class="['table-col-name', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(null)]" @click="sortByResultType(null)">Anime</th>
+        <th role="columnheader" scope="col" aria-colindex="2" colspan="2" :class="['table-col-anime', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(null)]" @click="sortByResultType(null)">Anime</th>
         <th v-for="(column, columnIdx) in processedColumns"
             :key="column.resultType"
             role="columnheader"
@@ -23,13 +22,11 @@
         <td role="cell" aria-colindex="1" class="table-col-rank">
           #{{ entryIdx + 1 }}
         </td>
-        <td role="cell" aria-colindex="2" class="table-col-image" style="height:5em;">
+        <td role="cell" aria-colindex="2" class="table-col-image border-end-0" style="height:5em;">
           <AnimeImages :animeImages="entry.anime.images" :enableCarouselControls="false" maxHeight="5em"/>
         </td>
-        <td role="cell" aria-colindex="3" class="table-col-name">
-          <div class="mx-2">
-            <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
-          </div>
+        <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
+          <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
         </td>
         <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
           {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
@@ -154,6 +151,9 @@ export default class FullResultsTable extends Vue {
 
 .table-col-rank {
   width: 5%!important;
+}
+.table-col-anime {
+  width: 33%!important; // image + name, 25 + 8
 }
 .table-col-image {
   width: 8%!important;

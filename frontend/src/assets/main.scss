@@ -2,17 +2,13 @@
 $enable-negative-margins: true;
 @import "bootstrap/scss/bootstrap.scss";
 
-.hoverable:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
 .clickable {
   cursor: pointer;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba($black, $table-hover-bg-factor);
   }
   &:active {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba($black, $table-hover-bg-factor * 2);
   }
 }
 
