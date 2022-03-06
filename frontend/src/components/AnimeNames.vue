@@ -16,10 +16,13 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
   props: {
-    animeNames: Array,
+    animeNames: {
+      type: Array,
+      required: true,
+    },
     showShortName: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
 })

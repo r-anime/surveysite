@@ -26,7 +26,7 @@
           <AnimeImages :animeImages="entry.anime.images" :enableCarouselControls="false" maxHeight="5em"/>
         </td>
         <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
-          <AnimeNames :animeNames="entry.anime.names" :showShortName="false"/>
+          <AnimeNames :animeNames="entry.anime.names"/>
         </td>
         <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
           {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}

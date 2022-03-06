@@ -4,7 +4,7 @@
       <AnimeImages :animeImages="animeResults.anime.images" :enableCarouselControls="false" maxHeight="5rem"/>
     </div>
     <div class="col ps-0" v-if="animeResults.anime.names">
-      <AnimeNames :animeNames="animeResults.anime.names" :showShortName="false"/>
+      <AnimeNames :animeNames="animeResults.anime.names"/>
     </div>
   </div>
 </template>

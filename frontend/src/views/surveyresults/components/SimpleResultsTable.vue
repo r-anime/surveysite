@@ -21,7 +21,7 @@
           <td role="cell" aria-colindex="3" class="table-col-name">
             <template v-if="animeResult">
               <div class="mx-2">
-                <AnimeNames :animeNames="animeResult.anime.names" :showShortName="false"/>
+                <AnimeNames :animeNames="animeResult.anime.names" showShortName/>
               </div>
               <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
             </template>

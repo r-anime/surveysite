@@ -8,7 +8,7 @@
           <AnimeImages :animeImages="ranking[0].anime.images"/>
         </div>
         <div class="col-12">
-          <AnimeNames :animeNames="ranking[0].anime.names" :showShortName="false"/>
+          <AnimeNames :animeNames="ranking[0].anime.names" showShortName/>
         </div>
       </div>
       <div v-if="ranking.length > 1" class="row justify-content-center text-smaller">
@@ -18,7 +18,7 @@
               <AnimeImages :animeImages="ranking[1].anime.images"/>
             </div>
             <div class="col-12">
-              <AnimeNames :animeNames="ranking[1].anime.names" :showShortName="false"/>
+              <AnimeNames :animeNames="ranking[1].anime.names" showShortName/>
             </div>
           </div>
         </div>
@@ -28,7 +28,7 @@
               <AnimeImages :animeImages="ranking[2].anime.images"/>
             </div>
             <div class="col-12">
-              <AnimeNames :animeNames="ranking[2].anime.names" :showShortName="false"/>
+              <AnimeNames :animeNames="ranking[2].anime.names" showShortName/>
             </div>
           </div>
         </div>
