@@ -1,4 +1,5 @@
 // This file is included in src/main.ts and should contain all application-wide SCSS
+@use "sass:math";
 $enable-negative-margins: true;
 @import "bootstrap/scss/bootstrap.scss";
 
@@ -41,8 +42,15 @@ $enable-negative-margins: true;
 }
 // ---
 
+// Same as .text-smaller-1
 .text-smaller {
   font-size: 90%;
+}
+
+@for $i from 1 through 5{
+  .text-smaller-#{$i} {
+    font-size: 100% * math.pow(0.9, $i);
+  }
 }
 
 .show-if-collapsed {

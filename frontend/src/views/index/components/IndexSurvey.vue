@@ -11,18 +11,22 @@
     
     <template v-if="isSurveyFinished">
       <div v-for="(animeResultsList, resultsType) in survey.animeResults" :key="resultsType" class="col mb-3">
-        <div class="row mb-2">
-          <div class="col bg-primary bg-opacity-75 text-light rounded py-1 px-2 w-100">
-            {{ getResultsTypeName(resultsType) }}
+        <div class="row">
+          <div class="col py-1 px-2 w-100">
+            {{ getResultsTypeTitle(resultsType) }}
           </div>
         </div>
-        <IndexSurveyAnime v-for="(animeResults, idx) in animeResultsList" :key="idx" :animeResults="animeResults" class="mb-1" :class="idx==0 ? '' : 'd-lg-flex d-none'"/>
+        <div class="row px-2 align-items-center">
+          <div class="col px-0" :class="idx==0 ? '' : 'd-lg-block d-none'" v-for="(animeResults, idx) in animeResultsList" :key="idx">
+            <IndexSurveyAnime :animeResults="animeResults"/>
+          </div>
+        </div>
       </div>
     </template>
 
     <template v-else>
       <div class="col position-relative">
-        <div class="row row-cols-lg-6 p-3 align-items-center opacity-25">
+        <div class="row row-cols-lg-6 px-3 align-items-center opacity-25">
           <div v-for="(image, imageIdx) in survey.animeImages"
                :key="imageIdx"
                class="col p-1"
@@ -67,11 +71,11 @@ export default class IndexSurvey extends Vue {
   isSurveyUpcoming = dayjs() < this.openingTime;
   isSurveyFinished = this.closingTime < dayjs();
 
-  getResultsTypeName(resultsType: string): string {
+  getResultsTypeTitle(resultsType: string): string {
     const resultsTypeNumber = Number(resultsType);
     switch (resultsTypeNumber) {
       case ResultsType.POPULARITY:
-        return 'Most popular anime';
+        return 'Most popular series';
       case ResultsType.SCORE:
         return this.survey.isPreseason ? 'Most anticipated series' : 'Most highly regarded series';
       default:
