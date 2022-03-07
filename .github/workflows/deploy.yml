@@ -35,7 +35,7 @@ jobs:
           git reset --hard origin/main
 
           # Use our virtualenv
-          source env/bin/activate
+          source .venv/bin/activate
 
           # Install dependencies
           pip install -r requirements.txt

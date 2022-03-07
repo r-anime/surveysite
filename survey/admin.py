@@ -100,21 +100,25 @@ class ImageInlineFormSet(BaseInlineFormSet):
         # Try to remove alpha channel - not all non-RGB modes have an alpha channel, but this should not affect the output
         if image_org.mode !='RGB':
             bg = PIL.Image.new('RGBA', image_org.size, (255, 255, 255, 255))
-            image_org = PIL.Image.alpha_composite(bg, image_org.convert('RGBA')).convert('RGB')
+            image_org_noalpha = PIL.Image.alpha_composite(bg, image_org.convert('RGBA')).convert('RGB')
 
             if self.request:
                 messages.info(self.request, 'Removed alpha channel from image.')
+        else:
+            image_org_noalpha = image_org
 
         image_formats = {
             'jpg': {
                 'format': 'JPEG',
                 'extension': 'jpg',
                 'kwargs': {'quality': 80},
+                'alpha': False,
             },
             'png': {
                 'format': 'PNG',
                 'extension': 'png',
                 'kwargs': {},
+                'alpha': True,
             },
         }
         image_types = {
@@ -142,13 +146,16 @@ class ImageInlineFormSet(BaseInlineFormSet):
         image_base_name = str(uuid.uuid4()).split('-')[0]
 
         for image_type, image_values in image_types.items():
-            image = image_org.copy()
+            image_format = image_values['format']
+
+            if image_format['alpha']:
+                image = image_org.copy()
+            else:
+                image = image_org_noalpha.copy()
 
             image_width = image_values['width']
             if image_width:
                 image.thumbnail((image_width, image_width * 2))
-
-            image_format = image_values['format']
 
             content = BytesIO()
             image.save(fp=content, format=image_format['format'], **image_format['kwargs'])
