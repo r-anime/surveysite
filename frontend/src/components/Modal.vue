@@ -77,7 +77,7 @@ import Cookie from 'js-cookie';
     acceptButtonUrl: String,
     acceptButtonPost: String, // Identical to acceptButtonUrl, but performs a POST request to the specified URL instead of a GET request,
     acceptButtonRoute: Object,
-    acceptButtonCallback: Function, // Should be a function that returns a Promise<boolean>
+    acceptButtonCallback: Function, // Should be a function that returns a Promise<boolean> indicating success (upon which the modal gets hidden)
 
     acceptButtonText: {
       type: String,

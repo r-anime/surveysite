@@ -3,12 +3,12 @@
     <div class="row">
       <!-- Card image -->
       <div class="col-lg-3 col-md-4 col-sm-3 col-4">
-        <AnimeImages :animeImages="animeData.images" imgClass="rounded-start" :alignCenter="false"/> <!-- Should be rounded with 'rounded-start' -->
+        <AnimeImages :animeImages="animeData.images" enableCarouselControls alignStart imgClass="rounded-start"/>
       </div>
 
       <!-- Card info -->
       <div class="col"><div class="card-body">
-        <div class="card-title mb-3"> <!-- Could the AnimeNames component be used for this? -->
+        <div class="card-title mb-3">
           <h5 class="mb-1">
             {{ japaneseName }}
             <span style="font-size:60%;" v-if="shortName">({{ shortName }})</span>

@@ -6,7 +6,7 @@
 
   <template v-else-if="animeImages.length > 1">
     <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade">
-      <div class="carousel-inner d-flex" :class="{ 'align-items-center': alignCenter }">
+      <div class="carousel-inner d-flex" :class="{ 'align-items-center': !alignStart }">
         <!-- d-block for the carousel item so that if images have different size, the carousel's size will consistently stay as large as needed -->
         <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item d-block" :class="{ 'active' : idx==0 }">
           <img :src="image.urlSmall" :alt="image.name" :class="imgClassInternal" :style="maxHeight ? { maxHeight: maxHeight } : {}">
@@ -38,28 +38,19 @@ type CssClass = string | Record<string, boolean>;
 
 @Options({
   props: {
-    animeImages: Array,
-    enableCarouselControls: {
-      type: Boolean,
-      default: true,
+    animeImages: {
+      type: Array,
+      required: true,
     },
-    alignCenter: {
-      type: Boolean,
-      default: true,
-    },
-    imgClass: {
-      type: String,
-      default: '',
-    },
-    maxHeight: {
-      type: String,
-      default: '',
-    },
+    enableCarouselControls: Boolean,
+    alignStart: Boolean,
+    imgClass: String,
+    maxHeight: String,
   },
 })
 export default class AnimeImages extends Vue {
   animeImages!: ImageData[];
-  imgClass!: CssClass;
+  imgClass?: string;
   alignCenter!: boolean;
 
   imgClassInternal: CssClass[] = [];
@@ -71,7 +62,13 @@ export default class AnimeImages extends Vue {
     this.id = AnimeImages.componentId;
     AnimeImages.componentId++;
 
-    this.imgClassInternal = ['img-fluid', 'd-block', { 'mx-auto': this.alignCenter }, this.imgClass];
+    this.imgClassInternal = ['img-fluid', 'd-block'];
+    if (this.alignCenter) {
+      this.imgClassInternal.push('mx-auto');
+    }
+    if (this.imgClass) {
+      this.imgClassInternal.push(this.imgClass);
+    }
   }
 
   mounted(): void {

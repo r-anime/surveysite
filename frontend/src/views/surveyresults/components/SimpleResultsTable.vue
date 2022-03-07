@@ -16,7 +16,7 @@
             {{ animeResult ? `#${animeResult.rank}` : '' }}
           </td>
           <td role="cell" aria-colindex="2" class="table-col-image" :style="animeResult ? { 'height': '7.5em' } : {}">
-            <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" :enableCarouselControls="false" maxHeight="7.5em"/>
+            <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" maxHeight="7.5em"/>
           </td>
           <td role="cell" aria-colindex="3" class="table-col-name">
             <template v-if="animeResult">

@@ -1,12 +1,14 @@
 <template>
-  <div v-if="japaneseName">
-    {{ japaneseName.name }}
-    <span v-if="showShortName && shortName" style="font-size: 60%">
-      ({{ shortName.name }})
-    </span>
-  </div>
-  <div v-if="englishName" style="font-size: 80%">
-    {{ englishName.name }}
+  <div>
+    <div v-if="japaneseName">
+      {{ japaneseName.name }}
+      <span v-if="showShortName && shortName" style="font-size: 60%">
+        ({{ shortName.name }})
+      </span>
+    </div>
+    <div v-if="englishName" style="font-size: 80%">
+      {{ englishName.name }}
+    </div>
   </div>
 </template>
 
@@ -20,10 +22,7 @@ import { Options, Vue } from 'vue-class-component';
       type: Array,
       required: true,
     },
-    showShortName: {
-      type: Boolean,
-      default: false,
-    },
+    showShortName: Boolean,
   },
 })
 export default class AnimeNames extends Vue {

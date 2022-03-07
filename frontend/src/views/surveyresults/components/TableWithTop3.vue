@@ -5,7 +5,7 @@
     <div class="col-md-4 col-8 text-center">
       <div v-if="ranking.length > 0" class="row justify-content-center mb-4">
         <div class="col-8 mb-2">
-          <AnimeImages :animeImages="ranking[0].anime.images"/>
+          <AnimeImages :animeImages="ranking[0].anime.images" enableCarouselControls/>
         </div>
         <div class="col-12">
           <AnimeNames :animeNames="ranking[0].anime.names" showShortName/>
@@ -15,7 +15,7 @@
         <div :class="{'col-6': ranking.length > 2, 'col': ranking.length === 2}">
           <div class="row justify-content-center">
             <div class="col-11 mb-1">
-              <AnimeImages :animeImages="ranking[1].anime.images"/>
+              <AnimeImages :animeImages="ranking[1].anime.images" enableCarouselControls/>
             </div>
             <div class="col-12">
               <AnimeNames :animeNames="ranking[1].anime.names" showShortName/>
@@ -25,7 +25,7 @@
         <div v-if="ranking.length > 2" class="col-6">
           <div class="row justify-content-center">
             <div class="col-11 mb-1">
-              <AnimeImages :animeImages="ranking[2].anime.images"/>
+              <AnimeImages :animeImages="ranking[2].anime.images" enableCarouselControls/>
             </div>
             <div class="col-12">
               <AnimeNames :animeNames="ranking[2].anime.names" showShortName/>
