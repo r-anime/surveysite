@@ -108,14 +108,17 @@ import FormValidationErrors from '@/components/FormValidationErrors.vue';
 export default class SurveyFormAnime extends Vue {
   animeData!: AnimeData;
 
-  isAnimeSeries = isAnimeSeries(this.animeData);
-  animeId = this.animeData.id;
+  isAnimeSeries = false;
+  animeId?: number;
 
   japaneseName: string | null = null;
   englishName: string | null = null;
   shortName: string | null = null;
 
   created(): void {
+    this.isAnimeSeries = isAnimeSeries(this.animeData);
+    this.animeId = this.animeData.id;
+
     this.japaneseName = getAnimeName(this.animeData, AnimeNameType.JAPANESE_NAME);
     this.englishName = getAnimeName(this.animeData, AnimeNameType.ENGLISH_NAME);
     this.shortName = getAnimeName(this.animeData, AnimeNameType.SHORT_NAME);

@@ -32,7 +32,6 @@
 import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
 import { ResultsType, SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
-import { ComputedRef } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import FullResultsTable from './components/FullResultsTable.vue';
 import { AnimeTableColumnData } from './data/anime-table-column-data';
@@ -55,12 +54,11 @@ class TableData {
     DropdownMultiSelect,
   },
   inject: [
-    'surveyResultsDataRef',
+    'surveyResultsData',
   ],
 })
 export default class SurveyResultsFull extends Vue {
-  surveyResultsDataRef!: ComputedRef<SurveyResultsData>;
-  surveyResultsData?: SurveyResultsData;
+  surveyResultsData!: SurveyResultsData;
 
   tableDataOfSeries = new TableData();
   tableDataOfSpecial = new TableData();
@@ -68,8 +66,6 @@ export default class SurveyResultsFull extends Vue {
   filterBelowPopularityThreshold = true;
 
   created(): void {
-    this.surveyResultsData = this.surveyResultsDataRef.value;
-
     // Columns
     const resultTypesOfSeries: ResultsType[] = this.surveyResultsData.survey.isPreseason ? [
       ResultsType.POPULARITY,

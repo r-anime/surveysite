@@ -65,11 +65,19 @@ import dayjs from 'dayjs';
 })
 export default class IndexSurvey extends Vue {
   survey!: IndexSurveyData;
-  surveyName = getSurveyName(this.survey);
-  openingTime = dayjs(this.survey.openingEpochTime);
-  closingTime = dayjs(this.survey.closingEpochTime);
-  isSurveyUpcoming = dayjs() < this.openingTime;
-  isSurveyFinished = this.closingTime < dayjs();
+  surveyName?: string;
+  openingTime?: dayjs.Dayjs;
+  closingTime?: dayjs.Dayjs;
+  isSurveyUpcoming = false;
+  isSurveyFinished = false;
+
+  created(): void {
+    this.surveyName = getSurveyName(this.survey);
+    this.openingTime = dayjs(this.survey.openingEpochTime);
+    this.closingTime = dayjs(this.survey.closingEpochTime);
+    this.isSurveyUpcoming = dayjs() < this.openingTime;
+    this.isSurveyFinished = this.closingTime < dayjs();
+  }
 
   getResultsTypeTitle(resultsType: string): string {
     const resultsTypeNumber = Number(resultsType);

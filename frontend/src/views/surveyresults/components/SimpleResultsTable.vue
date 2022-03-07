@@ -77,6 +77,7 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
 
   processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
   resultNames: string[] = []; // [resultName, extraResultName]
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   resultFormatters: ((value: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
 
   hasExtraResult = false;

@@ -27,11 +27,17 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class AnimeNames extends Vue {
   animeNames!: AnimeNameData[];
-  japaneseName = this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial)
-    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME) ?? null;
-  englishName = this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial)
-    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME) ?? null;
-  shortName = this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial)
-    ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME) ?? null;
+  japaneseName?: AnimeNameData;
+  englishName?: AnimeNameData;
+  shortName?: AnimeNameData;
+  
+  created(): void {
+    this.japaneseName = this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial)
+      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME);
+    this.englishName = this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial)
+      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME);
+    this.shortName = this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial)
+      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME);
+  }
 }
 </script>

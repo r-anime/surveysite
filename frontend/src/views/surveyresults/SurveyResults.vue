@@ -16,7 +16,7 @@ import { SurveyResultsData } from './data/survey-results-data';
 @Options({
   provide() {
     return {
-      surveyResultsDataRef: computed(() => this.surveyResultsData),
+      surveyResultsData: computed(() => this.surveyResultsData),
     };
   },
 })

@@ -65,7 +65,7 @@ export default class FullResultsTable extends Vue {
   get processedColumns(): AnimeTableColumnData[] {
     return this.columns;
   }
-  processedEntries: AnimeTableEntryData[] = this.entries;
+  processedEntries: AnimeTableEntryData[] = [];
 
   getResultTypeFormatter = getResultTypeFormatter;
   getResultTypeName = getResultTypeName;
@@ -83,6 +83,8 @@ export default class FullResultsTable extends Vue {
   }
 
   created(): void {
+    this.processedEntries = this.entries;
+
     const sortValueRaw = this.$route.query[this.sortRouteQueryKey];
     if (sortValueRaw && !Array.isArray(sortValueRaw)) {
       const sortValue: ResultsType = Number(sortValueRaw);

@@ -9,4 +9,6 @@ import router from './router';
 
 Chart.register(CategoryScale, LinearScale, BarController, BarElement, ChartDataLabels, Title, Tooltip);
 
-createApp(App).use(router).mount('#app');
+const app = createApp(App).use(router);
+app.config.unwrapInjectedRef = true; // Will be removed and default on in a future Vue version
+app.mount('#app');

@@ -60,7 +60,7 @@ function fixResponseDataIfJsonParsingFailed(responseData: any) {
 
 export default class HttpService {
   private static _axios = axios.create({
-    transformRequest: [decamelizeKeys, JSON.stringify], // TODO: Perform decamelizing on backend
+    transformRequest: [decamelizeKeys, data => JSON.stringify(data)], // TODO: Perform decamelizing on backend
     transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys], // TODO: Perform camelizing on backend and send nulls instead of NaNs
     baseURL: '/',
     validateStatus: statusCode => (statusCode >= 200 && statusCode < 300) || (statusCode >= 400 && statusCode < 500),

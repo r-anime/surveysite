@@ -223,7 +223,6 @@ import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import SimpleResultsTable from './components/SimpleResultsTable.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
-import { ComputedRef } from '@vue/reactivity';
 import { SurveyResultsData } from './data/survey-results-data';
 
 @Options({
@@ -237,13 +236,11 @@ import { SurveyResultsData } from './data/survey-results-data';
     AnimeImages,
   },
   inject: [
-    'surveyResultsDataRef',
+    'surveyResultsData',
   ],
 })
 export default class SurveyResultsSummary extends Vue {
-  /* eslint-disable @typescript-eslint/no-non-null-assertion */
-  surveyResultsDataRef!: ComputedRef<SurveyResultsData>;
-  surveyResultsData?: SurveyResultsData;
+  surveyResultsData!: SurveyResultsData;
   surveyIsPreseason = true;
   pageTitle?: string;
   averageAge?: string;
@@ -265,7 +262,6 @@ export default class SurveyResultsSummary extends Vue {
   };
 
   created(): void {
-    this.surveyResultsData = this.surveyResultsDataRef.value;
     this.surveyIsPreseason = this.surveyResultsData.survey.isPreseason;
     this.averageAge = _.sum(
       Object.entries(this.surveyResultsData.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
@@ -275,19 +271,19 @@ export default class SurveyResultsSummary extends Vue {
   getRanking(resultsTypeData: { value: ResultsType, resultTypes: ResultsType[] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
     let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
 
-    const animeIds = Object.keys(this.surveyResultsData!.results);
+    const animeIds = Object.keys(this.surveyResultsData.results);
     animeIds.forEach(animeIdStr => {
       const animeId = Number(animeIdStr);
-      if (this.surveyResultsData!.results[animeId][ResultsType.POPULARITY] < 0.02) return;
+      if (this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) return;
 
-      const animeData = this.surveyResultsData!.anime[animeId];
+      const animeData = this.surveyResultsData.anime[animeId];
       if (isAnimeSeries(animeData) === forSpecialAnime) return;
 
       const extraResult: ResultsType|undefined = resultsTypeData.resultTypes[1];
       resultsTable.push({
         anime: animeData,
-        result: this.surveyResultsData!.results[animeId][resultsTypeData.value],
-        extraResult: extraResult ? this.surveyResultsData!.results[animeId][extraResult] : undefined,
+        result: this.surveyResultsData.results[animeId][resultsTypeData.value],
+        extraResult: extraResult ? this.surveyResultsData.results[animeId][extraResult] : undefined,
       });
     });
     resultsTable = resultsTable.filter(item => item.result != null);
