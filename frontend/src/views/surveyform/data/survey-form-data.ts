@@ -19,6 +19,7 @@ export interface SurveyFormBaseData {
   isResponseLinkedToUser: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SurveyFormSubmitData extends SurveyFormBaseData {}
 
 export interface SurveyFormData extends SurveyFormBaseData {

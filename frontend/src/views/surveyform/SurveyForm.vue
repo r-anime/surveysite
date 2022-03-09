@@ -7,7 +7,7 @@
         <div class="row">
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
-            <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.response?.age}" v-model.number="getResponseData().age" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
+            <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.response?.age}" v-model.number="getResponseData().age" @blur="clampAge()" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
             <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.response?.age"/>
           </div>
           <div class="col-12 mb-3">
@@ -187,6 +187,16 @@ export default class SurveyForm extends Vue {
       return Array.isArray(validationErrors) ? null : validationErrors;
     } else {
       return null;
+    }
+  }
+
+  // Not-so-pretty special workaround for when a user inputs an invalid age, 
+  // scrolls down the page and hits 'Submit' only to be greeted with a generic error message,
+  // while the error is all the way up on the page
+  clampAge(): void {
+    if (this.surveyFormData?.responseData?.age && _.isNumber(this.surveyFormData.responseData.age)) {
+      // Assume the user typo'd and get the first two numbers, and then clamp
+      this.surveyFormData.responseData.age = Math.max(10, Math.min(80, Number(this.surveyFormData.responseData.age.toString().slice(0, 2))));
     }
   }
 
