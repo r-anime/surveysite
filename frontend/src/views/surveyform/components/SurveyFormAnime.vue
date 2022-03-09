@@ -93,16 +93,28 @@ import { getAnimeName, isAnimeSeries } from '@/util/helpers';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 
 @Options({
-  props: {
-    animeData: Object,
-    animeResponseData: Object,
-    isSurveyPreseason: Boolean,
-    isAnimeNew: Boolean,
-    validationErrors: Object,
-  },
   components: {
     AnimeImages,
     FormValidationErrors,
+  },
+  props: {
+    animeData: {
+      type: Object,
+      required: true,
+    },
+    animeResponseData: {
+      type: Object,
+      required: true,
+    },
+    isSurveyPreseason: {
+      type: Boolean,
+      required: true,
+    },
+    isAnimeNew: {
+      type: Boolean,
+      required: true,
+    },
+    validationErrors: Object,
   },
 })
 export default class SurveyFormAnime extends Vue {

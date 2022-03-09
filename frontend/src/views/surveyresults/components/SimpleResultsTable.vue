@@ -58,13 +58,19 @@ import { RouteLocationNormalized } from 'vue-router';
     AnimeImages,
   },
   props: {
-    ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-    resultTypes: Array,
-    isAnimeSeries: {
-      type: Boolean,
-      default: true,
-    }, // Only used for the link
-    top: Number,
+    ranking: {
+      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
+      required: true,
+    },
+    resultTypes: {
+      type: Array,
+      required: true,
+    },
+    isAnimeSeries: Boolean, // Only used for the link
+    top: {
+      type: Number,
+      required: true,
+    },
     bottom: Number, // Optional
   },
 })

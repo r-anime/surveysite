@@ -12,7 +12,10 @@ import { AnyObject } from "chart.js/types/basic";
 // Make sure to load this component only after ageDistribution is not undefined/null!
 @Options({
   props: {
-    ageDistribution: Object,
+    ageDistribution: {
+      type: Object,
+      required: true,
+    },
   },
 })
 export default class AgeDistributionChart extends Vue {

@@ -57,10 +57,13 @@ import dayjs from 'dayjs';
 
 @Options({
   components: {
-    IndexSurveyAnime
+    IndexSurveyAnime,
   },
   props: {
-    survey: Object,
+    survey: {
+      type: Object,
+      required: true,
+    },
   },
 })
 export default class IndexSurvey extends Vue {

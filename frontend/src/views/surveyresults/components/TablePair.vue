@@ -20,15 +20,27 @@ import SimpleResultsTable from './SimpleResultsTable.vue';
     SimpleResultsTable,
   },
   props: {
-    leftRanking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-    rightRanking: Array, // Optional
-    leftResultTypes: Array,
-    rightResultTypes: Array, // Optional
-    title: String,
-    description: String, // Optional
+    leftRanking: {
+      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
+      required: true,
+    },
+    rightRanking: Array,
+    leftResultTypes: {
+      type: Array,
+      required: true,
+    },
+    rightResultTypes: Array,
+    title: {
+      type: String,
+      required: true,
+    },
+    description: String,
     isAnimeSeries: Boolean, // Only used for the link under the tables
-    top: Number,
-    bottom: Number, // Optional
+    top: {
+      type: Number,
+      required: true,
+    },
+    bottom: Number,
   },
 })
 export default class TablePair extends Vue {}

@@ -20,7 +20,10 @@ import { Options, Vue } from 'vue-class-component';
     AnimeImages,
   },
   props: {
-    animeResults: Object,
+    animeResults: {
+      type: Object,
+      required: true,
+    },
   },
 })
 export default class IndexSurveyAnime extends Vue {}

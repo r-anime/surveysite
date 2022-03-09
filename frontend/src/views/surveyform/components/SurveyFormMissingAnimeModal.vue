@@ -59,13 +59,19 @@ import { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
 
 @Options({
-  props: {
-    missingAnimeData: Object,
-    survey: Object,
-  },
   components: {
     Modal,
     FormValidationErrors,
+  },
+  props: {
+    survey: {
+      type: Object,
+      required: true,
+    },
+    missingAnimeData: {
+      type: Object,
+      required: true,
+    },
   },
 })
 export default class SurveyFormMissingAnimeModal extends Vue {

@@ -53,13 +53,25 @@ import AnimeNames from '@/components/AnimeNames.vue';
     AnimeNames,
   },
   props: {
-    ranking: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-    resultTypes: Array,
+    ranking: {
+      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
+      required: true,
+    },
+    resultTypes: {
+      type: Array,
+      required: true,
+    },
     isAnimeSeries: Boolean, // Only used for the link under the table
-    top: Number,
-    bottom: Number, // Optional
-    title: String,
-    description: String, // Optional
+    top: {
+      type: Number,
+      required: true,
+    },
+    bottom: Number,
+    title: {
+      type: String,
+      required: true,
+    },
+    description: String,
   },
 })
 export default class TableWithTop3 extends Vue {}

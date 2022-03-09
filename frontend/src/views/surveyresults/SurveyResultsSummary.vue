@@ -24,7 +24,7 @@
     <TableWithTop3
       :ranking="getRanking(resultsType.popularity)"
       :resultTypes="resultsType.popularity.resultTypes"
-      :isAnimeSeries="true"
+      isAnimeSeries
       :top="10"
       title="Most Popular Anime Series"
     />
@@ -47,7 +47,7 @@
               :leftResultTypes="resultsType.popularityMale.resultTypes"
               :rightRanking="getRanking(resultsType.popularityFemale)"
               :rightResultTypes="resultsType.popularityFemale.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               title="Most Popular Anime Series by Gender"
               :top="3"
             />
@@ -56,7 +56,7 @@
             <TablePair
               :leftRanking="getRanking(resultsType.popularityRatio)"
               :leftResultTypes="resultsType.popularityRatio.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               title="Biggest Differences in Popularity by Gender"
               description="Expressed as the ratio of male popularity to female popularity (and vice versa)."
               :top="3"
@@ -82,7 +82,7 @@
             <TableWithTop3
               :ranking="getRanking(resultsType.underwatched)"
               :resultTypes="resultsType.underwatched.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               :top="5"
               title="Most Underwatched Anime"
             />
@@ -91,7 +91,7 @@
             <TablePair
               :leftRanking="getRanking(resultsType.age)"
               :leftResultTypes="resultsType.age.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               title="Average Age per Anime"
               :top="3"
             />
@@ -104,7 +104,7 @@
     <TableWithTop3
       :ranking="getRanking(resultsType.score)"
       :resultTypes="resultsType.score.resultTypes"
-      :isAnimeSeries="true"
+      isAnimeSeries
       :top="10"
       :bottom="5"
       :title="surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season'"
@@ -128,7 +128,7 @@
               :leftResultTypes="resultsType.scoreMale.resultTypes"
               :rightRanking="getRanking(resultsType.scoreFemale)"
               :rightResultTypes="resultsType.scoreFemale.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               :title="surveyIsPreseason ? 'Most Anticipated Anime of the Season by Gender' : 'Best Anime of the Season by Gender'"
               :top="5"
             />
@@ -137,7 +137,7 @@
             <TablePair
               :leftRanking="getRanking(resultsType.scoreDiff)"
               :leftResultTypes="resultsType.scoreDiff.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               title="Biggest Differences in Score by Gender"
               description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."
               :top="3"
@@ -163,7 +163,7 @@
             <TableWithTop3
               :ranking="getRanking(resultsType.surprise)"
               :resultTypes="resultsType.surprise.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               :top="5"
               title="Most Surprising Anime"
             />
@@ -172,7 +172,7 @@
             <TableWithTop3
               :ranking="getRanking(resultsType.disappointment)"
               :resultTypes="resultsType.disappointment.resultTypes"
-              :isAnimeSeries="true"
+              isAnimeSeries
               :top="5"
               title="Most Disappointing Anime"
             />
@@ -185,7 +185,6 @@
     <TableWithTop3
       :ranking="getRanking(resultsType.popularity, true)"
       :resultTypes="resultsType.popularity.resultTypes"
-      :isAnimeSeries="false"
       :top="5"
       title="Most Popular Anime OVAs / ONAs / Movies / Specials"
     />
@@ -194,7 +193,6 @@
       v-if="!surveyIsPreseason"
       :ranking="getRanking(resultsType.score, true)"
       :resultTypes="resultsType.score.resultTypes"
-      :isAnimeSeries="false"
       :top="5"
       title="Best Anime OVAs / ONAs / Movies / Specials"
     />
@@ -220,7 +218,6 @@ import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
-import SimpleResultsTable from './components/SimpleResultsTable.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
 import { SurveyResultsData } from './data/survey-results-data';
@@ -229,7 +226,6 @@ import { SurveyResultsData } from './data/survey-results-data';
   components: {
     AgeDistributionChart,
     GenderDistributionChart,
-    SimpleResultsTable,
     TableWithTop3,
     TablePair,
     AnimeNames,

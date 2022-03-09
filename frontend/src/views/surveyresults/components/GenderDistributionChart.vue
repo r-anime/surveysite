@@ -13,7 +13,10 @@ import { Gender } from "@/util/data";
 // Make sure to load this component only after genderDistribution is not undefined/null!
 @Options({
   props: {
-    genderDistribution: Object,
+    genderDistribution: {
+      type: Object,
+      required: true,
+    },
   },
 })
 export default class GenderDistributionChart extends Vue {

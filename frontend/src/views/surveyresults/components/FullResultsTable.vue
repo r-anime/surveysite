@@ -47,15 +47,21 @@ import _ from 'lodash';
 import { AnimeTableColumnData } from '../data/anime-table-column-data';
 
 @Options({
-  props: {
-    columns: Array,
-    entries: Array,
-    isAnimeSeries: Boolean,
-  },
   components: {
     AnimeImages,
     AnimeNames,
-  }
+  },
+  props: {
+    columns: {
+      type: Array,
+      required: true,
+    },
+    entries: {
+      type: Array,
+      required: true,
+    },
+    isAnimeSeries: Boolean,
+  },
 })
 export default class FullResultsTable extends Vue {
   columns!: AnimeTableColumnData[];

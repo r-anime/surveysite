@@ -8,13 +8,13 @@
     <DropdownMultiSelect :items="tableDataOfSeries.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event)">
       Columns
     </DropdownMultiSelect>
-    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" :isAnimeSeries="true"/>
+    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
     <DropdownMultiSelect :items="tableDataOfSpecial.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event, false)">
       Columns
     </DropdownMultiSelect>
-    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries" :isAnimeSeries="false"/>
+    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
       <div class="col-auto pe-1">
