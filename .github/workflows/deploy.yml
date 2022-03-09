@@ -43,11 +43,10 @@ jobs:
           # Run migrations, pulling environment variables from the .env file
           eval $(cat .env) python manage.py migrate
 
-          # Compile static Sass files
-          eval $(cat .env) python manage.py sass survey/static/survey/scss/ survey/static/survey/css/
-
           # Collect all static files into STATIC_ROOT
           eval $(cat .env) python manage.py collectstatic --noinput
+
+          # TODO: `npm install` and 'vue-cli-service build' in ./frontend
 
           # Restart the service to make the new stuff go live
           sudo systemctl restart surveysite.service
