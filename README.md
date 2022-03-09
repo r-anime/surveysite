@@ -13,7 +13,7 @@ Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/
 
 * Python 3.9+.
 * Node.js. This project was made using v14, other versions are untested.
-  * A global install of [Vue CLI](https://cli.vuejs.org/) v4.
+  * A global install of [Vue CLI](https://cli.vuejs.org/) v5.
 
 ## Setup
 

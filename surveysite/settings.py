@@ -40,6 +40,11 @@ CSRF_COOKIE_SECURE = use_https
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if use_https else 'http'
 
 
+# This started becoming necessary after upgrading @vue/cli from v4 to v5?
+if DEBUG:
+    import mimetypes
+    mimetypes.add_type('application/javascript', '.js', True)
+
 # Application definition
 
 INSTALLED_APPS = [

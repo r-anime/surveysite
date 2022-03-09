@@ -16,7 +16,8 @@
       "webpack-env",
       
       "@wdio/mocha-framework",
-      "@wdio/sync",
+      "expect-webdriverio",
+      "webdriverio/sync",
       "mocha",
       "chai"
     ],
