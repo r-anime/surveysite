@@ -20,7 +20,7 @@ export default class UserService {
     this.userDataPromise = HttpService.get<UserData, UserData | null>('api/user/', userData => {
       return userData;
     }, errorResponse => {
-      NotificationService.pushMsgList(errorResponse.errors.global ?? ['An unknown error occurred trying to obtain user data'], 'danger');
+      NotificationService.pushMsgList(errorResponse.errors?.global ?? ['An unknown error occurred trying to obtain user data'], 'danger');
       return null;
     });
 

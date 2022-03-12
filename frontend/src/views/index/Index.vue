@@ -84,7 +84,7 @@ export default class Index extends Vue {
 
   async created(): Promise<void> {
     await HttpService.get<IndexSurveyData[]>('api/index/', this.getSeasonData, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
     });
   }
 

@@ -1,23 +1,25 @@
 from datetime import datetime
-from django.http.response import Http404
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from random import randint
 from survey.models import Anime, Survey
 from survey.util.anime import anime_series_filter, annotate_year_season, calc_season_difference, combine_year_season, is_ongoing_filter_func, special_anime_filter
-from typing import Optional
+from typing import Optional, Union
 
 
-def get_survey_or_404(year: int, season: Anime.AnimeSeason, pre_or_post: bool) -> Survey:
-    """Tries to get the specified survey or raises an Http404 exception."""
+def try_get_survey(year: int, season: Anime.AnimeSeason, pre_or_post: str) -> Union[Survey, None]:
+    """Tries to get the specified survey, returns None if not found."""
     if pre_or_post == 'pre':
         is_preseason = True
     elif pre_or_post == 'post':
         is_preseason = False
     else:
-        raise Http404("Survey does not exist!")
+        return None
 
-    survey = get_object_or_404(Survey, year=year, season=season, is_preseason=is_preseason)
+    try:
+        survey: Survey = Survey.objects.get(year=year, season=season, is_preseason=is_preseason)
+    except (Survey.DoesNotExist, Survey.MultipleObjectsReturned):
+        return None
+
     return survey
 
 

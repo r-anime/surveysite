@@ -134,7 +134,7 @@ export default class SurveyForm extends Vue {
       const specialAnime = groupedAnime.false;
       this.specialAnimeIds = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
     }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? failureResponse.status === 404 ? ['Survey not found!'] : ['An unknown error occurred'], 'danger');
       this.$router.push({name: 'Index'});
     });
   }
@@ -157,7 +157,7 @@ export default class SurveyForm extends Vue {
       });
       this.$router.push({name: 'Index'});
     }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors.global ?? [], 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');
 
       if (failureResponse.errors) {
         this.validationErrors = failureResponse.errors.validation ?? null;

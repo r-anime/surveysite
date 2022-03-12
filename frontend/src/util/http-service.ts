@@ -46,6 +46,7 @@ function fixResponseDataIfJsonParsingFailed(responseData: any) {
       // Try to parse the response after replacing NaNs with nulls
       return JSON.parse(responseData.replace(/\bNaN\b/g, 'null'));
     } catch (e) {
+      return {};
       // The response was not JSON
       if (e instanceof SyntaxError) {
         throw new Error('The server returned an invalid response');
@@ -66,29 +67,29 @@ export default class HttpService {
     validateStatus: statusCode => (statusCode >= 200 && statusCode < 300) || (statusCode >= 400 && statusCode < 500),
   });
 
-  static async get<TResponse, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  static async get<TResponse, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     return await this.performRequestFn(this._axios.get, url, successFn, failureFn);
   }
 
-  static async post<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  static async post<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.post, url, data, successFn, failureFn);
   }
 
-  static async put<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  static async put<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
   }
 
-  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
   }
 
 
-  private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ErrorResponse>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ErrorResponse>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     const response = await axiosRequestFn(url);
     return this.processResponse(response, successFn, failureFn);
   }
 
-  private static async performDataRequestFn<TResponse, TRequest, TResult>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ErrorResponse, TRequest>, url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): Promise<TResult> {
+  private static async performDataRequestFn<TResponse, TRequest, TResult>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ErrorResponse, TRequest>, url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
     const config: AxiosRequestConfig = {
       headers: {
         'X-CSRFToken': this.getCsrfToken(),
@@ -100,17 +101,18 @@ export default class HttpService {
   }
 
 
-  private static processResponse<TResponse, TResult>(response: AxiosResponse<TResponse | ErrorResponse>, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResponse) => TResult): TResult {
+  private static processResponse<TResponse, TResult>(response: AxiosResponse<TResponse | ErrorResponse>, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): TResult {
     if (this.isResponseSuccess(response)) {
       return successFn(response.data);
-    } else if (this.isResponseValidationErrorData(response)) {
-      if (failureFn) {
-        return failureFn(response.data);
-      } else {
-        throw new Error('The server responded with validation errors, but no failure handler was given.');
-      }
     } else if (response.status === 401 || response.status === 403) {
       throw new Error('User unauthenticated');
+    } else if (this.isResponseValidationErrorData(response)) {
+      if (failureFn) {
+        const errorResult: ErrorResult = Object.assign({ status: response.status }, response.data);
+        return failureFn(errorResult);
+      } else {
+        throw new Error('The server responded with an error status, but no failure handler was given.');
+      }
     } else {
       throw new Error('The server responded with invalid data.');
     }
@@ -122,7 +124,7 @@ export default class HttpService {
   }
 
   private static isResponseValidationErrorData<TResponse>(response: AxiosResponse<TResponse | ErrorResponse>): response is AxiosResponse<ErrorResponse> {
-    return response.status >= 400 && response.status < 600 && 'errors' in response.data;
+    return response.status >= 400 && response.status < 600;
   }
 
 
@@ -138,8 +140,16 @@ type AxiosRequestFn<TResponse> = (url: string, config?: AxiosRequestConfig) => P
 type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 
 type ErrorResponse = {
-  errors: {
+  errors?: {
     global?: string[],
     validation?: ValidationErrorData,
   },
 };
+
+type ErrorResult = {
+  errors?: {
+    global?: string[],
+    validation?: ValidationErrorData,
+  },
+  status: number,
+}

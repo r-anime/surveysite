@@ -16,8 +16,8 @@ import logging
 from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
 from survey.util.anime import anime_is_continuing
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
-from survey.util.http import JsonErrorResponse
-from survey.util.survey import get_survey_or_404, get_survey_anime
+from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
+from survey.util.survey import try_get_survey, get_survey_anime
 from typing import Any, Callable, Optional
 
 # TODO: Just the PUT request,
@@ -28,11 +28,13 @@ class SurveyFormApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
         jsonEncoder = json_encoder_factory()
 
-        survey = get_survey_or_404(
+        survey = try_get_survey(
             year=self.kwargs['year'],
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
         )
+        if survey is None:
+            return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
 
         if survey.state == Survey.State.UPCOMING:
             return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
@@ -66,11 +68,13 @@ class SurveyFormApi(View):
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
     def put(self, request: HttpRequest, *args, **kwargs):
-        survey = get_survey_or_404(
+        survey = try_get_survey(
             year=self.kwargs['year'],
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
         )
+        if survey is None:
+            return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
 
         if survey.state == Survey.State.UPCOMING:
             return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)

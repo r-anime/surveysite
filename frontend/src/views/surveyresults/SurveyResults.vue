@@ -29,7 +29,7 @@ export default class SurveyResults extends Vue {
       this.surveyResultsData = surveyResultsData;
       this.pageTitle = getSurveyName(surveyResultsData.survey) + ' Results!';
     }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors.global ?? ['An unknown error occurred'], 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? failureResponse.status === 404 ? ['Survey not found!'] : ['An unknown error occurred'], 'danger');
       this.$router.push({name: 'Index'});
     });
   }

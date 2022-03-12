@@ -99,9 +99,9 @@ export default class SurveyFormMissingAnimeModal extends Vue {
 
       return true;
     }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors.global ?? [], 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? failureResponse.status === 404 ? ['Survey not found!'] : [], 'danger');
       
-      const validationErrors = failureResponse.errors.validation ?? null;
+      const validationErrors = failureResponse.errors?.validation ?? null;
       if (validationErrors != null) {
         this.validationErrors = validationErrors;
         NotificationService.push({

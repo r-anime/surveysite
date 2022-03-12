@@ -7,17 +7,19 @@ from django.views.generic import View
 from http import HTTPStatus
 from survey.models import Response, Survey
 from survey.util.data import AnimeData, SurveyData, json_encoder_factory
-from survey.util.http import JsonErrorResponse
+from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.results import ResultsGenerator
-from survey.util.survey import get_survey_anime, get_survey_or_404
+from survey.util.survey import get_survey_anime, try_get_survey
 
 class SurveyResultsApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
-        survey = get_survey_or_404(
+        survey = try_get_survey(
             year=self.kwargs['year'],
             season=self.kwargs['season'],
             pre_or_post=self.kwargs['pre_or_post'],
         )
+        if survey is None:
+            return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
 
         if survey.state == Survey.State.UPCOMING:
             return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)

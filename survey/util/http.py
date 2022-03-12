@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from json import JSONEncoder
 from typing import Optional, Type, Union
 
@@ -13,3 +13,7 @@ class JsonErrorResponse(JsonResponse):
             error_data = data
             
         super().__init__({'errors': error_data}, encoder=encoder, safe=safe, status=status, *args, **kwargs)
+
+class HttpEmptyErrorResponse(HttpResponse):
+    def __init__(self, status: Union[HTTPStatus, int], *args, **kwargs) -> None:
+        super().__init__({}, status=status, *args, **kwargs)
