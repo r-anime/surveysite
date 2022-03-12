@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http.request import HttpRequest
 from django.http.response import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 from http import HTTPStatus
 import json
@@ -12,6 +14,7 @@ from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.survey import try_get_survey
 from typing import Any, Optional
 
+@method_decorator(login_required, name='put')
 class SurveyMissingAnimeApi(View):
     def put(self, request: HttpRequest, *args, **kwargs):
         survey = try_get_survey(
