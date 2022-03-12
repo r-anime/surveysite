@@ -22,7 +22,7 @@
     "lodash": "^4.17.21",
     "vue": "^3.2.31",
     "vue-class-component": "^8.0.0-0",
-    "vue-router": "^4.0.13"
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.1.9",
@@ -42,14 +42,14 @@
     "@vue/compiler-sfc": "^3.2.31",
     "@vue/eslint-config-typescript": "^10.0.0",
     "@vue/test-utils": "^2.0.0-rc.17",
-    "@wdio/sync": "^7.0.7",
+    "@wdio/sync": "^7.17.4",
     "axios": "^0.26.1",
     "chai": "^4.3.6",
     "chromedriver": "^99.0.0",
-    "eslint": "^8.10.0",
+    "eslint": "^8.11.0",
     "eslint-plugin-vue": "^8.5.0",
     "geckodriver": "^3.0.1",
-    "mocha": "^9.2.1",
+    "mocha": "^9.2.2",
     "sass": "^1.49.9",
     "sass-loader": "^12.6.0",
     "ts-node": "^10.7.0",
