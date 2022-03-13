@@ -86,9 +86,9 @@ export default class IndexSurvey extends Vue {
     const resultTypeNumber = Number(resultType);
     switch (resultTypeNumber) {
       case ResultType.POPULARITY:
-        return 'Most popular series';
+        return 'Most popular anime';
       case ResultType.SCORE:
-        return this.survey.isPreseason ? 'Most anticipated series' : 'Most highly regarded series';
+        return this.survey.isPreseason ? 'Most anticipated anime' : 'Most highly regarded anime';
       default:
         return ResultType[resultTypeNumber];
     }

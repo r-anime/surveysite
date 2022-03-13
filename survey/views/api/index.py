@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
+import math
 from survey.models import Anime, Image, Survey
 from survey.util.data import DataBase, ImageData, ResultsType, SurveyData, json_encoder_factory, AnimeData
 from survey.util.results import ResultsGenerator
@@ -17,7 +18,7 @@ class IndexApi(View):
         except ValueError:
             return JsonResponse({})
         
-        survey_list: list[Survey] = list(Survey.objects.filter(year=year) if year else Survey.objects.all())
+        survey_list: list[Survey] = list(Survey.objects.filter(year=2020, season=3)) #list(Survey.objects.filter(year=year) if year else Survey.objects.all())
         jsonEncoder = json_encoder_factory()
 
         resultstype_list = [ResultsType.POPULARITY, ResultsType.SCORE]
@@ -26,9 +27,9 @@ class IndexApi(View):
             anime_results = None
             anime_images = None
             if survey.state == Survey.State.FINISHED:
-                anime_series_results = ResultsGenerator(survey).get_anime_results_data()
+                anime_results = ResultsGenerator(survey).get_anime_results_data()
                 anime_results = {
-                    resultstype.value: get_top_results(anime_series_results, resultstype, 2)
+                    resultstype.value: get_top_results(anime_results, resultstype, 2)
                     for resultstype in resultstype_list
                 }
             else:
@@ -46,15 +47,23 @@ class IndexApi(View):
 
 
 def get_top_results(results: dict[int, dict[ResultsType, float]], resultstype: ResultsType, count: int, descending: bool=True):
+    # Remove anime below the popularity threshold, and anime with a result value of NaN or infinite
+    sorted_results = [
+        (anime_id, anime_results)
+        for (anime_id, anime_results) in results.items()
+        if anime_results[ResultsType.POPULARITY] > 0.02 and math.isfinite(anime_results[resultstype])
+    ]
+
+    # Sort all anime by the given result type
     sorted_results = sorted(
-        results.items(),
+        sorted_results,
         reverse=descending,
         key=lambda item: item[1][resultstype]
-    )[:count]
+    )
 
     return [                 # Check how this can be optimized
         IndexSurveyAnimeData(anime=AnimeData.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resultstype])
-        for (anime_id, anime_results) in sorted_results
+        for (anime_id, anime_results) in sorted_results[:count]
     ]
 
 

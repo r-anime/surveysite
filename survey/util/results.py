@@ -24,8 +24,8 @@ class ResultsGenerator:
 
         Returns
         -------
-        ({anime_id: {ResultsType: any}}, {anime_id: {ResultsType: any}})
-            A dict for anime series and one for special anime, where each anime has an associated dict of result values.
+        {anime_id: {ResultsType: float}}
+            A dict where each anime has an associated dict of result values.
         """
         if self.survey.state != Survey.State.FINISHED:
             return self.__get_anime_results_data_internal()
