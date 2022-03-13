@@ -48,7 +48,7 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
       }),
     },
   }, {
-    path: '/survey/:year/:season/:preOrPost/results/',
+    path: '/survey/:year/:season/:preOrPost/',
     name: 'SurveyResults',
     component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResults.vue'),
     beforeEnter: confirmValidSurveyRouteParams,
@@ -60,11 +60,11 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
       }) + ' Results',
     },
     children: [{
-      path: '',
+      path: 'results/',
       name: 'SurveyResultsSummary',
       component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsSummary.vue'),
     }, {
-      path: 'full/',
+      path: 'fullresults/',
       name: 'SurveyResultsFull',
       component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsFull.vue'),
     }],
