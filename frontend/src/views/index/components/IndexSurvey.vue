@@ -10,10 +10,10 @@
     </div>
     
     <template v-if="isSurveyFinished">
-      <div v-for="(animeResultsList, resultsType) in survey.animeResults" :key="resultsType" class="col mb-3">
+      <div v-for="(animeResultsList, resultType) in survey.animeResults" :key="resultType" class="col mb-3">
         <div class="row">
           <div class="col py-1 px-2 w-100">
-            {{ getResultsTypeTitle(resultsType) }}
+            {{ getResultTypeTitle(resultType) }}
           </div>
         </div>
         <div class="row px-2 align-items-center">
@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import { ResultsType } from '@/util/data';
+import { ResultType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
@@ -82,15 +82,15 @@ export default class IndexSurvey extends Vue {
     this.isSurveyFinished = this.closingTime < dayjs();
   }
 
-  getResultsTypeTitle(resultsType: string): string {
-    const resultsTypeNumber = Number(resultsType);
-    switch (resultsTypeNumber) {
-      case ResultsType.POPULARITY:
+  getResultTypeTitle(resultType: string): string {
+    const resultTypeNumber = Number(resultType);
+    switch (resultTypeNumber) {
+      case ResultType.POPULARITY:
         return 'Most popular series';
-      case ResultsType.SCORE:
+      case ResultType.SCORE:
         return this.survey.isPreseason ? 'Most anticipated series' : 'Most highly regarded series';
       default:
-        return ResultsType[resultsTypeNumber];
+        return ResultType[resultTypeNumber];
     }
   }
 }

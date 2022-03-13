@@ -41,7 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 import AnimeImages from '@/components/AnimeImages.vue';
 import AnimeNames from '@/components/AnimeNames.vue';
 import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
-import { AnimeNameType, ResultsType } from '@/util/data';
+import { AnimeNameType, ResultType } from '@/util/data';
 import { AnimeTableEntryData } from '../data/anime-table-entry-data';
 import _ from 'lodash';
 import { AnimeTableColumnData } from '../data/anime-table-column-data';
@@ -77,7 +77,7 @@ export default class FullResultsTable extends Vue {
   getResultTypeName = getResultTypeName;
 
   activeSort: {
-    resultType: ResultsType | null,
+    resultType: ResultType | null,
     descending: boolean,
   } = {
     resultType: null,
@@ -93,7 +93,7 @@ export default class FullResultsTable extends Vue {
 
     const sortValueRaw = this.$route.query[this.sortRouteQueryKey];
     if (sortValueRaw && !Array.isArray(sortValueRaw)) {
-      const sortValue: ResultsType = Number(sortValueRaw);
+      const sortValue: ResultType = Number(sortValueRaw);
       this.sortByResultType(sortValue);
     } else {
       this.sortByResultType(null);
@@ -110,7 +110,7 @@ export default class FullResultsTable extends Vue {
    * Sort columns by a particular result type
    * @param resultType Result type to sort by, or null to sort by (Japanese) name
    */
-  sortByResultType(resultType: ResultsType | null): void {
+  sortByResultType(resultType: ResultType | null): void {
     let descending = resultType != null; // When sorting by name, sort ascending first, otherwise descending
     if (this.activeSort.resultType == resultType) {
       descending = !this.activeSort.descending;
@@ -142,7 +142,7 @@ export default class FullResultsTable extends Vue {
     }, descending ? 'desc' : 'asc');
   }
 
-  getColumnSortCssClass(resultType: ResultsType | null): Record<string, boolean> {
+  getColumnSortCssClass(resultType: ResultType | null): Record<string, boolean> {
     const sortedOnColumn = this.activeSort.resultType === resultType;
     return {
       'table-col-sort-desc': sortedOnColumn && this.activeSort.descending,

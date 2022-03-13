@@ -1,6 +1,6 @@
 import { filter, orderBy } from "lodash";
 import { RouteLocation } from "vue-router";
-import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultsType } from "./data";
+import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
 
 /**
  * Returns the season's name with the first letter capitalized
@@ -56,29 +56,29 @@ export function getAnimeName(anime: AnimeData, animeNameType: AnimeNameType): st
   return ordered[0].name;
 }
 
-const resultTypeDataMap: Record<ResultsType, { name: string, formatter: (value?: number) => string }> = {
+const resultTypeDataMap: Record<ResultType, { name: string, formatter: (value?: number) => string }> = {
   // Someone please tell me why "hyphens: auto" doesn't work unless I add hyphens manually
-  [ResultsType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: percentageFormatter },
-  [ResultsType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: percentageFormatter },
-  [ResultsType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: percentageFormatter },
-  [ResultsType.GENDER_POPULARITY_RATIO]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: genderRatioFormatter },
-  [ResultsType.SCORE]: { name: 'Sco\u00ADre', formatter: numberFormatter },
-  [ResultsType.SCORE_MALE]: { name: 'Sco\u00ADre (Male)', formatter: numberFormatter },
-  [ResultsType.SCORE_FEMALE]: { name: 'Sco\u00ADre (Female)', formatter: numberFormatter },
-  [ResultsType.GENDER_SCORE_DIFFERENCE]: { name: 'Score Diff.', formatter: scoreDiffFormatter },
-  [ResultsType.AGE]: { name: 'Avg. Age', formatter: numberFormatter },
-  [ResultsType.UNDERWATCHED]: { name: 'Un\u00ADder\u00ADwatch\u00ADed', formatter: percentageFormatter },
-  [ResultsType.SURPRISE]: { name: 'Sur\u00ADprise', formatter: percentageFormatter },
-  [ResultsType.DISAPPOINTMENT]: { name: 'Dis\u00ADa\u00ADppoint\u00ADment', formatter: percentageFormatter },
+  [ResultType.POPULARITY]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty', formatter: percentageFormatter },
+  [ResultType.POPULARITY_MALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Male)', formatter: percentageFormatter },
+  [ResultType.POPULARITY_FEMALE]: { name: 'Pop\u00ADu\u00ADlar\u00ADi\u00ADty (Fe\u00ADmale)', formatter: percentageFormatter },
+  [ResultType.GENDER_POPULARITY_RATIO]: { name: 'Gen\u00ADder Ra\u00ADtio', formatter: genderRatioFormatter },
+  [ResultType.SCORE]: { name: 'Sco\u00ADre', formatter: numberFormatter },
+  [ResultType.SCORE_MALE]: { name: 'Sco\u00ADre (Male)', formatter: numberFormatter },
+  [ResultType.SCORE_FEMALE]: { name: 'Sco\u00ADre (Female)', formatter: numberFormatter },
+  [ResultType.GENDER_SCORE_DIFFERENCE]: { name: 'Score Diff.', formatter: scoreDiffFormatter },
+  [ResultType.AGE]: { name: 'Avg. Age', formatter: numberFormatter },
+  [ResultType.UNDERWATCHED]: { name: 'Un\u00ADder\u00ADwatch\u00ADed', formatter: percentageFormatter },
+  [ResultType.SURPRISE]: { name: 'Sur\u00ADprise', formatter: percentageFormatter },
+  [ResultType.DISAPPOINTMENT]: { name: 'Dis\u00ADa\u00ADppoint\u00ADment', formatter: percentageFormatter },
 };
 
-export function getResultTypeName(resultType: ResultsType, withHyphens = true): string {
+export function getResultTypeName(resultType: ResultType, withHyphens = true): string {
   const name = resultTypeDataMap[resultType].name;
   if (!withHyphens) return name.replaceAll('\u00AD', '');
   return name;
 }
 
-export function getResultTypeFormatter(resultType: ResultsType): (value?: number) => string {
+export function getResultTypeFormatter(resultType: ResultType): (value?: number) => string {
   return resultTypeDataMap[resultType].formatter;
 }
 

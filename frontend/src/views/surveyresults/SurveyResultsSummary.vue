@@ -22,8 +22,8 @@
 
     <h3 class="section-title">Popularity</h3>
     <TableWithTop3
-      :ranking="getRanking(resultsType.popularity)"
-      :resultTypes="resultsType.popularity.resultTypes"
+      :ranking="getRanking(resultType.popularity)"
+      :resultTypes="resultType.popularity.resultTypes"
       isAnimeSeries
       :top="10"
       title="Most Popular Anime Series"
@@ -43,10 +43,10 @@
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-gender">
           <div class="col-12">
             <TablePair
-              :leftRanking="getRanking(resultsType.popularityMale)"
-              :leftResultTypes="resultsType.popularityMale.resultTypes"
-              :rightRanking="getRanking(resultsType.popularityFemale)"
-              :rightResultTypes="resultsType.popularityFemale.resultTypes"
+              :leftRanking="getRanking(resultType.popularityMale)"
+              :leftResultTypes="resultType.popularityMale.resultTypes"
+              :rightRanking="getRanking(resultType.popularityFemale)"
+              :rightResultTypes="resultType.popularityFemale.resultTypes"
               isAnimeSeries
               title="Most Popular Anime Series by Gender"
               :top="3"
@@ -54,8 +54,8 @@
           </div>
           <div class="col-12">
             <TablePair
-              :leftRanking="getRanking(resultsType.popularityRatio)"
-              :leftResultTypes="resultsType.popularityRatio.resultTypes"
+              :leftRanking="getRanking(resultType.popularityRatio)"
+              :leftResultTypes="resultType.popularityRatio.resultTypes"
               isAnimeSeries
               title="Biggest Differences in Popularity by Gender"
               description="Expressed as the ratio of male popularity to female popularity (and vice versa)."
@@ -80,8 +80,8 @@
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-miscellaneous">
           <div class="col-12" v-if="!surveyIsPreseason">
             <TableWithTop3
-              :ranking="getRanking(resultsType.underwatched)"
-              :resultTypes="resultsType.underwatched.resultTypes"
+              :ranking="getRanking(resultType.underwatched)"
+              :resultTypes="resultType.underwatched.resultTypes"
               isAnimeSeries
               :top="5"
               title="Most Underwatched Anime"
@@ -89,8 +89,8 @@
           </div>
           <div class="col-12">
             <TablePair
-              :leftRanking="getRanking(resultsType.age)"
-              :leftResultTypes="resultsType.age.resultTypes"
+              :leftRanking="getRanking(resultType.age)"
+              :leftResultTypes="resultType.age.resultTypes"
               isAnimeSeries
               title="Average Age per Anime"
               :top="3"
@@ -102,8 +102,8 @@
 
     <h3 class="section-title">Impressions</h3>
     <TableWithTop3
-      :ranking="getRanking(resultsType.score)"
-      :resultTypes="resultsType.score.resultTypes"
+      :ranking="getRanking(resultType.score)"
+      :resultTypes="resultType.score.resultTypes"
       isAnimeSeries
       :top="10"
       :bottom="5"
@@ -124,10 +124,10 @@
         <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
           <div class="col-12">
             <TablePair
-              :leftRanking="getRanking(resultsType.scoreMale)"
-              :leftResultTypes="resultsType.scoreMale.resultTypes"
-              :rightRanking="getRanking(resultsType.scoreFemale)"
-              :rightResultTypes="resultsType.scoreFemale.resultTypes"
+              :leftRanking="getRanking(resultType.scoreMale)"
+              :leftResultTypes="resultType.scoreMale.resultTypes"
+              :rightRanking="getRanking(resultType.scoreFemale)"
+              :rightResultTypes="resultType.scoreFemale.resultTypes"
               isAnimeSeries
               :title="surveyIsPreseason ? 'Most Anticipated Anime of the Season by Gender' : 'Best Anime of the Season by Gender'"
               :top="5"
@@ -135,8 +135,8 @@
           </div>
           <div class="col-12">
             <TablePair
-              :leftRanking="getRanking(resultsType.scoreDiff)"
-              :leftResultTypes="resultsType.scoreDiff.resultTypes"
+              :leftRanking="getRanking(resultType.scoreDiff)"
+              :leftResultTypes="resultType.scoreDiff.resultTypes"
               isAnimeSeries
               title="Biggest Differences in Score by Gender"
               description="Expressed in how much higher an anime was scored by men compared to women (and vice versa)."
@@ -161,8 +161,8 @@
         <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
           <div class="col-12">
             <TableWithTop3
-              :ranking="getRanking(resultsType.surprise)"
-              :resultTypes="resultsType.surprise.resultTypes"
+              :ranking="getRanking(resultType.surprise)"
+              :resultTypes="resultType.surprise.resultTypes"
               isAnimeSeries
               :top="5"
               title="Most Surprising Anime"
@@ -170,8 +170,8 @@
           </div>
           <div class="col-12">
             <TableWithTop3
-              :ranking="getRanking(resultsType.disappointment)"
-              :resultTypes="resultsType.disappointment.resultTypes"
+              :ranking="getRanking(resultType.disappointment)"
+              :resultTypes="resultType.disappointment.resultTypes"
               isAnimeSeries
               :top="5"
               title="Most Disappointing Anime"
@@ -183,16 +183,16 @@
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
     <TableWithTop3
-      :ranking="getRanking(resultsType.popularity, true)"
-      :resultTypes="resultsType.popularity.resultTypes"
+      :ranking="getRanking(resultType.popularity, true)"
+      :resultTypes="resultType.popularity.resultTypes"
       :top="5"
       title="Most Popular Anime OVAs / ONAs / Movies / Specials"
     />
 
     <TableWithTop3
       v-if="!surveyIsPreseason"
-      :ranking="getRanking(resultsType.score, true)"
-      :resultTypes="resultsType.score.resultTypes"
+      :ranking="getRanking(resultType.score, true)"
+      :resultTypes="resultType.score.resultTypes"
       :top="5"
       title="Best Anime OVAs / ONAs / Movies / Specials"
     />
@@ -212,7 +212,7 @@
 <script lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { AnimeData, ResultsType } from '@/util/data';
+import { AnimeData, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
 import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
@@ -242,19 +242,19 @@ export default class SurveyResultsSummary extends Vue {
   averageAge?: string;
 
   // TODO: Super scuffed, please change how this works
-  readonly resultsType: Record<string, { value: ResultsType, resultTypes: [ResultsType] | [ResultsType, ResultsType] }> = {
-    popularity: { value: ResultsType.POPULARITY, resultTypes: [ResultsType.POPULARITY] },
-    popularityMale: { value: ResultsType.POPULARITY_MALE, resultTypes: [ResultsType.POPULARITY_MALE, ResultsType.POPULARITY] },
-    popularityFemale: { value: ResultsType.POPULARITY_FEMALE, resultTypes: [ResultsType.POPULARITY_FEMALE, ResultsType.POPULARITY] },
-    popularityRatio: { value: ResultsType.GENDER_POPULARITY_RATIO, resultTypes: [ResultsType.GENDER_POPULARITY_RATIO, ResultsType.POPULARITY] },
-    score: { value: ResultsType.SCORE, resultTypes: [ResultsType.SCORE] },
-    scoreMale: { value: ResultsType.SCORE_MALE, resultTypes: [ResultsType.SCORE_MALE, ResultsType.SCORE] },
-    scoreFemale: { value: ResultsType.SCORE_FEMALE, resultTypes: [ResultsType.SCORE_FEMALE, ResultsType.SCORE] },
-    scoreDiff: { value: ResultsType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultsType.GENDER_SCORE_DIFFERENCE, ResultsType.SCORE] },
-    age: { value: ResultsType.AGE, resultTypes: [ResultsType.AGE] },
-    underwatched: { value: ResultsType.UNDERWATCHED, resultTypes: [ResultsType.UNDERWATCHED, ResultsType.POPULARITY] },
-    surprise: { value: ResultsType.SURPRISE, resultTypes: [ResultsType.SURPRISE, ResultsType.SCORE] },
-    disappointment: { value: ResultsType.DISAPPOINTMENT, resultTypes: [ResultsType.DISAPPOINTMENT, ResultsType.SCORE] },
+  readonly resultType: Record<string, { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }> = {
+    popularity: { value: ResultType.POPULARITY, resultTypes: [ResultType.POPULARITY] },
+    popularityMale: { value: ResultType.POPULARITY_MALE, resultTypes: [ResultType.POPULARITY_MALE, ResultType.POPULARITY] },
+    popularityFemale: { value: ResultType.POPULARITY_FEMALE, resultTypes: [ResultType.POPULARITY_FEMALE, ResultType.POPULARITY] },
+    popularityRatio: { value: ResultType.GENDER_POPULARITY_RATIO, resultTypes: [ResultType.GENDER_POPULARITY_RATIO, ResultType.POPULARITY] },
+    score: { value: ResultType.SCORE, resultTypes: [ResultType.SCORE] },
+    scoreMale: { value: ResultType.SCORE_MALE, resultTypes: [ResultType.SCORE_MALE, ResultType.SCORE] },
+    scoreFemale: { value: ResultType.SCORE_FEMALE, resultTypes: [ResultType.SCORE_FEMALE, ResultType.SCORE] },
+    scoreDiff: { value: ResultType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultType.GENDER_SCORE_DIFFERENCE, ResultType.SCORE] },
+    age: { value: ResultType.AGE, resultTypes: [ResultType.AGE] },
+    underwatched: { value: ResultType.UNDERWATCHED, resultTypes: [ResultType.UNDERWATCHED, ResultType.POPULARITY] },
+    surprise: { value: ResultType.SURPRISE, resultTypes: [ResultType.SURPRISE, ResultType.SCORE] },
+    disappointment: { value: ResultType.DISAPPOINTMENT, resultTypes: [ResultType.DISAPPOINTMENT, ResultType.SCORE] },
   };
 
   created(): void {
@@ -264,21 +264,21 @@ export default class SurveyResultsSummary extends Vue {
     ).toFixed(2);
   }
 
-  getRanking(resultsTypeData: { value: ResultsType, resultTypes: ResultsType[] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
+  getRanking(resultTypeData: { value: ResultType, resultTypes: ResultType[] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
     let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
 
     const animeIds = Object.keys(this.surveyResultsData.results);
     animeIds.forEach(animeIdStr => {
       const animeId = Number(animeIdStr);
-      if (this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) return;
+      if (this.surveyResultsData.results[animeId][ResultType.POPULARITY] < 0.02) return;
 
       const animeData = this.surveyResultsData.anime[animeId];
       if (isAnimeSeries(animeData) === forSpecialAnime) return;
 
-      const extraResult: ResultsType|undefined = resultsTypeData.resultTypes[1];
+      const extraResult: ResultType|undefined = resultTypeData.resultTypes[1];
       resultsTable.push({
         anime: animeData,
-        result: this.surveyResultsData.results[animeId][resultsTypeData.value],
+        result: this.surveyResultsData.results[animeId][resultTypeData.value],
         extraResult: extraResult ? this.surveyResultsData.results[animeId][extraResult] : undefined,
       });
     });

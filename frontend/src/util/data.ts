@@ -69,7 +69,7 @@ export interface SurveyData {
   closingEpochTime: number;
 }
 
-export enum ResultsType {
+export enum ResultType {
   POPULARITY                  =  1,
   POPULARITY_MALE             =  2,
   POPULARITY_FEMALE           =  3,

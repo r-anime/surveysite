@@ -48,7 +48,7 @@
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Vue, Options } from 'vue-class-component';
-import { AnimeData, ResultsType } from '@/util/data';
+import { AnimeData, ResultType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import { RouteLocationNormalized } from 'vue-router';
 
@@ -76,7 +76,7 @@ import { RouteLocationNormalized } from 'vue-router';
 })
 export default class SimpleResultsTable extends Vue { // TODO: Replace this class with the AnimeTable component
   ranking!: { anime: AnimeData, result: number, extraResult?: number }[];
-  resultTypes!: ResultsType[];
+  resultTypes!: ResultType[];
   isAnimeSeries!: boolean;
   top!: number;
   bottom?: number;
@@ -109,23 +109,23 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
     let progressBarValueParser = (value: number) => value;
 
     switch (this.resultTypes[0]) {
-      case ResultsType.SCORE:
-      case ResultsType.SCORE_MALE:
-      case ResultsType.SCORE_FEMALE:
+      case ResultType.SCORE:
+      case ResultType.SCORE_MALE:
+      case ResultType.SCORE_FEMALE:
         progressBarMin = 1.0;
         progressBarMax = 5.0;
         break;
-      case ResultsType.GENDER_SCORE_DIFFERENCE:
+      case ResultType.GENDER_SCORE_DIFFERENCE:
         progressBarMin = 0;
         progressBarMax = 1.5;
         progressBarValueParser = value => Math.abs(value);
         break;
-      case ResultsType.GENDER_POPULARITY_RATIO:
+      case ResultType.GENDER_POPULARITY_RATIO:
         progressBarMin = 0;
         progressBarMax = 10.0;
         progressBarValueParser = value => value >= 1.0 ? value : 1.0 / value;
         break;
-      case ResultsType.AGE:
+      case ResultType.AGE:
         progressBarMin = 20.0;
         progressBarMax = 30.0;
         break;

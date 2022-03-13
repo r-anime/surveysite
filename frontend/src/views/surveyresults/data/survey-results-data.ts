@@ -1,7 +1,7 @@
-import { AnimeData, Gender, ResultsType, SurveyData } from "@/util/data";
+import { AnimeData, Gender, ResultType, SurveyData } from "@/util/data";
 
 export interface SurveyResultsData {
-  results: Record<number, Record<ResultsType, number>>;
+  results: Record<number, Record<ResultType, number>>;
   anime: Record<number, AnimeData>;
   survey: SurveyData;
   miscellaneous: {

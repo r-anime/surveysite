@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
-import { ResultsType, SelectorItem } from '@/util/data';
+import { ResultType, SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import FullResultsTable from './components/FullResultsTable.vue';
@@ -41,7 +41,7 @@ import { SurveyResultsData } from './data/survey-results-data';
 class TableData {
   columns: AnimeTableColumnData[] = [];
   entries: AnimeTableEntryData[] = [];
-  isColumnVisible: Partial<Record<ResultsType, boolean>> = {};
+  isColumnVisible: Partial<Record<ResultType, boolean>> = {};
 
   get processedColumns(): AnimeTableColumnData[] {
     return this.columns.filter(column => this.isColumnVisible[column.resultType]);
@@ -67,46 +67,46 @@ export default class SurveyResultsFull extends Vue {
 
   created(): void {
     // Columns
-    const resultTypesOfSeries: ResultsType[] = this.surveyResultsData.survey.isPreseason ? [
-      ResultsType.POPULARITY,
-      ResultsType.POPULARITY_MALE,
-      ResultsType.POPULARITY_FEMALE,
-      ResultsType.GENDER_POPULARITY_RATIO,
-      ResultsType.AGE,
-      ResultsType.SCORE,
-      ResultsType.SCORE_MALE,
-      ResultsType.SCORE_FEMALE,
-      ResultsType.GENDER_SCORE_DIFFERENCE,
+    const resultTypesOfSeries: ResultType[] = this.surveyResultsData.survey.isPreseason ? [
+      ResultType.POPULARITY,
+      ResultType.POPULARITY_MALE,
+      ResultType.POPULARITY_FEMALE,
+      ResultType.GENDER_POPULARITY_RATIO,
+      ResultType.AGE,
+      ResultType.SCORE,
+      ResultType.SCORE_MALE,
+      ResultType.SCORE_FEMALE,
+      ResultType.GENDER_SCORE_DIFFERENCE,
     ] : [
-      ResultsType.POPULARITY,
-      ResultsType.POPULARITY_MALE,
-      ResultsType.POPULARITY_FEMALE,
-      ResultsType.GENDER_POPULARITY_RATIO,
-      ResultsType.AGE,
-      ResultsType.UNDERWATCHED,
-      ResultsType.SCORE,
-      ResultsType.SCORE_MALE,
-      ResultsType.SCORE_FEMALE,
-      ResultsType.GENDER_SCORE_DIFFERENCE,
-      ResultsType.SURPRISE,
-      ResultsType.DISAPPOINTMENT,
+      ResultType.POPULARITY,
+      ResultType.POPULARITY_MALE,
+      ResultType.POPULARITY_FEMALE,
+      ResultType.GENDER_POPULARITY_RATIO,
+      ResultType.AGE,
+      ResultType.UNDERWATCHED,
+      ResultType.SCORE,
+      ResultType.SCORE_MALE,
+      ResultType.SCORE_FEMALE,
+      ResultType.GENDER_SCORE_DIFFERENCE,
+      ResultType.SURPRISE,
+      ResultType.DISAPPOINTMENT,
     ];
-    const resultTypesOfSpecial: ResultsType[] = this.surveyResultsData.survey.isPreseason ? [
-      ResultsType.POPULARITY,
-      ResultsType.POPULARITY_MALE,
-      ResultsType.POPULARITY_FEMALE,
-      ResultsType.GENDER_POPULARITY_RATIO,
-      ResultsType.AGE,
+    const resultTypesOfSpecial: ResultType[] = this.surveyResultsData.survey.isPreseason ? [
+      ResultType.POPULARITY,
+      ResultType.POPULARITY_MALE,
+      ResultType.POPULARITY_FEMALE,
+      ResultType.GENDER_POPULARITY_RATIO,
+      ResultType.AGE,
     ] : [
-      ResultsType.POPULARITY,
-      ResultsType.POPULARITY_MALE,
-      ResultsType.POPULARITY_FEMALE,
-      ResultsType.GENDER_POPULARITY_RATIO,
-      ResultsType.AGE,
-      ResultsType.SCORE,
-      ResultsType.SCORE_MALE,
-      ResultsType.SCORE_FEMALE,
-      ResultsType.GENDER_SCORE_DIFFERENCE,
+      ResultType.POPULARITY,
+      ResultType.POPULARITY_MALE,
+      ResultType.POPULARITY_FEMALE,
+      ResultType.GENDER_POPULARITY_RATIO,
+      ResultType.AGE,
+      ResultType.SCORE,
+      ResultType.SCORE_MALE,
+      ResultType.SCORE_FEMALE,
+      ResultType.GENDER_SCORE_DIFFERENCE,
     ];
 
     for (const resultType of resultTypesOfSeries) {
@@ -130,7 +130,7 @@ export default class SurveyResultsFull extends Vue {
 
       for (const animeIdStr in this.surveyResultsData.results) {
         const animeId = Number(animeIdStr);
-        if (filterEnabled && this.surveyResultsData.results[animeId][ResultsType.POPULARITY] < 0.02) continue;
+        if (filterEnabled && this.surveyResultsData.results[animeId][ResultType.POPULARITY] < 0.02) continue;
 
         const animeTableEntry: AnimeTableEntryData = {
           anime: this.surveyResultsData.anime[animeId],
@@ -152,7 +152,7 @@ export default class SurveyResultsFull extends Vue {
     return { id: column.resultType, name: getResultTypeName(column.resultType) };
   }
 
-  selectionChanged(ids: ResultsType[], isAnimeSeries = true): void {
+  selectionChanged(ids: ResultType[], isAnimeSeries = true): void {
     const table = isAnimeSeries ? this.tableDataOfSeries : this.tableDataOfSpecial;
     table.columns.forEach(column => table.isColumnVisible[column.resultType] = ids.includes(column.resultType));
   }
