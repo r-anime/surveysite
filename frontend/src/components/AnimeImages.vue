@@ -51,7 +51,7 @@ type CssClass = string | Record<string, boolean>;
 export default class AnimeImages extends Vue {
   animeImages!: ImageData[];
   imgClass?: string;
-  alignCenter!: boolean;
+  alignStart!: boolean;
 
   imgClassInternal: CssClass[] = [];
   id = 0;
@@ -63,7 +63,7 @@ export default class AnimeImages extends Vue {
     AnimeImages.componentId++;
 
     this.imgClassInternal = ['img-fluid', 'd-block'];
-    if (this.alignCenter) {
+    if (!this.alignStart) {
       this.imgClassInternal.push('mx-auto');
     }
     if (this.imgClass) {
