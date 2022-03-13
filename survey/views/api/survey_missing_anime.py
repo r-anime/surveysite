@@ -31,7 +31,6 @@ class SurveyMissingAnimeApi(View):
             return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
             
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
-        print(json_data)
 
         try:
             missing_anime_data = MissingAnimeData.from_dict(json_data)
@@ -45,7 +44,7 @@ class SurveyMissingAnimeApi(View):
         try:
             missing_anime.full_clean()
         except ValidationError as e:
-            print('Error:', e.message_dict)
+            logging.warning('A validation error occurred while a user was submitting missing aniem to survey "%s":\r\n%s', str(survey), str(e.message_dict))
             validation_errors['missing_anime'] = e.message_dict
 
         if validation_errors:

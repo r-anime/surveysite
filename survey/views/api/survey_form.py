@@ -104,7 +104,7 @@ class SurveyFormApi(View):
         try:
             response.full_clean()
         except ValidationError as e:
-            print('Error:', e.message_dict)
+            logging.warning('A validation error occurred while a user was submitting a response to survey "%s":\r\n%s', str(survey), str(e.message_dict))
             validation_errors['response'] = e.message_dict
 
         if previous_response is None:
@@ -203,7 +203,6 @@ class ResponseData(DataBase):
 
     @staticmethod
     def from_model(model: Response) -> ResponseData:
-        #print(model._meta.get_fields())
         return ResponseData(
             age=model.age,
             gender=model.gender,
