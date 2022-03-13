@@ -1,5 +1,6 @@
 <template>
   <div class="row row-cols-1">
+    <Spinner v-if="!surveyData?.length" center/>
     
     <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
@@ -64,11 +65,13 @@ import { getSeasonName } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import { IndexSurveyData } from './data/index-survey-data';
 import dayjs from 'dayjs';
+import Spinner from '@/components/Spinner.vue';
 
 
 @Options({
   components: {
     IndexSurvey,
+    Spinner,
   },
 })
 export default class Index extends Vue {

@@ -1,7 +1,9 @@
 <template>
-  <h1 class="page-title" v-if="surveyName">{{ surveyName }}!</h1>
+  <h1 class="page-title">{{ surveyName }}!</h1>
 
-  <template v-if="surveyFormData">
+  <Spinner v-if="!surveyFormData" center/>
+
+  <template v-else>
     <div class="row mb-5">
       <div class="col-12 col-md-4">
         <div class="row">
@@ -80,7 +82,7 @@
 
 <script lang="ts">
 import { AnimeData, AnimeNameType, SurveyData, UserData, ValidationErrorData } from '@/util/data';
-import { getAnimeName, getSurveyApiUrl, getSurveyName, isAnimeSeries } from '@/util/helpers';
+import { getAnimeName, getSurveyApiUrl, getSurveyName, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import _ from 'lodash';
@@ -92,6 +94,7 @@ import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData }
 import HttpService from '@/util/http-service';
 import UserService from '@/util/user-service';
 import dayjs from 'dayjs';
+import Spinner from '@/components/Spinner.vue';
 
 
 @Options({
@@ -99,6 +102,7 @@ import dayjs from 'dayjs';
     SurveyFormAnime,
     FormValidationErrors,
     SurveyFormMissingAnimeModal,
+    Spinner,
   },
 })
 export default class SurveyForm extends Vue {
@@ -117,6 +121,8 @@ export default class SurveyForm extends Vue {
   };
 
   async created(): Promise<void> {
+    this.surveyName = getSurveyNameFromRoute(this.$route);
+
     const userData = await UserService.getUserData();
     await HttpService.get<SurveyFormData>(getSurveyApiUrl(this.$route), surveyFormData => {
       if (!this.checkAuthentication(userData, surveyFormData.survey)) {
@@ -126,7 +132,6 @@ export default class SurveyForm extends Vue {
 
       this.surveyFormData = surveyFormData;
       this.isSurveyPreseason = surveyFormData.survey.isPreseason;
-      this.surveyName = getSurveyName(surveyFormData.survey);
 
       const groupedAnime = _.groupBy(surveyFormData.animeDataDict, isAnimeSeries);
       const animeSeries = groupedAnime.true;

@@ -22,6 +22,18 @@ export function getSurveyApiUrl(route: RouteLocation): string {
 }
 
 /**
+ * Gets the survey's name from the survey specified in the route.  
+ * Handing an invalid survey route may lead to unexpected results as no checks are performed!
+ */
+export function getSurveyNameFromRoute(route: RouteLocation): string {
+  return getSurveyName({
+    isPreseason: route.params['preOrPost'] !== 'post', // Pre-season as fallback
+    season: Number(route.params['season']),
+    year: Number(route.params['year']),
+  });
+}
+
+/**
  * Gets the survey's name with proper title capitalization
  * @param survey The survey data
  * @returns The survey's name, e.g. 'The End of Fall 2021 Survey'
