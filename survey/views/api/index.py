@@ -18,7 +18,7 @@ class IndexApi(View):
         except ValueError:
             return JsonResponse({})
         
-        survey_list: list[Survey] = list(Survey.objects.filter(year=2020, season=3)) #list(Survey.objects.filter(year=year) if year else Survey.objects.all())
+        survey_list: list[Survey] = list(Survey.objects.filter(year=year) if year else Survey.objects.all())
         jsonEncoder = json_encoder_factory()
 
         resulttype_list = [ResultType.POPULARITY, ResultType.SCORE]

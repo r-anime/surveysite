@@ -31,7 +31,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=6, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=7, timeout=cache_timeout)
 
     def __get_anime_results_data_internal(self) -> dict[int, dict[ResultType, float]]:
         survey = self.survey
