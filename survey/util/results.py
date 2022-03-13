@@ -1,7 +1,7 @@
 from django.core.cache import caches
 from django.db.models import Avg
 from survey.models import AnimeResponse, Response, Survey, SurveyAdditionRemoval
-from survey.util.data import ResultsType
+from survey.util.data import ResultType
 from survey.util.survey import get_survey_anime, get_survey_cache_timeout
 
 
@@ -19,12 +19,12 @@ class ResultsGenerator:
         """
         self.survey = survey
 
-    def get_anime_results_data(self) -> dict[int, dict[ResultsType, float]]:
+    def get_anime_results_data(self) -> dict[int, dict[ResultType, float]]:
         """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
 
         Returns
         -------
-        {anime_id: {ResultsType: float}}
+        {anime_id: {ResultType: float}}
             A dict where each anime has an associated dict of result values.
         """
         if self.survey.state != Survey.State.FINISHED:
@@ -33,7 +33,7 @@ class ResultsGenerator:
             cache_timeout = get_survey_cache_timeout(self.survey)
             return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=6, timeout=cache_timeout)
 
-    def __get_anime_results_data_internal(self) -> dict[int, dict[ResultsType, float]]:
+    def __get_anime_results_data_internal(self) -> dict[int, dict[ResultType, float]]:
         survey = self.survey
 
         anime_list, _, _ = get_survey_anime(survey)
@@ -50,7 +50,7 @@ class ResultsGenerator:
         }
 
     # Returns a dict of data values for an anime
-    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> dict[ResultsType, float]:
+    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> dict[ResultType, float]:
         survey = self.survey
 
         anime_animeresponse_qs = animeresponse_queryset.filter(anime=anime)
@@ -75,18 +75,18 @@ class ResultsGenerator:
         female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
         return {
-            ResultsType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count),
-            ResultsType.POPULARITY_MALE:               male_popularity,
-            ResultsType.POPULARITY_FEMALE:           female_popularity,
-            ResultsType.GENDER_POPULARITY_RATIO:     div0(male_popularity, female_popularity),
-            ResultsType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count),
-            ResultsType.SCORE:                              average_score,
-            ResultsType.SCORE_MALE:                    male_average_score,
-            ResultsType.SCORE_FEMALE:                female_average_score,
-            ResultsType.GENDER_SCORE_DIFFERENCE:     male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
-            ResultsType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count),
-            ResultsType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count),
-            ResultsType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
+            ResultType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count),
+            ResultType.POPULARITY_MALE:               male_popularity,
+            ResultType.POPULARITY_FEMALE:           female_popularity,
+            ResultType.GENDER_POPULARITY_RATIO:     div0(male_popularity, female_popularity),
+            ResultType.UNDERWATCHED:                div0(watchers_animeresponse_qs.filter(underwatched=True).count(), watcher_response_count),
+            ResultType.SCORE:                              average_score,
+            ResultType.SCORE_MALE:                    male_average_score,
+            ResultType.SCORE_FEMALE:                female_average_score,
+            ResultType.GENDER_SCORE_DIFFERENCE:     male_average_score - female_average_score if min(male_average_score, female_average_score) > 0 else float('NaN'),
+            ResultType.SURPRISE:                    div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.SURPRISE      ).count(), watcher_response_count),
+            ResultType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count),
+            ResultType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
         }
 
     def __get_adjusted_response_count(self, addition_removal_list: list[SurveyAdditionRemoval], response_count: int) -> int:

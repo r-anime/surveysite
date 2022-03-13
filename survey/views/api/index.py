@@ -4,7 +4,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import View
 import math
 from survey.models import Anime, Image, Survey
-from survey.util.data import DataBase, ImageData, ResultsType, SurveyData, json_encoder_factory, AnimeData
+from survey.util.data import DataBase, ImageData, ResultType, SurveyData, json_encoder_factory, AnimeData
 from survey.util.results import ResultsGenerator
 from survey.util.survey import get_survey_anime
 from typing import Optional
@@ -21,7 +21,7 @@ class IndexApi(View):
         survey_list: list[Survey] = list(Survey.objects.filter(year=2020, season=3)) #list(Survey.objects.filter(year=year) if year else Survey.objects.all())
         jsonEncoder = json_encoder_factory()
 
-        resultstype_list = [ResultsType.POPULARITY, ResultsType.SCORE]
+        resulttype_list = [ResultType.POPULARITY, ResultType.SCORE]
         response = []
         for survey in survey_list:
             anime_results = None
@@ -29,8 +29,8 @@ class IndexApi(View):
             if survey.state == Survey.State.FINISHED:
                 anime_results = ResultsGenerator(survey).get_anime_results_data()
                 anime_results = {
-                    resultstype.value: get_top_results(anime_results, resultstype, 2)
-                    for resultstype in resultstype_list
+                    resulttype.value: get_top_results(anime_results, resulttype, 2)
+                    for resulttype in resulttype_list
                 }
             else:
                 anime_list, _, _ = get_survey_anime(survey)
@@ -46,34 +46,34 @@ class IndexApi(View):
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
 
-def get_top_results(results: dict[int, dict[ResultsType, float]], resultstype: ResultsType, count: int, descending: bool=True):
+def get_top_results(results: dict[int, dict[ResultType, float]], resulttype: ResultType, count: int, descending: bool=True):
     # Remove anime below the popularity threshold, and anime with a result value of NaN or infinite
     sorted_results = [
         (anime_id, anime_results)
         for (anime_id, anime_results) in results.items()
-        if anime_results[ResultsType.POPULARITY] > 0.02 and math.isfinite(anime_results[resultstype])
+        if anime_results[ResultType.POPULARITY] > 0.02 and math.isfinite(anime_results[resulttype])
     ]
 
     # Sort all anime by the given result type
     sorted_results = sorted(
         sorted_results,
         reverse=descending,
-        key=lambda item: item[1][resultstype]
+        key=lambda item: item[1][resulttype]
     )
 
     return [                 # Check how this can be optimized
-        IndexSurveyAnimeData(anime=AnimeData.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resultstype])
+        IndexSurveyAnimeData(anime=AnimeData.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resulttype])
         for (anime_id, anime_results) in sorted_results[:count]
     ]
 
 
 @dataclass
 class IndexSurveyData(SurveyData):
-    anime_results: Optional[dict[ResultsType, list[IndexSurveyAnimeData]]]
+    anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeData]]]
     anime_images: Optional[list[ImageData]]
 
     @staticmethod
-    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultsType, list[IndexSurveyAnimeData]]]) -> IndexSurveyData:
+    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeData]]]) -> IndexSurveyData:
         survey_data = SurveyData.from_model(model)
         return IndexSurveyData(
             year=survey_data.year,

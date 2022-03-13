@@ -132,7 +132,7 @@ class SurveyData(DataBase):
         )
 
 
-class ResultsType(int, Enum):
+class ResultType(int, Enum):
     """Enum representing all types of result values."""
     POPULARITY                  =  1 #"Popularity"
     POPULARITY_MALE             =  2 #"Popularity (Male)"
