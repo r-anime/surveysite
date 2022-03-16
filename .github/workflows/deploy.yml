@@ -46,7 +46,7 @@ jobs:
           # Collect all static files into STATIC_ROOT
           eval $(cat .env) python manage.py collectstatic --noinput
 
-          # TODO: `npm install` and 'vue-cli-service build' in ./frontend
+          # TODO: `npm i` and 'npm run build' in ./frontend
 
           # Restart the service to make the new stuff go live
           sudo systemctl restart surveysite.service
