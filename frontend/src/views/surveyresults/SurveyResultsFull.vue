@@ -5,13 +5,13 @@
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
     <h3 class="section-title" id="tableSeries">Anime Series</h3>
-    <DropdownMultiSelect :items="tableDataOfSeries.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event)">
+    <DropdownMultiSelect :items="tableDataOfSeries.columnsAsSelectorItems" v-model="tableDataOfSeries.visibleColumnTypes">
       Columns
     </DropdownMultiSelect>
     <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
-    <DropdownMultiSelect :items="tableDataOfSpecial.columns.map(mapColumn)" defaultSelectedItemIds @selectionChanged="selectionChanged($event, false)">
+    <DropdownMultiSelect :items="tableDataOfSpecial.columnsAsSelectorItems" v-model="tableDataOfSpecial.visibleColumnTypes">
       Columns
     </DropdownMultiSelect>
     <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
@@ -45,6 +45,17 @@ class TableData {
 
   get processedColumns(): AnimeTableColumnData[] {
     return this.columns.filter(column => this.isColumnVisible[column.resultType]);
+  }
+
+  get columnsAsSelectorItems(): SelectorItem[] {
+    return this.columns.map(column => ({ id: column.resultType, name: getResultTypeName(column.resultType, true) }));
+  }
+
+  get visibleColumnTypes(): ResultType[] {
+    return this.processedColumns.map(column => column.resultType);
+  }
+  set visibleColumnTypes(value: ResultType[]) {
+    this.columns.forEach(column => this.isColumnVisible[column.resultType] = value.includes(column.resultType));
   }
 }
 
@@ -146,15 +157,6 @@ export default class SurveyResultsFull extends Vue {
     }, {
       immediate: true,
     });
-  }
-
-  mapColumn(column: AnimeTableColumnData): SelectorItem {
-    return { id: column.resultType, name: getResultTypeName(column.resultType) };
-  }
-
-  selectionChanged(ids: ResultType[], isAnimeSeries = true): void {
-    const table = isAnimeSeries ? this.tableDataOfSeries : this.tableDataOfSpecial;
-    table.columns.forEach(column => table.isColumnVisible[column.resultType] = ids.includes(column.resultType));
   }
 }
 </script>

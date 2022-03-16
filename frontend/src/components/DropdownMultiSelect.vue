@@ -31,31 +31,36 @@ import { Options, Vue } from "vue-class-component";
 @Options({
   props: {
     items: {
-      type: Array,
+      type: Array, // SelectorItem[]
       required: true,
     },
-    defaultSelectedItemIds: {
-      type: [Array, Boolean],
-      default: false,
+    modelValue: {
+      type: Array, // Array of selected ids
+      required: true,
     },
     buttonClass: {
       type: String,
       default: 'btn-primary',
     },
   },
-  emits: ['selectionChanged'],
+  emits: ['update:modelValue'],
 })
 export default class DropdownMultiSelect extends Vue {
   items!: SelectorItem[];
-  defaultSelectedItemIds!: number[] | boolean;
+  modelValue!: number[];
 
-  selectedItemIds: number[] = [];
+  get selectedItemIds(): number[] {
+    return this.modelValue;
+  }
+  set selectedItemIds(value: number[]) {
+    this.onSelectionChanged(value);
+  }
 
   set selectAll(value: boolean) {
-    this.selectedItemIds = value ? this.items.map(item => item.id) : [];
+    this.onSelectionChanged(value ? this.items.map(item => item.id) : []);
   }
   get selectAll(): boolean {
-    return this.items.length === this.selectedItemIds.length;
+    return this.items.length === this.modelValue.length;
   }
 
   dropdownId?: string;
@@ -63,17 +68,10 @@ export default class DropdownMultiSelect extends Vue {
 
   created(): void {
     this.dropdownId = `modal${DropdownMultiSelect.componentId++}`;
+  }
 
-    const def = this.defaultSelectedItemIds;
-    if (typeof def === 'boolean') {
-      this.selectedItemIds = def ? this.items.map(item => item.id) : [];
-    } else {
-      Object.assign(this.selectedItemIds, this.defaultSelectedItemIds);
-    }
-
-    this.$watch(() => this.selectedItemIds, (newSelectedItemIds: number[]) => {
-      this.$emit('selectionChanged', newSelectedItemIds);
-    }, { deep: true });
+  onSelectionChanged(newSelectedItemIds: number[]): void {
+    this.$emit('update:modelValue', newSelectedItemIds);
   }
 }
 </script>
