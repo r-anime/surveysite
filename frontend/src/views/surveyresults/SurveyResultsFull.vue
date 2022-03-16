@@ -78,56 +78,59 @@ export default class SurveyResultsFull extends Vue {
 
   created(): void {
     // Columns
-    const resultTypesOfSeries: ResultType[] = this.surveyResultsData.survey.isPreseason ? [
-      ResultType.POPULARITY,
-      ResultType.POPULARITY_MALE,
-      ResultType.POPULARITY_FEMALE,
-      ResultType.GENDER_POPULARITY_RATIO,
-      ResultType.AGE,
-      ResultType.SCORE,
-      ResultType.SCORE_MALE,
-      ResultType.SCORE_FEMALE,
-      ResultType.GENDER_SCORE_DIFFERENCE,
+    const resultTypesOfSeries: { resultType: ResultType, priority: number }[] = this.surveyResultsData.survey.isPreseason ? [
+      { resultType: ResultType.POPULARITY, priority: 1 },
+      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+      { resultType: ResultType.AGE, priority: 3 },
+      { resultType: ResultType.SCORE, priority: 1 },
+      { resultType: ResultType.SCORE_MALE, priority: 3 },
+      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
     ] : [
-      ResultType.POPULARITY,
-      ResultType.POPULARITY_MALE,
-      ResultType.POPULARITY_FEMALE,
-      ResultType.GENDER_POPULARITY_RATIO,
-      ResultType.AGE,
-      ResultType.UNDERWATCHED,
-      ResultType.SCORE,
-      ResultType.SCORE_MALE,
-      ResultType.SCORE_FEMALE,
-      ResultType.GENDER_SCORE_DIFFERENCE,
-      ResultType.SURPRISE,
-      ResultType.DISAPPOINTMENT,
+      { resultType: ResultType.POPULARITY, priority: 1 },
+      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+      { resultType: ResultType.AGE, priority: 3 },
+      { resultType: ResultType.UNDERWATCHED, priority: 1 },
+      { resultType: ResultType.SCORE, priority: 1 },
+      { resultType: ResultType.SCORE_MALE, priority: 3 },
+      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
+      { resultType: ResultType.SURPRISE, priority: 1 },
+      { resultType: ResultType.DISAPPOINTMENT, priority: 1 },
     ];
-    const resultTypesOfSpecial: ResultType[] = this.surveyResultsData.survey.isPreseason ? [
-      ResultType.POPULARITY,
-      ResultType.POPULARITY_MALE,
-      ResultType.POPULARITY_FEMALE,
-      ResultType.GENDER_POPULARITY_RATIO,
-      ResultType.AGE,
+    const resultTypesOfSpecial: { resultType: ResultType, priority: number }[] = this.surveyResultsData.survey.isPreseason ? [
+      { resultType: ResultType.POPULARITY, priority: 1 },
+      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+      { resultType: ResultType.AGE, priority: 3 },
     ] : [
-      ResultType.POPULARITY,
-      ResultType.POPULARITY_MALE,
-      ResultType.POPULARITY_FEMALE,
-      ResultType.GENDER_POPULARITY_RATIO,
-      ResultType.AGE,
-      ResultType.SCORE,
-      ResultType.SCORE_MALE,
-      ResultType.SCORE_FEMALE,
-      ResultType.GENDER_SCORE_DIFFERENCE,
+      { resultType: ResultType.POPULARITY, priority: 1 },
+      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+      { resultType: ResultType.AGE, priority: 3 },
+      { resultType: ResultType.SCORE, priority: 1 },
+      { resultType: ResultType.SCORE_MALE, priority: 3 },
+      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
     ];
 
+    // By default we'll only show columns with a priority number <=2 for desktops/large screens, or <=1 for phones/small screens.
+    // Breakpoint is 768 - Bootstrap's md breakpoint.
+    const priority = window.innerWidth < 768 ? 1 : 2;
     for (const resultType of resultTypesOfSeries) {
-      this.tableDataOfSeries.columns.push({ resultType });
-      this.tableDataOfSeries.isColumnVisible[resultType] = true;
+      this.tableDataOfSeries.columns.push({ resultType: resultType.resultType });
+      this.tableDataOfSeries.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
     }
 
     for (const resultType of resultTypesOfSpecial) {
-      this.tableDataOfSpecial.columns.push({ resultType });
-      this.tableDataOfSpecial.isColumnVisible[resultType] = true;
+      this.tableDataOfSpecial.columns.push({ resultType: resultType.resultType });
+      this.tableDataOfSpecial.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
     }
 
     // Entries
