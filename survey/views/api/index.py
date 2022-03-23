@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 import math
 from survey.models import Anime, Image, Survey
@@ -10,6 +12,9 @@ from survey.util.survey import get_survey_anime
 from typing import Optional
 
 
+# Don't cache the index, we perform caching on the computationally-intensive part of this (gathering survey results data),
+# and we don't want users to see surveys still being closed/open when they've just opened/closed
+@method_decorator(never_cache, name='get')
 class IndexApi(View):
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         year_param = request.GET.get('year', '')
