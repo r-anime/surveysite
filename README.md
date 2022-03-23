@@ -16,7 +16,7 @@ This project consists of a Django back-end in the root folder, and a static Vue.
 * `WEBSITE_SECRET`: a strong, secure [secret key](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key) for Django.
 * `WEBSITE_REDDIT_OAUTH_CLIENT_ID`: the client ID of the Reddit OAuth app.
 * `WEBSITE_REDDIT_OAUTH_SECRET`: the secret of the Reddit OAuth app.
-* `WEBSITE_DEBUG`: presence of this variable enabled debug mode.
+* `WEBSITE_DEBUG`: presence of this variable enables debug mode.
 * `WEBSITE_ALLOWED_HOSTS`: [a list of host/domain names](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-ALLOWED_HOSTS) Django should serve, seperated by semicolons (`;`). This list is optional if debug mode is enabled.
 * `WEBSITE_USE_HTTPS`: presence of this indicates whether the application is hosted via HTTPS.
 
@@ -37,10 +37,10 @@ Before either debugging or deploying the project:
 
 #### Deploying
 
-Install all packages, and perform in arbitrary order:
+Install all packages, and:
 
-* Run Django migrations using `python manage.py migrate`
-* Collect all static files of Django: `python manage.py collectstatic --noinput`
-* Build `./frontend`: `vue-cli-service build` (or `npm run build`)
+* Build `./frontend`: `npm run build`
+* Run Django migrations: `python manage.py migrate`
+* Let Django collect all static files (including the frontend): `python manage.py collectstatic --noinput`
 
 Use your favorite server to [deploy the Django application](https://docs.djangoproject.com/en/3.2/howto/deployment/).

@@ -1,39 +1,41 @@
 <template>
-  <table role="table" :aria-colcount="3 + columns.length" class="table table-bordered">
-    <thead role="rowgroup">
-      <tr role="row">
-        <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank align-middle" aria-label="Rank"></th>
-        <th role="columnheader" scope="col" aria-colindex="2" colspan="2" :class="['table-col-anime', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(null)]" @click="sortByResultType(null)">Anime</th>
-        <th v-for="(column, columnIdx) in processedColumns"
-            :key="column.resultType"
-            role="columnheader"
-            scope="col"
-            :aria-colindex="columnIdx + 4"
-            :class="['table-col-result', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(column.resultType)]"
-            :style="column.cssStyle"
-            @click="sortByResultType(column.resultType)"
-        >
-          {{ getResultTypeName(column.resultType) }}
-        </th>
-      </tr>
-    </thead>
-    <tbody role="rowgroup">
-      <tr role="row" v-for="(entry, entryIdx) in processedEntries" :key="entry.anime.id">
-        <td role="cell" aria-colindex="1" class="table-col-rank">
-          #{{ entryIdx + 1 }}
-        </td>
-        <td role="cell" aria-colindex="2" class="table-col-image border-end-0" style="height:5em;">
-          <AnimeImages :animeImages="entry.anime.images" maxHeight="5em"/>
-        </td>
-        <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
-          <AnimeNames :animeNames="entry.anime.names"/>
-        </td>
-        <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
-          {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table role="table" :aria-colcount="3 + columns.length" class="table table-bordered">
+      <thead role="rowgroup">
+        <tr role="row">
+          <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank align-middle" aria-label="Rank"></th>
+          <th role="columnheader" scope="col" aria-colindex="2" colspan="2" :class="['table-col-anime', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(null)]" @click="sortByResultType(null)">Anime</th>
+          <th v-for="(column, columnIdx) in processedColumns"
+              :key="column.resultType"
+              role="columnheader"
+              scope="col"
+              :aria-colindex="columnIdx + 4"
+              :class="['table-col-result', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(column.resultType)]"
+              :style="column.cssStyle"
+              @click="sortByResultType(column.resultType)"
+          >
+            {{ getResultTypeName(column.resultType) }}
+          </th>
+        </tr>
+      </thead>
+      <tbody role="rowgroup">
+        <tr role="row" v-for="(entry, entryIdx) in processedEntries" :key="entry.anime.id">
+          <td role="cell" aria-colindex="1" class="table-col-rank">
+            #{{ entryIdx + 1 }}
+          </td>
+          <td role="cell" aria-colindex="2" class="table-col-image border-end-0" style="height:5em;">
+            <AnimeImages :animeImages="entry.anime.images" maxHeight="5em"/>
+          </td>
+          <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
+            <AnimeNames :animeNames="entry.anime.names"/>
+          </td>
+          <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
+            {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script lang="ts">
