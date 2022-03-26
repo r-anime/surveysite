@@ -42,7 +42,6 @@
     "@vue/compiler-sfc": "^3.2.31",
     "@vue/eslint-config-typescript": "^10.0.0",
     "@vue/test-utils": "^2.0.0-rc.17",
-    "@wdio/sync": "^7.17.4",
     "axios": "^0.26.1",
     "chai": "^4.3.6",
     "chromedriver": "^99.0.0",
