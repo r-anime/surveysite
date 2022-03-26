@@ -34,6 +34,22 @@ jobs:
           git fetch --all
           git reset --hard origin/main
 
+          # Frontend build process
+          cd frontend
+
+          # Use nvm to use the correct node version
+          source "$HOME/.nvm/nvm.sh"
+          nvm use
+
+          # Install dependencies
+          npm ci
+
+          # Build
+          NODE_ENV=production npm run build
+
+          # Backend build process
+          cd ..
+
           # Use our virtualenv
           source .venv/bin/activate
 
@@ -45,8 +61,6 @@ jobs:
 
           # Collect all static files into STATIC_ROOT
           eval $(cat .env) python manage.py collectstatic --noinput
-
-          # TODO: build frontend
 
           # Restart the service to make the new stuff go live
           sudo systemctl restart surveysite.service
