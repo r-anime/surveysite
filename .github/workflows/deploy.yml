@@ -34,6 +34,22 @@ jobs:
           git fetch --all
           git reset --hard origin/main
 
+          # Frontend build process
+          cd frontend
+
+          # Use nvm to use the correct node version
+          source "$HOME/.nvm/nvm.sh"
+          nvm use
+
+          # Install dependencies
+          npm ci
+
+          # Build
+          NODE_ENV=production npm run build
+
+          # Backend build process
+          cd ..
+
           # Use our virtualenv
           source .venv/bin/activate
 
@@ -42,9 +58,6 @@ jobs:
 
           # Run migrations, pulling environment variables from the .env file
           eval $(cat .env) python manage.py migrate
-
-          # Compile static Sass files
-          eval $(cat .env) python manage.py sass survey/static/survey/scss/ survey/static/survey/css/
 
           # Collect all static files into STATIC_ROOT
           eval $(cat .env) python manage.py collectstatic --noinput

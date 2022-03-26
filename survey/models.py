@@ -314,6 +314,7 @@ class AnimeResponse(models.Model):
         max_length=1,
         choices=Expectations.choices,
         blank=True,
+        null=True,
     )
 
     # Relation fields
@@ -355,6 +356,9 @@ class MtmUserResponse(models.Model):
         null=True,
         editable=False,
     )
+
+    def __str__(self) -> str:
+        return 'Username hash: "{}", survey: "{}", has response: {}'.format(self.username_hash, self.survey, self.response is not None)
 
 
 
