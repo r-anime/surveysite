@@ -108,7 +108,7 @@
       :top="10"
       :bottom="5"
       :title="surveyIsPreseason ? 'Most (and Least) Anticipated Anime of the Season' : 'Best (and Worst) Anime of the Season'"
-    /> <!-- Bottom 5 missing -->
+    />
 
     <div class="row justify-content-center mt-4">
       <div class="col-11">
@@ -264,7 +264,7 @@ export default class SurveyResultsSummary extends Vue {
     ).toFixed(2);
   }
 
-  getRanking(resultTypeData: { value: ResultType, resultTypes: ResultType[] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
+  getRanking(resultTypeData: { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
     let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
 
     const animeIds = Object.keys(this.surveyResultsData.results);
@@ -275,10 +275,11 @@ export default class SurveyResultsSummary extends Vue {
       const animeData = this.surveyResultsData.anime[animeId];
       if (isAnimeSeries(animeData) === forSpecialAnime) return;
 
-      const extraResult: ResultType|undefined = resultTypeData.resultTypes[1];
+      const mainResult = resultTypeData.resultTypes[0];
+      const extraResult = resultTypeData.resultTypes[1];
       resultsTable.push({
         anime: animeData,
-        result: this.surveyResultsData.results[animeId][resultTypeData.value],
+        result: this.surveyResultsData.results[animeId][mainResult],
         extraResult: extraResult ? this.surveyResultsData.results[animeId][extraResult] : undefined,
       });
     });
