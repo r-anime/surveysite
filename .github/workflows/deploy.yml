@@ -4,7 +4,7 @@ name: Build and deploy
 on:
   push:
     branches:
-    - main
+    - '*'
 
 jobs:
   deploy:
@@ -34,7 +34,7 @@ jobs:
         cd frontend
         npm ci
         NODE_ENV=production npm run build
-        rsync -avz dist surveysite@survey.r-anime.moe:/home/surveysite/surveysite/frontend
+        rsync -avz dist surveysite@survey.r-anime.moe:/home/surveysite/surveysite/frontend/temp_pls_ignore
 
     - name: Apply backend updates
       run: |
