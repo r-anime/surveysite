@@ -42,7 +42,10 @@ jobs:
           # Causes this script to exit early and report a failure if any command errors
           set -e
           
-          cd /home/surveysite/surveysite
+          # Checkout latest changes from our repo, overwriting any local changes
+          cd "$HOME/surveysite"
+          git fetch --all
+          git reset --hard origin/main
 
           # Use our virtualenv
           source .venv/bin/activate
