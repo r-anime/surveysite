@@ -15,13 +15,13 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SURVEYSITE_SSH_KEY }}
 
-    - name: Create GitHub deployment
-      uses: chrnorm/deployment-action@v1.0.0
-      id: github_deployment
-      with:
-        token: ${{ github.token }}
-        target_url: https://survey.r-anime.moe
-        environment: production
+#    - name: Create GitHub deployment
+#      uses: chrnorm/deployment-action@v1.0.0
+#      id: github_deployment
+#      with:
+#        token: ${{ github.token }}
+#        target_url: https://survey.r-anime.moe
+#        environment: production
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -58,18 +58,18 @@ jobs:
           sudo systemctl restart surveysite.service
         EOF
 
-    - name: Update deployment status (success)
-      if: success()
-      uses: chrnorm/deployment-status@v1.0.0
-      with:
-        token: ${{ github.token }}
-        state: success
-        deployment_id: ${{ steps.github_deployment.outputs.deployment_id }}
-
-    - name: Update deployment status (failure)
-      if: failure()
-      uses: chrnorm/deployment-status@v1.0.0
-      with:
-        token: ${{ github.token }}
-        state: failure
-        deployment_id: ${{ steps.github_deployment.outputs.deployment_id }}
+#    - name: Update deployment status (success)
+#      if: success()
+#      uses: chrnorm/deployment-status@v1.0.0
+#      with:
+#        token: ${{ github.token }}
+#        state: success
+#        deployment_id: ${{ steps.github_deployment.outputs.deployment_id }}
+#
+#    - name: Update deployment status (failure)
+#      if: failure()
+#      uses: chrnorm/deployment-status@v1.0.0
+#      with:
+#        token: ${{ github.token }}
+#        state: failure
+#        deployment_id: ${{ steps.github_deployment.outputs.deployment_id }}
