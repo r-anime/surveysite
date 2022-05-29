@@ -41,6 +41,8 @@ jobs:
         ssh -o StrictHostKeyChecking=no surveysite@survey.r-anime.moe /bin/bash << 'EOF'
           # Causes this script to exit early and report a failure if any command errors
           set -e
+          
+          cd /home/surveysite/surveysite
 
           # Use our virtualenv
           source .venv/bin/activate
