@@ -1,0 +1,70 @@
+// This file is included in src/main.ts and should contain all application-wide SCSS
+@use "sass:math";
+$enable-negative-margins: true;
+@import "bootstrap/scss/bootstrap.scss";
+
+.clickable {
+  cursor: pointer;
+  &:hover {
+    background-color: rgba($black, $table-hover-bg-factor);
+  }
+  &:active {
+    background-color: rgba($black, $table-hover-bg-factor * 2);
+  }
+}
+
+// col-$i-5 classes, corresponding to cols with a width halfway between col-$i and col-($i+1)
+@for $i from 0 through 11 {
+  .col-#{$i}-5 {
+    flex: 0 0 auto;
+    width: calc(100% / 24 * (1 + #{$i} * 2));
+  }
+}
+
+.title-color {
+  @extend .bg-primary, .bg-opacity-75, .text-light;
+}
+
+.page-title {
+  @extend .title-color;
+  @extend .mb-4, .mx-n2, .p-3, .shadow;
+}
+
+
+// TODO: Only used for SurveyResults.vue - figure out how to properly add that there later
+.section-title {
+  @extend .title-color;
+  @extend .rounded, .shadow, .mt-4, .p-3;
+}
+
+.subsection-title {
+  @extend .text-center, .mt-4;
+}
+// ---
+
+// Same as .text-smaller-1
+.text-smaller {
+  font-size: 90%;
+}
+
+@for $i from 1 through 5{
+  .text-smaller-#{$i} {
+    font-size: 100% * math.pow(0.9, $i);
+  }
+}
+
+.show-if-collapsed {
+  display: none;
+}
+.show-if-not-collapsed {
+  display: initial;
+}
+
+.collapsed {
+  .show-if-collapsed {
+    display: initial;
+  }
+  .show-if-not-collapsed {
+    display: none;
+  }
+}

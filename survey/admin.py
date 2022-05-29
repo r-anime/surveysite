@@ -6,10 +6,9 @@ from django.db.models.functions import Concat
 from django.forms.models import BaseInlineFormSet
 from django.utils import timezone
 from datetime import datetime
-
-from .models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
-from .util import AnimeUtil
-from io import StringIO, BytesIO
+from io import BytesIO
+from survey.models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
+from survey.util.anime import anime_is_series, anime_series_filter, annotate_year_season, combine_year_season, increment_year_season, is_ongoing_filter_func, special_anime_filter
 import uuid
 import PIL
 
@@ -26,7 +25,7 @@ class YearSeasonListFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         if self.value():
-            return AnimeUtil.annotate_year_season(queryset).filter(AnimeUtil.is_ongoing_filter_func(int(self.value())))
+            return annotate_year_season(queryset).filter(is_ongoing_filter_func(int(self.value())))
         else:
             return queryset
 
@@ -63,9 +62,9 @@ class CondensedAnimeTypeFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         if self.value() == 'series':
-            return queryset.filter(AnimeUtil.anime_series_filter)
+            return queryset.filter(anime_series_filter)
         elif self.value() == 'special':
-            return queryset.filter(AnimeUtil.special_anime_filter)
+            return queryset.filter(special_anime_filter)
         else:
             return queryset
 
@@ -252,26 +251,26 @@ class AnimeAdmin(admin.ModelAdmin):
 
         # Only get if start year/season is something
         if anime.start_year is not None and anime.start_season is not None:
-            start_year_season = AnimeUtil.combine_year_season(anime.start_year, anime.start_season)
+            start_year_season = combine_year_season(anime.start_year, anime.start_season)
             
             # If previous anime is series, go from start to end
-            if AnimeUtil.anime_is_series(anime):
+            if anime_is_series(anime):
                 # Get end year/season (if it's nothing, then ~2 years from now)
                 if anime.end_year is not None and anime.end_season is not None:
-                    end_year_season = AnimeUtil.combine_year_season(anime.end_year, anime.end_season)
+                    end_year_season = combine_year_season(anime.end_year, anime.end_season)
                 else:
-                    end_year_season = AnimeUtil.combine_year_season(datetime.now().year + 2, anime.start_season)
+                    end_year_season = combine_year_season(datetime.now().year + 2, anime.start_season)
                 
                 i = start_year_season
                 while i <= end_year_season:
                     survey_validity_list += [(i, True), (i, False)]
-                    i = AnimeUtil.increment_year_season(i)
+                    i = increment_year_season(i)
             
             # If previous anime is special, only add start and (if it exists) subbed
             else:
                 survey_validity_list.append((start_year_season, True))
                 if anime.subbed_year is not None and anime.subbed_season is not None:
-                    subbed_year_season = AnimeUtil.combine_year_season(anime.subbed_year, anime.subbed_season)
+                    subbed_year_season = combine_year_season(anime.subbed_year, anime.subbed_season)
                     survey_validity_list.append((subbed_year_season, False))
         
         return survey_validity_list
@@ -292,7 +291,7 @@ class AnimeAdmin(admin.ModelAdmin):
         now = timezone.now()
         ongoing_survey_queryset = Survey.objects.filter(opening_time__lt=now, closing_time__gte=now)
         for survey in ongoing_survey_queryset:
-            survey_year_season = AnimeUtil.combine_year_season(survey.year, survey.season)
+            survey_year_season = combine_year_season(survey.year, survey.season)
             
             was_included = (survey_year_season, survey.is_preseason) in prev_survey_validity_list
             is_included = (survey_year_season, survey.is_preseason) in survey_validity_list

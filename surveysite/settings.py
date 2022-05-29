@@ -40,6 +40,11 @@ CSRF_COOKIE_SECURE = use_https
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if use_https else 'http'
 
 
+# This started becoming necessary after upgrading @vue/cli from v4 to v5?
+if DEBUG:
+    import mimetypes
+    mimetypes.add_type('application/javascript', '.js', True)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -56,10 +61,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.reddit',
-    'django_sass',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'htmlmin.middleware.HtmlMinifyMiddleware',
     
@@ -81,7 +87,7 @@ ROOT_URLCONF = 'surveysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'frontend/dist/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,8 +134,8 @@ MESSAGE_TAGS = {
 }
 MESSAGE_LEVEL = message_constants.DEBUG if DEBUG else message_constants.INFO
 
-LOGIN_REDIRECT_URL = 'survey:index'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'survey:index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
+LOGIN_REDIRECT_URL = 'index'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'index' # Why does allauth use django's LOGIN_REDIRECT_URL but not LOGOUT_REDIRECT_URL?
 
 WSGI_APPLICATION = 'surveysite.wsgi.application'
 
@@ -261,6 +267,9 @@ USE_TZ = True
 
 STATIC_ROOT = BASE_DIR / 'static/'
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend/dist/static/'
+]
 
 
 # Media files
