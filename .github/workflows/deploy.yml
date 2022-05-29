@@ -23,32 +23,24 @@ jobs:
         target_url: https://survey.r-anime.moe
         environment: production
 
-    - name: Pull latest changes to server
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Setup Node
+      uses: actions/setup-node@v3
+
+    - name: Apply frontend updates
+      run: |
+        cd frontend
+        npm ci
+        NODE_ENV=production npm run build
+        rsync -avz dist surveysite@survey.r-anime.moe:/home/surveysite/surveysite/frontend
+
+    - name: Apply backend updates
       run: |
         ssh -o StrictHostKeyChecking=no surveysite@survey.r-anime.moe /bin/bash << 'EOF'
           # Causes this script to exit early and report a failure if any command errors
           set -e
-
-          # Checkout latest changes from our repo, overwriting any local changes
-          cd "$HOME/surveysite"
-          git fetch --all
-          git reset --hard origin/main
-
-          # Frontend build process
-          cd frontend
-
-          # Use nvm to use the correct node version
-          source "$HOME/.nvm/nvm.sh"
-          nvm use
-
-          # Install dependencies
-          npm ci
-
-          # Build
-          NODE_ENV=production npm run build
-
-          # Backend build process
-          cd ..
 
           # Use our virtualenv
           source .venv/bin/activate
