@@ -1,5 +1,5 @@
 django_cors_headers==3.7.0
 django_htmlmin==0.11.0
-django_allauth==0.49.0
-Django==3.2.12
-Pillow==9.0.1
+django_allauth==0.50.0
+Django==3.2.13
+Pillow==9.1.1
