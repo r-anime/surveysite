@@ -84,7 +84,7 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
   processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
   resultNames: string[] = []; // [resultName, extraResultName]
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  resultFormatters: ((value: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
+  resultFormatters: ((value?: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
 
   hasExtraResult = false;
 
@@ -140,7 +140,7 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
       return Math.max(Math.min(progressBarValue, 1), 0);
     }
 
-    for (let rowIdx = 0; rowIdx < this.top; rowIdx++) {
+    for (let rowIdx = 0; rowIdx < Math.min(this.top, this.ranking.length); rowIdx++) {
       const row = this.ranking[rowIdx];
       this.processedRanking.push(Object.assign({
         progressBarValue: progressBarValueFn(row.result),
