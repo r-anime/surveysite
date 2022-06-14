@@ -31,10 +31,12 @@ REDDIT_OAUTH_CLIENT_ID = os.environ.get('WEBSITE_REDDIT_OAUTH_CLIENT_ID')
 
 DEBUG = True if os.environ.get('WEBSITE_DEBUG') else False
 
+use_https = True if os.environ.get('WEBSITE_USE_HTTPS') else False
+
 allowed_hosts_env = os.environ.get('WEBSITE_ALLOWED_HOSTS')
 ALLOWED_HOSTS = allowed_hosts_env.split(';') if allowed_hosts_env else []
+CSRF_TRUSTED_ORIGINS = [('https://' if use_https else 'http://') + host for host in ALLOWED_HOSTS]
 
-use_https = True if os.environ.get('WEBSITE_USE_HTTPS') else False
 SESSION_COOKIE_SECURE = use_https
 CSRF_COOKIE_SECURE = use_https
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if use_https else 'http'
