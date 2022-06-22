@@ -21,10 +21,11 @@ class SurveyResultsApi(View):
         if survey is None:
             return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
 
-        if survey.state == Survey.State.UPCOMING:
-            return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
-        elif survey.state == Survey.State.ONGOING and not request.user.is_staff:
-            return JsonErrorResponse('This survey is still ongoing!', HTTPStatus.FORBIDDEN)
+        if not request.user.is_staff:
+            if survey.state == Survey.State.UPCOMING:
+                return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
+            elif survey.state == Survey.State.ONGOING:
+                return JsonErrorResponse('This survey is still ongoing!', HTTPStatus.FORBIDDEN)
 
         # TODO: Optimize, this (and age/gender distr. stuff) prob do multiple DB lookups
         survey_results = ResultsGenerator(survey).get_anime_results_data()

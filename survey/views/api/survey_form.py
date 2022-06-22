@@ -36,10 +36,11 @@ class SurveyFormApi(View):
         if survey is None:
             return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
 
-        if survey.state == Survey.State.UPCOMING:
-            return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
-        elif survey.state == Survey.State.FINISHED:
-            return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
+        if not request.user.is_staff:
+            if survey.state == Survey.State.UPCOMING:
+                return JsonErrorResponse('This survey is not open yet!', HTTPStatus.FORBIDDEN)
+            elif survey.state == Survey.State.FINISHED:
+                return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
 
         previous_response, has_user_responded = try_get_previous_response(request.user, survey)
         if has_user_responded and previous_response is None:
