@@ -220,7 +220,7 @@ export default class SurveyForm extends Vue {
     if (isSurveyOpen) {
       if (!userData.authenticated) {
         NotificationService.push({
-          message: 'You need to be loggged in to fill in a survey!',
+          message: 'You need to be logged in to fill in a survey!',
           color: 'danger',
         });
         return false;
