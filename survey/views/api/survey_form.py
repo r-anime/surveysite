@@ -42,7 +42,7 @@ class SurveyFormApi(View):
             elif survey.state == Survey.State.FINISHED:
                 return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
 
-        previous_response, has_user_responded = try_get_previous_response(request.user, survey)
+        previous_response, response_was_linked, has_user_responded = try_get_previous_response(request.user, request.GET.get('responseId'), survey)
         if has_user_responded and previous_response is None:
             return JsonErrorResponse('You already responded to this survey!', HTTPStatus.FORBIDDEN)
 
@@ -63,7 +63,7 @@ class SurveyFormApi(View):
             anime_data_dict={anime.id: AnimeData.from_model(anime) for anime in anime_list},
             anime_response_data_dict=anime_response_data_dict,
             is_anime_new_dict={anime.id: not anime_is_continuing(anime, survey) for anime in anime_list},
-            is_response_linked_to_user=previous_response is not None,
+            is_response_linked_to_user=response_was_linked,
         )
 
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
@@ -83,7 +83,7 @@ class SurveyFormApi(View):
             # Users can still submit responses 15 minutes after the survey has closed
             return JsonErrorResponse('This survey has already finished!', HTTPStatus.FORBIDDEN)
         
-        previous_response, has_user_responded = try_get_previous_response(request.user, survey)
+        previous_response, _, has_user_responded = try_get_previous_response(request.user, request.GET.get('responseId'), survey)
         if has_user_responded and previous_response is None:
             return JsonErrorResponse('You already responded to this survey!', HTTPStatus.FORBIDDEN)
 
@@ -150,22 +150,31 @@ class SurveyFormApi(View):
             }
         )
 
-        return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
+        if link_response_to_user:
+            return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
+        else:
+            return JsonResponse({'response_public_id': response.public_id})
 
 
 
-def try_get_previous_response(user: User, survey: Survey) -> tuple[Optional[Response], bool]:
+def try_get_previous_response(user: User, response_public_id: Optional[str], survey: Survey) -> tuple[Optional[Response], bool, bool]:
     username_hash = get_username_hash(user)
     mtmuserresponse_queryset = MtmUserResponse.objects.filter(username_hash=username_hash, survey=survey)
 
     # If there is a row, the user responded to this survey
-    # No need to check whether there are multiple entries in the queryset as there's a uniqueness constraint on username_hash and survey
+    # If there is none, don't load any response, not even from the response's public id if supplied as this is likely not the user's response
     if not mtmuserresponse_queryset.exists():
-        return None, False
+        return None, False, False
     else:
         # response can be None if the user did not want the response linked to hem
         response = mtmuserresponse_queryset.first().response
-        return response, True
+        response_was_linked = response is not None
+
+        # If there is no linked response, try to use the response's public id
+        if not response_was_linked and response_public_id is not None:
+            response = Response.objects.filter(public_id=response_public_id, survey=survey).first()
+
+        return response, response_was_linked, True
 
 def get_username_hash(user: User) -> bytes:
     return sha512(user.username.encode('utf-8')).digest()
