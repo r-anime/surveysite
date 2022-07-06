@@ -172,15 +172,16 @@ export default class SurveyForm extends Vue {
       }
       surveyApiUrl += '?responseId=' + responseId;
     }
-    await HttpService.put<{responsePublicId?: string}, SurveyFormSubmitData>(surveyApiUrl, submitData, submitResponse => {
+    await HttpService.put<{responseId?: string}, SurveyFormSubmitData>(surveyApiUrl, submitData, submitResponse => {
       NotificationService.push({
         message: 'Your response was successfully sent!',
         color: 'success',
       });
-      if (submitResponse.responsePublicId) {
-        this.$router.push({name: 'Index'});
+      if (submitResponse.responseId) {
+        // TODO: Rework this, should probably use a modal
+        this.$router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
       } else {
-        this.$router.push({name: 'Index'});
+        this.$router.push({ name: 'Index' });
       }
     }, failureResponse => {
       NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');

@@ -153,7 +153,7 @@ class SurveyFormApi(View):
         if link_response_to_user:
             return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
         else:
-            return JsonResponse({'response_public_id': response.public_id})
+            return JsonResponse({'response_id': response.public_id})
 
 
 

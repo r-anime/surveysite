@@ -48,6 +48,18 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
       }),
     },
   }, {
+    path: '/survey/:year/:season/:preOrPost/link/',
+    name: 'SurveyFormLink',
+    component: () => import('../views/surveyform/SurveyFormLink.vue'),
+    beforeEnter: confirmValidSurveyRouteParams,
+    meta: {
+      subtitleFn: (params: RouteParams) => getSurveyName({
+        isPreseason: params.preOrPost !== 'post',
+        season: Number(params.season),
+        year: Number(params.year),
+      }),
+    },
+  }, {
     path: '/survey/:year/:season/:preOrPost/',
     name: 'SurveyResults',
     component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResults.vue'),
