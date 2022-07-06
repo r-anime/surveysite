@@ -1,32 +1,18 @@
 <template>
   <h1 class="page-title">{{ surveyName }}!</h1>
 
-  <h2>Your response was succesfully submitted!</h2>
+  <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
+    Your response was succesfully submitted!
+  </h3>
   <div class="row row-cols-1">
     <p class="col">
-      To edit your response in the future, save the link below.
-    </p>
-    <p class="col">
-      Without this link, you will not be able to edit your response. Do not share it either, as others will then be able to edit your response.
+      To edit your response in the future, save the link below. Without this link, you will not be able to edit your response. Do not share it either, as others could then also edit your response.
     </p>
     <div class="col">
-      <div class="row" id="response-display">
-        <div class="col col-auto mt-1">
-          <button class="btn btn-primary" @click="displayEditLink = !displayEditLink">
-            <template v-if="displayEditLink">
-              Hide link
-            </template>
-            <template v-else>
-              Show link
-            </template>
-          </button>
-        </div>
-        <div class="col" v-if="displayEditLink">
-          <router-link :to="editLink">
-            {{ editLink }}
-          </router-link>
-        </div>
-      </div>
+      <router-link :to="editLink">
+        <!-- Straight up show the link instead of hiding it behind a toggle for now, as the response id is in the user's navbar anyway -->
+        {{ editLink }}
+      </router-link>
     </div>
   </div>
   
@@ -42,12 +28,11 @@
 import { getSurveyNameFromRoute } from "@/util/helpers";
 import { Options, Vue } from "vue-class-component";
 
-// TODO: Rework this
+// TODO: Replace this with maybe a modal? in the future
 @Options({})
 export default class SurveyFormLink extends Vue {
   surveyName = '';
   editLink = '';
-  displayEditLink = false;
 
   created() {
     this.surveyName = getSurveyNameFromRoute(this.$route);
@@ -55,6 +40,9 @@ export default class SurveyFormLink extends Vue {
     let responseId = this.$route.query.responseId;
     if (Array.isArray(responseId)) {
       responseId = responseId[0];
+    }
+    if (responseId == null) {
+      this.$router.push({ name: 'Index', replace: true });
     }
     this.editLink = this.$router.resolve({ name: 'SurveyForm', query: { responseId } }).fullPath;
   }
