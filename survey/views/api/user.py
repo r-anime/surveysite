@@ -2,10 +2,13 @@ from allauth.socialaccount.providers import registry as auth_provider_registry
 from dataclasses import dataclass, field
 from typing import Optional
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from survey.util.data import DataBase, json_encoder_factory
 
 
+@method_decorator(never_cache, name='get')
 class UserApi(View):
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         jsonEncoder = json_encoder_factory()
