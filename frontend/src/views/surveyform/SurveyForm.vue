@@ -124,7 +124,16 @@ export default class SurveyForm extends Vue {
     this.surveyName = getSurveyNameFromRoute(this.$route);
 
     const userData = await UserService.getUserData();
-    await HttpService.get<SurveyFormData>(getSurveyApiUrl(this.$route), surveyFormData => {
+
+    let surveyApiUrl = getSurveyApiUrl(this.$route);
+    let responseId = this.$route.query.responseId;
+    if (responseId != null) {
+      if (Array.isArray(responseId)) {
+        responseId = responseId[0];
+      }
+      surveyApiUrl += '?responseId=' + responseId;
+    }
+    await HttpService.get<SurveyFormData>(surveyApiUrl, surveyFormData => {
       if (!this.checkAuthentication(userData, surveyFormData.survey)) {
         this.$router.push({ name: 'Index' });
         return;
@@ -155,12 +164,25 @@ export default class SurveyForm extends Vue {
       isResponseLinkedToUser: this.surveyFormData.isResponseLinkedToUser,
     };
 
-    await HttpService.put(getSurveyApiUrl(this.$route), submitData, () => {
+    let surveyApiUrl = getSurveyApiUrl(this.$route);
+    let responseId = this.$route.query.responseId;
+    if (responseId != null) {
+      if (Array.isArray(responseId)) {
+        responseId = responseId[0];
+      }
+      surveyApiUrl += '?responseId=' + responseId;
+    }
+    await HttpService.put<{responseId?: string}, SurveyFormSubmitData>(surveyApiUrl, submitData, submitResponse => {
       NotificationService.push({
         message: 'Your response was successfully sent!',
         color: 'success',
       });
-      this.$router.push({name: 'Index'});
+      if (submitResponse.responseId) {
+        // TODO: Rework this, should probably use a modal
+        this.$router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
+      } else {
+        this.$router.push({ name: 'Index' });
+      }
     }, failureResponse => {
       NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');
 
@@ -220,7 +242,7 @@ export default class SurveyForm extends Vue {
     if (isSurveyOpen) {
       if (!userData.authenticated) {
         NotificationService.push({
-          message: 'You need to be loggged in to fill in a survey!',
+          message: 'You need to be logged in to fill in a survey!',
           color: 'danger',
         });
         return false;
