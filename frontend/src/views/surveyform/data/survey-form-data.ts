@@ -1,16 +1,16 @@
 import { AnimeData, SurveyData } from "@/util/data";
 
 export interface ResponseData {
-  age?: number;
-  gender?: string;
+  age: number | null;
+  gender: string | null;
 }
 
 export interface AnimeResponseData {
   animeId: number;
-  score: number;
+  score: number | null;
   watching: boolean;
-  underwatched?: boolean;
-  expectations?: string;
+  underwatched: boolean | null;
+  expectations: string | null;
 }
 
 export interface SurveyFormBaseData {
