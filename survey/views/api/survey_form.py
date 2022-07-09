@@ -1,12 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.http.request import HttpRequest
-from django.utils.decorators import method_decorator
 from django.utils.functional import classproperty
 from django.views.generic import View
 from hashlib import sha512
@@ -20,12 +18,13 @@ from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.survey import try_get_survey, get_survey_anime
 from typing import Any, Callable, Optional
 
-# TODO: Just the PUT request,
-# in the future unauthenticated users should still be able to see the survey
-# but not be able to respond to the survey
-@method_decorator(login_required, name='put')
+# TODO: In the future unauthenticated users should still be able to see the survey
+#       but not be able to respond to the survey
 class SurveyFormApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.FORBIDDEN)
+
         jsonEncoder = json_encoder_factory()
 
         survey = try_get_survey(
@@ -34,7 +33,7 @@ class SurveyFormApi(View):
             pre_or_post=self.kwargs['pre_or_post'],
         )
         if survey is None:
-            return HttpEmptyErrorResponse(HTTPStatus.NOT_FOUND)
+            return JsonErrorResponse('Survey not found!', HTTPStatus.NOT_FOUND)
 
         if not request.user.is_staff:
             if survey.state == Survey.State.UPCOMING:
@@ -69,6 +68,9 @@ class SurveyFormApi(View):
         return JsonResponse(response, encoder=jsonEncoder, safe=False)
 
     def put(self, request: HttpRequest, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.FORBIDDEN)
+
         survey = try_get_survey(
             year=self.kwargs['year'],
             season=self.kwargs['season'],

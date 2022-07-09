@@ -81,8 +81,8 @@
 </template>
 
 <script lang="ts">
-import { AnimeData, AnimeNameType, SurveyData, UserData, ValidationErrorData } from '@/util/data';
-import { getAnimeName, getSurveyApiUrl, getSurveyName, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
+import { AnimeData, AnimeNameType, ValidationErrorData } from '@/util/data';
+import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import _ from 'lodash';
@@ -92,8 +92,6 @@ import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModa
 import { MissingAnimeData } from './data/missing-anime-data';
 import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
 import HttpService from '@/util/http-service';
-import UserService from '@/util/user-service';
-import dayjs from 'dayjs';
 import Spinner from '@/components/Spinner.vue';
 
 
@@ -123,8 +121,6 @@ export default class SurveyForm extends Vue {
   async created(): Promise<void> {
     this.surveyName = getSurveyNameFromRoute(this.$route);
 
-    const userData = await UserService.getUserData();
-
     let surveyApiUrl = getSurveyApiUrl(this.$route);
     let responseId = this.$route.query.responseId;
     if (responseId != null) {
@@ -134,11 +130,6 @@ export default class SurveyForm extends Vue {
       surveyApiUrl += '?responseId=' + responseId;
     }
     await HttpService.get<SurveyFormData>(surveyApiUrl, surveyFormData => {
-      if (!this.checkAuthentication(userData, surveyFormData.survey)) {
-        this.$router.push({ name: 'Index' });
-        return;
-      }
-
       this.surveyFormData = surveyFormData;
       this.isSurveyPreseason = surveyFormData.survey.isPreseason;
 
@@ -148,7 +139,7 @@ export default class SurveyForm extends Vue {
       const specialAnime = groupedAnime.false;
       this.specialAnimeIds = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
     }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors?.global ?? (failureResponse.status === 404 ? ['Survey not found!'] : ['An unknown error occurred']), 'danger');
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
       this.$router.push({name: 'Index'});
     });
   }
@@ -233,35 +224,6 @@ export default class SurveyForm extends Vue {
 
   isAnimeNew(id: number): boolean | undefined {
     return this.surveyFormData?.isAnimeNewDict[id];
-  }
-
-  private checkAuthentication(userData: UserData | null, surveyData: SurveyData): boolean {
-    if (!userData) {
-      return false;
-    }
-
-    const currentTime = dayjs();
-    const isSurveyOpen = dayjs(surveyData.openingEpochTime) < currentTime && currentTime < dayjs(surveyData.closingEpochTime);
-
-    if (isSurveyOpen) {
-      if (!userData.authenticated) {
-        NotificationService.push({
-          message: 'You need to be logged in to fill in a survey!',
-          color: 'danger',
-        });
-        return false;
-      }
-    } else {
-      if (!userData.authenticated || !userData.isStaff) {
-        NotificationService.push({
-          message: getSurveyName(surveyData) + ' is closed!',
-          color: 'warning',
-        });
-        return false;
-      }
-    }
-
-    return true;
   }
 }
 </script>
