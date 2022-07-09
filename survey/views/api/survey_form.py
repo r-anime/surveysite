@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.http.request import HttpRequest
+from django.utils.decorators import method_decorator
 from django.utils.functional import classproperty
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from hashlib import sha512
 from http import HTTPStatus
@@ -18,8 +20,10 @@ from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.survey import try_get_survey, get_survey_anime
 from typing import Any, Callable, Optional
 
+
 # TODO: In the future unauthenticated users should still be able to see the survey
 #       but not be able to respond to the survey
+@method_decorator(never_cache, name='dispatch')
 class SurveyFormApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
