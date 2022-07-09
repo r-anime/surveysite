@@ -221,9 +221,13 @@ export default class SurveyForm extends Vue {
   // scrolls down the page and hits 'Submit' only to be greeted with a generic error message,
   // while the error is all the way up on the page
   clampAge(): void {
-    if (this.surveyFormData?.responseData?.age && _.isNumber(this.surveyFormData.responseData.age)) {
-      // Assume the user typo'd and get the first two numbers, and then clamp
-      this.surveyFormData.responseData.age = Math.max(10, Math.min(80, Number(this.surveyFormData.responseData.age.toString().slice(0, 2))));
+    if (this.surveyFormData?.responseData?.age != null) {
+      if (_.isNumber(this.surveyFormData.responseData.age)) {
+        // Assume the user typo'd and get the first two numbers, and then clamp
+        this.surveyFormData.responseData.age = Math.max(10, Math.min(80, Number(this.surveyFormData.responseData.age.toString().slice(0, 2))));
+      } else {
+        this.surveyFormData.responseData.age = null;
+      }
     }
   }
 
