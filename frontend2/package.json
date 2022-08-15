@@ -2,7 +2,7 @@
   "name": "surveysite-frontend",
   "version": "0.2.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch --mode development",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",
     "test:unit": "vitest --environment jsdom",

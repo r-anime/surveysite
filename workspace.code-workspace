@@ -39,6 +39,13 @@
 				"request": "launch",
 				"type": "node-terminal",
 				"cwd": "${workspaceFolder}/frontend/"
+			},
+			{
+				"command": "npm run dev",
+				"name": "Front-end (Node/Vite)",
+				"request": "launch",
+				"type": "node-terminal",
+				"cwd": "${workspaceFolder}/frontend2/"
 			}
 		],
 		"compounds": [
@@ -48,7 +55,7 @@
 				"presentation": {
 					"hidden": false,
 					"group": "",
-					"order": 1
+					"order": 3
 				}
 			},
 			{
@@ -58,6 +65,15 @@
 					"hidden": false,
 					"group": "",
 					"order": 2
+				}
+			},
+			{
+				"name": "Back-end + front-end (Vite)",
+				"configurations": ["Back-end (Django)", "Front-end (Node/Vite)"],
+				"presentation": {
+					"hidden": false,
+					"group": "",
+					"order": 1
 				}
 			}
 		]

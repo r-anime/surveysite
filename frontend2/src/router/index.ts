@@ -1,8 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 
+// Remove 'static/' (or 'static') from the base URL so that we get 'example.com/' instead of 'example.com/static/' as base
+const defaultBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = defaultBaseUrl.substring(0, defaultBaseUrl.lastIndexOf('static'));
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(baseUrl),
   routes: [
     {
       path: "/",
@@ -10,7 +14,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/about",
+      path: "/about/",
       name: "about",
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
