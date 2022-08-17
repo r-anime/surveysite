@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { AnimeNameData, AnimeNameType } from '@/util/data';
+import { type AnimeNameData, AnimeNameType } from '@/util/data';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

@@ -11,9 +11,9 @@ import Spinner from '@/components/Spinner.vue';
 import { getSurveyApiUrl, getSurveyNameFromRoute } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import NotificationService from '@/util/notification-service';
-import { computed } from '@vue/runtime-core';
+import { computed } from 'vue';
 import { Vue, Options } from 'vue-class-component';
-import { SurveyResultsData } from './data/survey-results-data';
+import type { SurveyResultsData } from './data/survey-results-data';
 
 @Options({
   components: {

@@ -37,7 +37,7 @@
 
         <div class="row align-items-center justify-content-center h-100 w-100 position-absolute top-0 start-0">
           <div class="col text-center fs-1" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);">
-            {{ isSurveyUpcoming ? `Open ${openingTime.format('MMM D, HH:mm')}!` : 'Survey open!' }}
+            {{ isSurveyUpcoming ? `Open ${openingTime?.format('MMM D, HH:mm') ?? 'soon'}!` : 'Survey open!' }}
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ import { ResultType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
 import { Options, Vue } from 'vue-class-component';
-import { IndexSurveyData } from '../data/index-survey-data';
+import type { IndexSurveyData } from '../data/index-survey-data';
 import dayjs from 'dayjs';
 
 
@@ -82,7 +82,7 @@ export default class IndexSurvey extends Vue {
     this.isSurveyFinished = this.closingTime < dayjs();
   }
 
-  getResultTypeTitle(resultType: string): string {
+  getResultTypeTitle(resultType: ResultType): string {
     const resultTypeNumber = Number(resultType);
     switch (resultTypeNumber) {
       case ResultType.POPULARITY:

@@ -81,7 +81,8 @@
 </template>
 
 <script lang="ts">
-import { AnimeData, AnimeNameType, ValidationErrorData } from '@/util/data';
+import { AnimeNameType } from '@/util/data';
+import type { AnimeData, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -89,8 +90,8 @@ import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
-import { MissingAnimeData } from './data/missing-anime-data';
-import { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data'
+import type { MissingAnimeData } from './data/missing-anime-data';
+import type { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
 import HttpService from '@/util/http-service';
 import Spinner from '@/components/Spinner.vue';
 

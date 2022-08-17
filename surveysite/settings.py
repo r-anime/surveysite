@@ -89,7 +89,7 @@ ROOT_URLCONF = 'surveysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'frontend/dist/templates/'],
+        'DIRS': [BASE_DIR / 'frontend/dist/'], # Shitty way to make index.html usable as a template, will also make all of Vite's output files usable as templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -270,7 +270,7 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR / 'static/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'frontend/dist/static/'
+    BASE_DIR / 'frontend/dist/'
 ]
 
 

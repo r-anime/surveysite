@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory, NavigationGuard, RouteLocationRaw, RouteParams, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
+import type { NavigationGuard, RouteLocationRaw, RouteParams, RouteRecordRaw } from 'vue-router';
 import Index from '@/views/index/Index.vue';
 import NotFound from '@/views/NotFound.vue';
 import { getSurveyName } from '@/util/helpers';
@@ -24,7 +25,7 @@ const confirmValidSurveyRouteParams: NavigationGuard = to => {
       replace: true,
     } as RouteLocationRaw;
   }
-}
+};
 
 type SurveyRouteMeta = {
   subtitleFn?: (params: RouteParams) => string;
@@ -87,8 +88,12 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
   },
 ];
 
+// Remove 'static/' (or 'static') from the base URL so that we get 'example.com/' instead of 'example.com/static/' as base
+const defaultBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = defaultBaseUrl.substring(0, defaultBaseUrl.lastIndexOf('static'));
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(baseUrl),
   routes: routes,
   scrollBehavior: (to, from, savedPosition) => {
     // Don't scroll when we're still in the same view, and the hash is either identical or removed

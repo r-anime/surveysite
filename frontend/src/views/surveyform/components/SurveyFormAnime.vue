@@ -88,7 +88,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { AnimeData, AnimeNameType } from '@/util/data';
+import { type AnimeData, AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries } from '@/util/helpers';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 

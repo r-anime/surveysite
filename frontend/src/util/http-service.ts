@@ -1,7 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import _ from "lodash";
-import { ValidationErrorData } from "./data";
+import type { ValidationErrorData } from "./data";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function camelizeKeys(obj: any): any {

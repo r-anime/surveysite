@@ -57,13 +57,13 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import IndexSurvey from './components/IndexSurvey.vue';
-import { AnimeSeason, SurveyData } from '@/util/data';
+import { AnimeSeason, type SurveyData } from '@/util/data';
 import _ from 'lodash';
 import NotificationService from '@/util/notification-service';
-import { RouteLocationRaw } from 'vue-router';
+import type { RouteLocationRaw } from 'vue-router';
 import { getSeasonName } from '@/util/helpers';
 import HttpService from '@/util/http-service';
-import { IndexSurveyData } from './data/index-survey-data';
+import type { IndexSurveyData } from './data/index-survey-data';
 import dayjs from 'dayjs';
 import Spinner from '@/components/Spinner.vue';
 
@@ -101,7 +101,7 @@ export default class Index extends Vue {
 
   getSeasonName = getSeasonName;
 
-  getSeasonIconClass(season: string): string {
+  getSeasonIconClass(season: AnimeSeason): string {
     const seasonNumber = Number(season);
     switch (seasonNumber) {
       case AnimeSeason.WINTER:

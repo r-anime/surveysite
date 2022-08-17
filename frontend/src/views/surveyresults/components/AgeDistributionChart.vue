@@ -4,10 +4,11 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { Chart, ChartConfiguration, Plugin, Title, Tooltip } from "chart.js";
+import { Chart, Title, Tooltip } from "chart.js";
+import type { ChartConfiguration, Plugin } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import _ from "lodash";
-import { AnyObject } from "chart.js/types/basic";
+import type { AnyObject } from "chart.js/types/basic";
 
 // Make sure to load this component only after ageDistribution is not undefined/null!
 @Options({
@@ -19,7 +20,7 @@ import { AnyObject } from "chart.js/types/basic";
   },
 })
 export default class AgeDistributionChart extends Vue {
-  ageDistribution!: Record<number, number>
+  ageDistribution!: Record<number, number>;
 
   mounted(): void {
     this.loadChart();

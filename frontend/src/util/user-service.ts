@@ -1,4 +1,4 @@
-import { UserData } from './data';
+import type { UserData } from './data';
 import HttpService from './http-service';
 import NotificationService from './notification-service';
 

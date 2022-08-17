@@ -1,4 +1,4 @@
-import { AnimeData, SurveyData } from "@/util/data";
+import type { AnimeData, SurveyData } from "@/util/data";
 
 export interface ResponseData {
   age: number | null;

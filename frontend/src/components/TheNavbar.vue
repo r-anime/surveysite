@@ -50,7 +50,7 @@
 import Modal from '@/components/Modal.vue';
 import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
-import { UserData } from '@/util/data';
+import type { UserData } from '@/util/data';
 import UserService from '@/util/user-service';
 
 @Options({
@@ -62,7 +62,7 @@ export default class TheNavbar extends Vue {
   userData: UserData | null = null;
 
   async created(): Promise<void> {
-    this.userData = await UserService.getUserData()
+    this.userData = await UserService.getUserData();
   }
   
   getCurrentUrl(): string {

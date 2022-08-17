@@ -1,5 +1,5 @@
-import { ImageData, ResultType, SurveyData } from '@/util/data';
-import { IndexSurveyAnimeData } from './index-survey-anime-data';
+import type { ImageData, ResultType, SurveyData } from '@/util/data';
+import type { IndexSurveyAnimeData } from './index-survey-anime-data';
 
 export interface IndexSurveyData extends SurveyData {
   animeResults?: Record<ResultType, IndexSurveyAnimeData[]>; // For finished surveys

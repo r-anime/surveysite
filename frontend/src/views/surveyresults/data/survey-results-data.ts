@@ -1,4 +1,4 @@
-import { AnimeData, Gender, ResultType, SurveyData } from "@/util/data";
+import type { AnimeData, Gender, ResultType, SurveyData } from "@/util/data";
 
 export interface SurveyResultsData {
   results: Record<number, Record<ResultType, number>>;

@@ -11,7 +11,6 @@
               scope="col"
               :aria-colindex="columnIdx + 4"
               :class="['table-col-result', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(column.resultType)]"
-              :style="column.cssStyle"
               @click="sortByResultType(column.resultType)"
           >
             {{ getResultTypeName(column.resultType) }}
@@ -44,9 +43,9 @@ import AnimeImages from '@/components/AnimeImages.vue';
 import AnimeNames from '@/components/AnimeNames.vue';
 import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import { AnimeNameType, ResultType } from '@/util/data';
-import { AnimeTableEntryData } from '../data/anime-table-entry-data';
+import type { AnimeTableEntryData } from '../data/anime-table-entry-data';
 import _ from 'lodash';
-import { AnimeTableColumnData } from '../data/anime-table-column-data';
+import type { AnimeTableColumnData } from '../data/anime-table-column-data';
 
 @Options({
   components: {
@@ -82,9 +81,9 @@ export default class FullResultsTable extends Vue {
     resultType: ResultType | null,
     descending: boolean,
   } = {
-    resultType: null,
-    descending: true,
-  }
+      resultType: null,
+      descending: true,
+    };
 
   private get sortRouteQueryKey(): string {
     return this.isAnimeSeries ? 'sortSeries' : 'sortSpecial';

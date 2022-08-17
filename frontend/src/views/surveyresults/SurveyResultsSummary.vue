@@ -212,7 +212,7 @@
 <script lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { AnimeData, ResultType } from '@/util/data';
+import { type AnimeData, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
 import _ from 'lodash';
 import { Vue, Options } from 'vue-class-component';
@@ -220,7 +220,7 @@ import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
-import { SurveyResultsData } from './data/survey-results-data';
+import type { SurveyResultsData } from './data/survey-results-data';
 
 @Options({
   components: {
