@@ -9,22 +9,14 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { Options, Vue } from 'vue-class-component';
 
-@Options({
-  components: {
-    AnimeNames,
-    AnimeImages,
+defineProps({
+  animeResults: {
+    type: Object,
+    required: true,
   },
-  props: {
-    animeResults: {
-      type: Object,
-      required: true,
-    },
-  },
-})
-export default class IndexSurveyAnime extends Vue {}
+});
 </script>

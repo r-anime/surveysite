@@ -5,18 +5,18 @@
   </template>
 
   <template v-else-if="animeImages.length > 1">
-    <div :id="'animeImageCarousel'+id" class="carousel slide carousel-fade">
+    <div :id="carouselId" class="carousel slide carousel-fade">
       <div class="carousel-inner d-flex" :class="{ 'align-items-center': !alignStart }">
         <!-- d-block for the carousel item so that if images have different size, the carousel's size will consistently stay as large as needed -->
         <div v-for="(image, idx) in animeImages" :key="idx" class="carousel-item d-block" :class="{ 'active' : idx==0 }">
           <img :src="image.urlSmall" :alt="image.name" :class="imgClassInternal" :style="maxHeight ? { maxHeight: maxHeight } : {}">
         </div>
       </div>
-      <button v-if="enableCarouselControls" class="carousel-control-prev" type="button" :data-bs-target="'#animeImageCarousel'+id" data-bs-slide="prev">
+      <button v-if="enableCarouselControls" class="carousel-control-prev" type="button" :data-bs-target="'#'+carouselId" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Previous</span>
       </button>
-      <button v-if="enableCarouselControls" class="carousel-control-next" type="button" :data-bs-target="'#animeImageCarousel'+id" data-bs-slide="next">
+      <button v-if="enableCarouselControls" class="carousel-control-next" type="button" :data-bs-target="'#'+carouselId" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
       </button>
@@ -29,54 +29,35 @@
 
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import { Carousel } from 'bootstrap';
 import type { ImageData } from '@/util/data';
+import { nextTick, onMounted } from 'vue';
+import IdGenerator from '@/util/id-generator';
 
-type CssClass = string | Record<string, boolean>;
+const props = defineProps<{
+  animeImages: ImageData[],
+  enableCarouselControls?: boolean,
+  alignStart?: boolean,
+  imgClass?: string,
+  maxHeight?: string,
+}>();
 
-@Options({
-  props: {
-    animeImages: {
-      type: Array,
-      required: true,
-    },
-    enableCarouselControls: Boolean,
-    alignStart: Boolean,
-    imgClass: String,
-    maxHeight: String,
-  },
-})
-export default class AnimeImages extends Vue {
-  animeImages!: ImageData[];
-  imgClass?: string;
-  alignStart!: boolean;
+const carouselId = IdGenerator.generateUniqueId('animeImageCarousel');
 
-  imgClassInternal: CssClass[] = [];
-  id = 0;
-
-  private static componentId = 0;
-
-  created(): void {
-    this.id = AnimeImages.componentId;
-    AnimeImages.componentId++;
-
-    this.imgClassInternal = ['img-fluid', 'd-block'];
-    if (!this.alignStart) {
-      this.imgClassInternal.push('mx-auto');
-    }
-    if (this.imgClass) {
-      this.imgClassInternal.push(this.imgClass);
-    }
-  }
-
-  mounted(): void {
-    if (this.animeImages.length > 1) {
-      this.$nextTick(() => {
-        new Carousel(`#animeImageCarousel${this.id}`);
-      });
-    }
-  }
+const imgClassInternal = ['img-fluid', 'd-block'];
+if (!props.alignStart) {
+  imgClassInternal.push('mx-auto');
 }
+if (props.imgClass) {
+  imgClassInternal.push(props.imgClass);
+}
+
+onMounted(() => {
+  if (props.animeImages.length > 1) {
+    nextTick(() => {
+      new Carousel(`#${carouselId}`);
+    });
+  }
+});
 </script>

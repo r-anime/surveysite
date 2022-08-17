@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="card shadow-sm h-100">
     <div class="row">
@@ -85,55 +86,27 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
-import { type AnimeData, AnimeNameType } from '@/util/data';
-import { getAnimeName, isAnimeSeries } from '@/util/helpers';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import type { AnimeData, ValidationErrorData } from '@/util/data';
+import { AnimeNameType } from '@/util/data';
+import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
+import type { AnimeResponseData } from '../data/survey-form-data';
 
-@Options({
-  components: {
-    AnimeImages,
-    FormValidationErrors,
-  },
-  props: {
-    animeData: {
-      type: Object,
-      required: true,
-    },
-    animeResponseData: {
-      type: Object,
-      required: true,
-    },
-    isSurveyPreseason: {
-      type: Boolean,
-      required: true,
-    },
-    isAnimeNew: {
-      type: Boolean,
-      required: true,
-    },
-    validationErrors: Object,
-  },
-})
-export default class SurveyFormAnime extends Vue {
-  animeData!: AnimeData;
+const props = defineProps<{
+  animeData: AnimeData;
+  animeResponseData: AnimeResponseData;
+  isSurveyPreseason: boolean;
+  isAnimeNew: boolean;
+  validationErrors?: ValidationErrorData;
+}>();
 
-  isAnimeSeries = false;
-  animeId?: number;
+// eslint-disable-next-line vue/no-setup-props-destructure
+const animeId = props.animeData.id;
+const isAnimeSeries = isAnimeSeriesFn(props.animeData);
 
-  japaneseName: string | null = null;
-  englishName: string | null = null;
-  shortName: string | null = null;
-
-  created(): void {
-    this.isAnimeSeries = isAnimeSeries(this.animeData);
-    this.animeId = this.animeData.id;
-
-    this.japaneseName = getAnimeName(this.animeData, AnimeNameType.JAPANESE_NAME);
-    this.englishName = getAnimeName(this.animeData, AnimeNameType.ENGLISH_NAME);
-    this.shortName = getAnimeName(this.animeData, AnimeNameType.SHORT_NAME);
-  }
-}
+const japaneseName = getAnimeName(props.animeData, AnimeNameType.JAPANESE_NAME);
+const englishName = getAnimeName(props.animeData, AnimeNameType.ENGLISH_NAME);
+const shortName = getAnimeName(props.animeData, AnimeNameType.SHORT_NAME);
 </script>
