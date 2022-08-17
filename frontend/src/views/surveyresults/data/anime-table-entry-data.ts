@@ -1,4 +1,4 @@
-import { AnimeData, ResultType } from "@/util/data";
+import type { AnimeData, ResultType } from "@/util/data";
 
 export interface AnimeTableEntryData {
   anime: AnimeData;

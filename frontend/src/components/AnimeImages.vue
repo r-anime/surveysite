@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { Carousel } from 'bootstrap';
-import { ImageData } from '@/util/data';
+import type { ImageData } from '@/util/data';
 
 type CssClass = string | Record<string, boolean>;
 

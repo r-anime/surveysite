@@ -1,6 +1,6 @@
 import { filter, orderBy } from "lodash";
-import { RouteLocation } from "vue-router";
-import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
+import type { RouteLocation } from "vue-router";
+import { type AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
 
 /**
  * Returns the season's name with the first letter capitalized
@@ -10,7 +10,7 @@ import { AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./
 export function getSeasonName(season: AnimeSeason|number|string): string {
   if (typeof season === 'string') season = Number(season);
   const seasonNameUpper = AnimeSeason[season];
-  return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase()
+  return seasonNameUpper.charAt(0) + seasonNameUpper.slice(1).toLowerCase();
 }
 
 export function getSurveyApiUrl(route: RouteLocation): string {
@@ -45,7 +45,7 @@ export function getSurveyName(survey: { isPreseason: boolean, season: AnimeSeaso
 export function isAnimeSeries(anime: AnimeData): boolean {
   return anime.animeType == AnimeType.BULK_RELEASE ||
     anime.animeType == AnimeType.ONA_SERIES ||
-    anime.animeType == AnimeType.TV_SERIES
+    anime.animeType == AnimeType.TV_SERIES;
 }
 
 export function getAnimeName(anime: AnimeData, animeNameType: AnimeNameType): string | null {
@@ -74,7 +74,7 @@ const resultTypeDataMap: Record<ResultType, { name: string, formatter: (value?: 
 
 export function getResultTypeName(resultType: ResultType, withHyphens = true): string {
   const name = resultTypeDataMap[resultType].name;
-  if (!withHyphens) return name.replaceAll('\u00AD', '');
+  if (!withHyphens) return name.replace('\u00AD', '');
   return name;
 }
 

@@ -48,9 +48,9 @@
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import { Vue, Options } from 'vue-class-component';
-import { AnimeData, ResultType } from '@/util/data';
+import { type AnimeData, ResultType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
-import { RouteLocationNormalized } from 'vue-router';
+import type { RouteLocationNormalized } from 'vue-router';
 
 @Options({
   components: {
@@ -88,18 +88,18 @@ export default class SimpleResultsTable extends Vue { // TODO: Replace this clas
 
   hasExtraResult = false;
 
-  get fullResultsRoute(): Partial<RouteLocationNormalized> {
+  get fullResultsRoute(): RouteLocationNormalized {
     return {
       name: 'SurveyResultsFull',
       query: { [this.isAnimeSeries ? 'sortSeries' : 'sortSpecial']: this.resultTypes[0].toString() },
       hash: this.isAnimeSeries ? '#tableSeries' : '#tableSpecial',
-    };
+    } as RouteLocationNormalized;
   }
 
   created(): void {
     this.hasExtraResult = this.resultTypes.length === 2;
 
-    for (let resultType of this.resultTypes) {
+    for (const resultType of this.resultTypes) {
       this.resultNames.push(getResultTypeName(resultType));
       this.resultFormatters.push(getResultTypeFormatter(resultType));
     }

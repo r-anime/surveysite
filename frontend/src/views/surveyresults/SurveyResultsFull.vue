@@ -30,13 +30,13 @@
 
 <script lang="ts">
 import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
-import { ResultType, SelectorItem } from '@/util/data';
+import { ResultType, type SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import FullResultsTable from './components/FullResultsTable.vue';
-import { AnimeTableColumnData } from './data/anime-table-column-data';
-import { AnimeTableEntryData } from './data/anime-table-entry-data';
-import { SurveyResultsData } from './data/survey-results-data';
+import type { AnimeTableColumnData } from './data/anime-table-column-data';
+import type { AnimeTableEntryData } from './data/anime-table-entry-data';
+import type { SurveyResultsData } from './data/survey-results-data';
 
 class TableData {
   columns: AnimeTableColumnData[] = [];
@@ -149,7 +149,7 @@ export default class SurveyResultsFull extends Vue {
         const animeTableEntry: AnimeTableEntryData = {
           anime: this.surveyResultsData.anime[animeId],
           data: this.surveyResultsData.results[animeId],
-        }
+        };
 
         if (isAnimeSeries(animeTableEntry.anime)) {
           this.tableDataOfSeries.entries.push(animeTableEntry);

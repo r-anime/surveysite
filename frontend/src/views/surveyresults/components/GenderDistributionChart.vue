@@ -4,10 +4,11 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { Chart, ChartConfiguration, Plugin, Title, Tooltip } from "chart.js";
+import { Chart, Title, Tooltip } from "chart.js";
+import type { ChartConfiguration, Plugin } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import _ from "lodash";
-import { AnyObject } from "chart.js/types/basic";
+import type { AnyObject } from "chart.js/types/basic";
 import { Gender } from "@/util/data";
 
 // Make sure to load this component only after genderDistribution is not undefined/null!
@@ -20,7 +21,7 @@ import { Gender } from "@/util/data";
   },
 })
 export default class GenderDistributionChart extends Vue {
-  genderDistribution!: Record<Gender, number>
+  genderDistribution!: Record<Gender, number>;
 
   mounted(): void {
     this.loadChart();
@@ -67,11 +68,11 @@ export default class GenderDistributionChart extends Vue {
         borderColor: chartGridColor,
         plugins: {
           datalabels: {
-              align: 'top',
-              anchor: 'end',
-              color: textColor,
-              offset: 2,
-              formatter: value => chartPercentageFormatter(value.toFixed(2)),
+            align: 'top',
+            anchor: 'end',
+            color: textColor,
+            offset: 2,
+            formatter: value => chartPercentageFormatter(value.toFixed(2)),
           },
           title: {
             display: true,

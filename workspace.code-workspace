@@ -9,20 +9,6 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
-				"type": "node",
-				"request": "launch",
-				"name": "Front-end (Node/Vue)",
-				"runtimeExecutable": "npm",
-				"runtimeArgs": [
-					"run-script",
-					"debug"
-				],
-				"skipFiles": [
-					"<node_internals>/**"
-				],
-				"cwd": "${workspaceFolder}/frontend/"
-			},
-			{
 				"name": "Back-end (Django)",
 				"type": "python",
 				"request": "launch",
@@ -34,13 +20,6 @@
 				"envFile": "${workspaceFolder}/.env"
 			},
 			{
-				"command": "npm run-script debug",
-				"name": "Front-end (Node/Vue) (cmd)",
-				"request": "launch",
-				"type": "node-terminal",
-				"cwd": "${workspaceFolder}/frontend/"
-			},
-			{
 				"command": "npm run dev",
 				"name": "Front-end (Node/Vite)",
 				"request": "launch",
@@ -49,24 +28,6 @@
 			}
 		],
 		"compounds": [
-			{
-				"name": "Back-end + front-end",
-				"configurations": ["Back-end (Django)", "Front-end (Node/Vue)"],
-				"presentation": {
-					"hidden": false,
-					"group": "",
-					"order": 3
-				}
-			},
-			{
-				"name": "Back-end + front-end (cmd)",
-				"configurations": ["Back-end (Django)", "Front-end (Node/Vue) (cmd)"],
-				"presentation": {
-					"hidden": false,
-					"group": "",
-					"order": 2
-				}
-			},
 			{
 				"name": "Back-end + front-end (Vite)",
 				"configurations": ["Back-end (Django)", "Front-end (Node/Vite)"],

@@ -25,7 +25,7 @@
   </div>
 </template>
 <script lang="ts">
-import { SelectorItem } from "@/util/data";
+import type { SelectorItem } from "@/util/data";
 import { Options, Vue } from "vue-class-component";
 
 @Options({
@@ -48,6 +48,7 @@ import { Options, Vue } from "vue-class-component";
 export default class DropdownMultiSelect extends Vue {
   items!: SelectorItem[];
   modelValue!: number[];
+  buttonClass!: string;
 
   get selectedItemIds(): number[] {
     return this.modelValue;

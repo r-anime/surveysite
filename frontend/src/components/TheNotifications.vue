@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import NotificatonService, { Notification } from '@/util/notification-service';
+import NotificatonService, { type Notification } from '@/util/notification-service';
 import { Toast } from 'bootstrap';
 
 @Options({})
