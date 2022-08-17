@@ -1,12 +1,11 @@
 # [/r/anime Seasonal Surveys Website](https://survey.r-anime.moe/) [![deploy status](https://img.shields.io/github/deployments/r-anime/surveysite/production?label=deploy)](https://github.com/r-anime/surveysite/deployments/activity_log?environment=production)
 
-Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/r/anime/). Built with [Django](https://www.djangoproject.com/) as the backend and [Vue.js](https://vuejs.org/) & [Bootstrap](https://getbootstrap.com/) on the frontend.
+Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/r/anime/). Built with [Django](https://www.djangoproject.com/) on the backend and [Vite](https://vitejs.dev/) + [Vue.js](https://vuejs.org/) + [Bootstrap](https://getbootstrap.com/) on the frontend.
 
 ## Requirements
 
 * Python 3.9+.
 * Node.js v14+.
-  * For development, a global install of [Vue CLI (`@vue/cli`)](https://cli.vuejs.org/) v5 may be useful.
 
 ## Setup
 
