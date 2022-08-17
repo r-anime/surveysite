@@ -24,7 +24,7 @@
 				"name": "Front-end (Node/Vite)",
 				"request": "launch",
 				"type": "node-terminal",
-				"cwd": "${workspaceFolder}/frontend2/"
+				"cwd": "${workspaceFolder}/frontend/"
 			}
 		],
 		"compounds": [
