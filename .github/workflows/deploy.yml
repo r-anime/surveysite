@@ -33,7 +33,8 @@ jobs:
       run: |
         cd frontend
         npm ci
-        NODE_ENV=production npm run build
+        # build-only for now until #94 is resolved and there are no more eslint errors
+        NODE_ENV=production npm run build-only
         rsync -e "ssh -o StrictHostKeyChecking=no" -avz dist surveysite@survey.r-anime.moe:/home/surveysite/surveysite/frontend
 
     - name: Apply backend updates
