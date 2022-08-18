@@ -11,30 +11,27 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import NotificatonService, { type Notification } from '@/util/notification-service';
 import { Toast } from 'bootstrap';
+import { nextTick } from 'vue';
 
-@Options({})
-export default class TheNavbar extends Vue {
-  notifications: Notification[] = [];
+const notifications: Notification[] = [];
 
-  created(): void {
-    NotificatonService.subscribe(this.addNotification);
-  }
 
-  addNotification(notification: Notification): void {
-    const idx = this.notifications.length;
-    this.notifications.push(notification);
+NotificatonService.subscribe(addNotification);
 
-    this.$nextTick(() => {
-      const toast = new Toast(`#toast-${idx}`, {
-        autohide: true,
-        delay: 5000,
-      });
-      toast.show();
+
+function addNotification(notification: Notification): void {
+  const idx = notifications.length;
+  notifications.push(notification);
+
+  nextTick(() => {
+    const toast = new Toast(`#toast-${idx}`, {
+      autohide: true,
+      delay: 5000,
     });
-  }
+    toast.show();
+  });
 }
 </script>

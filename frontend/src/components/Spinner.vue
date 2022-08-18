@@ -6,13 +6,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-
-@Options({
-  props: {
-    center: Boolean,
-  },
-})
-export default class Spinner extends Vue {}
+<script setup lang="ts">
+defineProps<{
+  center?: boolean;
+}>();
 </script>

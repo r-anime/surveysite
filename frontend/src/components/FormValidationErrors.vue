@@ -4,14 +4,9 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-
-@Options({
-  props: {
-    validationErrors: Array,
-    id: String,
-  }
-})
-export default class FormValidationErrors extends Vue {}
+<script setup lang="ts">
+defineProps<{
+  validationErrors?: string[];
+  id: string;
+}>();
 </script>
