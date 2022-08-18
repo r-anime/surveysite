@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="row row-cols-1">
-    <Spinner v-if="!surveyData?.length" center/>
+    <Spinner v-if="!surveyData.length" center/>
     
     <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
@@ -54,123 +55,114 @@
 </template>
 
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import IndexSurvey from './components/IndexSurvey.vue';
-import { AnimeSeason, type SurveyData } from '@/util/data';
-import _ from 'lodash';
-import NotificationService from '@/util/notification-service';
-import type { RouteLocationRaw } from 'vue-router';
-import { getSeasonName } from '@/util/helpers';
-import HttpService from '@/util/http-service';
-import type { IndexSurveyData } from './data/index-survey-data';
-import dayjs from 'dayjs';
 import Spinner from '@/components/Spinner.vue';
 
+import { AnimeSeason, type SurveyData } from '@/util/data';
+import { getSeasonName } from '@/util/helpers';
+import HttpService from '@/util/http-service';
+import NotificationService from '@/util/notification-service';
+import type { IndexSurveyData } from './data/index-survey-data';
 
-@Options({
-  components: {
-    IndexSurvey,
-    Spinner,
-  },
-})
-export default class Index extends Vue {
-  surveys: IndexSurveyData[] = [];
-  surveyData: {
-    year: number,
-    surveys: {
-      season: AnimeSeason,
-      preseasonSurvey?: IndexSurveyData,
-      postseasonSurvey?: IndexSurveyData,
-    }[],
-  }[] = [];
+import dayjs from 'dayjs';
+import _ from 'lodash';
+import type { RouteLocationRaw } from 'vue-router';
+import { ref } from 'vue';
 
-  async created(): Promise<void> {
-    await HttpService.get<IndexSurveyData[]>('api/index/', this.getSeasonData, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
-    });
+
+let surveys: IndexSurveyData[] = []; // No need to make this a ref since this is not used in the html
+const surveyData = ref<{
+  year: number,
+  surveys: {
+    season: AnimeSeason,
+    preseasonSurvey?: IndexSurveyData,
+    postseasonSurvey?: IndexSurveyData,
+  }[],
+}[]>([]);
+
+
+// No need to await this and make this an async component since there is a spinner, but could be worth looking into
+// https://vuejs.org/guide/components/async.html
+HttpService.get<IndexSurveyData[]>('api/index/', newSurveys => getSeasonData(newSurveys), failureResponse => {
+  NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
+});
+
+
+function surveyIsUpcoming(survey: SurveyData): boolean {
+  return dayjs() < dayjs(survey.openingEpochTime);
+}
+
+function surveyIsFinished(survey: SurveyData): boolean {
+  return dayjs(survey.closingEpochTime) < dayjs();
+}
+
+function getSeasonIconClass(season: AnimeSeason): string {
+  const seasonNumber = Number(season);
+  switch (seasonNumber) {
+    case AnimeSeason.WINTER:
+      return 'bi-snow';
+    case AnimeSeason.SPRING:
+      return 'bi-flower2';
+    case AnimeSeason.SUMMER:
+      return 'bi-sun';
+    case AnimeSeason.FALL:
+      return 'bi-tree';
+    default:
+      return '';
   }
+}
 
-  surveyIsUpcoming(survey: SurveyData): boolean {
-    return dayjs() < dayjs(survey.openingEpochTime);
-  }
+function getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
+  return {
+    name: surveyIsFinished(survey) ? 'SurveyResultsSummary' : 'SurveyForm',
+    params: {
+      year: survey.year,
+      season: survey.season,
+      preOrPost: survey.isPreseason ? 'pre' : 'post',
+    },
+  };
+}
 
-  surveyIsFinished(survey: SurveyData): boolean {
-    return dayjs(survey.closingEpochTime) < dayjs();
-  }
+// TODO: This should use pagination, the survey list obtained from the API should get appended to the already obtained survey list.
+async function getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
+  // Maybe store distinct surveys only because otherwise many more might be stored than necessary?
+  surveys = surveys.concat(newSurveys);
 
-  getSeasonName = getSeasonName;
+  // [[2020 surveys], [2019 surveys], ...]
+  const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
 
-  getSeasonIconClass(season: AnimeSeason): string {
-    const seasonNumber = Number(season);
-    switch (seasonNumber) {
-      case AnimeSeason.WINTER:
-        return 'bi-snow';
-      case AnimeSeason.SPRING:
-        return 'bi-flower2';
-      case AnimeSeason.SUMMER:
-        return 'bi-sun';
-      case AnimeSeason.FALL:
-        return 'bi-tree';
-      default:
-        return '';
+  const latestYear = (_.maxBy(surveys, 'year') ?? { year: 0 }).year;
+  const earliestYear = (_.minBy(surveys, 'year') ?? { year: 0 }).year;
+
+  // Group surveys by year, and then season (keeping gaps between year/seasons)
+  surveyData.value = surveysOrderedGroupedByYear.map(surveyYearGroup => {
+    // { 1: spring surveys, 3: fall surveys }
+    const surveysGroupedBySeason = _.groupBy(surveyYearGroup, 'season');
+
+    const latestSeason = latestYear === surveyYearGroup[0].year ?
+      (_.maxBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.FALL }).season :
+      AnimeSeason.FALL;
+    const earliestSeason = earliestYear === surveyYearGroup[0].year ?
+      (_.minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
+      AnimeSeason.WINTER;
+
+    const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyData, postseasonSurvey?: IndexSurveyData }[] = [];
+    for (let season = latestSeason; season >= earliestSeason; season--) {
+      const preseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
+      const postseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
+      surveysOrderedGroupedBySeason.push({
+        season: season,
+        preseasonSurvey: preseasonSurvey,
+        postseasonSurvey: postseasonSurvey,
+      });
     }
-  }
 
-  getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
     return {
-      name: this.surveyIsFinished(survey) ? 'SurveyResultsSummary' : 'SurveyForm',
-      params: {
-        year: survey.year,
-        season: survey.season,
-        preOrPost: survey.isPreseason ? 'pre' : 'post',
-      },
+      year: surveyYearGroup[0].year,
+      surveys: surveysOrderedGroupedBySeason,
     };
-  }
-
-  // TODO: This should use pagination, the survey list obtained from the API should get appended to the already obtained survey list.
-  async getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
-    // No need to get distinct surveys here as the _.find() takes care of that
-    const surveys = newSurveys.concat(this.surveys);
-
-    // [[2020 surveys], [2019 surveys], ...]
-    const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
-
-    const latestYear = (_.maxBy(surveys, 'year') ?? { year: 0 }).year;
-    const earliestYear = (_.minBy(surveys, 'year') ?? { year: 0 }).year;
-
-    // Group surveys by year, and then season (keeping gaps between year/seasons)
-    const surveyData = surveysOrderedGroupedByYear.map(surveyYearGroup => {
-      // { 1: spring surveys, 3: fall surveys }
-      const surveysGroupedBySeason = _.groupBy(surveyYearGroup, 'season');
-
-      const latestSeason = latestYear === surveyYearGroup[0].year ?
-        (_.maxBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.FALL }).season :
-        AnimeSeason.FALL;
-      const earliestSeason = earliestYear === surveyYearGroup[0].year ?
-        (_.minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
-        AnimeSeason.WINTER;
-
-      const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyData, postseasonSurvey?: IndexSurveyData }[] = [];
-      for (let season = latestSeason; season >= earliestSeason; season--) {
-        const preseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
-        const postseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
-        surveysOrderedGroupedBySeason.push({
-          season: season,
-          preseasonSurvey: preseasonSurvey,
-          postseasonSurvey: postseasonSurvey,
-        });
-      }
-
-      return {
-        year: surveyYearGroup[0].year,
-        surveys: surveysOrderedGroupedBySeason,
-      };
-    });
-
-    this.surveys = surveys;
-    this.surveyData = surveyData;
-  }
+  });
 }
 </script>
 
