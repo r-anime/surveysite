@@ -31,8 +31,8 @@
             }}
           </span>
           <br/>
-          <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-watching`" autocomplete="off" v-model="animeResponseData.watching">
-          <label class="btn w-100 mt-1" :class="animeResponseData.watching ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-watching`">
+          <input type="checkbox" class="btn-check" :id="`input-anime-${animeData.id}-watching`" autocomplete="off" v-model="animeResponseData.watching">
+          <label class="btn w-100 mt-1" :class="animeResponseData.watching ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeData.id}-watching`">
             {{ animeResponseData.watching ? 'Yes' : 'No' }}
           </label>
         </div>
@@ -43,15 +43,15 @@
             Did you find this underwatched?
           </span>
           <br/>
-          <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
-          <label class="btn w-100 mt-1" :class="animeResponseData.underwatched ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-underwatched`">
+          <input type="checkbox" class="btn-check" :id="`input-anime-${animeData.id}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
+          <label class="btn w-100 mt-1" :class="animeResponseData.underwatched ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeData.id}-underwatched`">
             {{ animeResponseData.underwatched ? 'Yes' : 'No' }}
           </label>
         </div>
 
         <!-- Score input -->
         <div class="mb-3">
-          <label class="form-label" :for="`input-anime-${animeId}-score`">
+          <label class="form-label" :for="`input-anime-${animeData.id}-score`">
             {{
               isSurveyPreseason ?
                 isAnimeNew ?
@@ -60,7 +60,7 @@
                 'What did you think of this?'
             }}
           </label>
-          <select class="form-select" :id="`input-anime-${animeId}-score`" :class="{'is-invalid': validationErrors?.score}" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeId}-score-invalid`">
+          <select class="form-select" :id="`input-anime-${animeData.id}-score`" :class="{'is-invalid': validationErrors?.score}" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeData.id}-score-invalid`">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
             <option value="4">4/5</option>
@@ -68,18 +68,18 @@
             <option value="2">2/5</option>
             <option value="1">1/5 - Bad</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeId}-score-invalid`" :validationErrors="validationErrors?.score"/>
+          <FormValidationErrors :id="`input-anime-${animeData.id}-score-invalid`" :validationErrors="validationErrors?.score"/>
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
-          <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment?</label>
-          <select class="form-select" :id="`input-anime-${animeId}-expectations`" :class="{'is-invalid': validationErrors?.expectations}" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeId}-expectations-invalid`">
+          <label class="form-label" :for="`input-anime-${animeData.id}-expectations`">Was this a surprise or disappointment?</label>
+          <select class="form-select" :id="`input-anime-${animeData.id}-expectations`" :class="{'is-invalid': validationErrors?.expectations}" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeData.id}-expectations-invalid`">
             <option :value="(null)">-----</option>
             <option value="S">Surprise</option>
             <option value="D">Disappointment</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeId}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
+          <FormValidationErrors :id="`input-anime-${animeData.id}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
         </div>
       </div></div>
     </div>
@@ -102,8 +102,6 @@ const props = defineProps<{
   validationErrors?: ValidationErrorData;
 }>();
 
-// eslint-disable-next-line vue/no-setup-props-destructure
-const animeId = props.animeData.id;
 const isAnimeSeries = isAnimeSeriesFn(props.animeData);
 
 const japaneseName = getAnimeName(props.animeData, AnimeNameType.JAPANESE_NAME);
