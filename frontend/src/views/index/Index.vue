@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="row row-cols-1">
     <Spinner v-if="!surveyData.length" center/>

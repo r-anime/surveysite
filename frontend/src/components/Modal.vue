@@ -55,54 +55,47 @@
   </teleport>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import { Modal as BootstrapModal } from 'bootstrap';
 import Cookie from 'js-cookie';
+import type { RouteLocation } from 'vue-router';
+import IdGenerator from '@/util/id-generator';
 
-@Options({
-  props: {
-    modalTitle: String,
+const {
+  modalTitle,
+  modalButtonClass = '',
+  modalButtonVariant = 'primary',
+  modalButtonText,
 
-    modalButtonClass: {
-      type: String,
-      default: '',
-    },
-    modalButtonVariant: {
-      type: String,
-      default: 'primary',
-    },
-    modalButtonText: String,
+  acceptButtonUrl,
+  acceptButtonPost,
+  acceptButtonRoute,
+  acceptButtonCallback,
 
-    acceptButtonUrl: String,
-    acceptButtonPost: String, // Identical to acceptButtonUrl, but performs a POST request to the specified URL instead of a GET request,
-    acceptButtonRoute: Object,
-    acceptButtonCallback: Function, // Should be a function that returns a Promise<boolean> indicating success (upon which the modal gets hidden)
+  acceptButtonText = 'Ok',
+} = defineProps<{
+  modalTitle?: string;
+  modalButtonClass?: string;
+  modalButtonVariant?: string;
+  modalButtonText?: string;
+  
+  acceptButtonUrl?: string;
+  acceptButtonPost?: string; // Identical to acceptButtonUrl, but performs a POST instead of a GET request,
+  acceptButtonRoute?: RouteLocation;
+  acceptButtonCallback?: () => boolean | Promise<boolean>; // Should be a function that returns a success boolean, upon which the modal gets hidden
 
-    acceptButtonText: {
-      type: String,
-      default: 'Ok',
-    },
-  },
-})
-export default class Modal extends Vue {
-  acceptButtonCallback?: () => Promise<unknown>;
+  acceptButtonText?: string;
+}>();
 
-  modalId?: string;
-  private static componentId = 0;
+const modalId = IdGenerator.generateUniqueId('modal');
 
-  created(): void {
-    this.modalId = `modal${Modal.componentId++}`;
-  }
+function getCsrfToken(): string | undefined {
+  return Cookie.get('csrftoken');
+}
 
-  getCsrfToken(): string | undefined {
-    return Cookie.get('csrftoken');
-  }
-
-  async acceptButtonCallbackWrapper(): Promise<void> {
-    if (this.acceptButtonCallback && await this.acceptButtonCallback()) {
-      BootstrapModal.getInstance(`#${this.modalId}`)?.hide();
-    }
+async function acceptButtonCallbackWrapper(): Promise<void> {
+  if (acceptButtonCallback && await acceptButtonCallback()) {
+    BootstrapModal.getInstance(`#${modalId}`)?.hide();
   }
 }
 </script>
