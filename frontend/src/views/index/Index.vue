@@ -80,8 +80,8 @@ export default class Index extends Vue {
     year: number,
     surveys: {
       season: AnimeSeason,
-      preseasonSurvey?: SurveyData,
-      postseasonSurvey?: SurveyData,
+      preseasonSurvey?: IndexSurveyData,
+      postseasonSurvey?: IndexSurveyData,
     }[],
   }[] = [];
 
@@ -151,7 +151,7 @@ export default class Index extends Vue {
         (_.minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
         AnimeSeason.WINTER;
 
-      const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: SurveyData, postseasonSurvey?: SurveyData }[] = [];
+      const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyData, postseasonSurvey?: IndexSurveyData }[] = [];
       for (let season = latestSeason; season >= earliestSeason; season--) {
         const preseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
         const postseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
