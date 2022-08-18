@@ -6,7 +6,7 @@
     <ul class="dropdown-menu" :aria-labelledby="dropdownId">
       <li class="px-2" v-for="item in items" :key="item.id">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" :id="'item'+item.id" :value="item.id" v-model="selectedItemIds">
+          <input class="form-check-input" type="checkbox" :id="'item'+item.id" :value="item.id" v-model="scuffed.selectedItemIds">
           <label class="form-check-label" :for="'item'+item.id">
             {{ item.name }}
           </label>
@@ -15,7 +15,7 @@
       <li><hr class="dropdown-divider"></li>
       <li class="px-2">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="itemAll" v-model="selectAll">
+          <input class="form-check-input" type="checkbox" id="itemAll" v-model="scuffed.selectAll">
           <label class="form-check-label" for="itemAll">
             Select all
           </label>
@@ -24,55 +24,37 @@
     </ul>
   </div>
 </template>
-<script lang="ts">
+
+<script setup lang="ts">
 import type { SelectorItem } from "@/util/data";
-import { Options, Vue } from "vue-class-component";
+import IdGenerator from "@/util/id-generator";
 
-@Options({
-  props: {
-    items: {
-      type: Array, // SelectorItem[]
-      required: true,
-    },
-    modelValue: {
-      type: Array, // Array of selected ids
-      required: true,
-    },
-    buttonClass: {
-      type: String,
-      default: 'btn-primary',
-    },
-  },
-  emits: ['update:modelValue'],
-})
-export default class DropdownMultiSelect extends Vue {
-  items!: SelectorItem[];
-  modelValue!: number[];
-  buttonClass!: string;
+const {
+  items,
+  modelValue,
+  buttonClass = 'btn-primary',
+} = defineProps<{
+  items: SelectorItem[];
+  modelValue: number[];
+  buttonClass?: string;
+}>();
 
-  get selectedItemIds(): number[] {
-    return this.modelValue;
-  }
-  set selectedItemIds(value: number[]) {
-    this.onSelectionChanged(value);
-  }
+const emit = defineEmits<{
+  (e: 'update:modelValue', newSelectedItemIds: number[]): void;
+}>();
 
-  set selectAll(value: boolean) {
-    this.onSelectionChanged(value ? this.items.map(item => item.id) : []);
-  }
-  get selectAll(): boolean {
-    return this.items.length === this.modelValue.length;
-  }
 
-  dropdownId?: string;
-  private static componentId = 0;
+const dropdownId = IdGenerator.generateUniqueId('dropdownMultiSelect');
 
-  created(): void {
-    this.dropdownId = `modal${DropdownMultiSelect.componentId++}`;
-  }
+const scuffed = {
+  get selectedItemIds(): number[] { return modelValue; },
+  set selectedItemIds(value: number[]) { onSelectionChanged(value); },
 
-  onSelectionChanged(newSelectedItemIds: number[]): void {
-    this.$emit('update:modelValue', newSelectedItemIds);
-  }
+  get selectAll(): boolean { return items.length === modelValue.length; },
+  set selectAll(value: boolean) { onSelectionChanged(value ? items.map(item => item.id) : []); },
+};
+
+function onSelectionChanged(newSelectedItemIds: number[]): void {
+  emit('update:modelValue', newSelectedItemIds);
 }
 </script>
