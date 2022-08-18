@@ -12,11 +12,9 @@
 <script setup lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
+import type { IndexSurveyAnimeData } from '../data/index-survey-anime-data';
 
-defineProps({
-  animeResults: {
-    type: Object,
-    required: true,
-  },
-});
+defineProps<{
+  animeResults: IndexSurveyAnimeData;
+}>();
 </script>
