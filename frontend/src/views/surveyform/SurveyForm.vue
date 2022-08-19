@@ -9,18 +9,18 @@
         <div class="row">
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
-            <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.response?.age}" v-model.number="getResponseData().age" @blur="clampAge()" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
-            <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.response?.age"/>
+            <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.responseData?.age}" v-model.number="surveyFormData.responseData.age" @blur="clampAge()" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
+            <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.responseData?.age"/>
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
-            <select class="form-select" id="input-gender" :class="{'is-invalid': validationErrors?.response?.gender}" v-model="getResponseData().gender" aria-describedby="input-gender-invalid">
+            <select class="form-select" id="input-gender" :class="{'is-invalid': validationErrors?.responseData?.gender}" v-model="surveyFormData.responseData.gender" aria-describedby="input-gender-invalid">
               <option :value="(null)">-----</option>
               <option value="M">Male</option>
               <option value="F">Female</option>
               <option value="O">Other</option>
             </select>
-            <FormValidationErrors id="input-gender-invalid" :validationErrors="validationErrors?.response?.gender"/>
+            <FormValidationErrors id="input-gender-invalid" :validationErrors="validationErrors?.responseData?.gender"/>
           </div>
         </div>
       </div>
@@ -36,7 +36,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="getAnimeResponseValidationErrors(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -51,7 +51,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="getAnimeResponseValidationErrors(animeId)"/>
+          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -82,7 +82,7 @@
 
 <script lang="ts">
 import { AnimeNameType } from '@/util/data';
-import type { AnimeData, ValidationErrorData } from '@/util/data';
+import type { AnimeData, NewValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -91,7 +91,7 @@ import NotificationService from '@/util/notification-service';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 import type { MissingAnimeData } from './data/missing-anime-data';
-import type { AnimeResponseData, ResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
+import type { AnimeResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
 import HttpService from '@/util/http-service';
 import Spinner from '@/components/Spinner.vue';
 
@@ -110,7 +110,7 @@ export default class SurveyForm extends Vue {
   surveyFormData: SurveyFormData | null = null;
   animeSeriesIds: number[] = [];
   specialAnimeIds: number[] = [];
-  validationErrors: ValidationErrorData | null = null;
+  validationErrors: NewValidationErrorData<SurveyFormSubmitData> | null = null;
 
   // Needed here because we want the same data shared by the two identical modals
   missingAnimeData: MissingAnimeData = {
@@ -188,25 +188,12 @@ export default class SurveyForm extends Vue {
     });
   }
 
-  getResponseData(): ResponseData | undefined {
-    return this.surveyFormData?.responseData;
-  }
-
   getAnimeData(id: number): AnimeData | undefined {
     return this.surveyFormData?.animeDataDict[id];
   }
 
   getAnimeResponseData(id: number): AnimeResponseData | undefined {
     return this.surveyFormData?.animeResponseDataDict[id];
-  }
-
-  getAnimeResponseValidationErrors(id: number): ValidationErrorData | null {
-    if (this.validationErrors?.animeResponse && !Array.isArray(this.validationErrors.animeResponse)) {
-      const validationErrors = this.validationErrors.animeResponse[id] ?? null;
-      return Array.isArray(validationErrors) ? null : validationErrors;
-    } else {
-      return null;
-    }
   }
 
   // Not-so-pretty special workaround for when a user inputs an invalid age, 

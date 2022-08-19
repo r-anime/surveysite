@@ -84,8 +84,21 @@ export enum ResultType {
   AGE                         = 24,
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ValidationErrorData extends Record<string, ValidationErrorData | string[] | undefined> { }
+/**
+ * Deep-replaces all non-object values of type `T` with `TValue`.
+ * 
+ * For example, replaces  
+ * `{ ab: number; cd: { x: string; z: boolean; } }`  
+ * with  
+ * `{ ab: TValue; cd: { x: TValue; z: TValue; } }`
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ReplaceAllValues<T, TValue> = T extends Record<string, any> ? {[K in keyof T]: ReplaceAllValues<T[K], TValue>} : TValue;
+
+/**
+ * Deep-replaces all non-object values with `string[] | undefined` using {@link ReplaceAllValues}.
+ */
+export type NewValidationErrorData<T> = ReplaceAllValues<T, string[] | undefined>;
 
 export interface SelectorItem {
   id: number;

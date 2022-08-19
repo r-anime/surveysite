@@ -27,20 +27,20 @@
     <div>
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-name`">Anime name:</label>
-        <input class="form-control" :id="`input-missinganime-${componentId}-name`" :class="{'is-invalid': (validationErrors?.missingAnime as ValidationErrorData)?.name}" maxlength="128" type="text" v-model="missingAnimeData.name" :aria-describedby="`input-missinganime-${componentId}-name-errors`">
-        <FormValidationErrors :id="`input-missinganime-${componentId}-name-errors`" :validationErrors="(validationErrors?.missingAnime as ValidationErrorData)?.name"/>
+        <input class="form-control" :id="`input-missinganime-${componentId}-name`" :class="{'is-invalid': validationErrors?.name}" maxlength="128" type="text" v-model="missingAnimeData.name" :aria-describedby="`input-missinganime-${componentId}-name-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-name-errors`" :validationErrors="validationErrors?.name"/>
       </div>
 
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-link`">Link to anime:</label>
-        <input class="form-control" :id="`input-missinganime-${componentId}-link`" :class="{'is-invalid': (validationErrors?.missingAnime as ValidationErrorData)?.link}" maxlength="200" type="url" v-model="missingAnimeData.link" :aria-describedby="`input-missinganime-${componentId}-link-errors`">
-        <FormValidationErrors :id="`input-missinganime-${componentId}-link-errors`" :validationErrors="(validationErrors?.missingAnime as ValidationErrorData)?.link"/>
+        <input class="form-control" :id="`input-missinganime-${componentId}-link`" :class="{'is-invalid': validationErrors?.link}" maxlength="200" type="url" v-model="missingAnimeData.link" :aria-describedby="`input-missinganime-${componentId}-link-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-link-errors`" :validationErrors="validationErrors?.link"/>
       </div>
 
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-description`">Extra information (optional):</label>
-        <textarea class="form-control" :id="`input-missinganime-${componentId}-description`" :class="{'is-invalid': (validationErrors?.missingAnime as ValidationErrorData)?.description}" rows="3" v-model="missingAnimeData.description" :aria-describedby="`input-missinganime-${componentId}-description-errors`"></textarea>
-        <FormValidationErrors :id="`input-missinganime-${componentId}-description-errors`" :validationErrors="(validationErrors?.missingAnime as ValidationErrorData)?.description"/>
+        <textarea class="form-control" :id="`input-missinganime-${componentId}-description`" :class="{'is-invalid': validationErrors?.description}" rows="3" v-model="missingAnimeData.description" :aria-describedby="`input-missinganime-${componentId}-description-errors`"></textarea>
+        <FormValidationErrors :id="`input-missinganime-${componentId}-description-errors`" :validationErrors="validationErrors?.description"/>
       </div>
     </div>
 
@@ -54,7 +54,7 @@
 /* eslint-disable vue/no-mutating-props */
 import Modal from '@/components/Modal.vue';
 import NotificationService from "@/util/notification-service";
-import type { SurveyData, ValidationErrorData } from "@/util/data";
+import type { NewValidationErrorData, SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
@@ -66,14 +66,14 @@ const props = defineProps<{
   missingAnimeData: MissingAnimeData;
 }>();
 
-const validationErrors = ref<ValidationErrorData | null>(null);
+const validationErrors = ref<NewValidationErrorData<MissingAnimeData> | null>(null);
 const componentId = IdGenerator.generateUniqueId('missing-anime-modal-');
 
 
-async function sendMissingAnimeData(): Promise<boolean> {
+function sendMissingAnimeData(): Promise<boolean> {
   const preOrPost = props.survey.isPreseason ? 'pre' : 'post';
 
-  return await HttpService.put(`api/survey/${props.survey.year}/${props.survey.season}/${preOrPost}/missinganime/`, props.missingAnimeData, () => {
+  return HttpService.put(`api/survey/${props.survey.year}/${props.survey.season}/${preOrPost}/missinganime/`, props.missingAnimeData, () => {
     NotificationService.push({
       message: `Successfully sent your request to add '${props.missingAnimeData.name}'!`,
       color: 'success',
