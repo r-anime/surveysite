@@ -98,7 +98,7 @@ export type ReplaceAllValues<T, TValue> = T extends Record<string, any> ? {[K in
 /**
  * Deep-replaces all non-object values with `string[] | undefined` using {@link ReplaceAllValues}.
  */
-export type NewValidationErrorData<T> = ReplaceAllValues<T, string[] | undefined>;
+export type ValidationErrorData<T> = ReplaceAllValues<T, string[] | undefined>;
 
 export interface SelectorItem {
   id: number;

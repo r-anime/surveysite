@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import type { AnimeData, NewValidationErrorData } from '@/util/data';
+import type { AnimeData, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
 import type { AnimeResponseData } from '../data/survey-form-data';
@@ -99,7 +99,7 @@ const props = defineProps<{
   animeResponseData: AnimeResponseData;
   isSurveyPreseason: boolean;
   isAnimeNew: boolean;
-  validationErrors?: NewValidationErrorData<AnimeResponseData>;
+  validationErrors?: ValidationErrorData<AnimeResponseData>;
 }>();
 
 const isAnimeSeries = isAnimeSeriesFn(props.animeData);

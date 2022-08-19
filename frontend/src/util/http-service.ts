@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import _ from "lodash";
-import type { NewValidationErrorData } from "./data";
+import type { ValidationErrorData } from "./data";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function camelizeKeys(obj: any): any {
@@ -143,14 +143,14 @@ type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, co
 type ErrorResponse<T> = {
   errors?: {
     global?: string[],
-    validation?: T extends never ? never : NewValidationErrorData<T>,
+    validation?: T extends never ? never : ValidationErrorData<T>,
   },
 };
 
 type ErrorResult<T> = {
   errors?: {
     global?: string[],
-    validation?: T extends never ? never : NewValidationErrorData<T>,
+    validation?: T extends never ? never : ValidationErrorData<T>,
   },
   status: number,
 }

@@ -54,7 +54,7 @@
 /* eslint-disable vue/no-mutating-props */
 import Modal from '@/components/Modal.vue';
 import NotificationService from "@/util/notification-service";
-import type { NewValidationErrorData, SurveyData } from "@/util/data";
+import type { ValidationErrorData, SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
@@ -66,7 +66,7 @@ const props = defineProps<{
   missingAnimeData: MissingAnimeData;
 }>();
 
-const validationErrors = ref<NewValidationErrorData<MissingAnimeData> | null>(null);
+const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null);
 const componentId = IdGenerator.generateUniqueId('missing-anime-modal-');
 
 

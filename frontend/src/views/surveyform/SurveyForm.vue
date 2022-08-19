@@ -82,7 +82,7 @@
 
 <script lang="ts">
 import { AnimeNameType } from '@/util/data';
-import type { AnimeData, NewValidationErrorData } from '@/util/data';
+import type { AnimeData, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import { Options, Vue } from 'vue-class-component';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
@@ -110,7 +110,7 @@ export default class SurveyForm extends Vue {
   surveyFormData: SurveyFormData | null = null;
   animeSeriesIds: number[] = [];
   specialAnimeIds: number[] = [];
-  validationErrors: NewValidationErrorData<SurveyFormSubmitData> | null = null;
+  validationErrors: ValidationErrorData<SurveyFormSubmitData> | null = null;
 
   // Needed here because we want the same data shared by the two identical modals
   missingAnimeData: MissingAnimeData = {
