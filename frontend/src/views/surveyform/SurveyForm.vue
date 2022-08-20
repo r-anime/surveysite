@@ -80,138 +80,144 @@
   </template>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import Spinner from '@/components/Spinner.vue';
+import SurveyFormAnime from './components/SurveyFormAnime.vue';
+import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
+
 import { AnimeNameType } from '@/util/data';
 import type { AnimeData, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
-import { Options, Vue } from 'vue-class-component';
-import SurveyFormAnime from './components/SurveyFormAnime.vue';
-import _ from 'lodash';
-import NotificationService from '@/util/notification-service';
-import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
-import type { MissingAnimeData } from './data/missing-anime-data';
-import type { AnimeResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
 import HttpService from '@/util/http-service';
-import Spinner from '@/components/Spinner.vue';
+import NotificationService from '@/util/notification-service';
+
+import type { AnimeResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
+import type { MissingAnimeData } from './data/missing-anime-data';
+
+import _ from 'lodash';
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
 
-@Options({
-  components: {
-    SurveyFormAnime,
-    FormValidationErrors,
-    SurveyFormMissingAnimeModal,
-    Spinner,
-  },
-})
-export default class SurveyForm extends Vue {
-  surveyName = '';
-  isSurveyPreseason = true;
-  surveyFormData: SurveyFormData | null = null;
-  animeSeriesIds: number[] = [];
-  specialAnimeIds: number[] = [];
-  validationErrors: ValidationErrorData<SurveyFormSubmitData> | null = null;
 
-  // Needed here because we want the same data shared by the two identical modals
-  missingAnimeData: MissingAnimeData = {
-    name: '',
-    link: '',
-    description: '',
+const router = useRouter();
+const route = router.currentRoute;
+
+const surveyName = getSurveyNameFromRoute(route.value);
+const isSurveyPreseason = ref(true);
+const surveyFormData = ref<SurveyFormData | null>(null);
+const animeSeriesIds = ref<number[]>([]);
+const specialAnimeIds = ref<number[]>([]);
+const validationErrors = ref<ValidationErrorData<SurveyFormSubmitData> | null>(null);
+
+// Needed here because we want the same data shared by the two identical modals
+const missingAnimeData = ref<MissingAnimeData>({
+  name: '',
+  link: '',
+  description: '',
+});
+
+
+
+{
+  let surveyApiUrl = getSurveyApiUrl(route.value);
+  let responseId = route.value.query.responseId;
+  if (responseId != null) {
+    if (Array.isArray(responseId)) {
+      responseId = responseId[0];
+    }
+    surveyApiUrl += '?responseId=' + responseId;
+  }
+
+  HttpService.get<SurveyFormData>(surveyApiUrl, data => {
+    surveyFormData.value = data;
+    isSurveyPreseason.value = surveyFormData.value.survey.isPreseason;
+
+    const groupedAnime = _.groupBy(surveyFormData.value.animeDataDict, isAnimeSeries);
+
+    const animeSeries = groupedAnime.true;
+    animeSeriesIds.value = _.map(_.orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+
+    const specialAnime = groupedAnime.false;
+    specialAnimeIds.value = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+  }, failureResponse => {
+    NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
+    router.push({name: 'Index'});
+  });
+}
+
+
+
+async function submit(): Promise<void> {
+  if (!surveyFormData?.value) {
+    return;
+  }
+
+  const submitData: SurveyFormSubmitData = {
+    responseData: surveyFormData.value.responseData,
+    animeResponseDataDict: surveyFormData.value.animeResponseDataDict,
+    isResponseLinkedToUser: surveyFormData.value.isResponseLinkedToUser,
   };
 
-  async created(): Promise<void> {
-    this.surveyName = getSurveyNameFromRoute(this.$route);
-
-    let surveyApiUrl = getSurveyApiUrl(this.$route);
-    let responseId = this.$route.query.responseId;
-    if (responseId != null) {
-      if (Array.isArray(responseId)) {
-        responseId = responseId[0];
-      }
-      surveyApiUrl += '?responseId=' + responseId;
+  let surveyApiUrl = getSurveyApiUrl(route.value);
+  let responseId = route.value.query.responseId;
+  if (responseId != null) {
+    if (Array.isArray(responseId)) {
+      responseId = responseId[0];
     }
-    await HttpService.get<SurveyFormData>(surveyApiUrl, surveyFormData => {
-      this.surveyFormData = surveyFormData;
-      this.isSurveyPreseason = surveyFormData.survey.isPreseason;
-
-      const groupedAnime = _.groupBy(surveyFormData.animeDataDict, isAnimeSeries);
-      const animeSeries = groupedAnime.true;
-      this.animeSeriesIds = _.map(_.orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
-      const specialAnime = groupedAnime.false;
-      this.specialAnimeIds = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
-    }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
-      this.$router.push({name: 'Index'});
-    });
+    surveyApiUrl += '?responseId=' + responseId;
   }
-
-  async submit(): Promise<void> {
-    if (!this.surveyFormData) {
-      return;
+  await HttpService.put<{responseId?: string}, SurveyFormSubmitData>(surveyApiUrl, submitData, submitResponse => {
+    NotificationService.push({
+      message: 'Your response was successfully sent!',
+      color: 'success',
+    });
+    if (submitResponse.responseId) {
+      // TODO: Rework this, should probably use a modal
+      router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
+    } else {
+      router.push({ name: 'Index' });
     }
+  }, failureResponse => {
+    NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');
 
-    const submitData: SurveyFormSubmitData = {
-      responseData: this.surveyFormData.responseData,
-      animeResponseDataDict: this.surveyFormData.animeResponseDataDict,
-      isResponseLinkedToUser: this.surveyFormData.isResponseLinkedToUser,
-    };
-
-    let surveyApiUrl = getSurveyApiUrl(this.$route);
-    let responseId = this.$route.query.responseId;
-    if (responseId != null) {
-      if (Array.isArray(responseId)) {
-        responseId = responseId[0];
-      }
-      surveyApiUrl += '?responseId=' + responseId;
-    }
-    await HttpService.put<{responseId?: string}, SurveyFormSubmitData>(surveyApiUrl, submitData, submitResponse => {
+    if (failureResponse.errors) {
+      validationErrors.value = failureResponse.errors.validation ?? null;
       NotificationService.push({
-        message: 'Your response was successfully sent!',
-        color: 'success',
+        message: 'One or more of your responses are invalid',
+        color: 'danger'
       });
-      if (submitResponse.responseId) {
-        // TODO: Rework this, should probably use a modal
-        this.$router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
-      } else {
-        this.$router.push({ name: 'Index' });
-      }
-    }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');
+    }
+  });
+}
 
-      if (failureResponse.errors) {
-        this.validationErrors = failureResponse.errors.validation ?? null;
-        NotificationService.push({
-          message: 'One or more of your responses are invalid',
-          color: 'danger'
-        });
-      }
-    });
-  }
+function getAnimeData(id: number): AnimeData {
+  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
+  return surveyFormData.value.animeDataDict[id];
+}
 
-  getAnimeData(id: number): AnimeData | undefined {
-    return this.surveyFormData?.animeDataDict[id];
-  }
+function getAnimeResponseData(id: number): AnimeResponseData {
+  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
+  return surveyFormData.value.animeResponseDataDict[id];
+}
 
-  getAnimeResponseData(id: number): AnimeResponseData | undefined {
-    return this.surveyFormData?.animeResponseDataDict[id];
-  }
-
-  // Not-so-pretty special workaround for when a user inputs an invalid age, 
-  // scrolls down the page and hits 'Submit' only to be greeted with a generic error message,
-  // while the error is all the way up on the page
-  clampAge(): void {
-    if (this.surveyFormData?.responseData?.age != null) {
-      if (_.isNumber(this.surveyFormData.responseData.age)) {
-        // Assume the user typo'd and get the first two numbers, and then clamp
-        this.surveyFormData.responseData.age = Math.max(10, Math.min(80, Number(this.surveyFormData.responseData.age.toString().slice(0, 2))));
-      } else {
-        this.surveyFormData.responseData.age = null;
-      }
+// Not-so-pretty special workaround for when a user inputs an invalid age, 
+// scrolls down the page and hits 'Submit' only to be greeted with a generic error message,
+// while the error is all the way up on the page
+function clampAge(): void {
+  if (surveyFormData.value?.responseData?.age != null) {
+    if (_.isNumber(surveyFormData.value.responseData.age)) {
+      // Assume the user typo'd and get the first two numbers, and then clamp
+      surveyFormData.value.responseData.age = Math.max(10, Math.min(80, Number(surveyFormData.value.responseData.age.toString().slice(0, 2))));
+    } else {
+      surveyFormData.value.responseData.age = null;
     }
   }
+}
 
-  isAnimeNew(id: number): boolean | undefined {
-    return this.surveyFormData?.isAnimeNewDict[id];
-  }
+function isAnimeNew(id: number): boolean {
+  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
+  return surveyFormData.value.isAnimeNewDict[id];
 }
 </script>
