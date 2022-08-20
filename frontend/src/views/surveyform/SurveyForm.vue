@@ -98,6 +98,8 @@ import type { MissingAnimeData } from './data/missing-anime-data';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { ModalService } from '@/util/modal-service';
+import SurveyFormLinkModal from './components/SurveyFormLinkModal.vue';
 
 
 
@@ -174,8 +176,7 @@ async function submit(): Promise<void> {
       color: 'success',
     });
     if (submitResponse.responseId) {
-      // TODO: Rework this, should probably use a modal
-      router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
+      ModalService.show(SurveyFormLinkModal, () => router.push({ name: 'Index' }), submitResponse.responseId);
     } else {
       router.push({ name: 'Index' });
     }
