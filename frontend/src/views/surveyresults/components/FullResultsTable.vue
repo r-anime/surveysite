@@ -5,7 +5,7 @@
         <tr role="row">
           <th role="columnheader" scope="col" aria-colindex="1" class="table-col-rank align-middle" aria-label="Rank"></th>
           <th role="columnheader" scope="col" aria-colindex="2" colspan="2" :class="['table-col-anime', 'align-middle', 'clickable', 'table-col-sortable', getColumnSortCssClass(null)]" @click="sortByResultType(null)">Anime</th>
-          <th v-for="(column, columnIdx) in processedColumns"
+          <th v-for="(column, columnIdx) in columns"
               :key="column.resultType"
               role="columnheader"
               scope="col"
@@ -28,7 +28,7 @@
           <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
             <AnimeNames :animeNames="entry.anime.names"/>
           </td>
-          <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in processedColumns" :key="column.resultType">
+          <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in columns" :key="column.resultType">
             {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
           </td>
         </tr>
@@ -37,8 +37,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
 import AnimeNames from '@/components/AnimeNames.vue';
 import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
@@ -46,111 +45,93 @@ import { AnimeNameType, ResultType } from '@/util/data';
 import type { AnimeTableEntryData } from '../data/anime-table-entry-data';
 import _ from 'lodash';
 import type { AnimeTableColumnData } from '../data/anime-table-column-data';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
-@Options({
-  components: {
-    AnimeImages,
-    AnimeNames,
-  },
-  props: {
-    columns: {
-      type: Array,
-      required: true,
-    },
-    entries: {
-      type: Array,
-      required: true,
-    },
-    isAnimeSeries: Boolean,
-  },
-})
-export default class FullResultsTable extends Vue {
-  columns!: AnimeTableColumnData[];
-  entries!: AnimeTableEntryData[];
-  isAnimeSeries!: boolean;
+const props = defineProps<{
+  columns: AnimeTableColumnData[];
+  entries: AnimeTableEntryData[];
+  isAnimeSeries?: boolean;
+}>();
 
-  get processedColumns(): AnimeTableColumnData[] {
-    return this.columns;
-  }
-  processedEntries: AnimeTableEntryData[] = [];
+const sortRouteQueryKey = props.isAnimeSeries ? 'sortSeries' : 'sortSpecial';
 
-  getResultTypeFormatter = getResultTypeFormatter;
-  getResultTypeName = getResultTypeName;
+const processedEntries = ref<AnimeTableEntryData[]>(props.entries);
 
-  activeSort: {
-    resultType: ResultType | null,
-    descending: boolean,
-  } = {
-      resultType: null,
-      descending: true,
-    };
+const activeSort = ref<{
+  resultType: ResultType | null,
+  descending: boolean,
+}>({
+  resultType: null,
+  descending: true,
+});
 
-  private get sortRouteQueryKey(): string {
-    return this.isAnimeSeries ? 'sortSeries' : 'sortSpecial';
+const router = useRouter();
+const route = router.currentRoute;
+
+
+{
+  const sortValueRaw = route.value.query[sortRouteQueryKey];
+  if (sortValueRaw && !Array.isArray(sortValueRaw)) {
+    const sortValue: ResultType = Number(sortValueRaw);
+    sortByResultType(sortValue);
+  } else {
+    sortByResultType(null);
   }
 
-  created(): void {
-    this.processedEntries = this.entries;
+  watch(() => props.entries, (newEntries: AnimeTableEntryData[]) => {
+    processedEntries.value = newEntries;
+    sortByResultType(activeSort.value.resultType, true);
+  });
+}
 
-    const sortValueRaw = this.$route.query[this.sortRouteQueryKey];
-    if (sortValueRaw && !Array.isArray(sortValueRaw)) {
-      const sortValue: ResultType = Number(sortValueRaw);
-      this.sortByResultType(sortValue);
-    } else {
-      this.sortByResultType(null);
+
+
+/**
+ * Sort columns by a particular result type
+ * @param resultType Result type to sort by, or null to sort by (Japanese) name
+ */
+function sortByResultType(resultType: ResultType | null, preventSortOrderToggle = false): void {
+  const sameResultType = activeSort.value.resultType === resultType;
+  const descending = sameResultType
+    ? preventSortOrderToggle
+      ? activeSort.value.descending  // Keep same order if preventSortOrderToggle,
+      : !activeSort.value.descending // otherwise toggle it
+    : resultType != null; // Start sorting in descending order, except when sorting by name
+
+  activeSort.value.resultType = resultType;
+  activeSort.value.descending = descending;
+
+  // Overwrite the sort query currently in the route
+  const newSortQuery = Object.assign({}, route.value.query);
+  if (resultType != null) {
+    const query = { [sortRouteQueryKey]: resultType.toString() };
+    Object.assign(newSortQuery, query);
+  }
+  else {
+    if (newSortQuery[sortRouteQueryKey]) {
+      delete newSortQuery[sortRouteQueryKey];
     }
-
-    this.$watch(() => this.entries, (newEntries: AnimeTableEntryData[]) => {
-      this.processedEntries = newEntries;
-      this.activeSort.descending = !this.activeSort.descending; // Not exactly pretty, but prevent swapping the order
-      this.sortByResultType(this.activeSort.resultType);
-    });
   }
+  router.replace({ name: 'SurveyResultsFull', query: newSortQuery, hash: route.value.hash });
 
-  /**
-   * Sort columns by a particular result type
-   * @param resultType Result type to sort by, or null to sort by (Japanese) name
-   */
-  sortByResultType(resultType: ResultType | null): void {
-    let descending = resultType != null; // When sorting by name, sort ascending first, otherwise descending
-    if (this.activeSort.resultType == resultType) {
-      descending = !this.activeSort.descending;
-    }
+  processedEntries.value = _.orderBy(processedEntries.value, entry => {
+    if (resultType == null)
+      return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase();
+    else if (entry.data[resultType] == null || entry.data[resultType] === 0)
+      return descending ? -1000 : 1000;
+    else
+      return entry.data[resultType];
+  }, descending ? 'desc' : 'asc');
+}
 
-    this.activeSort.resultType = resultType;
-    this.activeSort.descending = descending;
-
-    // Overwrite this sort query with the one currently in the route
-    const newSortQuery = Object.assign({}, this.$route.query);
-    if (resultType != null) {
-      const query = { [this.sortRouteQueryKey]: resultType.toString() };
-      Object.assign(newSortQuery, query);
-    }
-    else {
-      if (newSortQuery[this.sortRouteQueryKey]) {
-        delete newSortQuery[this.sortRouteQueryKey];
-      }
-    }
-    this.$router.replace({ name: 'SurveyResultsFull', query: newSortQuery, hash: this.$route.hash });
-
-    this.processedEntries = _.orderBy(this.processedEntries, entry => {
-      if (resultType == null)
-        return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase();
-      else if (entry.data[resultType] == null || entry.data[resultType] === 0)
-        return descending ? -1000 : 1000;
-      else
-        return entry.data[resultType];
-    }, descending ? 'desc' : 'asc');
-  }
-
-  getColumnSortCssClass(resultType: ResultType | null): Record<string, boolean> {
-    const sortedOnColumn = this.activeSort.resultType === resultType;
-    return {
-      'table-col-sort-desc': sortedOnColumn && this.activeSort.descending,
-      'table-col-sort-asc': sortedOnColumn && !this.activeSort.descending,
-      'table-col-sort-none': !sortedOnColumn,
-    };
-  }
+function getColumnSortCssClass(resultType: ResultType | null): Record<string, boolean> {
+  const sortedOnColumn = activeSort.value.resultType === resultType;
+  return {
+    'table-col-sort-desc': sortedOnColumn && activeSort.value.descending,
+    'table-col-sort-asc': sortedOnColumn && !activeSort.value.descending,
+    'table-col-sort-none': !sortedOnColumn,
+  };
 }
 </script>
 
