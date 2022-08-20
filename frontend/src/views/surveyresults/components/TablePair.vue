@@ -11,37 +11,21 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
+import type { AnimeData, ResultType } from '@/util/data';
 import SimpleResultsTable from './SimpleResultsTable.vue';
 
-@Options({
-  components: {
-    SimpleResultsTable,
-  },
-  props: {
-    leftRanking: {
-      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-      required: true,
-    },
-    rightRanking: Array,
-    leftResultTypes: {
-      type: Array,
-      required: true,
-    },
-    rightResultTypes: Array,
-    title: {
-      type: String,
-      required: true,
-    },
-    description: String,
-    isAnimeSeries: Boolean, // Only used for the link under the tables
-    top: {
-      type: Number,
-      required: true,
-    },
-    bottom: Number,
-  },
-})
-export default class TablePair extends Vue {}
+defineProps<{
+  leftRanking: { anime: AnimeData, result: number, extraResult?: number }[];
+  rightRanking?: { anime: AnimeData, result: number, extraResult?: number }[];
+  leftResultTypes: ResultType[];
+  rightResultTypes?: ResultType[];
+
+  title: string;
+  description?: string;
+  isAnimeSeries?: boolean; // Only used for the link under the tables
+
+  top: number;
+  bottom?: number;
+}>();
 </script>

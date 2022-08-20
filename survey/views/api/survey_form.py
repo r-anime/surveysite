@@ -112,7 +112,7 @@ class SurveyFormApi(View):
             response.full_clean()
         except ValidationError as e:
             logging.warning('A validation error occurred while a user was submitting a response to survey "%s":\r\n%s', str(survey), str(e.message_dict))
-            validation_errors['response'] = e.message_dict
+            validation_errors['response_data'] = e.message_dict
 
         if previous_response is None:
             response.survey = survey
@@ -129,9 +129,9 @@ class SurveyFormApi(View):
             try:
                 anime_response.full_clean()
             except ValidationError as e:
-                if 'anime_response' not in validation_errors:
-                    validation_errors['anime_response'] = {}
-                validation_errors['anime_response'][anime_id] = e.message_dict
+                if 'anime_response_data_dict' not in validation_errors:
+                    validation_errors['anime_response_data_dict'] = {}
+                validation_errors['anime_response_data_dict'][anime_id] = e.message_dict
 
             if previous_anime_response is None:
                 anime_response.anime_id = anime_id

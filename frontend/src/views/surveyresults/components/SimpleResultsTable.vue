@@ -44,120 +44,90 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { Vue, Options } from 'vue-class-component';
 import { type AnimeData, ResultType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import type { RouteLocationNormalized } from 'vue-router';
 
-@Options({
-  components: {
-    AnimeNames,
-    AnimeImages,
-  },
-  props: {
-    ranking: {
-      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-      required: true,
-    },
-    resultTypes: {
-      type: Array,
-      required: true,
-    },
-    isAnimeSeries: Boolean, // Only used for the link
-    top: {
-      type: Number,
-      required: true,
-    },
-    bottom: Number, // Optional
-  },
-})
-export default class SimpleResultsTable extends Vue { // TODO: Replace this class with the AnimeTable component
-  ranking!: { anime: AnimeData, result: number, extraResult?: number }[];
-  resultTypes!: ResultType[];
-  isAnimeSeries!: boolean;
-  top!: number;
+// TODO: Replace this class with the AnimeTable component
+
+const props = defineProps<{
+  ranking: { anime: AnimeData, result: number, extraResult?: number }[];
+  resultTypes: ResultType[]; // Must have either length 1 or 2
+  isAnimeSeries?: boolean;
+
+  top: number;
   bottom?: number;
+}>();
 
-  processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
-  resultNames: string[] = []; // [resultName, extraResultName]
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  resultFormatters: ((value?: number) => string)[] = []; // [resultFormatter, extraResultFormatter]
+const fullResultsRoute: RouteLocationNormalized = {
+  name: 'SurveyResultsFull',
+  query: { [props.isAnimeSeries ? 'sortSeries' : 'sortSpecial']: props.resultTypes[0].toString() },
+  hash: props.isAnimeSeries ? '#tableSeries' : '#tableSpecial',
+} as RouteLocationNormalized;
 
-  hasExtraResult = false;
+const hasExtraResult = props.resultTypes.length === 2;
+const resultNames = props.resultTypes.map(resultType => getResultTypeName(resultType));
+const resultFormatters = props.resultTypes.map(resultType => getResultTypeFormatter(resultType));
 
-  get fullResultsRoute(): RouteLocationNormalized {
-    return {
-      name: 'SurveyResultsFull',
-      query: { [this.isAnimeSeries ? 'sortSeries' : 'sortSpecial']: this.resultTypes[0].toString() },
-      hash: this.isAnimeSeries ? '#tableSeries' : '#tableSpecial',
-    } as RouteLocationNormalized;
+const processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
+
+{
+  let progressBarMin: number;
+  let progressBarMax: number;
+  let progressBarValueParser = (value: number) => value;
+
+  switch (props.resultTypes[0]) {
+    case ResultType.SCORE:
+    case ResultType.SCORE_MALE:
+    case ResultType.SCORE_FEMALE:
+      progressBarMin = 1.0;
+      progressBarMax = 5.0;
+      break;
+    case ResultType.GENDER_SCORE_DIFFERENCE:
+      progressBarMin = 0;
+      progressBarMax = 1.5;
+      progressBarValueParser = value => Math.abs(value);
+      break;
+    case ResultType.GENDER_POPULARITY_RATIO:
+      progressBarMin = 0;
+      progressBarMax = 10.0;
+      progressBarValueParser = value => value >= 1.0 ? value : 1.0 / value;
+      break;
+    case ResultType.AGE:
+      progressBarMin = 20.0;
+      progressBarMax = 30.0;
+      break;
+    default: // For percentages
+      progressBarMin = 0;
+      progressBarMax = 0.85;
+      break;
   }
 
-  created(): void {
-    this.hasExtraResult = this.resultTypes.length === 2;
+  const calcProgressBarValue = (result: number) => {
+    const progressBarValue = (progressBarValueParser(result) - progressBarMin) / (progressBarMax - progressBarMin);
+    return Math.max(Math.min(progressBarValue, 1), 0);
+  };
 
-    for (const resultType of this.resultTypes) {
-      this.resultNames.push(getResultTypeName(resultType));
-      this.resultFormatters.push(getResultTypeFormatter(resultType));
-    }
+  for (let rowIdx = 0; rowIdx < Math.min(props.top, props.ranking.length); rowIdx++) {
+    const row = props.ranking[rowIdx];
+    processedRanking.push(Object.assign({
+      progressBarValue: calcProgressBarValue(row.result),
+      rank: rowIdx + 1,
+    }, row));
+  }
 
-    let progressBarMin: number;
-    let progressBarMax: number;
-    let progressBarValueParser = (value: number) => value;
+  if (props.bottom != null) {
+    processedRanking.push(null);
 
-    switch (this.resultTypes[0]) {
-      case ResultType.SCORE:
-      case ResultType.SCORE_MALE:
-      case ResultType.SCORE_FEMALE:
-        progressBarMin = 1.0;
-        progressBarMax = 5.0;
-        break;
-      case ResultType.GENDER_SCORE_DIFFERENCE:
-        progressBarMin = 0;
-        progressBarMax = 1.5;
-        progressBarValueParser = value => Math.abs(value);
-        break;
-      case ResultType.GENDER_POPULARITY_RATIO:
-        progressBarMin = 0;
-        progressBarMax = 10.0;
-        progressBarValueParser = value => value >= 1.0 ? value : 1.0 / value;
-        break;
-      case ResultType.AGE:
-        progressBarMin = 20.0;
-        progressBarMax = 30.0;
-        break;
-      default: // For percentages
-        progressBarMin = 0;
-        progressBarMax = 0.85;
-        break;
-    }
-
-    function progressBarValueFn(result: number) {
-      const progressBarValue = (progressBarValueParser(result) - progressBarMin) / (progressBarMax - progressBarMin);
-      return Math.max(Math.min(progressBarValue, 1), 0);
-    }
-
-    for (let rowIdx = 0; rowIdx < Math.min(this.top, this.ranking.length); rowIdx++) {
-      const row = this.ranking[rowIdx];
-      this.processedRanking.push(Object.assign({
-        progressBarValue: progressBarValueFn(row.result),
+    for (let rowIdx = props.ranking.length - props.bottom; rowIdx < props.ranking.length; rowIdx++) {
+      const row = props.ranking[rowIdx];
+      processedRanking.push(Object.assign({
+        progressBarValue: calcProgressBarValue(row.result),
         rank: rowIdx + 1,
       }, row));
-    }
-
-    if (this.bottom != null) {
-      this.processedRanking.push(null);
-
-      for (let rowIdx = this.ranking.length - this.bottom; rowIdx < this.ranking.length; rowIdx++) {
-        const row = this.ranking[rowIdx];
-        this.processedRanking.push(Object.assign({
-          progressBarValue: progressBarValueFn(row.result),
-          rank: rowIdx + 1,
-        }, row));
-      }
     }
   }
 }

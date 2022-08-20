@@ -46,52 +46,33 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ResultType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
-import { Options, Vue } from 'vue-class-component';
 import type { IndexSurveyData } from '../data/index-survey-data';
 import dayjs from 'dayjs';
 
+const props = defineProps<{
+  survey: IndexSurveyData;
+}>();
 
-@Options({
-  components: {
-    IndexSurveyAnime,
-  },
-  props: {
-    survey: {
-      type: Object,
-      required: true,
-    },
-  },
-})
-export default class IndexSurvey extends Vue {
-  survey!: IndexSurveyData;
-  surveyName?: string;
-  openingTime?: dayjs.Dayjs;
-  closingTime?: dayjs.Dayjs;
-  isSurveyUpcoming = false;
-  isSurveyFinished = false;
+const surveyName = getSurveyName(props.survey);
+const openingTime = dayjs(props.survey.openingEpochTime);
+const closingTime = dayjs(props.survey.closingEpochTime);
+const isSurveyUpcoming = dayjs() < openingTime;
+const isSurveyFinished = closingTime < dayjs();
 
-  created(): void {
-    this.surveyName = getSurveyName(this.survey);
-    this.openingTime = dayjs(this.survey.openingEpochTime);
-    this.closingTime = dayjs(this.survey.closingEpochTime);
-    this.isSurveyUpcoming = dayjs() < this.openingTime;
-    this.isSurveyFinished = this.closingTime < dayjs();
-  }
 
-  getResultTypeTitle(resultType: ResultType): string {
-    const resultTypeNumber = Number(resultType);
-    switch (resultTypeNumber) {
-      case ResultType.POPULARITY:
-        return 'Most popular anime';
-      case ResultType.SCORE:
-        return this.survey.isPreseason ? 'Most anticipated anime' : 'Most highly regarded anime';
-      default:
-        return ResultType[resultTypeNumber];
-    }
+function getResultTypeTitle(resultType: ResultType): string {
+  const resultTypeNumber = Number(resultType);
+  switch (resultTypeNumber) {
+    case ResultType.POPULARITY:
+      return 'Most popular anime';
+    case ResultType.SCORE:
+      return props.survey.isPreseason ? 'Most anticipated anime' : 'Most highly regarded anime';
+    default:
+      return ResultType[resultTypeNumber];
   }
 }
 </script>

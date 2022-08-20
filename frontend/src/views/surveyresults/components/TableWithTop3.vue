@@ -40,39 +40,19 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import SimpleResultsTable from './SimpleResultsTable.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import AnimeNames from '@/components/AnimeNames.vue';
+import type { AnimeData, ResultType } from '@/util/data';
 
-@Options({
-  components: {
-    SimpleResultsTable,
-    AnimeImages,
-    AnimeNames,
-  },
-  props: {
-    ranking: {
-      type: Array, // { anime: AnimeData, result: number, extraResult: number }[]
-      required: true,
-    },
-    resultTypes: {
-      type: Array,
-      required: true,
-    },
-    isAnimeSeries: Boolean, // Only used for the link under the table
-    top: {
-      type: Number,
-      required: true,
-    },
-    bottom: Number,
-    title: {
-      type: String,
-      required: true,
-    },
-    description: String,
-  },
-})
-export default class TableWithTop3 extends Vue {}
+defineProps<{
+  ranking: { anime: AnimeData, result: number, extraResult?: number }[];
+  resultTypes: ResultType[];
+  isAnimeSeries?: boolean;
+  top: number;
+  bottom?: number;
+  title: string;
+  description?: string;
+}>();
 </script>

@@ -24,27 +24,24 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { getSurveyNameFromRoute } from "@/util/helpers";
-import { Options, Vue } from "vue-class-component";
+import { useRouter } from "vue-router";
 
 // TODO: Replace this with maybe a modal? in the future
-@Options({})
-export default class SurveyFormLink extends Vue {
-  surveyName = '';
-  editLink = '';
 
-  created() {
-    this.surveyName = getSurveyNameFromRoute(this.$route);
+const router = useRouter();
+const route = router.currentRoute;
 
-    let responseId = this.$route.query.responseId;
-    if (Array.isArray(responseId)) {
-      responseId = responseId[0];
-    }
-    if (responseId == null) {
-      this.$router.push({ name: 'Index', replace: true });
-    }
-    this.editLink = this.$router.resolve({ name: 'SurveyForm', query: { responseId } }).fullPath;
-  }
+const surveyName = getSurveyNameFromRoute(route.value);
+
+
+let responseId = route.value.query.responseId;
+if (Array.isArray(responseId)) {
+  responseId = responseId[0];
 }
+if (responseId == null) {
+  router.push({ name: 'Index', replace: true });
+}
+const editLink = router.resolve({ name: 'SurveyForm', query: { responseId } }).fullPath;
 </script>

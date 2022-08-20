@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="card shadow-sm h-100">
     <div class="row">
@@ -30,8 +31,8 @@
             }}
           </span>
           <br/>
-          <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-watching`" autocomplete="off" v-model="animeResponseData.watching">
-          <label class="btn w-100 mt-1" :class="animeResponseData.watching ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-watching`">
+          <input type="checkbox" class="btn-check" :id="`input-anime-${animeData.id}-watching`" autocomplete="off" v-model="animeResponseData.watching">
+          <label class="btn w-100 mt-1" :class="animeResponseData.watching ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeData.id}-watching`">
             {{ animeResponseData.watching ? 'Yes' : 'No' }}
           </label>
         </div>
@@ -42,15 +43,15 @@
             Did you find this underwatched?
           </span>
           <br/>
-          <input type="checkbox" class="btn-check" :id="`input-anime-${animeId}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
-          <label class="btn w-100 mt-1" :class="animeResponseData.underwatched ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeId}-underwatched`">
+          <input type="checkbox" class="btn-check" :id="`input-anime-${animeData.id}-underwatched`" autocomplete="off" v-model="animeResponseData.underwatched">
+          <label class="btn w-100 mt-1" :class="animeResponseData.underwatched ? 'btn-outline-success' : 'btn-outline-secondary'" :for="`input-anime-${animeData.id}-underwatched`">
             {{ animeResponseData.underwatched ? 'Yes' : 'No' }}
           </label>
         </div>
 
         <!-- Score input -->
         <div class="mb-3">
-          <label class="form-label" :for="`input-anime-${animeId}-score`">
+          <label class="form-label" :for="`input-anime-${animeData.id}-score`">
             {{
               isSurveyPreseason ?
                 isAnimeNew ?
@@ -59,7 +60,7 @@
                 'What did you think of this?'
             }}
           </label>
-          <select class="form-select" :id="`input-anime-${animeId}-score`" :class="{'is-invalid': validationErrors?.score}" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeId}-score-invalid`">
+          <select class="form-select" :id="`input-anime-${animeData.id}-score`" :class="{'is-invalid': validationErrors?.score}" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeData.id}-score-invalid`">
             <option :value="(null)">-----</option>
             <option value="5">5/5 - Great</option>
             <option value="4">4/5</option>
@@ -67,73 +68,43 @@
             <option value="2">2/5</option>
             <option value="1">1/5 - Bad</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeId}-score-invalid`" :validationErrors="validationErrors?.score"/>
+          <FormValidationErrors :id="`input-anime-${animeData.id}-score-invalid`" :validationErrors="validationErrors?.score"/>
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
-          <label class="form-label" :for="`input-anime-${animeId}-expectations`">Was this a surprise or disappointment?</label>
-          <select class="form-select" :id="`input-anime-${animeId}-expectations`" :class="{'is-invalid': validationErrors?.expectations}" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeId}-expectations-invalid`">
+          <label class="form-label" :for="`input-anime-${animeData.id}-expectations`">Was this a surprise or disappointment?</label>
+          <select class="form-select" :id="`input-anime-${animeData.id}-expectations`" :class="{'is-invalid': validationErrors?.expectations}" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeData.id}-expectations-invalid`">
             <option :value="(null)">-----</option>
             <option value="S">Surprise</option>
             <option value="D">Disappointment</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeId}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
+          <FormValidationErrors :id="`input-anime-${animeData.id}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
         </div>
       </div></div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
-import { type AnimeData, AnimeNameType } from '@/util/data';
-import { getAnimeName, isAnimeSeries } from '@/util/helpers';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import type { AnimeData, ValidationErrorData } from '@/util/data';
+import { AnimeNameType } from '@/util/data';
+import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
+import type { AnimeResponseData } from '../data/survey-form-data';
 
-@Options({
-  components: {
-    AnimeImages,
-    FormValidationErrors,
-  },
-  props: {
-    animeData: {
-      type: Object,
-      required: true,
-    },
-    animeResponseData: {
-      type: Object,
-      required: true,
-    },
-    isSurveyPreseason: {
-      type: Boolean,
-      required: true,
-    },
-    isAnimeNew: {
-      type: Boolean,
-      required: true,
-    },
-    validationErrors: Object,
-  },
-})
-export default class SurveyFormAnime extends Vue {
-  animeData!: AnimeData;
+const props = defineProps<{
+  animeData: AnimeData;
+  animeResponseData: AnimeResponseData;
+  isSurveyPreseason: boolean;
+  isAnimeNew: boolean;
+  validationErrors?: ValidationErrorData<AnimeResponseData>;
+}>();
 
-  isAnimeSeries = false;
-  animeId?: number;
+const isAnimeSeries = isAnimeSeriesFn(props.animeData);
 
-  japaneseName: string | null = null;
-  englishName: string | null = null;
-  shortName: string | null = null;
-
-  created(): void {
-    this.isAnimeSeries = isAnimeSeries(this.animeData);
-    this.animeId = this.animeData.id;
-
-    this.japaneseName = getAnimeName(this.animeData, AnimeNameType.JAPANESE_NAME);
-    this.englishName = getAnimeName(this.animeData, AnimeNameType.ENGLISH_NAME);
-    this.shortName = getAnimeName(this.animeData, AnimeNameType.SHORT_NAME);
-  }
-}
+const japaneseName = getAnimeName(props.animeData, AnimeNameType.JAPANESE_NAME);
+const englishName = getAnimeName(props.animeData, AnimeNameType.ENGLISH_NAME);
+const shortName = getAnimeName(props.animeData, AnimeNameType.SHORT_NAME);
 </script>

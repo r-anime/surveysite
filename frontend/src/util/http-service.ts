@@ -68,29 +68,29 @@ export default class HttpService {
     validateStatus: statusCode => (statusCode >= 200 && statusCode < 300) || (statusCode >= 400 && statusCode < 500),
   });
 
-  static async get<TResponse, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  static async get<TResponse, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<never>) => TResult): Promise<TResult> {
     return await this.performRequestFn(this._axios.get, url, successFn, failureFn);
   }
 
-  static async post<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  static async post<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.post, url, data, successFn, failureFn);
   }
 
-  static async put<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  static async put<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
   }
 
-  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
     return await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
   }
 
 
-  private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ErrorResponse>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ErrorResponse<never>>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<never>) => TResult): Promise<TResult> {
     const response = await axiosRequestFn(url);
     return this.processResponse(response, successFn, failureFn);
   }
 
-  private static async performDataRequestFn<TResponse, TRequest, TResult>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ErrorResponse, TRequest>, url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): Promise<TResult> {
+  private static async performDataRequestFn<TResponse, TRequest, TResult>(axiosDataRequestFn: AxiosDataRequestFn<TResponse | ErrorResponse<TRequest>, TRequest>, url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
     const config: AxiosRequestConfig = {
       headers: {
         'X-CSRFToken': this.getCsrfToken(),
@@ -102,14 +102,14 @@ export default class HttpService {
   }
 
 
-  private static processResponse<TResponse, TResult>(response: AxiosResponse<TResponse | ErrorResponse>, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult) => TResult): TResult {
+  private static processResponse<TResponse, TRequest, TResult>(response: AxiosResponse<TResponse | ErrorResponse<TRequest>>, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): TResult {
     if (this.isResponseSuccess(response)) {
       return successFn(response.data);
     } else if (response.status === 401) { // Make sure the user is authenticated before performing this request!
       throw new Error('User unauthenticated');
     } else if (this.isResponseValidationErrorData(response)) {
       if (failureFn) {
-        const errorResult: ErrorResult = Object.assign({ status: response.status }, response.data);
+        const errorResult: ErrorResult<TRequest> = Object.assign({ status: response.status }, response.data);
         return failureFn(errorResult);
       } else {
         throw new Error('The server responded with an error status, but no failure handler was given.');
@@ -120,11 +120,11 @@ export default class HttpService {
   }
 
 
-  private static isResponseSuccess<TResponse>(response: AxiosResponse<TResponse | ErrorResponse>): response is AxiosResponse<TResponse> {
+  private static isResponseSuccess<TResponse, TRequest>(response: AxiosResponse<TResponse | ErrorResponse<TRequest>>): response is AxiosResponse<TResponse> {
     return response.status >= 200 && response.status < 300;
   }
 
-  private static isResponseValidationErrorData<TResponse>(response: AxiosResponse<TResponse | ErrorResponse>): response is AxiosResponse<ErrorResponse> {
+  private static isResponseValidationErrorData<TResponse, TRequest>(response: AxiosResponse<TResponse | ErrorResponse<TRequest>>): response is AxiosResponse<ErrorResponse<TRequest>> {
     return response.status >= 400 && response.status < 600;
   }
 
@@ -140,17 +140,17 @@ type AxiosRequestFn<TResponse> = (url: string, config?: AxiosRequestConfig) => P
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 
-type ErrorResponse = {
+type ErrorResponse<T> = {
   errors?: {
     global?: string[],
-    validation?: ValidationErrorData,
+    validation?: T extends never ? never : ValidationErrorData<T>,
   },
 };
 
-type ErrorResult = {
+type ErrorResult<T> = {
   errors?: {
     global?: string[],
-    validation?: ValidationErrorData,
+    validation?: T extends never ? never : ValidationErrorData<T>,
   },
   status: number,
 }

@@ -46,31 +46,23 @@
   </nav>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Modal from '@/components/Modal.vue';
-import { Options, Vue } from 'vue-class-component';
 import Cookie from 'js-cookie';
 import type { UserData } from '@/util/data';
 import UserService from '@/util/user-service';
+import { ref } from 'vue';
 
-@Options({
-  components: {
-    Modal,
-  },
-})
-export default class TheNavbar extends Vue {
-  userData: UserData | null = null;
+const userData = ref<UserData | null>(null);
 
-  async created(): Promise<void> {
-    this.userData = await UserService.getUserData();
-  }
-  
-  getCurrentUrl(): string {
-    return window.location.href;
-  }
+// Don't await this otherwise this has to become an async component
+UserService.getUserData().then(ud => userData.value = ud);
 
-  getCsrfToken(): string | undefined {
-    return Cookie.get('csrftoken');
-  }
+function getCurrentUrl(): string {
+  return window.location.href;
+}
+
+function getCsrfToken(): string | undefined {
+  return Cookie.get('csrftoken');
 }
 </script>

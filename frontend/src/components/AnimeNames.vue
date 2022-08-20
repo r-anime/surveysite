@@ -12,32 +12,20 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { type AnimeNameData, AnimeNameType } from '@/util/data';
-import { Options, Vue } from 'vue-class-component';
 
-@Options({
-  props: {
-    animeNames: {
-      type: Array,
-      required: true,
-    },
-    showShortName: Boolean,
-  },
-})
-export default class AnimeNames extends Vue {
-  animeNames!: AnimeNameData[];
-  japaneseName?: AnimeNameData;
-  englishName?: AnimeNameData;
-  shortName?: AnimeNameData;
-  
-  created(): void {
-    this.japaneseName = this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME && animeName.isOfficial)
-      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.JAPANESE_NAME);
-    this.englishName = this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME && animeName.isOfficial)
-      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.ENGLISH_NAME);
-    this.shortName = this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME && animeName.isOfficial)
-      ?? this.animeNames.find(animeName => animeName.type == AnimeNameType.SHORT_NAME);
-  }
+const props = defineProps<{
+  animeNames: AnimeNameData[];
+  showShortName?: boolean;
+}>();
+
+const japaneseName = tryGetNameOfType(AnimeNameType.JAPANESE_NAME);
+const englishName = tryGetNameOfType(AnimeNameType.ENGLISH_NAME);
+const shortName = tryGetNameOfType(AnimeNameType.SHORT_NAME);
+
+function tryGetNameOfType(animeNameType: AnimeNameType): AnimeNameData | undefined {
+  return props.animeNames.find(animeName => animeName.type == animeNameType && animeName.isOfficial)
+    ?? props.animeNames.find(animeName => animeName.type == animeNameType);
 }
 </script>

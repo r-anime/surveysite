@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <Modal modalTitle="Request a missing anime to be added"
          modalButtonClass="p-n2"
@@ -26,20 +27,20 @@
     <div>
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-name`">Anime name:</label>
-        <input class="form-control" :id="`input-missinganime-${componentId}-name`" :class="{'is-invalid': validationErrors?.missingAnime?.name}" maxlength="128" type="text" v-model="missingAnimeData.name" :aria-describedby="`input-missinganime-${componentId}-name-errors`">
-        <FormValidationErrors :id="`input-missinganime-${componentId}-name-errors`" :validationErrors="validationErrors?.missingAnime?.name"/>
+        <input class="form-control" :id="`input-missinganime-${componentId}-name`" :class="{'is-invalid': validationErrors?.name}" maxlength="128" type="text" v-model="missingAnimeData.name" :aria-describedby="`input-missinganime-${componentId}-name-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-name-errors`" :validationErrors="validationErrors?.name"/>
       </div>
 
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-link`">Link to anime:</label>
-        <input class="form-control" :id="`input-missinganime-${componentId}-link`" :class="{'is-invalid': validationErrors?.missingAnime?.link}" maxlength="200" type="url" v-model="missingAnimeData.link" :aria-describedby="`input-missinganime-${componentId}-link-errors`">
-        <FormValidationErrors :id="`input-missinganime-${componentId}-link-errors`" :validationErrors="validationErrors?.missingAnime?.link"/>
+        <input class="form-control" :id="`input-missinganime-${componentId}-link`" :class="{'is-invalid': validationErrors?.link}" maxlength="200" type="url" v-model="missingAnimeData.link" :aria-describedby="`input-missinganime-${componentId}-link-errors`">
+        <FormValidationErrors :id="`input-missinganime-${componentId}-link-errors`" :validationErrors="validationErrors?.link"/>
       </div>
 
       <div class="mb-2">
         <label class="form-label" :for="`input-missinganime-${componentId}-description`">Extra information (optional):</label>
-        <textarea class="form-control" :id="`input-missinganime-${componentId}-description`" :class="{'is-invalid': validationErrors?.missingAnime?.description}" rows="3" v-model="missingAnimeData.description" :aria-describedby="`input-missinganime-${componentId}-description-errors`"></textarea>
-        <FormValidationErrors :id="`input-missinganime-${componentId}-description-errors`" :validationErrors="validationErrors?.missingAnime?.description"/>
+        <textarea class="form-control" :id="`input-missinganime-${componentId}-description`" :class="{'is-invalid': validationErrors?.description}" rows="3" v-model="missingAnimeData.description" :aria-describedby="`input-missinganime-${componentId}-description-errors`"></textarea>
+        <FormValidationErrors :id="`input-missinganime-${componentId}-description-errors`" :validationErrors="validationErrors?.description"/>
       </div>
     </div>
 
@@ -49,68 +50,53 @@
   </Modal>
 </template>
 
-<script lang="ts">
-import { Vue, Options } from "vue-class-component";
+<script setup lang="ts">
+/* eslint-disable vue/no-mutating-props */
 import Modal from '@/components/Modal.vue';
 import NotificationService from "@/util/notification-service";
-import type { SurveyData, ValidationErrorData } from "@/util/data";
+import type { ValidationErrorData, SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
+import IdGenerator from '@/util/id-generator';
+import { ref } from 'vue';
 
-@Options({
-  components: {
-    Modal,
-    FormValidationErrors,
-  },
-  props: {
-    survey: {
-      type: Object,
-      required: true,
-    },
-    missingAnimeData: {
-      type: Object,
-      required: true,
-    },
-  },
-})
-export default class SurveyFormMissingAnimeModal extends Vue {
-  survey!: SurveyData;
-  missingAnimeData!: MissingAnimeData;
-  validationErrors: ValidationErrorData | null = null;
+const props = defineProps<{
+  survey: SurveyData;
+  missingAnimeData: MissingAnimeData;
+}>();
 
-  private static globalId = 0;
-  componentId = `missing-anime-modal-${SurveyFormMissingAnimeModal.globalId++}`;
+const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null);
+const componentId = IdGenerator.generateUniqueId('missing-anime-modal-');
 
-  async sendMissingAnimeData(): Promise<boolean> {
-    const survey = this.survey as SurveyData;
-    const preOrPost = survey.isPreseason ? 'pre' : 'post';
 
-    return await HttpService.put(`api/survey/${survey.year}/${survey.season}/${preOrPost}/missinganime/`, this.missingAnimeData, () => {
-      NotificationService.push({
-        message: `Successfully sent your request to add '${this.missingAnimeData.name}'!`,
-        color: 'success',
-      });
+function sendMissingAnimeData(): Promise<boolean> {
+  const preOrPost = props.survey.isPreseason ? 'pre' : 'post';
 
-      this.missingAnimeData.name = '';
-      this.missingAnimeData.link = '';
-      this.missingAnimeData.description = '';
-      this.validationErrors = null;
-
-      return true;
-    }, failureResponse => {
-      NotificationService.pushMsgList(failureResponse.errors?.global ?? (failureResponse.status === 404 ? ['Survey not found!'] : []), 'danger');
-      
-      const validationErrors = failureResponse.errors?.validation ?? null;
-      if (validationErrors != null) {
-        this.validationErrors = validationErrors;
-        NotificationService.push({
-          message: 'One or more fields are invalid',
-          color: 'danger'
-        });
-      }
-      return false;
+  return HttpService.put(`api/survey/${props.survey.year}/${props.survey.season}/${preOrPost}/missinganime/`, props.missingAnimeData, () => {
+    NotificationService.push({
+      message: `Successfully sent your request to add '${props.missingAnimeData.name}'!`,
+      color: 'success',
     });
-  }
+
+    props.missingAnimeData.name = '';
+    props.missingAnimeData.link = '';
+    props.missingAnimeData.description = '';
+    validationErrors.value = null;
+
+    return true;
+  }, failureResponse => {
+    NotificationService.pushMsgList(failureResponse.errors?.global ?? (failureResponse.status === 404 ? ['Survey not found!'] : []), 'danger');
+    
+    const validationErrorsTemp = failureResponse.errors?.validation ?? null;
+    if (validationErrorsTemp != null) {
+      validationErrors.value = validationErrorsTemp;
+      NotificationService.push({
+        message: 'One or more fields are invalid',
+        color: 'danger'
+      });
+    }
+    return false;
+  });
 }
 </script>

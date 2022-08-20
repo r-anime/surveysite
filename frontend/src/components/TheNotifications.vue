@@ -1,6 +1,6 @@
 <template>
   <div class="toast-container mb-4">
-    <div v-for="(notification, idx) in notifications" :key="idx" class="toast align-items-center text-white border-0" :class="`bg-${notification.color}`" :id="`toast-${idx}`" role="alert" aria-live="assertive" aria-atomic="true">
+    <div v-for="(notification, idx) in notifications" :key="idx" class="toast align-items-center text-white border-0" :class="`bg-${notification.color}`" :id="`toast${idx}`" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
           {{ notification.message }}
@@ -11,30 +11,27 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+<script setup lang="ts">
 import NotificatonService, { type Notification } from '@/util/notification-service';
 import { Toast } from 'bootstrap';
+import { nextTick, ref } from 'vue';
 
-@Options({})
-export default class TheNavbar extends Vue {
-  notifications: Notification[] = [];
+const notifications = ref<Notification[]>([]);
 
-  created(): void {
-    NotificatonService.subscribe(this.addNotification);
-  }
 
-  addNotification(notification: Notification): void {
-    const idx = this.notifications.length;
-    this.notifications.push(notification);
+NotificatonService.subscribe(addNotification);
 
-    this.$nextTick(() => {
-      const toast = new Toast(`#toast-${idx}`, {
-        autohide: true,
-        delay: 5000,
-      });
-      toast.show();
+
+function addNotification(notification: Notification): void {
+  const idx = notifications.value.length;
+  notifications.value.push(notification);
+
+  nextTick(() => {
+    const toast = new Toast(`#toast${idx}`, {
+      autohide: true,
+      delay: 5000,
     });
-  }
+    toast.show();
+  });
 }
 </script>

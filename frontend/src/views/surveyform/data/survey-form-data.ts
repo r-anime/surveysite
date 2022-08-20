@@ -7,10 +7,10 @@ export interface ResponseData {
 
 export interface AnimeResponseData {
   animeId: number;
-  score: number | null;
+  score?: number;
   watching: boolean;
-  underwatched: boolean | null;
-  expectations: string | null;
+  underwatched?: boolean;
+  expectations?: string;
 }
 
 export interface SurveyFormBaseData {

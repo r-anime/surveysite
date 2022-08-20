@@ -45,7 +45,7 @@ class SurveyMissingAnimeApi(View):
             missing_anime.full_clean()
         except ValidationError as e:
             logging.warning('A validation error occurred while a user was submitting missing aniem to survey "%s":\r\n%s', str(survey), str(e.message_dict))
-            validation_errors['missing_anime'] = e.message_dict
+            validation_errors = e.message_dict
 
         if validation_errors:
             return JsonErrorResponse({'validation': validation_errors}, HTTPStatus.BAD_REQUEST)

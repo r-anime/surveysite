@@ -28,11 +28,11 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
 import { ResultType, type SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
-import { Options, Vue } from 'vue-class-component';
+import { inject, ref, watch, type Ref } from 'vue';
 import FullResultsTable from './components/FullResultsTable.vue';
 import type { AnimeTableColumnData } from './data/anime-table-column-data';
 import type { AnimeTableEntryData } from './data/anime-table-entry-data';
@@ -59,107 +59,103 @@ class TableData {
   }
 }
 
-@Options({
-  components: {
-    FullResultsTable,
-    DropdownMultiSelect,
-  },
-  inject: [
-    'surveyResultsData',
-  ],
-})
-export default class SurveyResultsFull extends Vue {
-  surveyResultsData!: SurveyResultsData;
 
-  tableDataOfSeries = new TableData();
-  tableDataOfSpecial = new TableData();
 
-  filterBelowPopularityThreshold = true;
+const surveyResultsData = inject<Ref<SurveyResultsData>>('surveyResultsData');
+if (surveyResultsData == null) {
+  throw new TypeError('Failed to inject surveyResultsData');
+}
 
-  created(): void {
-    // Columns
-    const resultTypesOfSeries: { resultType: ResultType, priority: number }[] = this.surveyResultsData.survey.isPreseason ? [
-      { resultType: ResultType.POPULARITY, priority: 1 },
-      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
-      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
-      { resultType: ResultType.AGE, priority: 3 },
-      { resultType: ResultType.SCORE, priority: 1 },
-      { resultType: ResultType.SCORE_MALE, priority: 3 },
-      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
-    ] : [
-      { resultType: ResultType.POPULARITY, priority: 1 },
-      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
-      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
-      { resultType: ResultType.AGE, priority: 3 },
-      { resultType: ResultType.UNDERWATCHED, priority: 1 },
-      { resultType: ResultType.SCORE, priority: 1 },
-      { resultType: ResultType.SCORE_MALE, priority: 3 },
-      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
-      { resultType: ResultType.SURPRISE, priority: 1 },
-      { resultType: ResultType.DISAPPOINTMENT, priority: 1 },
-    ];
-    const resultTypesOfSpecial: { resultType: ResultType, priority: number }[] = this.surveyResultsData.survey.isPreseason ? [
-      { resultType: ResultType.POPULARITY, priority: 1 },
-      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
-      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
-      { resultType: ResultType.AGE, priority: 3 },
-    ] : [
-      { resultType: ResultType.POPULARITY, priority: 1 },
-      { resultType: ResultType.POPULARITY_MALE, priority: 3 },
-      { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
-      { resultType: ResultType.AGE, priority: 3 },
-      { resultType: ResultType.SCORE, priority: 1 },
-      { resultType: ResultType.SCORE_MALE, priority: 3 },
-      { resultType: ResultType.SCORE_FEMALE, priority: 3 },
-      { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
-    ];
+const tableDataOfSeries = new TableData();
+const tableDataOfSpecial = new TableData();
 
-    // By default we'll only show columns with a priority number <=2 for desktops/large screens, or <=1 for phones/small screens.
-    // Breakpoint is 768 - Bootstrap's md breakpoint.
-    const priority = window.innerWidth < 768 ? 1 : 2;
-    for (const resultType of resultTypesOfSeries) {
-      this.tableDataOfSeries.columns.push({ resultType: resultType.resultType });
-      this.tableDataOfSeries.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
-    }
+const filterBelowPopularityThreshold = ref(true);
 
-    for (const resultType of resultTypesOfSpecial) {
-      this.tableDataOfSpecial.columns.push({ resultType: resultType.resultType });
-      this.tableDataOfSpecial.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
-    }
 
-    // Entries
-    this.$watch(() => this.filterBelowPopularityThreshold, (filterEnabled: boolean) => {
-      if (!this.surveyResultsData) {
-        return;
-      }
 
-      this.tableDataOfSeries.entries = [];
-      this.tableDataOfSpecial.entries = [];
+{
+  // Columns
+  const resultTypesOfSeries: { resultType: ResultType, priority: number }[] = surveyResultsData.value.survey.isPreseason ? [
+    { resultType: ResultType.POPULARITY, priority: 1 },
+    { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+    { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+    { resultType: ResultType.AGE, priority: 3 },
+    { resultType: ResultType.SCORE, priority: 1 },
+    { resultType: ResultType.SCORE_MALE, priority: 3 },
+    { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
+  ] : [
+    { resultType: ResultType.POPULARITY, priority: 1 },
+    { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+    { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+    { resultType: ResultType.AGE, priority: 3 },
+    { resultType: ResultType.UNDERWATCHED, priority: 1 },
+    { resultType: ResultType.SCORE, priority: 1 },
+    { resultType: ResultType.SCORE_MALE, priority: 3 },
+    { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
+    { resultType: ResultType.SURPRISE, priority: 1 },
+    { resultType: ResultType.DISAPPOINTMENT, priority: 1 },
+  ];
+  const resultTypesOfSpecial: { resultType: ResultType, priority: number }[] = surveyResultsData.value.survey.isPreseason ? [
+    { resultType: ResultType.POPULARITY, priority: 1 },
+    { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+    { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+    { resultType: ResultType.AGE, priority: 3 },
+  ] : [
+    { resultType: ResultType.POPULARITY, priority: 1 },
+    { resultType: ResultType.POPULARITY_MALE, priority: 3 },
+    { resultType: ResultType.POPULARITY_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_POPULARITY_RATIO, priority: 2 },
+    { resultType: ResultType.AGE, priority: 3 },
+    { resultType: ResultType.SCORE, priority: 1 },
+    { resultType: ResultType.SCORE_MALE, priority: 3 },
+    { resultType: ResultType.SCORE_FEMALE, priority: 3 },
+    { resultType: ResultType.GENDER_SCORE_DIFFERENCE, priority: 2 },
+  ];
 
-      for (const animeIdStr in this.surveyResultsData.results) {
-        const animeId = Number(animeIdStr);
-        if (filterEnabled && this.surveyResultsData.results[animeId][ResultType.POPULARITY] < 0.02) continue;
-
-        const animeTableEntry: AnimeTableEntryData = {
-          anime: this.surveyResultsData.anime[animeId],
-          data: this.surveyResultsData.results[animeId],
-        };
-
-        if (isAnimeSeries(animeTableEntry.anime)) {
-          this.tableDataOfSeries.entries.push(animeTableEntry);
-        } else {
-          this.tableDataOfSpecial.entries.push(animeTableEntry);
-        }
-      }
-    }, {
-      immediate: true,
-    });
+  // By default we'll only show columns with a priority number <=2 for desktops/large screens, or <=1 for phones/small screens.
+  // Breakpoint is 768 - Bootstrap's md breakpoint.
+  const priority = window.innerWidth < 768 ? 1 : 2;
+  for (const resultType of resultTypesOfSeries) {
+    tableDataOfSeries.columns.push({ resultType: resultType.resultType });
+    tableDataOfSeries.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
   }
+
+  for (const resultType of resultTypesOfSpecial) {
+    tableDataOfSpecial.columns.push({ resultType: resultType.resultType });
+    tableDataOfSpecial.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
+  }
+
+  // Entries
+  watch(filterBelowPopularityThreshold, filterEnabled => {
+    if (!surveyResultsData?.value) {
+      return;
+    }
+
+    tableDataOfSeries.entries = [];
+    tableDataOfSpecial.entries = [];
+
+    for (const animeIdStr in surveyResultsData.value.results) {
+      const animeId = Number(animeIdStr);
+      if (filterEnabled && surveyResultsData.value.results[animeId][ResultType.POPULARITY] < 0.02) continue;
+
+      const animeTableEntry: AnimeTableEntryData = {
+        anime: surveyResultsData.value.anime[animeId],
+        data: surveyResultsData.value.results[animeId],
+      };
+
+      if (isAnimeSeries(animeTableEntry.anime)) {
+        tableDataOfSeries.entries.push(animeTableEntry);
+      } else {
+        tableDataOfSpecial.entries.push(animeTableEntry);
+      }
+    }
+  }, {
+    immediate: true,
+  });
 }
 </script>
