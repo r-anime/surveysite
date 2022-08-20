@@ -209,85 +209,73 @@
   </div>
 </template>
 
-<script lang="ts">
-import AnimeNames from '@/components/AnimeNames.vue';
-import AnimeImages from '@/components/AnimeImages.vue';
+<script setup lang="ts">
 import { type AnimeData, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
 import _ from 'lodash';
-import { Vue, Options } from 'vue-class-component';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
 import type { SurveyResultsData } from './data/survey-results-data';
+import { inject, type Ref } from 'vue';
 
-@Options({
-  components: {
-    AgeDistributionChart,
-    GenderDistributionChart,
-    TableWithTop3,
-    TablePair,
-    AnimeNames,
-    AnimeImages,
-  },
-  inject: [
-    'surveyResultsData',
-  ],
-})
-export default class SurveyResultsSummary extends Vue {
-  surveyResultsData!: SurveyResultsData;
-  surveyIsPreseason = true;
-  pageTitle?: string;
-  averageAge?: string;
 
-  // TODO: Super scuffed, please change how this works
-  readonly resultType: Record<string, { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }> = {
-    popularity: { value: ResultType.POPULARITY, resultTypes: [ResultType.POPULARITY] },
-    popularityMale: { value: ResultType.POPULARITY_MALE, resultTypes: [ResultType.POPULARITY_MALE, ResultType.POPULARITY] },
-    popularityFemale: { value: ResultType.POPULARITY_FEMALE, resultTypes: [ResultType.POPULARITY_FEMALE, ResultType.POPULARITY] },
-    popularityRatio: { value: ResultType.GENDER_POPULARITY_RATIO, resultTypes: [ResultType.GENDER_POPULARITY_RATIO, ResultType.POPULARITY] },
-    score: { value: ResultType.SCORE, resultTypes: [ResultType.SCORE] },
-    scoreMale: { value: ResultType.SCORE_MALE, resultTypes: [ResultType.SCORE_MALE, ResultType.SCORE] },
-    scoreFemale: { value: ResultType.SCORE_FEMALE, resultTypes: [ResultType.SCORE_FEMALE, ResultType.SCORE] },
-    scoreDiff: { value: ResultType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultType.GENDER_SCORE_DIFFERENCE, ResultType.SCORE] },
-    age: { value: ResultType.AGE, resultTypes: [ResultType.AGE] },
-    underwatched: { value: ResultType.UNDERWATCHED, resultTypes: [ResultType.UNDERWATCHED, ResultType.POPULARITY] },
-    surprise: { value: ResultType.SURPRISE, resultTypes: [ResultType.SURPRISE, ResultType.SCORE] },
-    disappointment: { value: ResultType.DISAPPOINTMENT, resultTypes: [ResultType.DISAPPOINTMENT, ResultType.SCORE] },
-  };
+const surveyResultsData = inject<Ref<SurveyResultsData>>('surveyResultsData');
+if (surveyResultsData == null) {
+  throw new TypeError('Failed to inject surveyResultsData');
+}
 
-  created(): void {
-    this.surveyIsPreseason = this.surveyResultsData.survey.isPreseason;
-    this.averageAge = _.sum(
-      Object.entries(this.surveyResultsData.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
-    ).toFixed(2);
+// TODO: Super scuffed, please change how this works
+const resultType: Record<string, { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }> = {
+  popularity: { value: ResultType.POPULARITY, resultTypes: [ResultType.POPULARITY] },
+  popularityMale: { value: ResultType.POPULARITY_MALE, resultTypes: [ResultType.POPULARITY_MALE, ResultType.POPULARITY] },
+  popularityFemale: { value: ResultType.POPULARITY_FEMALE, resultTypes: [ResultType.POPULARITY_FEMALE, ResultType.POPULARITY] },
+  popularityRatio: { value: ResultType.GENDER_POPULARITY_RATIO, resultTypes: [ResultType.GENDER_POPULARITY_RATIO, ResultType.POPULARITY] },
+  score: { value: ResultType.SCORE, resultTypes: [ResultType.SCORE] },
+  scoreMale: { value: ResultType.SCORE_MALE, resultTypes: [ResultType.SCORE_MALE, ResultType.SCORE] },
+  scoreFemale: { value: ResultType.SCORE_FEMALE, resultTypes: [ResultType.SCORE_FEMALE, ResultType.SCORE] },
+  scoreDiff: { value: ResultType.GENDER_SCORE_DIFFERENCE, resultTypes: [ResultType.GENDER_SCORE_DIFFERENCE, ResultType.SCORE] },
+  age: { value: ResultType.AGE, resultTypes: [ResultType.AGE] },
+  underwatched: { value: ResultType.UNDERWATCHED, resultTypes: [ResultType.UNDERWATCHED, ResultType.POPULARITY] },
+  surprise: { value: ResultType.SURPRISE, resultTypes: [ResultType.SURPRISE, ResultType.SCORE] },
+  disappointment: { value: ResultType.DISAPPOINTMENT, resultTypes: [ResultType.DISAPPOINTMENT, ResultType.SCORE] },
+};
+
+const surveyIsPreseason = surveyResultsData.value.survey.isPreseason;
+const averageAge = _.sum(
+  Object.entries(surveyResultsData.value.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
+).toFixed(2);
+
+
+
+function getRanking(resultTypeData: { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
+  if (surveyResultsData?.value == null) {
+    throw new TypeError('surveyResultsData is null');
   }
 
-  getRanking(resultTypeData: { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
-    let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
+  let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
 
-    const animeIds = Object.keys(this.surveyResultsData.results);
-    animeIds.forEach(animeIdStr => {
-      const animeId = Number(animeIdStr);
-      if (this.surveyResultsData.results[animeId][ResultType.POPULARITY] < 0.02) return;
+  const animeIds = Object.keys(surveyResultsData.value.results);
+  animeIds.forEach(animeIdStr => {
+    const animeId = Number(animeIdStr);
+    if (surveyResultsData.value.results[animeId][ResultType.POPULARITY] < 0.02) return;
 
-      const animeData = this.surveyResultsData.anime[animeId];
-      if (isAnimeSeries(animeData) === forSpecialAnime) return;
+    const animeData = surveyResultsData.value.anime[animeId];
+    if (isAnimeSeries(animeData) === forSpecialAnime) return;
 
-      const mainResult = resultTypeData.resultTypes[0];
-      const extraResult = resultTypeData.resultTypes[1];
-      resultsTable.push({
-        anime: animeData,
-        result: this.surveyResultsData.results[animeId][mainResult],
-        extraResult: extraResult ? this.surveyResultsData.results[animeId][extraResult] : undefined,
-      });
+    const mainResult = resultTypeData.resultTypes[0];
+    const extraResult = resultTypeData.resultTypes[1];
+    resultsTable.push({
+      anime: animeData,
+      result: surveyResultsData.value.results[animeId][mainResult],
+      extraResult: extraResult ? surveyResultsData.value.results[animeId][extraResult] : undefined,
     });
-    resultsTable = resultsTable.filter(item => item.result != null);
-    resultsTable.sort((a, b) => a.result - b.result);
+  });
+  resultsTable = resultsTable.filter(item => item.result != null);
+  resultsTable.sort((a, b) => a.result - b.result);
 
-    if (!ascending) resultsTable.reverse();
-    return resultsTable;
-  }
+  if (!ascending) resultsTable.reverse();
+  return resultsTable;
 }
 </script>

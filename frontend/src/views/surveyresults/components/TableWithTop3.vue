@@ -47,7 +47,7 @@ import AnimeNames from '@/components/AnimeNames.vue';
 import type { AnimeData, ResultType } from '@/util/data';
 
 defineProps<{
-  ranking: { anime: AnimeData, result: number, extraResult: number }[];
+  ranking: { anime: AnimeData, result: number, extraResult?: number }[];
   resultTypes: ResultType[];
   isAnimeSeries?: boolean;
   top: number;
