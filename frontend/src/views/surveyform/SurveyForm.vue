@@ -100,6 +100,7 @@ import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { ModalService } from '@/util/modal-service';
 import SurveyFormLinkModal from './components/SurveyFormLinkModal.vue';
+import LogInModal from '@/components/LogInModal.vue';
 
 
 
@@ -144,8 +145,16 @@ const missingAnimeData = ref<MissingAnimeData>({
     const specialAnime = groupedAnime.false;
     specialAnimeIds.value = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
   }, failureResponse => {
-    NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
-    router.push({name: 'Index'});
+    if (failureResponse.status === 401) { // Unauthorized (not logged in)
+      ModalService.show(LogInModal, {
+        emits: {
+          onModalHide: () => router.push({ name: 'Index' }),
+        },
+      });
+    } else {
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
+      router.push({ name: 'Index' });
+    }
   });
 }
 

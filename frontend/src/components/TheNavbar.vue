@@ -69,8 +69,6 @@ function openLogInModal() {
     return;
   }
 
-  ModalService.show(LogInModal, {
-    data: userData.value?.authenticationUrl,
-  });
+  ModalService.show(LogInModal);
 }
 </script>

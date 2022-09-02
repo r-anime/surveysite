@@ -27,7 +27,7 @@ from typing import Any, Callable, Optional
 class SurveyFormApi(View):
     def get(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.FORBIDDEN)
+            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.UNAUTHORIZED)
 
         jsonEncoder = json_encoder_factory()
 
@@ -73,7 +73,7 @@ class SurveyFormApi(View):
 
     def put(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.FORBIDDEN)
+            return JsonErrorResponse('You need to be logged in to fill in a survey!', HTTPStatus.UNAUTHORIZED)
 
         survey = try_get_survey(
             year=self.kwargs['year'],

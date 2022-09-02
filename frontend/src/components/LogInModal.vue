@@ -18,7 +18,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-          <form method="POST" :action="acceptButtonPost">
+          <form v-if="userData" method="POST" :action="userData.authenticationUrl">
             <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
             <button type="submit" class="btn btn-primary">{{ acceptButtonText }}</button>
           </form>
@@ -33,10 +33,12 @@
 import IdGenerator from '@/util/id-generator';
 import Cookie from 'js-cookie';
 import { Modal } from 'bootstrap';
-import { nextTick } from 'vue';
+import { nextTick, ref } from 'vue';
+import UserService from '@/util/user-service';
+import type { AnonymousUserData } from '@/util/data';
 
-const props = defineProps<{
-  data: string;
+defineProps<{
+  data: unknown;
 }>();
 
 const emit = defineEmits<{
@@ -48,8 +50,15 @@ const emit = defineEmits<{
 const modalId = IdGenerator.generateUniqueId('modal');
 const modalTitle = 'Log In';
 const acceptButtonText = 'Log in via Reddit';
-const acceptButtonPost = props.data;
+const userData = ref<AnonymousUserData | null>(null);
 
+UserService.getUserData().then(ud => {
+  if (ud?.authenticated) {
+    onHide();
+  } else {
+    userData.value = ud;
+  }
+});
 
 let modal: Modal;
 

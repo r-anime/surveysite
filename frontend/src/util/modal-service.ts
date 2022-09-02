@@ -10,11 +10,11 @@ export class ModalService {
    * This component **must** implement an `onModalHide` emitter
    * and should handle hiding itself!
    */
-  static show: ModalShowFn = (component, initData = {}) => {
+  static show(component: Component, initData: ModalInitData = {}): void {
     for (const handler of this.eventHandlers) {
       handler(component, initData);
     }
-  };
+  }
 
   static subscribe(func: ModalShowFn): void {
     this.eventHandlers.push(func);
