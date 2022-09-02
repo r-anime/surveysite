@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-md bg-light sticky-top navbar-light">
     <div class="container-fluid">
-      <router-link to="/" class="navbar-brand">/r/anime Surveys</router-link>
+      <RouterLink :to="{ name: 'Index' }" class="navbar-brand">/r/anime Surveys</RouterLink>
 
       <button class="navbar-toggler"
               type="button"
@@ -33,12 +33,9 @@
             </form>
           </template>
           <template v-else>
-            <Modal modalTitle="Log In"
-                   modalButtonText="Log In"
-                   acceptButtonText="Log in via Reddit"
-                   :acceptButtonPost="userData.authenticationUrl">
-              To fill in surveys, you must be logged in with a Reddit account.
-            </Modal>
+            <button class="btn btn-primary" @click="openLogInModal">
+              Log In
+            </button>
           </template>
         </div>
       </div>
@@ -47,11 +44,12 @@
 </template>
 
 <script setup lang="ts">
-import Modal from '@/components/Modal.vue';
 import Cookie from 'js-cookie';
 import type { UserData } from '@/util/data';
 import UserService from '@/util/user-service';
 import { ref } from 'vue';
+import { ModalService } from '@/util/modal-service';
+import LogInModal from './LogInModal.vue';
 
 const userData = ref<UserData | null>(null);
 
@@ -64,5 +62,15 @@ function getCurrentUrl(): string {
 
 function getCsrfToken(): string | undefined {
   return Cookie.get('csrftoken');
+}
+
+function openLogInModal() {
+  if (userData.value?.authenticated) {
+    return;
+  }
+
+  ModalService.show(LogInModal, {
+    data: userData.value?.authenticationUrl,
+  });
 }
 </script>
