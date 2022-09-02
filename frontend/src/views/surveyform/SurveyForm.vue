@@ -176,7 +176,12 @@ async function submit(): Promise<void> {
       color: 'success',
     });
     if (submitResponse.responseId) {
-      ModalService.show(SurveyFormLinkModal, () => router.push({ name: 'Index' }), submitResponse.responseId);
+      ModalService.show(SurveyFormLinkModal, {
+        data: submitResponse.responseId,
+        emits: {
+          onModalHide: () => router.push({ name: 'Index' }),
+        },
+      });
     } else {
       router.push({ name: 'Index' });
     }

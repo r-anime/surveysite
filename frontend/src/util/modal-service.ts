@@ -2,7 +2,7 @@ import _ from "lodash";
 import type { Component } from "vue";
 
 export class ModalService {
-  private static eventHandlers: ((component: Component, onModalHide: (success: boolean) => void, data?: unknown) => void)[] = [];
+  private static eventHandlers: ModalShowFn[] = [];
 
   /**
    * Show a modal component
@@ -10,17 +10,29 @@ export class ModalService {
    * This component **must** implement an `onModalHide` emitter
    * and should handle hiding itself!
    */
-  static show(component: Component, onModalHide: (success: boolean) => void = () => { return; }, data?: unknown): void {
+  static show: ModalShowFn = (component, initData = {}) => {
     for (const handler of this.eventHandlers) {
-      handler(component, onModalHide, data);
+      handler(component, initData);
     }
-  }
+  };
 
-  static subscribe(func: (component: Component, onModalHide: (success: boolean) => void, data?: unknown) => void): void {
+  static subscribe(func: ModalShowFn): void {
     this.eventHandlers.push(func);
   }
 
-  static unsubscribe(func: (component: Component, onModalHide: (success: boolean) => void, data?: unknown) => void): void {
+  static unsubscribe(func: ModalShowFn): void {
     _.remove(this.eventHandlers, handler => handler == func);
   }
+}
+
+export type ModalShowFn = (component: Component, initData: ModalInitData) => void;
+
+export interface ModalInitData {
+  data?: unknown;
+  emits?: ModalEmits;
+}
+export interface ModalEmits {
+  onModalHide?: () => void;
+  onModalHidden?: () => void;
+  onModalSuccess?: () => void;
 }
