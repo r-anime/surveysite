@@ -1,32 +1,22 @@
 <template>
-  <div class="modal fade" :id="modalId" tabindex="-1" :aria-labelledby="`${modalId}Label`" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
+  <ModalTemplate :modalId="modalId"
+                 modalHeaderText="Log In"
+                 @onHide="onHide()">
 
-        <div class="modal-header">
-          <h5 class="modal-title" :id="`${modalId}Label`">{{ modalTitle }}</h5>
-          <button class="btn-close"
-                  aria-label="Close"
-                  @click="onHide()">
-          </button>
-        </div>
+    <template #body>
+      To fill in surveys, you must be logged in with a Reddit account.
+    </template>
 
-        <div class="modal-body p-4">
-          To fill in surveys, you must be logged in with a Reddit account.
-        </div>
+    <template #footer>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <form v-if="userData" method="POST" :action="userData.authenticationUrl">
+        <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
+        <button type="submit" class="btn btn-primary">Log in via Reddit</button>
+      </form>
+    </template>
 
-          <form v-if="userData" method="POST" :action="userData.authenticationUrl">
-            <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
-            <button type="submit" class="btn btn-primary">{{ acceptButtonText }}</button>
-          </form>
-        </div>
-
-      </div>
-    </div>
-  </div>
+  </ModalTemplate>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +26,7 @@ import { Modal } from 'bootstrap';
 import { nextTick, ref } from 'vue';
 import UserService from '@/util/user-service';
 import type { AnonymousUserData } from '@/util/data';
+import ModalTemplate from '@/components/ModalTemplate.vue';
 
 defineProps<{
   data: unknown;
@@ -48,8 +39,6 @@ const emit = defineEmits<{
 }>();
 
 const modalId = IdGenerator.generateUniqueId('modal');
-const modalTitle = 'Log In';
-const acceptButtonText = 'Log in via Reddit';
 const userData = ref<AnonymousUserData | null>(null);
 
 UserService.getUserData().then(ud => {

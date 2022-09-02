@@ -1,41 +1,32 @@
 <template>
-  <div class="modal fade" :id="modalId" tabindex="-1" :aria-labelledby="`${modalId}Label`" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
+  <ModalTemplate :modalId="modalId"
+                 :modalHeaderText="modalTitle"
+                 @onHide="onHide"
+                 @onSuccess="onSuccess">
 
-        <div class="modal-header">
-          <h5 class="modal-title" :id="`${modalId}Label`">{{ modalTitle }}</h5>
-          <button class="btn-close"
-                  aria-label="Close"
-                  @click="onHide()">
-          </button>
+    <template #body>
+      <div class="row row-cols-1">
+        <p class="col">
+          To edit your response in the future, save the link below. Without this link, you will not be able to edit your response. Do not share it either, as others could then also edit your response.
+        </p>
+        <div class="col">
+          <RouterLink :to="editRoute">
+            <!-- Visibility toggle? -->
+            {{ editLink }}
+          </RouterLink>
         </div>
-
-        <div class="modal-body p-4">
-          <div class="row row-cols-1">
-            <p class="col">
-              To edit your response in the future, save the link below. Without this link, you will not be able to edit your response. Do not share it either, as others could then also edit your response.
-            </p>
-            <div class="col">
-              <RouterLink :to="editRoute">
-                <!-- Visibility toggle? -->
-                {{ editLink }}
-              </RouterLink>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button"
-                  class="btn btn-primary"
-                  @click="onSuccess()">
-            {{ modalSuccessButtonText }}
-          </button>
-        </div>
-
       </div>
-    </div>
-  </div>
+    </template>
+
+    <template #footer>
+      <button type="button"
+              class="btn btn-primary"
+              @click="onSuccess()">
+        {{ modalSuccessButtonText }}
+      </button>
+    </template>
+    
+  </ModalTemplate>
 </template>
 
 <script setup lang="ts">
@@ -43,6 +34,7 @@ import IdGenerator from '@/util/id-generator';
 import { Modal } from 'bootstrap';
 import { nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import ModalTemplate from '@/components/ModalTemplate.vue';
 
 const props = defineProps<{
   data: string;

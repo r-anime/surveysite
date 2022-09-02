@@ -1,78 +1,54 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <div class="modal fade" :id="modalId" tabindex="-1" :aria-labelledby="`${modalId}Label`" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
+  <ModalTemplate :modalId="modalId"
+                 :modalHeaderText="modalTitle"
+                 :modalFooterSuccessButtonText="acceptButtonText"
+                 @onHide="onHide"
+                 @onSuccess="onSuccess">
 
-        <div class="modal-header">
-          <h5 class="modal-title" :id="`${modalId}Label`">{{ modalTitle }}</h5>
-          <button class="btn-close"
-                  aria-label="Close"
-                  @click="onHide">
-          </button>
+    <template #body>
+      <span>Note:</span>
+      <ul>
+        <li>Only <b>subbed</b> and <b>widely-available</b> anime from this season will be added to the survey.</li>
+        <li>
+          OVAs and other irregularly-releasing anime will only be added
+          <template v-if="data.survey.isPreseason">
+            to pre-season surveys when they're <b>starting</b>
+          </template>
+          <template v-else>
+            to post-season surveys when they've been <b>fully subbed</b>
+          </template>
+          this season.
+        </li>
+        <li>Compilation movies and recaps will <b>not</b> be added unless they <template v-if="data.survey.isPreseason">will</template> make noticable changes to the original.</li>
+      </ul>
+
+      <div>
+        <div class="mb-2">
+          <label class="form-label" :for="`input-missinganime-${modalId}-name`">Anime name:</label>
+          <input class="form-control" :id="`input-missinganime-${modalId}-name`" :class="{'is-invalid': validationErrors?.name}" maxlength="128" type="text" v-model="data.missingAnimeData.name" :aria-describedby="`input-missinganime-${modalId}-name-errors`">
+          <FormValidationErrors :id="`input-missinganime-${modalId}-name-errors`" :validationErrors="validationErrors?.name"/>
         </div>
 
-        <div class="modal-body p-4">
-          <span>
-            Note:
-          </span>
-          <ul>
-            <li>Only <b>subbed</b> and <b>widely-available</b> anime from this season will be added to the survey.</li>
-            <li>
-              OVAs and other irregularly-releasing anime will only be added
-              <template v-if="data.survey.isPreseason">
-                to pre-season surveys when they're <b>starting</b>
-              </template>
-              <template v-else>
-                to post-season surveys when they've been <b>fully subbed</b>
-              </template>
-              this season.
-            </li>
-            <li>Compilation movies and recaps will <b>not</b> be added unless they <template v-if="data.survey.isPreseason">will</template> make noticable changes to the original.</li>
-          </ul>
-
-          <div>
-            <div class="mb-2">
-              <label class="form-label" :for="`input-missinganime-${modalId}-name`">Anime name:</label>
-              <input class="form-control" :id="`input-missinganime-${modalId}-name`" :class="{'is-invalid': validationErrors?.name}" maxlength="128" type="text" v-model="data.missingAnimeData.name" :aria-describedby="`input-missinganime-${modalId}-name-errors`">
-              <FormValidationErrors :id="`input-missinganime-${modalId}-name-errors`" :validationErrors="validationErrors?.name"/>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label" :for="`input-missinganime-${modalId}-link`">Link to anime:</label>
-              <input class="form-control" :id="`input-missinganime-${modalId}-link`" :class="{'is-invalid': validationErrors?.link}" maxlength="200" type="url" v-model="data.missingAnimeData.link" :aria-describedby="`input-missinganime-${modalId}-link-errors`">
-              <FormValidationErrors :id="`input-missinganime-${modalId}-link-errors`" :validationErrors="validationErrors?.link"/>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label" :for="`input-missinganime-${modalId}-description`">Extra information (optional):</label>
-              <textarea class="form-control" :id="`input-missinganime-${modalId}-description`" :class="{'is-invalid': validationErrors?.description}" rows="3" v-model="data.missingAnimeData.description" :aria-describedby="`input-missinganime-${modalId}-description-errors`"></textarea>
-              <FormValidationErrors :id="`input-missinganime-${modalId}-description-errors`" :validationErrors="validationErrors?.description"/>
-            </div>
-          </div>
-
-          <small>
-            Anime addition requests will be linked to your account - you will be notified on this site when a request went through or was denied.
-          </small>
+        <div class="mb-2">
+          <label class="form-label" :for="`input-missinganime-${modalId}-link`">Link to anime:</label>
+          <input class="form-control" :id="`input-missinganime-${modalId}-link`" :class="{'is-invalid': validationErrors?.link}" maxlength="200" type="url" v-model="data.missingAnimeData.link" :aria-describedby="`input-missinganime-${modalId}-link-errors`">
+          <FormValidationErrors :id="`input-missinganime-${modalId}-link-errors`" :validationErrors="validationErrors?.link"/>
         </div>
 
-        <div class="modal-footer">
-          <button type="button"
-                  class="btn btn-secondary"
-                  @click="onHide">
-            Cancel
-          </button>
-
-          <button type="button"
-                  class="btn btn-primary"
-                  @click="onSuccess">
-            {{ acceptButtonText }}
-          </button>
+        <div class="mb-2">
+          <label class="form-label" :for="`input-missinganime-${modalId}-description`">Extra information (optional):</label>
+          <textarea class="form-control" :id="`input-missinganime-${modalId}-description`" :class="{'is-invalid': validationErrors?.description}" rows="3" v-model="data.missingAnimeData.description" :aria-describedby="`input-missinganime-${modalId}-description-errors`"></textarea>
+          <FormValidationErrors :id="`input-missinganime-${modalId}-description-errors`" :validationErrors="validationErrors?.description"/>
         </div>
-
       </div>
-    </div>
-  </div>
+
+      <small>
+        Anime addition requests will be linked to your account - you will be notified on this site when a request went through or was denied.
+      </small>
+    </template>
+
+  </ModalTemplate>
 </template>
 
 <script setup lang="ts">
@@ -85,6 +61,7 @@ import HttpService from "@/util/http-service";
 import IdGenerator from '@/util/id-generator';
 import { nextTick, ref } from 'vue';
 import { Modal } from "bootstrap";
+import ModalTemplate from '@/components/ModalTemplate.vue';
 
 const props = defineProps<{
   data: {
