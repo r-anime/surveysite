@@ -30,7 +30,9 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
+        <button class="btn btn-light p-n2" @click="openMissingAnimeModal">
+          Is an anime missing?
+        </button>
         </div>
       </h3>
 
@@ -45,7 +47,9 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
+        <button class="btn btn-light p-n2" @click="openMissingAnimeModal">
+          Is an anime missing?
+        </button>
         </div>
       </h3>
 
@@ -234,5 +238,17 @@ function clampAge(): void {
 function isAnimeNew(id: number): boolean {
   if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
   return surveyFormData.value.isAnimeNewDict[id];
+}
+
+
+
+
+function openMissingAnimeModal() {
+  ModalService.show(SurveyFormMissingAnimeModal, {
+    data: {
+      survey: surveyFormData.value?.survey,
+      missingAnimeData: missingAnimeData,
+    },
+  });
 }
 </script>
