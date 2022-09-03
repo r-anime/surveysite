@@ -30,10 +30,11 @@ ModalService.subscribe(addModal);
 
 function addModal(component: Component, initData: ModalInitData) {
   const modalId = IdGenerator.generateUniqueId('modal');
+  const onModalHiddenOrg = initData.emits?.onModalHidden; // Necessary because it gets overwritten, we need the original
 
   const onModalHiddenWrapper = () => {
-    if (initData.emits?.onModalHidden) {
-      initData.emits?.onModalHidden();
+    if (onModalHiddenOrg) {
+      onModalHiddenOrg();
     }
 
     // nextTick, just to be sure (?)
@@ -41,11 +42,14 @@ function addModal(component: Component, initData: ModalInitData) {
       modalDataArray.value = modalDataArray.value.filter(i => i.modalId !== modalId);
     });
   };
-  const initDataOverwrites: ModalInitData = { emits: { onModalHidden: onModalHiddenWrapper } };
+  if (!initData.emits) {
+    initData.emits = {};
+  }
+  initData.emits.onModalHidden = onModalHiddenWrapper;
 
   modalDataArray.value = modalDataArray.value.concat({
     component,
-    initData: Object.assign({}, initData, initDataOverwrites), // Target object empty to avoid overwriting initData
+    initData,
     modalId,
   });
 }
