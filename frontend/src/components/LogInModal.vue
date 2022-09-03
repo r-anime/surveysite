@@ -38,8 +38,8 @@ const emit = defineEmits<{
 }>();
 
 const { modalId, hideModal } = useModal(emit);
-
 const userData = ref<AnonymousUserData | null>(null);
+
 
 UserService.getUserData().then(ud => {
   if (ud?.authenticated) {

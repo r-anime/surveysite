@@ -1,6 +1,6 @@
 <template>
   <ModalTemplate :modalId="modalId"
-                 :modalHeaderText="modalTitle"
+                 modalHeaderText="Your response was succesfully submitted!"
                  @onHeaderCloseClick="hideModal()">
 
     <template #body>
@@ -21,7 +21,7 @@
       <button type="button"
               class="btn btn-primary"
               @click="hideModal(true)">
-        {{ modalSuccessButtonText }}
+        Continue
       </button>
     </template>
     
@@ -44,10 +44,6 @@ const emit = defineEmits<{
 }>();
 
 const { modalId, hideModal } = useModal(emit);
-
-const modalTitle = 'Your response was succesfully submitted!';
-const modalSuccessButtonText = 'Continue';
-
 const router = useRouter();
 const editRoute = router.resolve({ name: 'SurveyForm', query: { responseId: props.data }});
 </script>

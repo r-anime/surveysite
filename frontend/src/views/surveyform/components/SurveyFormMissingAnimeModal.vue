@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <ModalTemplate :modalId="modalId"
-                 :modalHeaderText="modalTitle"
-                 :modalFooterSuccessButtonText="acceptButtonText"
+                 modalHeaderText="Request a missing anime to be added"
+                 modalFooterSuccessButtonText="Send"
                  @onHeaderCloseClick="hideModal()"
                  @onFooterCloseClick="hideModal()"
                  @onFooterSuccessClick="trySubmit()">
@@ -77,10 +77,8 @@ const emit = defineEmits<{
 }>();
 
 const { modalId, hideModal } = useModal(emit);
-
 const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null);
-const modalTitle = 'Request a missing anime to be added';
-const acceptButtonText = 'Send';
+
 
 function trySubmit() {
   const preOrPost = props.data.survey.isPreseason ? 'pre' : 'post';
