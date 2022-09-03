@@ -119,11 +119,11 @@ const specialAnimeIds = ref<number[]>([]);
 const validationErrors = ref<ValidationErrorData<SurveyFormSubmitData> | null>(null);
 
 // Needed here because we want the same data shared by the two identical modals
-const missingAnimeData = ref<MissingAnimeData>({
+const missingAnimeData: MissingAnimeData = {
   name: '',
   link: '',
   description: '',
-});
+};
 
 
 
