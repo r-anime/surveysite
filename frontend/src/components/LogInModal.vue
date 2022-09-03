@@ -27,7 +27,8 @@ import type { AnonymousUserData } from '@/util/data';
 import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from '@/composables/modal';
 
-defineProps<{
+const props = defineProps<{
+  modalId: string;
   data: unknown;
 }>();
 
@@ -37,7 +38,7 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const { modalId, hideModal } = useModal(emit);
+const { hideModal } = useModal(props.modalId, emit);
 const userData = ref<AnonymousUserData | null>(null);
 
 

@@ -1,4 +1,3 @@
-import IdGenerator from "@/util/id-generator";
 import { Modal } from "bootstrap";
 import { onMounted } from "vue";
 
@@ -7,8 +6,7 @@ import { onMounted } from "vue";
  * @param emit defineEmits() events
  * @returns Modal data and functionality
  */
-export function useModal(emit: { (e: 'onModalHide'): void; (e: 'onModalHidden'): void; (e: 'onModalSuccess'): void; }) {
-  const modalId = IdGenerator.generateUniqueId('modal');
+export function useModal(modalId: string, emit: { (e: 'onModalHide'): void; (e: 'onModalHidden'): void; (e: 'onModalSuccess'): void; }) {
   let modal: Modal | undefined;
   
   onMounted(() => {

@@ -1,7 +1,8 @@
 <template>
   <teleport to="#modals">
-    <template v-for="(modalData, modalIdx) in modalDataArray" :key="modalIdx">
+    <template v-for="modalData in modalDataArray" :key="modalData.modalId">
       <component :is="modalData.component"
+                 :modalId="modalData.modalId"
                  :data="modalData.initData.data"
                  @onModalHide="modalData.initData.emits?.onModalHide"
                  @onModalHidden="modalData.initData.emits?.onModalHidden"
@@ -12,17 +13,40 @@
 </template>
 
 <script setup lang="ts">
+import IdGenerator from '@/util/id-generator';
 import { ModalService, type ModalInitData } from '@/util/modal-service';
-import { shallowRef, type Component } from 'vue';
+import { nextTick, shallowRef, type Component } from 'vue';
 
 // shallowRef instead of ref since otherwise it deep-tracks component
-const modalDataArray = shallowRef<{ component: Component, initData: ModalInitData }[]>([]);
+// shallowRef only tracks reassignments
+const modalDataArray = shallowRef<{
+  component: Component;
+  initData: ModalInitData;
+  modalId: string;
+}[]>([]);
 
 ModalService.subscribe(addModal);
 
 
 function addModal(component: Component, initData: ModalInitData) {
-  // Must be a reassignment, as shallowRef only tracks those
-  modalDataArray.value = modalDataArray.value.concat({ component, initData });
+  const modalId = IdGenerator.generateUniqueId('modal');
+
+  const onModalHiddenWrapper = () => {
+    if (initData.emits?.onModalHidden) {
+      initData.emits?.onModalHidden();
+    }
+
+    // nextTick, just to be sure (?)
+    nextTick(() => {
+      modalDataArray.value = modalDataArray.value.filter(i => i.modalId !== modalId);
+    });
+  };
+  const initDataOverwrites: ModalInitData = { emits: { onModalHidden: onModalHiddenWrapper } };
+
+  modalDataArray.value = modalDataArray.value.concat({
+    component,
+    initData: Object.assign({}, initData, initDataOverwrites), // Target object empty to avoid overwriting initData
+    modalId,
+  });
 }
 </script>

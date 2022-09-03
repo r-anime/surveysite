@@ -64,6 +64,7 @@ import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from "@/composables/modal";
 
 const props = defineProps<{
+  modalId: string;
   data: {
     survey: SurveyData;
     missingAnimeData: MissingAnimeData;
@@ -76,7 +77,7 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const { modalId, hideModal } = useModal(emit);
+const { hideModal } = useModal(props.modalId, emit);
 const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null);
 
 

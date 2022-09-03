@@ -34,6 +34,7 @@ import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from '@/composables/modal';
 
 const props = defineProps<{
+  modalId: string;
   data: string;
 }>();
 
@@ -43,7 +44,7 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const { modalId, hideModal } = useModal(emit);
+const { hideModal } = useModal(props.modalId, emit);
 const router = useRouter();
 const editRoute = router.resolve({ name: 'SurveyForm', query: { responseId: props.data }});
 </script>
