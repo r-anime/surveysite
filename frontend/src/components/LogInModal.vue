@@ -1,7 +1,7 @@
 <template>
   <ModalTemplate :modalId="modalId"
                  modalHeaderText="Log In"
-                 @onHide="onHide()">
+                 @onHeaderCloseClick="hideModal()">
 
     <template #body>
       To fill in surveys, you must be logged in with a Reddit account.
@@ -49,9 +49,6 @@ UserService.getUserData().then(ud => {
   }
 });
 
-function onHide() {
-  hideModal();
-}
 function getCsrfToken(): string | undefined {
   return Cookie.get('csrftoken');
 }

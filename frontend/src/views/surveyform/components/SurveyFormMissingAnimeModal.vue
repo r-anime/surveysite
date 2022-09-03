@@ -3,8 +3,9 @@
   <ModalTemplate :modalId="modalId"
                  :modalHeaderText="modalTitle"
                  :modalFooterSuccessButtonText="acceptButtonText"
-                 @onHide="onHide"
-                 @onSuccess="onSuccess">
+                 @onHeaderCloseClick="hideModal()"
+                 @onFooterCloseClick="hideModal()"
+                 @onFooterSuccessClick="trySubmit()">
 
     <template #body>
       <span>Note:</span>
@@ -81,11 +82,7 @@ const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null)
 const modalTitle = 'Request a missing anime to be added';
 const acceptButtonText = 'Send';
 
-function onHide() {
-  hideModal();
-}
-
-function onSuccess() {
+function trySubmit() {
   const preOrPost = props.data.survey.isPreseason ? 'pre' : 'post';
 
   HttpService.put(`api/survey/${props.data.survey.year}/${props.data.survey.season}/${preOrPost}/missinganime/`, props.data.missingAnimeData, () => {
@@ -99,7 +96,7 @@ function onSuccess() {
     props.data.missingAnimeData.description = '';
     validationErrors.value = null;
 
-    hideModal();
+    hideModal(true);
   }, failureResponse => {
     NotificationService.pushMsgList(failureResponse.errors?.global ?? (failureResponse.status === 404 ? ['Survey not found!'] : []), 'danger');
     

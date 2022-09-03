@@ -1,8 +1,7 @@
 <template>
   <ModalTemplate :modalId="modalId"
                  :modalHeaderText="modalTitle"
-                 @onHide="onHide"
-                 @onSuccess="onSuccess">
+                 @onHeaderCloseClick="hideModal()">
 
     <template #body>
       <div class="row row-cols-1">
@@ -21,7 +20,7 @@
     <template #footer>
       <button type="button"
               class="btn btn-primary"
-              @click="onSuccess()">
+              @click="hideModal(true)">
         {{ modalSuccessButtonText }}
       </button>
     </template>
@@ -51,13 +50,4 @@ const modalSuccessButtonText = 'Continue';
 
 const router = useRouter();
 const editRoute = router.resolve({ name: 'SurveyForm', query: { responseId: props.data }});
-
-
-function onHide() {
-  hideModal();
-}
-function onSuccess() {
-  emit('onModalSuccess');
-  hideModal();
-}
 </script>

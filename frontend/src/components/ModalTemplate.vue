@@ -6,7 +6,7 @@
         <div class="modal-header">
           <slot name="header">
             <h5 class="modal-title" :id="`${modalId}Label`">{{ modalHeaderText }}</h5>
-            <button class="btn-close" @click="emit('onHide')" aria-label="Close"></button>
+            <button class="btn-close" @click="emit('onHeaderCloseClick')" aria-label="Close"></button>
           </slot>
         </div>
 
@@ -16,11 +16,11 @@
 
         <div class="modal-footer">
           <slot name="footer">
-            <button type="button" class="btn btn-secondary" @click="emit('onHide')">Cancel</button>
+            <button type="button" class="btn btn-secondary" @click="emit('onFooterCloseClick')">Cancel</button>
 
             <button type="button"
                     class="btn btn-primary"
-                    @click="emit('onSuccess')">
+                    @click="emit('onFooterSuccessClick')">
               {{ modalFooterSuccessButtonText }}
             </button>
           </slot>
@@ -41,7 +41,8 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'onHide'): void;
-  (e: 'onSuccess'): void;
+  (e: 'onHeaderCloseClick'): void;
+  (e: 'onFooterCloseClick'): void;
+  (e: 'onFooterSuccessClick'): void;
 }>();
 </script>
