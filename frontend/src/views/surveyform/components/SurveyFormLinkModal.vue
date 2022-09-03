@@ -44,7 +44,7 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const { hideModal } = useModal(props.modalId, emit);
+const { hideModal } = useModal(props.modalId, emit, { backdrop: 'static' });
 const router = useRouter();
 const editRoute = router.resolve({ name: 'SurveyForm', query: { responseId: props.data }});
 </script>

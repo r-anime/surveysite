@@ -6,11 +6,15 @@ import { onMounted } from "vue";
  * @param emit defineEmits() events
  * @returns Modal data and functionality
  */
-export function useModal(modalId: string, emit: { (e: 'onModalHide'): void; (e: 'onModalHidden'): void; (e: 'onModalSuccess'): void; }) {
+export function useModal(
+  modalId: string,
+  emit: { (e: 'onModalHide'): void; (e: 'onModalHidden'): void; (e: 'onModalSuccess'): void; },
+  modalOptions?: Partial<Modal.Options>,
+) {
   let modal: Modal | undefined;
   
   onMounted(() => {
-    modal = new Modal(`#${modalId}`);
+    modal = new Modal(`#${modalId}`, modalOptions);
     modal.show();
   
     const modalElement = document.getElementById(modalId);
