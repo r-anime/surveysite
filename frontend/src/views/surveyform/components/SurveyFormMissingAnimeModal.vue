@@ -58,10 +58,9 @@ import type { ValidationErrorData, SurveyData } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
-import IdGenerator from '@/util/id-generator';
-import { nextTick, ref } from 'vue';
-import { Modal } from "bootstrap";
+import { ref } from 'vue';
 import ModalTemplate from '@/components/ModalTemplate.vue';
+import { useModal } from "@/composables/modal";
 
 const props = defineProps<{
   data: {
@@ -76,27 +75,14 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
+const { modalId, hideModal } = useModal(emit);
+
 const validationErrors = ref<ValidationErrorData<MissingAnimeData> | null>(null);
-const modalId = IdGenerator.generateUniqueId('missingAnimeModal');
 const modalTitle = 'Request a missing anime to be added';
 const acceptButtonText = 'Send';
 
-let modal: Modal;
-
-nextTick(() => {
-  modal = new Modal(`#${modalId}`);
-  modal.show();
-
-  const modalElement = document.getElementById(modalId);
-  if (modalElement == null) {
-    throw new TypeError('Could not find modal element with id ' + modalId);
-  }
-  modalElement.addEventListener('hide.bs.modal', () => emit('onModalHide'));
-  modalElement.addEventListener('hidden.bs.modal', () => emit('onModalHidden'));
-});
-
 function onHide() {
-  modal.hide();
+  hideModal();
 }
 
 function onSuccess() {
@@ -113,7 +99,7 @@ function onSuccess() {
     props.data.missingAnimeData.description = '';
     validationErrors.value = null;
 
-    onHide();
+    hideModal();
   }, failureResponse => {
     NotificationService.pushMsgList(failureResponse.errors?.global ?? (failureResponse.status === 404 ? ['Survey not found!'] : []), 'danger');
     

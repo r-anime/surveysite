@@ -20,13 +20,12 @@
 </template>
 
 <script setup lang="ts">
-import IdGenerator from '@/util/id-generator';
 import Cookie from 'js-cookie';
-import { Modal } from 'bootstrap';
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import UserService from '@/util/user-service';
 import type { AnonymousUserData } from '@/util/data';
 import ModalTemplate from '@/components/ModalTemplate.vue';
+import { useModal } from '@/composables/modal';
 
 defineProps<{
   data: unknown;
@@ -38,33 +37,20 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const modalId = IdGenerator.generateUniqueId('modal');
+const { modalId, hideModal } = useModal(emit);
+
 const userData = ref<AnonymousUserData | null>(null);
 
 UserService.getUserData().then(ud => {
   if (ud?.authenticated) {
-    onHide();
+    hideModal();
   } else {
     userData.value = ud;
   }
 });
 
-let modal: Modal;
-
-nextTick(() => {
-  modal = new Modal(`#${modalId}`);
-  modal.show();
-
-  const modalElement = document.getElementById(modalId);
-  if (modalElement == null) {
-    throw new TypeError('Could not find modal element with id ' + modalId);
-  }
-  modalElement.addEventListener('hide.bs.modal', () => emit('onModalHide'));
-  modalElement.addEventListener('hidden.bs.modal', () => emit('onModalHidden'));
-});
-
 function onHide() {
-  modal.hide();
+  hideModal();
 }
 function getCsrfToken(): string | undefined {
   return Cookie.get('csrftoken');

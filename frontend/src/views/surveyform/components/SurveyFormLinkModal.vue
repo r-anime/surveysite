@@ -12,7 +12,7 @@
         <div class="col">
           <RouterLink :to="editRoute">
             <!-- Visibility toggle? -->
-            {{ editLink }}
+            {{ editRoute.fullPath }}
           </RouterLink>
         </div>
       </div>
@@ -30,11 +30,9 @@
 </template>
 
 <script setup lang="ts">
-import IdGenerator from '@/util/id-generator';
-import { Modal } from 'bootstrap';
-import { nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalTemplate from '@/components/ModalTemplate.vue';
+import { useModal } from '@/composables/modal';
 
 const props = defineProps<{
   data: string;
@@ -46,34 +44,20 @@ const emit = defineEmits<{
   (e: 'onModalSuccess'): void;
 }>();
 
-const modalId = IdGenerator.generateUniqueId('modal');
+const { modalId, hideModal } = useModal(emit);
+
 const modalTitle = 'Your response was succesfully submitted!';
 const modalSuccessButtonText = 'Continue';
 
 const router = useRouter();
 const editRoute = router.resolve({ name: 'SurveyForm', query: { responseId: props.data }});
-const editLink = editRoute.fullPath;
 
-
-let modal: Modal;
-
-nextTick(() => {
-  modal = new Modal(`#${modalId}`);
-  modal.show();
-
-  const modalElement = document.getElementById(modalId);
-  if (modalElement == null) {
-    throw new TypeError('Could not find modal element with id ' + modalId);
-  }
-  modalElement.addEventListener('hide.bs.modal', () => emit('onModalHide'));
-  modalElement.addEventListener('hidden.bs.modal', () => emit('onModalHidden'));
-});
 
 function onHide() {
-  modal.hide();
+  hideModal();
 }
 function onSuccess() {
   emit('onModalSuccess');
-  onHide();
+  hideModal();
 }
 </script>
