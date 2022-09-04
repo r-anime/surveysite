@@ -30,7 +30,9 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Series</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
+        <button class="btn btn-light p-n2" @click="openMissingAnimeModal">
+          Is an anime missing?
+        </button>
         </div>
       </h3>
 
@@ -45,7 +47,9 @@
       <h3 class="mb-4 p-2 rounded shadow row justify-content-between align-items-center bg-primary bg-opacity-75 text-light">
         <div class="col-auto">Anime Movies/ONAs/OVAs/Specials</div>
         <div class="col-auto">
-          <SurveyFormMissingAnimeModal :missingAnimeData="missingAnimeData" :survey="surveyFormData.survey"/>
+        <button class="btn btn-light p-n2" @click="openMissingAnimeModal">
+          Is an anime missing?
+        </button>
         </div>
       </h3>
 
@@ -98,6 +102,9 @@ import type { MissingAnimeData } from './data/missing-anime-data';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { ModalService } from '@/util/modal-service';
+import SurveyFormLinkModal from './components/SurveyFormLinkModal.vue';
+import LogInModal from '@/components/LogInModal.vue';
 
 
 
@@ -112,11 +119,11 @@ const specialAnimeIds = ref<number[]>([]);
 const validationErrors = ref<ValidationErrorData<SurveyFormSubmitData> | null>(null);
 
 // Needed here because we want the same data shared by the two identical modals
-const missingAnimeData = ref<MissingAnimeData>({
+const missingAnimeData: MissingAnimeData = {
   name: '',
   link: '',
   description: '',
-});
+};
 
 
 
@@ -142,8 +149,16 @@ const missingAnimeData = ref<MissingAnimeData>({
     const specialAnime = groupedAnime.false;
     specialAnimeIds.value = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
   }, failureResponse => {
-    NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
-    router.push({name: 'Index'});
+    if (failureResponse.status === 401) { // Unauthorized (not logged in)
+      ModalService.show(LogInModal, {
+        emits: {
+          onModalHide: () => router.push({ name: 'Index' }),
+        },
+      });
+    } else {
+      NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
+      router.push({ name: 'Index' });
+    }
   });
 }
 
@@ -174,8 +189,12 @@ async function submit(): Promise<void> {
       color: 'success',
     });
     if (submitResponse.responseId) {
-      // TODO: Rework this, should probably use a modal
-      router.push({ name: 'SurveyFormLink', query: { responseId: submitResponse.responseId } });
+      ModalService.show(SurveyFormLinkModal, {
+        data: submitResponse.responseId,
+        emits: {
+          onModalHide: () => router.push({ name: 'Index' }),
+        },
+      });
     } else {
       router.push({ name: 'Index' });
     }
@@ -219,5 +238,17 @@ function clampAge(): void {
 function isAnimeNew(id: number): boolean {
   if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
   return surveyFormData.value.isAnimeNewDict[id];
+}
+
+
+
+
+function openMissingAnimeModal() {
+  ModalService.show(SurveyFormMissingAnimeModal, {
+    data: {
+      survey: surveyFormData.value?.survey,
+      missingAnimeData: missingAnimeData,
+    },
+  });
 }
 </script>

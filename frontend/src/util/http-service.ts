@@ -105,8 +105,6 @@ export default class HttpService {
   private static processResponse<TResponse, TRequest, TResult>(response: AxiosResponse<TResponse | ErrorResponse<TRequest>>, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): TResult {
     if (this.isResponseSuccess(response)) {
       return successFn(response.data);
-    } else if (response.status === 401) { // Make sure the user is authenticated before performing this request!
-      throw new Error('User unauthenticated');
     } else if (this.isResponseValidationErrorData(response)) {
       if (failureFn) {
         const errorResult: ErrorResult<TRequest> = Object.assign({ status: response.status }, response.data);
