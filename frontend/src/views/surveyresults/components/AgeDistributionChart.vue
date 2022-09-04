@@ -4,9 +4,8 @@
 
 <script setup lang="ts">
 import { Chart, Title, Tooltip } from "chart.js";
-import type { ChartConfiguration, Plugin } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import type { AnyObject } from "chart.js/types/basic";
 import { onMounted, ref } from "vue";
 
 // IMPORTANT: Make sure to load this component only after ageDistribution is not undefined/null!
@@ -39,7 +38,7 @@ function loadChart(): void {
   }
 
   const chartConfig: ChartConfiguration<'bar', number[], number> = {
-    plugins: [ChartDataLabels, Title, Tooltip] as Plugin<'bar', AnyObject>[],
+    plugins: [ChartDataLabels, Title, Tooltip],
     type: 'bar',
     data: {
       labels: Object.keys(props.ageDistribution).map(k => Number(k)),

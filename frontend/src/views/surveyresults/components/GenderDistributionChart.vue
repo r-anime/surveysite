@@ -4,9 +4,8 @@
 
 <script setup lang="ts">
 import { Chart, Title, Tooltip } from "chart.js";
-import type { ChartConfiguration, Plugin } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import type { AnyObject } from "chart.js/types/basic";
 import { Gender } from "@/util/data";
 import { onMounted, ref } from "vue";
 
@@ -35,7 +34,7 @@ function loadChart(): void {
   }
 
   const chartConfig: ChartConfiguration<'bar', number[], string> = {
-    plugins: [ChartDataLabels, Title, Tooltip] as Plugin<'bar', AnyObject>[],
+    plugins: [ChartDataLabels, Title, Tooltip],
     type: 'bar',
     data: {
       labels: Object.keys(props.genderDistribution).map(k => {
