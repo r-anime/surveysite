@@ -66,8 +66,8 @@ if (surveyResultsData == null) {
   throw new TypeError('Failed to inject surveyResultsData');
 }
 
-const tableDataOfSeries = new TableData();
-const tableDataOfSpecial = new TableData();
+const tableDataOfSeries = ref(new TableData());
+const tableDataOfSpecial = ref(new TableData());
 
 const filterBelowPopularityThreshold = ref(true);
 
@@ -121,13 +121,13 @@ const filterBelowPopularityThreshold = ref(true);
   // Breakpoint is 768 - Bootstrap's md breakpoint.
   const priority = window.innerWidth < 768 ? 1 : 2;
   for (const resultType of resultTypesOfSeries) {
-    tableDataOfSeries.columns.push({ resultType: resultType.resultType });
-    tableDataOfSeries.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
+    tableDataOfSeries.value.columns.push({ resultType: resultType.resultType });
+    tableDataOfSeries.value.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
   }
 
   for (const resultType of resultTypesOfSpecial) {
-    tableDataOfSpecial.columns.push({ resultType: resultType.resultType });
-    tableDataOfSpecial.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
+    tableDataOfSpecial.value.columns.push({ resultType: resultType.resultType });
+    tableDataOfSpecial.value.isColumnVisible[resultType.resultType] = resultType.priority <= priority;
   }
 
   // Entries
@@ -136,8 +136,8 @@ const filterBelowPopularityThreshold = ref(true);
       return;
     }
 
-    tableDataOfSeries.entries = [];
-    tableDataOfSpecial.entries = [];
+    tableDataOfSeries.value.entries = [];
+    tableDataOfSpecial.value.entries = [];
 
     for (const animeIdStr in surveyResultsData.value.results) {
       const animeId = Number(animeIdStr);
@@ -149,9 +149,9 @@ const filterBelowPopularityThreshold = ref(true);
       };
 
       if (isAnimeSeries(animeTableEntry.anime)) {
-        tableDataOfSeries.entries.push(animeTableEntry);
+        tableDataOfSeries.value.entries.push(animeTableEntry);
       } else {
-        tableDataOfSpecial.entries.push(animeTableEntry);
+        tableDataOfSpecial.value.entries.push(animeTableEntry);
       }
     }
   }, {
