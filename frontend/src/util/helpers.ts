@@ -1,4 +1,4 @@
-import { orderBy } from "lodash";
+import { orderBy } from "lodash-es";
 import type { RouteLocation } from "vue-router";
 import { type AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
 

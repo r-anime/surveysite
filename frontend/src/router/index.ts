@@ -3,7 +3,7 @@ import type { NavigationGuard, RouteLocationRaw, RouteParams, RouteRecordRaw } f
 import Index from '@/views/index/Index.vue';
 import NotFound from '@/views/NotFound.vue';
 import { getSurveyName } from '@/util/helpers';
-import { isInteger } from 'lodash';
+import { isInteger } from 'lodash-es';
 import NotificationService from '@/util/notification-service';
 
 const confirmValidSurveyRouteParams: NavigationGuard = to => {

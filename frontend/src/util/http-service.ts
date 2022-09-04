@@ -1,8 +1,8 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import _ from "lodash";
 import type { ValidationErrorData } from "./data";
+import { camelCase, snakeCase } from "lodash-es";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function camelizeKeys(obj: any): any {
@@ -12,7 +12,7 @@ function camelizeKeys(obj: any): any {
     return Object.keys(obj).reduce(
       (result, key) => ({
         ...result,
-        [_.camelCase(key)]: camelizeKeys(obj[key]),
+        [camelCase(key)]: camelizeKeys(obj[key]),
       }),
       {},
     );
@@ -28,7 +28,7 @@ function decamelizeKeys(obj: any): any {
     return Object.keys(obj).reduce(
       (result, key) => ({
         ...result,
-        [_.snakeCase(key)]: decamelizeKeys(obj[key]),
+        [snakeCase(key)]: decamelizeKeys(obj[key]),
       }),
       {},
     );
