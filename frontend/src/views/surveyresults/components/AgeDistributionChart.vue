@@ -6,7 +6,6 @@
 import { Chart, Title, Tooltip } from "chart.js";
 import type { ChartConfiguration, Plugin } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import _ from "lodash";
 import type { AnyObject } from "chart.js/types/basic";
 import { onMounted, ref } from "vue";
 
@@ -29,9 +28,9 @@ function loadChart(): void {
     return value + "%";
   }
 
-  const maxAge = _.max(Object.values(props.ageDistribution));
-  if (maxAge == null) {
-    throw TypeError('maxAge was null or undefined');
+  const maxAgePercentage = Math.max(...Object.values(props.ageDistribution));
+  if (maxAgePercentage == null) {
+    throw TypeError('maxAgePercentage was null or undefined');
   }
 
   const chartElem = ageDistElem.value;
@@ -74,7 +73,7 @@ function loadChart(): void {
           },
         },
         y: {
-          max: Math.round(maxAge * 1.1 + 0.5),
+          max: Math.round(maxAgePercentage * 1.1 + 0.5),
           min: 0,
           ticks: {
             callback: chartPercentageFormatter,

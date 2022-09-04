@@ -1,4 +1,3 @@
-import _ from "lodash";
 import type { Component } from "vue";
 
 export class ModalService {
@@ -21,7 +20,7 @@ export class ModalService {
   }
 
   static unsubscribe(func: ModalShowFn): void {
-    _.remove(this.eventHandlers, handler => handler == func);
+    this.eventHandlers = this.eventHandlers.filter(handler => handler !== func);
   }
 }
 

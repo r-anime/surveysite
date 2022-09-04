@@ -6,7 +6,6 @@
 import { Chart, Title, Tooltip } from "chart.js";
 import type { ChartConfiguration, Plugin } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import _ from "lodash";
 import type { AnyObject } from "chart.js/types/basic";
 import { Gender } from "@/util/data";
 import { onMounted, ref } from "vue";
@@ -28,11 +27,6 @@ function loadChart(): void {
   const chartGridColor = "#cce";
   function chartPercentageFormatter(value: string | number) {
     return value + "%";
-  }
-
-  const maxAge = _.max(Object.values(props.genderDistribution));
-  if (maxAge == null) {
-    throw ReferenceError('maxAge was null or undefined');
   }
 
   const chartElem = genderDistElem.value;

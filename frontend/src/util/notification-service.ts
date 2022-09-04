@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export default class NotificationService {
   private static eventHandlers: EventHandler[] = [];
 
@@ -29,7 +27,7 @@ export default class NotificationService {
   }
 
   static unsubscribe(func: EventHandler): void {
-    _.remove(this.eventHandlers, handler => handler == func);
+    this.eventHandlers = this.eventHandlers.filter(handler => handler !== func);
   }
 }
 

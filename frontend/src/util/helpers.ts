@@ -1,4 +1,4 @@
-import { filter, orderBy } from "lodash";
+import { orderBy } from "lodash";
 import type { RouteLocation } from "vue-router";
 import { type AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
 
@@ -49,7 +49,7 @@ export function isAnimeSeries(anime: AnimeData): boolean {
 }
 
 export function getAnimeName(anime: AnimeData, animeNameType: AnimeNameType): string | null {
-  const filtered = filter(anime.names, name => name.type == animeNameType);
+  const filtered = anime.names.filter(name => name.type == animeNameType);
   if (!filtered.length) return null;
 
   const ordered = orderBy(filtered, ['isOfficial', 'name'], ['desc', 'asc']);
