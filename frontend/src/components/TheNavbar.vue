@@ -27,8 +27,8 @@
             </div>
 
             <form method="post" action="/accounts/logout/" class="d-flex my-2 my-md-0">
-              <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
-              <input type="hidden" name="next" :value="getCurrentUrl()">
+              <input type="hidden" name="csrfmiddlewaretoken" :value="csrfToken">
+              <input type="hidden" name="next" :value="$route.fullPath">
               <button type="submit" class="btn btn-secondary">Log Out</button>
             </form>
           </template>
@@ -52,17 +52,10 @@ import { ModalService } from '@/util/modal-service';
 import LogInModal from './LogInModal.vue';
 
 const userData = ref<UserData | null>(null);
+const csrfToken = Cookie.get('csrftoken');
 
 // Don't await this otherwise this has to become an async component
 UserService.getUserData().then(ud => userData.value = ud);
-
-function getCurrentUrl(): string {
-  return window.location.href;
-}
-
-function getCsrfToken(): string | undefined {
-  return Cookie.get('csrftoken');
-}
 
 function openLogInModal() {
   if (userData.value?.authenticated) {
