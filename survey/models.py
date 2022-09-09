@@ -190,7 +190,9 @@ class Image(models.Model):
 class Survey(models.Model):
     class Meta:
         ordering = ['-year', '-season', 'is_preseason']
-
+        constraints = [
+            models.UniqueConstraint(fields=['year', 'season', 'is_preseason'], name='unique__is_preseason__season__year'),
+        ]
 
     # Fields
     is_preseason = models.BooleanField()
@@ -296,6 +298,14 @@ class Response(models.Model):
 
 
 class AnimeResponse(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['response_id', 'anime_id'], name='unique__anime_id__response_id'),
+        ]
+        indexes = [
+            models.Index(fields=['anime_id', 'response_id']),
+        ]
+
     # Enums
     class Expectations(models.TextChoices):
         SURPRISE =       'S', _('Surprise')
@@ -333,11 +343,11 @@ class AnimeResponse(models.Model):
 
 class MtmUserResponse(models.Model):
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['username_hash', 'survey'], name='unique__survey_id__username_hash'),
+        ]
         indexes = [
             models.Index(fields=['username_hash', 'survey']),
-        ]
-        constraints = [
-            models.UniqueConstraint(fields=['username_hash', 'survey'], name='unique_username_survey'),
         ]
 
     # Relation fields
