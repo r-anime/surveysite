@@ -26,6 +26,7 @@ import UserService from '@/util/user-service';
 import type { AnonymousUserData } from '@/util/data';
 import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from '@/composables/modal';
+import { useRoute } from 'vue-router';
 
 const props = defineProps<{
   modalId: string;
@@ -39,6 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const { hideModal } = useModal(props.modalId, emit);
+const route = useRoute();
 const userData = ref<AnonymousUserData | null>(null);
 
 
@@ -47,6 +49,10 @@ UserService.getUserData().then(ud => {
     hideModal();
   } else {
     userData.value = ud;
+    Cookie.set('loginredirecturl', route.fullPath, {
+      expires: 1, // number is # days
+      sameSite: 'lax',
+    });
   }
 });
 

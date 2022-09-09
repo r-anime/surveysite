@@ -127,6 +127,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+ACCOUNT_ADAPTER = 'surveysite.adapters.CustomAccountAdapter'
+
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'primary',
     message_constants.INFO: 'info',
