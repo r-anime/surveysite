@@ -117,13 +117,16 @@ class SurveyFormApi(View):
         if previous_response is None:
             response.survey = survey
 
-        new_anime_response_list: list[AnimeResponse] = []
-        existing_anime_response_list: list[AnimeResponse] = []
+        #########################
+        # Actual updating/inserting/deleting of AnimeResponse models
+        #########################
+
+        existing_anime_response_queryset = AnimeResponse.objects.filter(response=previous_response)
+
+        anime_responses_to_update: dict[int, AnimeResponse] = { anime_response.anime_id: anime_response for anime_response in existing_anime_response_queryset.filter(anime_id__in=anime_response_data_dict.keys()) } if previous_response else {}
+        anime_responses_to_add: list[AnimeResponse] = []
         for anime_id, anime_response_data in anime_response_data_dict.items():
-            anime_response_queryset = AnimeResponse.objects.filter(response=previous_response, anime_id=anime_id) if previous_response else None
-            previous_anime_response = None
-            if anime_response_queryset and anime_response_queryset.count() == 1:
-                previous_anime_response = anime_response_queryset.first()
+            previous_anime_response = anime_responses_to_update.get(anime_id, None)
 
             anime_response = anime_response_data.to_model(previous_anime_response)
             try:
@@ -135,18 +138,22 @@ class SurveyFormApi(View):
 
             if previous_anime_response is None:
                 anime_response.anime_id = anime_id
-                new_anime_response_list.append(anime_response)
-            else:
-                existing_anime_response_list.append(anime_response)
+                anime_responses_to_add.append(anime_response)
 
         if validation_errors:
             return JsonErrorResponse({'validation': validation_errors}, HTTPStatus.BAD_REQUEST)
 
         response.save()
-        for anime_response in new_anime_response_list:
+        for anime_response in anime_responses_to_add:
             anime_response.response = response
-        AnimeResponse.objects.bulk_create(new_anime_response_list)
-        AnimeResponse.objects.bulk_update(existing_anime_response_list, ['watching', 'underwatched', 'score', 'expectations'])
+        AnimeResponse.objects.bulk_create(anime_responses_to_add)
+        AnimeResponse.objects.bulk_update(anime_responses_to_update.values(), ['watching', 'underwatched', 'score', 'expectations'])
+        if previous_response:
+            existing_anime_response_queryset.exclude(anime_id__in=anime_response_data_dict.keys()).delete()
+
+        #########################
+        #########################
+        
 
         username_hash = get_username_hash(request.user)
         MtmUserResponse.objects.update_or_create(
@@ -197,12 +204,12 @@ class SurveyFromSubmitData(DataBase): # Not a good name
     def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
 
         # Parses the dict and filters empty anime responses
-        def anime_response_data_dict_parser(d: dict[int, dict[str, Any]]) -> dict[int, AnimeResponseData]:
+        def anime_response_data_dict_parser(d: dict[str, dict[str, Any]]) -> dict[int, AnimeResponseData]:
             result: dict[int, AnimeResponseData] = {}
-            for anime_id, anime_response_json_data in d.items():
+            for anime_id_str, anime_response_json_data in d.items():
                 anime_response_data = AnimeResponseData.from_dict(anime_response_json_data)
                 if anime_response_data.contains_data:
-                    result[anime_id] = anime_response_data
+                    result[int(anime_id_str)] = anime_response_data
             return result
 
         parsers = super().dict_field_parsers
