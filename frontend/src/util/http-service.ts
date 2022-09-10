@@ -80,8 +80,8 @@ export default class HttpService {
     return await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
   }
 
-  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
-    return await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
+  static async delete<TResponse, TRequest, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
+    return await this.performRequestFn(this._axios.delete, url, successFn, failureFn);
   }
 
 
@@ -135,7 +135,6 @@ export default class HttpService {
 }
 
 type AxiosRequestFn<TResponse> = (url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 
 type ErrorResponse<T> = {
