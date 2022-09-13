@@ -11,7 +11,8 @@
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
       <form v-if="userData" method="POST" :action="userData.authenticationUrl">
-        <input type="hidden" name="csrfmiddlewaretoken" :value="getCsrfToken()">
+        <input type="hidden" name="csrfmiddlewaretoken" :value="csrfToken">
+        <input type="hidden" name="next" :value="$route.fullPath">
         <button type="submit" class="btn btn-primary">Log in via Reddit</button>
       </form>
     </template>
@@ -26,7 +27,6 @@ import UserService from '@/util/user-service';
 import type { AnonymousUserData } from '@/util/data';
 import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from '@/composables/modal';
-import { useRoute } from 'vue-router';
 
 const props = defineProps<{
   modalId: string;
@@ -40,8 +40,8 @@ const emit = defineEmits<{
 }>();
 
 const { hideModal } = useModal(props.modalId, emit);
-const route = useRoute();
 const userData = ref<AnonymousUserData | null>(null);
+const csrfToken = Cookie.get('csrftoken');
 
 
 UserService.getUserData().then(ud => {
@@ -49,14 +49,6 @@ UserService.getUserData().then(ud => {
     hideModal();
   } else {
     userData.value = ud;
-    Cookie.set('loginredirecturl', route.fullPath, {
-      expires: 1, // number is # days
-      sameSite: 'lax',
-    });
   }
 });
-
-function getCsrfToken(): string | undefined {
-  return Cookie.get('csrftoken');
-}
 </script>
