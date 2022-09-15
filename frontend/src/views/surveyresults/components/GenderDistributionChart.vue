@@ -4,10 +4,8 @@
 
 <script setup lang="ts">
 import { Chart, Title, Tooltip } from "chart.js";
-import type { ChartConfiguration, Plugin } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import _ from "lodash";
-import type { AnyObject } from "chart.js/types/basic";
 import { Gender } from "@/util/data";
 import { onMounted, ref } from "vue";
 
@@ -30,18 +28,13 @@ function loadChart(): void {
     return value + "%";
   }
 
-  const maxAge = _.max(Object.values(props.genderDistribution));
-  if (maxAge == null) {
-    throw ReferenceError('maxAge was null or undefined');
-  }
-
   const chartElem = genderDistElem.value;
   if (chartElem == null) {
     throw new TypeError("Could not find the chart DOM element");
   }
 
   const chartConfig: ChartConfiguration<'bar', number[], string> = {
-    plugins: [ChartDataLabels, Title, Tooltip] as Plugin<'bar', AnyObject>[],
+    plugins: [ChartDataLabels, Title, Tooltip],
     type: 'bar',
     data: {
       labels: Object.keys(props.genderDistribution).map(k => {

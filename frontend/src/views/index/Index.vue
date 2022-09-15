@@ -65,7 +65,7 @@ import NotificationService from '@/util/notification-service';
 import type { IndexSurveyData } from './data/index-survey-data';
 
 import dayjs from 'dayjs';
-import _ from 'lodash';
+import { find, groupBy, maxBy, minBy, orderBy } from 'lodash-es';
 import type { RouteLocationRaw } from 'vue-router';
 import { ref } from 'vue';
 
@@ -129,27 +129,27 @@ async function getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
   surveys = surveys.concat(newSurveys);
 
   // [[2020 surveys], [2019 surveys], ...]
-  const surveysOrderedGroupedByYear = _.orderBy(_.groupBy(surveys, 'year'), ['0.year'], ['desc']);
+  const surveysOrderedGroupedByYear = orderBy(groupBy(surveys, 'year'), ['0.year'], ['desc']);
 
-  const latestYear = (_.maxBy(surveys, 'year') ?? { year: 0 }).year;
-  const earliestYear = (_.minBy(surveys, 'year') ?? { year: 0 }).year;
+  const latestYear = (maxBy(surveys, 'year') ?? { year: 0 }).year;
+  const earliestYear = (minBy(surveys, 'year') ?? { year: 0 }).year;
 
   // Group surveys by year, and then season (keeping gaps between year/seasons)
   surveyData.value = surveysOrderedGroupedByYear.map(surveyYearGroup => {
     // { 1: spring surveys, 3: fall surveys }
-    const surveysGroupedBySeason = _.groupBy(surveyYearGroup, 'season');
+    const surveysGroupedBySeason = groupBy(surveyYearGroup, 'season');
 
     const latestSeason = latestYear === surveyYearGroup[0].year ?
-      (_.maxBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.FALL }).season :
+      (maxBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.FALL }).season :
       AnimeSeason.FALL;
     const earliestSeason = earliestYear === surveyYearGroup[0].year ?
-      (_.minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
+      (minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
       AnimeSeason.WINTER;
 
     const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyData, postseasonSurvey?: IndexSurveyData }[] = [];
     for (let season = latestSeason; season >= earliestSeason; season--) {
-      const preseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
-      const postseasonSurvey = _.find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
+      const preseasonSurvey = find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
+      const postseasonSurvey = find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
       surveysOrderedGroupedBySeason.push({
         season: season,
         preseasonSurvey: preseasonSurvey,

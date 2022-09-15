@@ -4,10 +4,8 @@
 
 <script setup lang="ts">
 import { Chart, Title, Tooltip } from "chart.js";
-import type { ChartConfiguration, Plugin } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import _ from "lodash";
-import type { AnyObject } from "chart.js/types/basic";
 import { onMounted, ref } from "vue";
 
 // IMPORTANT: Make sure to load this component only after ageDistribution is not undefined/null!
@@ -29,9 +27,9 @@ function loadChart(): void {
     return value + "%";
   }
 
-  const maxAge = _.max(Object.values(props.ageDistribution));
-  if (maxAge == null) {
-    throw TypeError('maxAge was null or undefined');
+  const maxAgePercentage = Math.max(...Object.values(props.ageDistribution));
+  if (maxAgePercentage == null) {
+    throw TypeError('maxAgePercentage was null or undefined');
   }
 
   const chartElem = ageDistElem.value;
@@ -40,7 +38,7 @@ function loadChart(): void {
   }
 
   const chartConfig: ChartConfiguration<'bar', number[], number> = {
-    plugins: [ChartDataLabels, Title, Tooltip] as Plugin<'bar', AnyObject>[],
+    plugins: [ChartDataLabels, Title, Tooltip],
     type: 'bar',
     data: {
       labels: Object.keys(props.ageDistribution).map(k => Number(k)),
@@ -74,7 +72,7 @@ function loadChart(): void {
           },
         },
         y: {
-          max: Math.round(maxAge * 1.1 + 0.5),
+          max: Math.round(maxAgePercentage * 1.1 + 0.5),
           min: 0,
           ticks: {
             callback: chartPercentageFormatter,

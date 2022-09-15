@@ -43,7 +43,7 @@ import AnimeNames from '@/components/AnimeNames.vue';
 import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import { AnimeNameType, ResultType } from '@/util/data';
 import type { AnimeTableEntryData } from '../data/anime-table-entry-data';
-import _ from 'lodash';
+import { orderBy } from 'lodash-es';
 import type { AnimeTableColumnData } from '../data/anime-table-column-data';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -115,7 +115,7 @@ function sortByResultType(resultType: ResultType | null, preventSortOrderToggle 
   }
   router.replace({ name: 'SurveyResultsFull', query: newSortQuery, hash: route.value.hash });
 
-  processedEntries.value = _.orderBy(processedEntries.value, entry => {
+  processedEntries.value = orderBy(processedEntries.value, entry => {
     if (resultType == null)
       return getAnimeName(entry.anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase();
     else if (entry.data[resultType] == null || entry.data[resultType] === 0)

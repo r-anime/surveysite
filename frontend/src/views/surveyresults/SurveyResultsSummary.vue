@@ -212,7 +212,6 @@
 <script setup lang="ts">
 import { type AnimeData, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
-import _ from 'lodash';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
 import TableWithTop3 from './components/TableWithTop3.vue';
@@ -243,9 +242,9 @@ const resultType: Record<string, { value: ResultType, resultTypes: [ResultType] 
 };
 
 const surveyIsPreseason = surveyResultsData.value.survey.isPreseason;
-const averageAge = _.sum(
-  Object.entries(surveyResultsData.value.miscellaneous.ageDistribution).map(([ageStr, percentage]) => Number(ageStr) * percentage / 100)
-).toFixed(2);
+const averageAge = Object.entries(surveyResultsData.value.miscellaneous.ageDistribution)
+  .reduce((prevResult, [ageStr, percentage]) => Number(ageStr) * percentage / 100 + prevResult, 0)
+  .toFixed(2);
 
 
 

@@ -1,8 +1,8 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import _ from "lodash";
 import type { ValidationErrorData } from "./data";
+import { camelCase, snakeCase } from "lodash-es";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function camelizeKeys(obj: any): any {
@@ -12,7 +12,7 @@ function camelizeKeys(obj: any): any {
     return Object.keys(obj).reduce(
       (result, key) => ({
         ...result,
-        [_.camelCase(key)]: camelizeKeys(obj[key]),
+        [camelCase(key)]: camelizeKeys(obj[key]),
       }),
       {},
     );
@@ -28,7 +28,7 @@ function decamelizeKeys(obj: any): any {
     return Object.keys(obj).reduce(
       (result, key) => ({
         ...result,
-        [_.snakeCase(key)]: decamelizeKeys(obj[key]),
+        [snakeCase(key)]: decamelizeKeys(obj[key]),
       }),
       {},
     );
@@ -80,8 +80,8 @@ export default class HttpService {
     return await this.performDataRequestFn(this._axios.put, url, data, successFn, failureFn);
   }
 
-  static async delete<TResponse, TRequest, TResult = void>(url: string, data: TRequest, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
-    return await this.performDataRequestFn(this._axios.delete, url, data, successFn, failureFn);
+  static async delete<TResponse, TRequest, TResult = void>(url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<TRequest>) => TResult): Promise<TResult> {
+    return await this.performRequestFn(this._axios.delete, url, successFn, failureFn);
   }
 
 
@@ -135,7 +135,6 @@ export default class HttpService {
 }
 
 type AxiosRequestFn<TResponse> = (url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AxiosDataRequestFn<TResponse, TRequest> = (url: string, data?: TRequest, config?: AxiosRequestConfig) => Promise<AxiosResponse<TResponse>>;
 
 type ErrorResponse<T> = {

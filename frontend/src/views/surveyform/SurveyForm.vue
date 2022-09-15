@@ -99,7 +99,7 @@ import NotificationService from '@/util/notification-service';
 import type { AnimeResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
 import type { MissingAnimeData } from './data/missing-anime-data';
 
-import _ from 'lodash';
+import { groupBy, isNumber, map, orderBy } from 'lodash-es';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { ModalService } from '@/util/modal-service';
@@ -141,13 +141,13 @@ const missingAnimeData: MissingAnimeData = {
     surveyFormData.value = data;
     isSurveyPreseason.value = surveyFormData.value.survey.isPreseason;
 
-    const groupedAnime = _.groupBy(surveyFormData.value.animeDataDict, isAnimeSeries);
+    const groupedAnime = groupBy(surveyFormData.value.animeDataDict, isAnimeSeries);
 
     const animeSeries = groupedAnime.true;
-    animeSeriesIds.value = _.map(_.orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    animeSeriesIds.value = map(orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
 
     const specialAnime = groupedAnime.false;
-    specialAnimeIds.value = _.map(_.orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    specialAnimeIds.value = map(orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
   }, failureResponse => {
     if (failureResponse.status === 401) { // Unauthorized (not logged in)
       ModalService.show(LogInModal, {
@@ -226,7 +226,7 @@ function getAnimeResponseData(id: number): AnimeResponseData {
 // while the error is all the way up on the page
 function clampAge(): void {
   if (surveyFormData.value?.responseData?.age != null) {
-    if (_.isNumber(surveyFormData.value.responseData.age)) {
+    if (isNumber(surveyFormData.value.responseData.age)) {
       // Assume the user typo'd and get the first two numbers, and then clamp
       surveyFormData.value.responseData.age = Math.max(10, Math.min(80, Number(surveyFormData.value.responseData.age.toString().slice(0, 2))));
     } else {
