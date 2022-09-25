@@ -1,5 +1,5 @@
 from django.contrib import admin, messages
-from django.core.cache import cache
+from django.core.cache import BaseCache, caches
 from django.core.files.base import ContentFile
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
@@ -246,7 +246,7 @@ class AnimeAdmin(admin.ModelAdmin):
     def has_image(self, anime):
         return anime.image_set.count() > 0
 
-    def get_survey_validity_list(self, anime):
+    def get_survey_validity_list(self, anime: Anime):
         survey_validity_list = []
 
         # Only get if start year/season is something
@@ -275,7 +275,7 @@ class AnimeAdmin(admin.ModelAdmin):
         
         return survey_validity_list
 
-    def save_model(self, request, anime, form, change):
+    def save_model(self, request, anime: Anime, form, change):
         survey_validity_list = self.get_survey_validity_list(anime)
 
         prev_anime_query = Anime.objects.filter(pk=anime.id)
@@ -286,35 +286,30 @@ class AnimeAdmin(admin.ModelAdmin):
             prev_survey_validity_list = []
             
         super().save_model(request, anime, form, change)
-        cache.clear()
+
+        results_cache: BaseCache = caches['long']
         
-        now = timezone.now()
-        ongoing_survey_queryset = Survey.objects.filter(opening_time__lt=now, closing_time__gte=now)
-        for survey in ongoing_survey_queryset:
+        survey_queryset = Survey.objects.filter(opening_time__lt=timezone.now())
+        for survey in survey_queryset:
             survey_year_season = combine_year_season(survey.year, survey.season)
             
             was_included = (survey_year_season, survey.is_preseason) in prev_survey_validity_list
             is_included = (survey_year_season, survey.is_preseason) in survey_validity_list
 
-            # If anime was removed from survey
-            if was_included and not is_included:
-                survey_response_count = survey.response_set.count()
-                SurveyAdditionRemoval(
-                    survey=survey,
-                    anime=anime,
-                    response_count=survey_response_count,
-                    is_addition=False,
-                ).save()
+            is_removed = was_included and not is_included
+            is_added = is_included and not was_included
 
-            # If anime was added to survey
-            elif not was_included and is_included:
+            if is_removed or is_added:
                 survey_response_count = survey.response_set.count()
-                SurveyAdditionRemoval(
-                    survey=survey,
-                    anime=anime,
-                    response_count=survey_response_count,
-                    is_addition=True,
-                ).save()
+                if survey_response_count > 0:
+                    results_cache.delete('survey_results_%i' % survey.id, version=7)
+
+                    SurveyAdditionRemoval(
+                        survey=survey,
+                        anime=anime,
+                        response_count=survey_response_count,
+                        is_addition=is_added,
+                    ).save()
 
 
 
