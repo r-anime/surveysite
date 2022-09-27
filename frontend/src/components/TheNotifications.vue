@@ -1,5 +1,5 @@
 <template>
-  <div class="toast-container mb-4">
+  <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index:100000;"> <!-- Notifications ALWAYS have to be on top -->
     <div v-for="(notification, idx) in notifications" :key="idx" class="toast align-items-center text-white border-0" :class="`bg-${notification.color}`" :id="`toast${idx}`" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">

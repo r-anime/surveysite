@@ -105,6 +105,14 @@ class SurveyFormApi(View):
         anime_response_data_dict = submit_data.anime_response_data_dict
         link_response_to_user = submit_data.is_response_linked_to_user
 
+        # Remove responses for anime that are not in the survey (anymore)
+        survey_anime_queryset, _, _ = get_survey_anime(survey)
+        survey_anime_id_set: set[int] = set(survey_anime_queryset.values_list('id', flat=True))
+        anime_ids_in_anime_response_data_dict = list(anime_response_data_dict.keys()) # Copy this since we edit the dict
+        for anime_id in anime_ids_in_anime_response_data_dict:
+            if anime_id not in survey_anime_id_set:
+                anime_response_data_dict.pop(anime_id)
+
         validation_errors = {}
 
         response = response_data.to_model(previous_response)
