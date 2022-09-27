@@ -1,7 +1,8 @@
-from datetime import datetime, timezone, tzinfo
-from typing import Optional
+from datetime import datetime
 from django.core.management.base import BaseCommand, CommandParser
 from survey.models import Anime, Response, Survey
+import sys
+from typing import Optional
 
 class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
@@ -14,7 +15,12 @@ class Command(BaseCommand):
         season = self.__parse_season(options['season'])
         is_preseason: bool = options['pre_or_post'] == 'pre'
 
-        survey: Survey = Survey.objects.get(year=year, season=season, is_preseason=is_preseason)
+        try:
+            survey: Survey = Survey.objects.get(year=year, season=season, is_preseason=is_preseason)
+        except Survey.DoesNotExist:
+            print('That survey does not exist', file=sys.stderr)
+            return
+
         response_queryset = Response.objects.filter(survey=survey)
         timestamps: list[datetime] = list(response_queryset.values_list('timestamp', flat=True).order_by('timestamp'))
 
