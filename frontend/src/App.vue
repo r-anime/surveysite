@@ -8,7 +8,7 @@
   <div>
     <TheModals />
   </div>
-  <div class="position-fixed bottom-0 start-50 translate-middle-x" style="z-index:100000;"> <!-- Notifications ALWAYS have to be on top -->
+  <div>
     <TheNotifications />
   </div>
 </template>
