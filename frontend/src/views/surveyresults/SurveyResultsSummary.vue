@@ -150,7 +150,7 @@
     <div class="row justify-content-center mt-4" v-if="!surveyIsPreseason">
       <div class="col-11">
         <div class="row">
-          <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-score-gender" aria-expanded="false" aria-controls="collapsable-score-gender">
+          <button class="btn title-color w-100 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsable-score-expectations" aria-expanded="false" aria-controls="collapsable-score-expectations">
             <h4>
               <span class="show-if-collapsed">Show</span>
               <span class="show-if-not-collapsed">Hide</span>
@@ -158,7 +158,7 @@
             </h4>
           </button>
         </div>
-        <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
+        <div class="row collapse text-smaller border rounded" id="collapsable-score-expectations">
           <div class="col-12">
             <TableWithTop3
               :ranking="getRanking(resultType.surprise)"
