@@ -9,7 +9,7 @@ from http import HTTPStatus
 import json
 import logging
 from survey.models import MissingAnime, Survey
-from survey.util.data import DataBase
+from survey.util.data import ViewModelBase
 from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.survey import try_get_survey
 from typing import Any, Optional
@@ -33,7 +33,7 @@ class SurveyMissingAnimeApi(View):
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
 
         try:
-            missing_anime_data = MissingAnimeData.from_dict(json_data)
+            missing_anime_data = MissingAnimeViewModel.from_dict(json_data)
         except KeyError as e:
             logging.error('An error occurred while parsing missing anime data: ' + str(e))
             return JsonErrorResponse('Request data is invalid', HTTPStatus.BAD_REQUEST)
@@ -57,7 +57,7 @@ class SurveyMissingAnimeApi(View):
         return JsonResponse({}, status=HTTPStatus.NO_CONTENT)
 
 @dataclass
-class MissingAnimeData(DataBase):
+class MissingAnimeViewModel(ViewModelBase):
     name: str
     link: str
     description: str

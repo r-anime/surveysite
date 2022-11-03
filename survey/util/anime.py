@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from django.conf import settings
 from django.db.models import Q, F
 from django.db.models.manager import BaseManager
 from survey.models import Anime, AnimeName
-from survey.util.data import ImageData
+from survey.util.data import ImageViewModel
 from typing import Optional
 
 
@@ -66,12 +65,12 @@ def get_name_list(anime: Anime, official_names_only: bool = True) -> list[str]:
     return [animename.name for animename in animename_list]
 
 
-def get_image_url_list(anime: Anime, default: Optional[str] = None) -> list[ImageData]:
+def get_image_url_list(anime: Anime, default: Optional[str] = None) -> list[ImageViewModel]:
     image_set = anime.image_set.all()
     imagedata_list = []
     if len(image_set):
         imagedata_list = map(
-            lambda image: ImageData(
+            lambda image: ImageViewModel(
                 image.name,
                 image.file_small.url,
                 image.file_medium.url,
@@ -83,7 +82,7 @@ def get_image_url_list(anime: Anime, default: Optional[str] = None) -> list[Imag
     else:
         if not default:
             default = settings.STATIC_URL + ('/' if not settings.STATIC_URL.endswith('/') else '') + 'survey/img/image-unavailable.png'
-        return [ImageData(
+        return [ImageViewModel(
             'Image unavailable',
             default,
             default,

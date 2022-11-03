@@ -6,7 +6,7 @@ from django.http.response import JsonResponse
 from django.views.generic import View
 from http import HTTPStatus
 from survey.models import Response, Survey
-from survey.util.data import AnimeData, SurveyData, json_encoder_factory
+from survey.util.data import AnimeViewModel, SurveyViewModel, json_encoder_factory
 from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.results import ResultsGenerator
 from survey.util.survey import get_survey_anime, try_get_survey
@@ -32,8 +32,8 @@ class SurveyResultsApi(View):
         survey_responses = Response.objects.filter(survey=survey)
 
         survey_anime_queryset, _, _ = get_survey_anime(survey)
-        survey_anime_data_list = {anime.id: AnimeData.from_model(anime) for anime in survey_anime_queryset}
-        survey_data = SurveyData.from_model(survey)
+        survey_anime_data_list = {anime.id: AnimeViewModel.from_model(anime) for anime in survey_anime_queryset}
+        survey_data = SurveyViewModel.from_model(survey)
 
         json_encoder = json_encoder_factory()
         return JsonResponse({

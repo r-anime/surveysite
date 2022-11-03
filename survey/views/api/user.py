@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
-from survey.util.data import DataBase, json_encoder_factory
+from survey.util.data import ViewModelBase, json_encoder_factory
 
 
 @method_decorator(never_cache, name='get')
@@ -16,14 +16,14 @@ class UserApi(View):
         if not request.user or not request.user.is_authenticated:
             auth_provider = auth_provider_registry.by_id('reddit', request)
             auth_url = auth_provider.get_login_url(request)
-            return JsonResponse(AnonymousUserData(
+            return JsonResponse(AnonymousUserViewModel(
                 authentication_url=auth_url,
             ), encoder=jsonEncoder, safe=False)
 
         reddit_account_queryset = self.request.user.socialaccount_set.filter(provider='reddit')
         profile_picture_url = reddit_account_queryset[0].extra_data['icon_img'] if reddit_account_queryset else None
             
-        return JsonResponse(AuthenticatedUserData(
+        return JsonResponse(AuthenticatedUserViewModel(
             username=request.user.first_name if request.user.first_name else request.user.username,
             profile_picture_url=profile_picture_url,
             is_staff=request.user.is_staff,
@@ -31,16 +31,16 @@ class UserApi(View):
 
 
 @dataclass
-class UserData(DataBase):
+class UserViewModel(ViewModelBase):
     authenticated: bool
 
 @dataclass
-class AnonymousUserData(UserData):
+class AnonymousUserViewModel(UserViewModel):
     authenticated: bool = field(default=False, init=False)
     authentication_url: str
 
 @dataclass
-class AuthenticatedUserData(UserData):
+class AuthenticatedUserViewModel(UserViewModel):
     authenticated: bool = field(default=True, init=False)
     is_staff: bool
     username: str
