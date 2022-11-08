@@ -44,10 +44,10 @@
 import SimpleResultsTable from './SimpleResultsTable.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
 import AnimeNames from '@/components/AnimeNames.vue';
-import type { AnimeData, ResultType } from '@/util/data';
+import type { AnimeViewModel, ResultType } from '@/util/data';
 
 defineProps<{
-  ranking: { anime: AnimeData, result: number, extraResult?: number }[];
+  ranking: { anime: AnimeViewModel, result: number, extraResult?: number }[];
   resultTypes: ResultType[];
   isAnimeSeries?: boolean;
   top: number;

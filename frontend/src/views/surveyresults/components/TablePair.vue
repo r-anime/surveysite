@@ -12,12 +12,12 @@
 </template>
 
 <script setup lang="ts">
-import type { AnimeData, ResultType } from '@/util/data';
+import type { AnimeViewModel, ResultType } from '@/util/data';
 import SimpleResultsTable from './SimpleResultsTable.vue';
 
 defineProps<{
-  leftRanking: { anime: AnimeData, result: number, extraResult?: number }[];
-  rightRanking?: { anime: AnimeData, result: number, extraResult?: number }[];
+  leftRanking: { anime: AnimeViewModel, result: number, extraResult?: number }[];
+  rightRanking?: { anime: AnimeViewModel, result: number, extraResult?: number }[];
   leftResultTypes: ResultType[];
   rightResultTypes?: ResultType[];
 

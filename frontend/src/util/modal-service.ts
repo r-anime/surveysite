@@ -9,7 +9,7 @@ export class ModalService {
    * This component **must** implement an `onModalHide` emitter
    * and should handle hiding itself!
    */
-  static show(component: Component, initData: ModalInitData = {}): void {
+  static show(component: Component, initData: ModalInitViewModel = {}): void {
     for (const handler of this.eventHandlers) {
       handler(component, initData);
     }
@@ -24,9 +24,9 @@ export class ModalService {
   }
 }
 
-export type ModalShowFn = (component: Component, initData: ModalInitData) => void;
+export type ModalShowFn = (component: Component, initData: ModalInitViewModel) => void;
 
-export interface ModalInitData {
+export interface ModalInitViewModel {
   data?: unknown;
   emits?: ModalEmits;
 }

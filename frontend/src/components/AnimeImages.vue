@@ -31,12 +31,12 @@
 
 <script setup lang="ts">
 import { Carousel } from 'bootstrap';
-import type { ImageData } from '@/util/data';
+import type { ImageViewModel } from '@/util/data';
 import { nextTick, onMounted } from 'vue';
 import IdGenerator from '@/util/id-generator';
 
 const props = defineProps<{
-  animeImages: ImageData[],
+  animeImages: ImageViewModel[],
   enableCarouselControls?: boolean,
   alignStart?: boolean,
   imgClass?: string,

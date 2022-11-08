@@ -47,14 +47,14 @@
 <script setup lang="ts">
 import AnimeNames from '@/components/AnimeNames.vue';
 import AnimeImages from '@/components/AnimeImages.vue';
-import { type AnimeData, ResultType } from '@/util/data';
+import { type AnimeViewModel, ResultType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import type { RouteLocationNormalized } from 'vue-router';
 
 // TODO: Replace this class with the AnimeTable component
 
 const props = defineProps<{
-  ranking: { anime: AnimeData, result: number, extraResult?: number }[];
+  ranking: { anime: AnimeViewModel, result: number, extraResult?: number }[];
   resultTypes: ResultType[]; // Must have either length 1 or 2
   isAnimeSeries?: boolean;
 
@@ -72,7 +72,7 @@ const hasExtraResult = props.resultTypes.length === 2;
 const resultNames = props.resultTypes.map(resultType => getResultTypeName(resultType));
 const resultFormatters = props.resultTypes.map(resultType => getResultTypeFormatter(resultType));
 
-const processedRanking: ({ anime: AnimeData, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
+const processedRanking: ({ anime: AnimeViewModel, result: number, extraResult?: number, progressBarValue: number, rank: number } | null)[] = [];
 
 {
   let progressBarMin: number;

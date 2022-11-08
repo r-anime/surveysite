@@ -45,13 +45,13 @@
 
 <script setup lang="ts">
 import Cookie from 'js-cookie';
-import type { UserData } from '@/util/data';
+import type { UserViewModel } from '@/util/data';
 import UserService from '@/util/user-service';
 import { ref } from 'vue';
 import { ModalService } from '@/util/modal-service';
 import LogInModal from './LogInModal.vue';
 
-const userData = ref<UserData | null>(null);
+const userData = ref<UserViewModel | null>(null);
 const csrfToken = Cookie.get('csrftoken');
 
 // Don't await this otherwise this has to become an async component

@@ -24,7 +24,7 @@
 import Cookie from 'js-cookie';
 import { ref } from 'vue';
 import UserService from '@/util/user-service';
-import type { AnonymousUserData } from '@/util/data';
+import type { AnonymousUserViewModel } from '@/util/data';
 import ModalTemplate from '@/components/ModalTemplate.vue';
 import { useModal } from '@/composables/modal';
 
@@ -40,7 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const { hideModal } = useModal(props.modalId, emit);
-const userData = ref<AnonymousUserData | null>(null);
+const userData = ref<AnonymousUserViewModel | null>(null);
 const csrfToken = Cookie.get('csrftoken');
 
 

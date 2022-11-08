@@ -58,11 +58,11 @@
 import IndexSurvey from './components/IndexSurvey.vue';
 import Spinner from '@/components/Spinner.vue';
 
-import { AnimeSeason, type SurveyData } from '@/util/data';
+import { AnimeSeason, type SurveyViewModel } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import NotificationService from '@/util/notification-service';
-import type { IndexSurveyData } from './data/index-survey-data';
+import type { IndexSurveyViewModel } from './data/index-survey-data';
 
 import dayjs from 'dayjs';
 import { find, groupBy, maxBy, minBy, orderBy } from 'lodash-es';
@@ -70,29 +70,29 @@ import type { RouteLocationRaw } from 'vue-router';
 import { ref } from 'vue';
 
 
-let surveys: IndexSurveyData[] = []; // No need to make this a ref since this is not used in the html
+let surveys: IndexSurveyViewModel[] = []; // No need to make this a ref since this is not used in the html
 const surveyData = ref<{
   year: number,
   surveys: {
     season: AnimeSeason,
-    preseasonSurvey?: IndexSurveyData,
-    postseasonSurvey?: IndexSurveyData,
+    preseasonSurvey?: IndexSurveyViewModel,
+    postseasonSurvey?: IndexSurveyViewModel,
   }[],
 }[]>([]);
 
 
 // No need to await this and make this an async component since there is a spinner, but could be worth looking into
 // https://vuejs.org/guide/components/async.html
-HttpService.get<IndexSurveyData[]>('api/index/', newSurveys => getSeasonData(newSurveys), failureResponse => {
+HttpService.get<IndexSurveyViewModel[]>('api/index/', newSurveys => getSeasonData(newSurveys), failureResponse => {
   NotificationService.pushMsgList(failureResponse.errors?.global ?? ['An unknown error occurred'], 'danger');
 });
 
 
-function surveyIsUpcoming(survey: SurveyData): boolean {
+function surveyIsUpcoming(survey: SurveyViewModel): boolean {
   return dayjs() < dayjs(survey.openingEpochTime);
 }
 
-function surveyIsFinished(survey: SurveyData): boolean {
+function surveyIsFinished(survey: SurveyViewModel): boolean {
   return dayjs(survey.closingEpochTime) < dayjs();
 }
 
@@ -112,7 +112,7 @@ function getSeasonIconClass(season: AnimeSeason): string {
   }
 }
 
-function getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
+function getSurveyRoute(survey: IndexSurveyViewModel): RouteLocationRaw {
   return {
     name: surveyIsFinished(survey) ? 'SurveyResultsSummary' : 'SurveyForm',
     params: {
@@ -124,7 +124,7 @@ function getSurveyRoute(survey: IndexSurveyData): RouteLocationRaw {
 }
 
 // TODO: This should use pagination, the survey list obtained from the API should get appended to the already obtained survey list.
-async function getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
+async function getSeasonData(newSurveys: IndexSurveyViewModel[]): Promise<void> {
   // Maybe store distinct surveys only because otherwise many more might be stored than necessary?
   surveys = surveys.concat(newSurveys);
 
@@ -146,7 +146,7 @@ async function getSeasonData(newSurveys: IndexSurveyData[]): Promise<void> {
       (minBy(surveyYearGroup, 'season') ?? { season: AnimeSeason.WINTER }).season :
       AnimeSeason.WINTER;
 
-    const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyData, postseasonSurvey?: IndexSurveyData }[] = [];
+    const surveysOrderedGroupedBySeason: { season: AnimeSeason, preseasonSurvey?: IndexSurveyViewModel, postseasonSurvey?: IndexSurveyViewModel }[] = [];
     for (let season = latestSeason; season >= earliestSeason; season--) {
       const preseasonSurvey = find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', true ]);
       const postseasonSurvey = find(surveysGroupedBySeason[season] ?? [], [ 'isPreseason', false ]);
