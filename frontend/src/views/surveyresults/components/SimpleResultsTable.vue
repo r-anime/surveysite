@@ -122,7 +122,7 @@ const processedRanking: ({ anime: AnimeViewModel, result: number, extraResult?: 
   if (props.bottom != null) {
     processedRanking.push(null);
 
-    for (let rowIdx = props.ranking.length - props.bottom; rowIdx < props.ranking.length; rowIdx++) {
+    for (let rowIdx = Math.max(props.ranking.length - props.bottom, 0); rowIdx < props.ranking.length; rowIdx++) {
       const row = props.ranking[rowIdx];
       processedRanking.push(Object.assign({
         progressBarValue: calcProgressBarValue(row.result),
