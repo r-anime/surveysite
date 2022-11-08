@@ -18,7 +18,7 @@ def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, ex
             self.excluded_fields_per_model = excluded_fields_per_model
             
         def default(self, o: Any) -> Any:
-            if isinstance(o, DataBase):
+            if isinstance(o, ViewModelBase):
                 return o.to_dict()
 
             elif isinstance(o, Model):
@@ -34,7 +34,7 @@ def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, ex
 
 
 @dataclass
-class DataBase:
+class ViewModelBase:
     @classmethod
     def get_fields(cls):
         return list(cls.__dataclass_fields__.keys())
@@ -59,22 +59,22 @@ class DataBase:
 
     def to_dict(self):
         fields = self.get_fields()
-        return { field: value.to_dict() if isinstance(value := getattr(self, field), DataBase) else value for field in fields }
+        return { field: value.to_dict() if isinstance(value := getattr(self, field), ViewModelBase) else value for field in fields }
 
     @classproperty
     def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
         return {}
 
 @dataclass
-class ImageData(DataBase):
+class ImageViewModel(ViewModelBase):
     name: str
     url_small: str
     url_medium: str
     url_large: str
 
     @staticmethod
-    def from_model(model: Image) -> ImageData:
-        return ImageData(
+    def from_model(model: Image) -> ImageViewModel:
+        return ImageViewModel(
             name=model.name,
             url_small=model.file_small.url,
             url_medium=model.file_medium.url,
@@ -82,31 +82,31 @@ class ImageData(DataBase):
         )
 
 @dataclass
-class AnimeNameData(DataBase):
+class AnimeNameViewModel(ViewModelBase):
     name: str
     is_official: bool
     type: AnimeName.AnimeNameType
 
     @staticmethod
-    def from_model(model: AnimeName) -> AnimeNameData:
-        return AnimeNameData(
+    def from_model(model: AnimeName) -> AnimeNameViewModel:
+        return AnimeNameViewModel(
             name=model.name,
             is_official=model.official,
             type=model.anime_name_type,
         )
 
 @dataclass
-class AnimeData(DataBase):
+class AnimeViewModel(ViewModelBase):
     id: int
-    names: list[AnimeNameData]
-    images: list[ImageData]
+    names: list[AnimeNameViewModel]
+    images: list[ImageViewModel]
     anime_type: str
 
     @staticmethod
-    def from_model(model: Anime) -> AnimeData:
-        name_data_list = [AnimeNameData.from_model(name) for name in model.animename_set.all()]
-        image_data_list = [ImageData.from_model(image) for image in model.image_set.all()]
-        return AnimeData(
+    def from_model(model: Anime) -> AnimeViewModel:
+        name_data_list = [AnimeNameViewModel.from_model(name) for name in model.animename_set.all()]
+        image_data_list = [ImageViewModel.from_model(image) for image in model.image_set.all()]
+        return AnimeViewModel(
             id=model.id,
             names=name_data_list,
             images=image_data_list,
@@ -114,7 +114,7 @@ class AnimeData(DataBase):
         )
 
 @dataclass
-class SurveyData(DataBase):
+class SurveyViewModel(ViewModelBase):
     year: int
     season: int
     is_preseason: bool
@@ -122,8 +122,8 @@ class SurveyData(DataBase):
     closing_epoch_time: int
 
     @staticmethod
-    def from_model(model: Survey) -> SurveyData:
-        return SurveyData(
+    def from_model(model: Survey) -> SurveyViewModel:
+        return SurveyViewModel(
             year         = model.year,
             season       = model.season,
             is_preseason = model.is_preseason,

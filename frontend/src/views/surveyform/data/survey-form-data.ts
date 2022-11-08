@@ -1,4 +1,4 @@
-import type { AnimeData, SurveyData } from "@/util/data";
+import type { AnimeViewModel, SurveyViewModel } from "@/util/data";
 
 export interface ResponseData {
   age: number | null;
@@ -23,7 +23,7 @@ export interface SurveyFormBaseData {
 export interface SurveyFormSubmitData extends SurveyFormBaseData {}
 
 export interface SurveyFormData extends SurveyFormBaseData {
-  survey: SurveyData;
-  animeDataDict: Record<number, AnimeData>;
+  survey: SurveyViewModel;
+  animeDataDict: Record<number, AnimeViewModel>;
   isAnimeNewDict: Record<number, boolean>;
 }

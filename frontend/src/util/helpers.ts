@@ -1,6 +1,6 @@
 import { orderBy } from "lodash-es";
 import type { RouteLocation } from "vue-router";
-import { type AnimeData, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
+import { type AnimeViewModel, AnimeNameType, AnimeSeason, AnimeType, ResultType } from "./data";
 
 /**
  * Returns the season's name with the first letter capitalized
@@ -42,13 +42,13 @@ export function getSurveyName(survey: { isPreseason: boolean, season: AnimeSeaso
   return `The ${survey.isPreseason ? 'Start' : 'End'} of ${getSeasonName(survey.season)} ${survey.year} Survey`;
 }
 
-export function isAnimeSeries(anime: AnimeData): boolean {
+export function isAnimeSeries(anime: AnimeViewModel): boolean {
   return anime.animeType == AnimeType.BULK_RELEASE ||
     anime.animeType == AnimeType.ONA_SERIES ||
     anime.animeType == AnimeType.TV_SERIES;
 }
 
-export function getAnimeName(anime: AnimeData, animeNameType: AnimeNameType): string | null {
+export function getAnimeName(anime: AnimeViewModel, animeNameType: AnimeNameType): string | null {
   const filtered = anime.names.filter(name => name.type == animeNameType);
   if (!filtered.length) return null;
 

@@ -55,7 +55,7 @@
 <script setup lang="ts">
 /* eslint-disable vue/no-mutating-props */
 import NotificationService from "@/util/notification-service";
-import type { ValidationErrorData, SurveyData } from "@/util/data";
+import type { ValidationErrorData, SurveyViewModel } from "@/util/data";
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
@@ -66,7 +66,7 @@ import { useModal } from "@/composables/modal";
 const props = defineProps<{
   modalId: string;
   data: {
-    survey: SurveyData;
+    survey: SurveyViewModel;
     missingAnimeData: MissingAnimeData;
   };
 }>();

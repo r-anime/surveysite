@@ -1,18 +1,18 @@
-export type UserData = AuthenticatedUserData | AnonymousUserData;
+export type UserViewModel = AuthenticatedUserViewModel | AnonymousUserViewModel;
 
-export interface AuthenticatedUserData {
+export interface AuthenticatedUserViewModel {
   authenticated: true;
   username: string;
   profilePictureUrl: string;
   isStaff: boolean;
 }
 
-export interface AnonymousUserData {
+export interface AnonymousUserViewModel {
   authenticated: false;
   authenticationUrl: string;
 }
 
-export interface ImageData {
+export interface ImageViewModel {
   name: string;
   urlSmall: string;
   urlMedium: string;
@@ -48,20 +48,20 @@ export enum AnimeType {
   TV_SPECIAL   = 'TVSP',
 }
 
-export interface AnimeNameData {
+export interface AnimeNameViewModel {
   name: string;
   isOfficial: boolean;
   type: AnimeNameType;
 }
 
-export interface AnimeData {
+export interface AnimeViewModel {
   id: number;
-  names: AnimeNameData[];
-  images: ImageData[];
+  names: AnimeNameViewModel[];
+  images: ImageViewModel[];
   animeType: AnimeType;
 }
 
-export interface SurveyData {
+export interface SurveyViewModel {
   year: number;
   season: AnimeSeason;
   isPreseason: boolean;

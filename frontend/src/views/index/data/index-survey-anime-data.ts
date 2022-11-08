@@ -1,6 +1,6 @@
-import type { AnimeData } from '@/util/data';
+import type { AnimeViewModel } from '@/util/data';
 
 export interface IndexSurveyAnimeData {
-  anime: AnimeData;
+  anime: AnimeViewModel;
   result: number;
 }

@@ -6,7 +6,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import View
 import math
 from survey.models import Anime, Image, Survey
-from survey.util.data import DataBase, ImageData, ResultType, SurveyData, json_encoder_factory, AnimeData
+from survey.util.data import ViewModelBase, ImageViewModel, ResultType, SurveyViewModel, json_encoder_factory, AnimeViewModel
 from survey.util.results import ResultsGenerator
 from survey.util.survey import get_survey_anime
 from typing import Optional
@@ -40,9 +40,9 @@ class IndexApi(View):
             else:
                 anime_list, _, _ = get_survey_anime(survey)
                 anime_images = Image.objects.filter(anime__in=anime_list).order_by('?')[:12]
-                anime_images = [ImageData.from_model(image) for image in anime_images]
+                anime_images = [ImageViewModel.from_model(image) for image in anime_images]
 
-            response.append(IndexSurveyData.from_model(
+            response.append(IndexSurveyViewModel.from_model(
                 model=survey,
                 anime_images=anime_images,
                 anime_results=anime_results,
@@ -67,20 +67,20 @@ def get_top_results(results: dict[int, dict[ResultType, float]], resulttype: Res
     )
 
     return [                 # Check how this can be optimized
-        IndexSurveyAnimeData(anime=AnimeData.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resulttype])
+        IndexSurveyAnimeViewModel(anime=AnimeViewModel.from_model(Anime.objects.get(id=anime_id)), result=anime_results[resulttype])
         for (anime_id, anime_results) in sorted_results[:count]
     ]
 
 
 @dataclass
-class IndexSurveyData(SurveyData):
-    anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeData]]]
-    anime_images: Optional[list[ImageData]]
+class IndexSurveyViewModel(SurveyViewModel):
+    anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeViewModel]]]
+    anime_images: Optional[list[ImageViewModel]]
 
     @staticmethod
-    def from_model(model: Survey, anime_images: Optional[list[ImageData]], anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeData]]]) -> IndexSurveyData:
-        survey_data = SurveyData.from_model(model)
-        return IndexSurveyData(
+    def from_model(model: Survey, anime_images: Optional[list[ImageViewModel]], anime_results: Optional[dict[ResultType, list[IndexSurveyAnimeViewModel]]]) -> IndexSurveyViewModel:
+        survey_data = SurveyViewModel.from_model(model)
+        return IndexSurveyViewModel(
             year=survey_data.year,
             season=survey_data.season,
             is_preseason=survey_data.is_preseason,
@@ -91,6 +91,6 @@ class IndexSurveyData(SurveyData):
         )
 
 @dataclass
-class IndexSurveyAnimeData(DataBase):
-    anime: AnimeData
+class IndexSurveyAnimeViewModel(ViewModelBase):
+    anime: AnimeViewModel
     result: float

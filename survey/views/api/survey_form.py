@@ -15,7 +15,7 @@ import json
 import logging
 from survey.models import AnimeResponse, MtmUserResponse, Response, Survey
 from survey.util.anime import anime_is_continuing
-from survey.util.data import AnimeData, SurveyData, json_encoder_factory, DataBase
+from survey.util.data import AnimeViewModel, SurveyViewModel, json_encoder_factory, ViewModelBase
 from survey.util.http import HttpEmptyErrorResponse, JsonErrorResponse
 from survey.util.survey import try_get_survey, get_survey_anime
 from typing import Any, Callable, Optional
@@ -51,19 +51,19 @@ class SurveyFormApi(View):
 
         anime_list, _, _ = get_survey_anime(survey)
 
-        response_data = ResponseData.from_model(previous_response) if previous_response else ResponseData()
-        anime_response_data_dict: dict[int, AnimeResponseData] = {}
+        response_data = ResponseViewModel.from_model(previous_response) if previous_response else ResponseViewModel()
+        anime_response_data_dict: dict[int, AnimeResponseViewModel] = {}
         for anime in anime_list:
             previous_animeresponse_queryset = AnimeResponse.objects.filter(response=previous_response, anime=anime)
             if previous_animeresponse_queryset and previous_animeresponse_queryset.count() == 1:
-                anime_response_data_dict[anime.id] = AnimeResponseData.from_model(previous_animeresponse_queryset.first())
+                anime_response_data_dict[anime.id] = AnimeResponseViewModel.from_model(previous_animeresponse_queryset.first())
             else:
-                anime_response_data_dict[anime.id] = AnimeResponseData()
+                anime_response_data_dict[anime.id] = AnimeResponseViewModel()
         
-        response = SurveyFormData(
-            survey=SurveyData.from_model(survey),
+        response = SurveyFormViewModel(
+            survey=SurveyViewModel.from_model(survey),
             response_data=response_data,
-            anime_data_dict={anime.id: AnimeData.from_model(anime) for anime in anime_list},
+            anime_data_dict={anime.id: AnimeViewModel.from_model(anime) for anime in anime_list},
             anime_response_data_dict=anime_response_data_dict,
             is_anime_new_dict={anime.id: not anime_is_continuing(anime, survey) for anime in anime_list},
             is_response_linked_to_user=response_was_linked,
@@ -96,7 +96,7 @@ class SurveyFormApi(View):
 
         json_data: dict[str, dict[str, Any]] = json.loads(request.body)
         try:
-            submit_data = SurveyFromSubmitData.from_dict(json_data)
+            submit_data = SurveyFormSubmitViewModel.from_dict(json_data)
         except KeyError as e:
             logging.error('An error occurred while parsing form submission data: ' + str(e))
             return JsonErrorResponse('Request data is invalid', HTTPStatus.BAD_REQUEST)
@@ -203,38 +203,38 @@ def get_username_hash(user: User) -> bytes:
 
 
 @dataclass
-class SurveyFromSubmitData(DataBase): # Not a good name
-    response_data: ResponseData
-    anime_response_data_dict: dict[int, AnimeResponseData]
+class SurveyFormSubmitViewModel(ViewModelBase): # Not a good name
+    response_data: ResponseViewModel
+    anime_response_data_dict: dict[int, AnimeResponseViewModel]
     is_response_linked_to_user: bool
 
     @classproperty
     def dict_field_parsers(cls) -> dict[str, Callable[[Any], Any]]:
 
         # Parses the dict and filters empty anime responses
-        def anime_response_data_dict_parser(d: dict[str, dict[str, Any]]) -> dict[int, AnimeResponseData]:
-            result: dict[int, AnimeResponseData] = {}
+        def anime_response_data_dict_parser(d: dict[str, dict[str, Any]]) -> dict[int, AnimeResponseViewModel]:
+            result: dict[int, AnimeResponseViewModel] = {}
             for anime_id_str, anime_response_json_data in d.items():
-                anime_response_data = AnimeResponseData.from_dict(anime_response_json_data)
+                anime_response_data = AnimeResponseViewModel.from_dict(anime_response_json_data)
                 if anime_response_data.contains_data:
                     result[int(anime_id_str)] = anime_response_data
             return result
 
         parsers = super().dict_field_parsers
         parsers.update({
-            'response_data': (lambda d: ResponseData.from_dict(d)),
+            'response_data': (lambda d: ResponseViewModel.from_dict(d)),
             'anime_response_data_dict': anime_response_data_dict_parser,
         })
         return parsers
 
 @dataclass
-class ResponseData(DataBase):
+class ResponseViewModel(ViewModelBase):
     age: Optional[int] = None
     gender: Optional[str] = None
 
     @staticmethod
-    def from_model(model: Response) -> ResponseData:
-        return ResponseData(
+    def from_model(model: Response) -> ResponseViewModel:
+        return ResponseViewModel(
             age=model.age,
             gender=model.gender,
         )
@@ -251,7 +251,7 @@ class ResponseData(DataBase):
             return model
 
 @dataclass
-class AnimeResponseData(DataBase):
+class AnimeResponseViewModel(ViewModelBase):
     score: Optional[int] = None
     watching: bool = False
     underwatched: bool = False
@@ -262,8 +262,8 @@ class AnimeResponseData(DataBase):
         return self.score is not None or self.watching or self.underwatched or self.expectations is not None
 
     @staticmethod
-    def from_model(model: AnimeResponse) -> AnimeResponseData:
-        return AnimeResponseData(
+    def from_model(model: AnimeResponse) -> AnimeResponseViewModel:
+        return AnimeResponseViewModel(
             score=model.score,
             watching=model.watching,
             underwatched=model.underwatched,
@@ -286,10 +286,10 @@ class AnimeResponseData(DataBase):
             return model
 
 @dataclass
-class SurveyFormData(DataBase):
-    survey: SurveyData
-    response_data: ResponseData
-    anime_data_dict: dict[int, AnimeData]
-    anime_response_data_dict: dict[int, AnimeResponseData]
+class SurveyFormViewModel(ViewModelBase):
+    survey: SurveyViewModel
+    response_data: ResponseViewModel
+    anime_data_dict: dict[int, AnimeViewModel]
+    anime_response_data_dict: dict[int, AnimeResponseViewModel]
     is_anime_new_dict: dict[int, bool]
     is_response_linked_to_user: bool

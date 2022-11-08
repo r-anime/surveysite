@@ -210,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { type AnimeData, ResultType } from '@/util/data';
+import { type AnimeViewModel, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
@@ -248,12 +248,12 @@ const averageAge = Object.entries(surveyResultsData.value.miscellaneous.ageDistr
 
 
 
-function getRanking(resultTypeData: { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }, forSpecialAnime = false, ascending = false): { anime: AnimeData, result: number, extraResult?: number }[] {
+function getRanking(resultTypeData: { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }, forSpecialAnime = false, ascending = false): { anime: AnimeViewModel, result: number, extraResult?: number }[] {
   if (surveyResultsData?.value == null) {
     throw new TypeError('surveyResultsData is null');
   }
 
-  let resultsTable: { anime: AnimeData, result: number, extraResult?: number }[] = [];
+  let resultsTable: { anime: AnimeViewModel, result: number, extraResult?: number }[] = [];
 
   const animeIds = Object.keys(surveyResultsData.value.results);
   animeIds.forEach(animeIdStr => {

@@ -1,9 +1,9 @@
-import type { AnimeData, Gender, ResultType, SurveyData } from "@/util/data";
+import type { AnimeViewModel, Gender, ResultType, SurveyViewModel } from "@/util/data";
 
 export interface SurveyResultsData {
   results: Record<number, Record<ResultType, number>>;
-  anime: Record<number, AnimeData>;
-  survey: SurveyData;
+  anime: Record<number, AnimeViewModel>;
+  survey: SurveyViewModel;
   miscellaneous: {
     responseCount: number;
     ageDistribution: Record<number, number>;

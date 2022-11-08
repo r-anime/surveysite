@@ -1,6 +1,6 @@
-import type { AnimeData, ResultType } from "@/util/data";
+import type { AnimeViewModel, ResultType } from "@/util/data";
 
 export interface AnimeTableEntryData {
-  anime: AnimeData;
+  anime: AnimeViewModel;
   data: Record<ResultType, number | undefined>;
 }

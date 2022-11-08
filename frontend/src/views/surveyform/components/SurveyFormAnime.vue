@@ -89,13 +89,13 @@
 <script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import type { AnimeData, ValidationErrorData } from '@/util/data';
+import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
 import type { AnimeResponseData } from '../data/survey-form-data';
 
 const props = defineProps<{
-  animeData: AnimeData;
+  animeData: AnimeViewModel;
   animeResponseData: AnimeResponseData;
   isSurveyPreseason: boolean;
   isAnimeNew: boolean;

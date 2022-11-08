@@ -14,21 +14,21 @@
 
 <script setup lang="ts">
 import IdGenerator from '@/util/id-generator';
-import { ModalService, type ModalInitData } from '@/util/modal-service';
+import { ModalService, type ModalInitViewModel } from '@/util/modal-service';
 import { nextTick, shallowRef, type Component } from 'vue';
 
 // shallowRef instead of ref since otherwise it deep-tracks component
 // shallowRef only tracks reassignments
 const modalDataArray = shallowRef<{
   component: Component;
-  initData: ModalInitData;
+  initData: ModalInitViewModel;
   modalId: string;
 }[]>([]);
 
 ModalService.subscribe(addModal);
 
 
-function addModal(component: Component, initData: ModalInitData) {
+function addModal(component: Component, initData: ModalInitViewModel) {
   const modalId = IdGenerator.generateUniqueId('modal');
   const onModalHiddenOrg = initData.emits?.onModalHidden; // Necessary because it gets overwritten, we need the original
 

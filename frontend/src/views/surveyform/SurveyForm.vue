@@ -91,7 +91,7 @@ import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 
 import { AnimeNameType } from '@/util/data';
-import type { AnimeData, ValidationErrorData } from '@/util/data';
+import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import NotificationService from '@/util/notification-service';
@@ -211,7 +211,7 @@ async function submit(): Promise<void> {
   });
 }
 
-function getAnimeData(id: number): AnimeData {
+function getAnimeData(id: number): AnimeViewModel {
   if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
   return surveyFormData.value.animeDataDict[id];
 }

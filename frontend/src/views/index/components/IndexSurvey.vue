@@ -50,11 +50,11 @@
 import { ResultType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
 import IndexSurveyAnime from './IndexSurveyAnime.vue';
-import type { IndexSurveyData } from '../data/index-survey-data';
+import type { IndexSurveyViewModel } from '../data/index-survey-data';
 import dayjs from 'dayjs';
 
 const props = defineProps<{
-  survey: IndexSurveyData;
+  survey: IndexSurveyViewModel;
 }>();
 
 const surveyName = getSurveyName(props.survey);
