@@ -37,9 +37,8 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function fixResponseDataIfJsonParsingFailed(responseData: any) {
-  if (!responseData) {
+function fixResponseDataIfJsonParsingFailed(responseData: string | Record<string, unknown> | null): Record<string, unknown> | null {
+  if (responseData == null) {
     // Response data is null
     return responseData;
   } else if (typeof responseData === 'string') {
