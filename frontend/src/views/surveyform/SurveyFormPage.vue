@@ -38,7 +38,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+          <SurveyFormAnimeComponent :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -55,7 +55,7 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+          <SurveyFormAnimeComponent :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import FormValidationErrorsComponent from '@/components/FormValidationErrorsComponent.vue';
 import SpinnerComponent from '@/components/SpinnerComponent.vue';
-import SurveyFormAnime from './components/SurveyFormAnime.vue';
+import SurveyFormAnimeComponent from './components/SurveyFormAnimeComponent.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 
 import { AnimeNameType } from '@/util/data';

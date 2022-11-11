@@ -26,20 +26,20 @@
 
             <template v-if="surveysInSeason.preseasonSurvey">
               <div v-if="surveyIsUpcoming(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
-                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
+                <IndexSurveyComponent :survey="surveysInSeason.preseasonSurvey"/>
               </div>
               <router-link v-else :to="getSurveyRoute(surveysInSeason.preseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
-                <IndexSurvey :survey="surveysInSeason.preseasonSurvey"/>
+                <IndexSurveyComponent :survey="surveysInSeason.preseasonSurvey"/>
               </router-link>
             </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
 
             <template v-if="surveysInSeason.postseasonSurvey">
               <div v-if="surveyIsUpcoming(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
-                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
+                <IndexSurveyComponent :survey="surveysInSeason.postseasonSurvey"/>
               </div>
               <router-link v-else :to="getSurveyRoute(surveysInSeason.postseasonSurvey)" class="col col-lg-6 col-12 border p-3 d-lg-block text-decoration-none text-reset clickable">
-                <IndexSurvey :survey="surveysInSeason.postseasonSurvey"/>
+                <IndexSurveyComponent :survey="surveysInSeason.postseasonSurvey"/>
               </router-link>
             </template>
             <div v-else class="col col-lg-6 col-12 border p-3 d-lg-block bg-unavailable"></div>
@@ -55,7 +55,7 @@
 
 
 <script setup lang="ts">
-import IndexSurvey from './components/IndexSurvey.vue';
+import IndexSurveyComponent from './components/IndexSurveyComponent.vue';
 import SpinnerComponent from '@/components/SpinnerComponent.vue';
 
 import { AnimeSeason, type SurveyViewModel } from '@/util/data';

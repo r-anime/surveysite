@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { NavigationGuard, RouteLocationRaw, RouteParams, RouteRecordRaw } from 'vue-router';
-import Index from '@/views/index/Index.vue';
-import NotFound from '@/views/NotFound.vue';
+import IndexPage from '@/views/index/IndexPage.vue';
+import NotFoundPage from '@/views/NotFoundPage.vue';
 import { getSurveyName } from '@/util/helpers';
 import { isInteger } from 'lodash-es';
 import NotificationService from '@/util/notification-service';
@@ -35,11 +35,11 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
   {
     path: '/',
     name: 'Index',
-    component: Index,
+    component: IndexPage,
   }, {
     path: '/survey/:year/:season/:preOrPost/',
     name: 'SurveyForm',
-    component: () => import('../views/surveyform/SurveyForm.vue'),
+    component: () => import('../views/surveyform/SurveyFormPage.vue'),
     beforeEnter: confirmValidSurveyRouteParams,
     meta: {
       subtitleFn: (params: RouteParams) => getSurveyName({
@@ -72,7 +72,7 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
   }, {
     path: '/:paramMatch(.*)*',
     name: 'NotFound',
-    component: NotFound,
+    component: NotFoundPage,
   },
 ];
 

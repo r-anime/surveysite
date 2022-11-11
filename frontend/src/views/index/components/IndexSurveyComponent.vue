@@ -18,7 +18,7 @@
         </div>
         <div class="row px-2 align-items-center">
           <div class="col px-0" :class="idx==0 ? '' : 'd-lg-block d-none'" v-for="(animeResults, idx) in animeResultsList" :key="idx">
-            <IndexSurveyAnime :animeResults="animeResults"/>
+            <IndexSurveyAnimeComponent :animeResults="animeResults"/>
           </div>
         </div>
       </div>
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ResultType } from '@/util/data';
 import { getSurveyName } from '@/util/helpers';
-import IndexSurveyAnime from './IndexSurveyAnime.vue';
+import IndexSurveyAnimeComponent from './IndexSurveyAnimeComponent.vue';
 import type { IndexSurveyViewModel } from '../data/index-survey-data';
 import dayjs from 'dayjs';
 
