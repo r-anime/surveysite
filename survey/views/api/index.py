@@ -52,11 +52,13 @@ class IndexApi(View):
 
 
 def get_top_results(results: dict[int, dict[ResultType, float]], resulttype: ResultType, count: int, descending: bool=True):
-    # Remove anime below the popularity threshold, and anime with a result value of NaN or infinite
+    # Only keep anime above the popularity threshold, and with a valid result value
     sorted_results = [
         (anime_id, anime_results)
         for (anime_id, anime_results) in results.items()
-        if anime_results[ResultType.POPULARITY] > 0.02 and math.isfinite(anime_results[resulttype])
+        if anime_results[ResultType.POPULARITY] is not None
+           and anime_results[ResultType.POPULARITY] > 0.02
+           and anime_results[resulttype] is not None
     ]
 
     # Sort all anime by the given result type

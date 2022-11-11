@@ -1,5 +1,6 @@
 from django.core.cache import caches
 from django.db.models import Avg
+import math
 from survey.models import AnimeResponse, Response, Survey, SurveyAdditionRemoval
 from survey.util.data import ResultType
 from survey.util.survey import get_survey_anime, get_survey_cache_timeout
@@ -31,7 +32,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=7, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=8, timeout=cache_timeout)
 
     def __get_anime_results_data_internal(self) -> dict[int, dict[ResultType, float]]:
         survey = self.survey
@@ -74,7 +75,7 @@ class ResultsGenerator:
         male_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
         female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
 
-        return {
+        results_data = {
             ResultType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count),
             ResultType.POPULARITY_MALE:               male_popularity,
             ResultType.POPULARITY_FEMALE:           female_popularity,
@@ -88,6 +89,7 @@ class ResultsGenerator:
             ResultType.DISAPPOINTMENT:              div0(watchers_animeresponse_qs.filter(expectations=AnimeResponse.Expectations.DISAPPOINTMENT).count(), watcher_response_count),
             ResultType.AGE:                         watchers_animeresponse_qs.aggregate(avg_age=Avg('response__age'))['avg_age'] or float('NaN'),
         }
+        return replace_nans(results_data)
 
     def __get_adjusted_response_count(self, addition_removal_list: list[SurveyAdditionRemoval], response_count: int) -> int:
         i = 0
@@ -124,3 +126,13 @@ class ResultsGenerator:
 
 def div0(a: float, b: float) -> float:
     return a / b if b != 0 else float('NaN')
+
+def replace_nans(val):
+    if isinstance(val, dict):
+        return { k: replace_nans(v) for k, v in val.items() }
+    elif isinstance(val, list):
+        return [replace_nans(v) for v in val]
+    elif isinstance(val, float) and not math.isfinite(val):
+        return None
+    else:
+        return val

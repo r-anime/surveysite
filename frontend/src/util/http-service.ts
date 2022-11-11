@@ -37,32 +37,8 @@ function decamelizeKeys(obj: any): any {
 }
 
 
-function fixResponseDataIfJsonParsingFailed(responseData: string | Record<string, unknown> | null): Record<string, unknown> | null {
-  if (responseData == null) {
-    // Response data is null
-    return responseData;
-  } else if (typeof responseData === 'string') {
-    try {
-      // Try to parse the response after replacing NaNs with nulls
-      return JSON.parse(responseData.replace(/\bNaN\b/g, 'null'));
-    } catch (e) {
-      return {};
-      // The response was not JSON
-      if (e instanceof SyntaxError) {
-        throw new Error('The server returned an invalid response');
-      } else {
-        throw e;
-      }
-    }
-  } else {
-    return responseData;
-  }
-}
-
 export default class HttpService {
   private static _axios = axios.create({
-    transformRequest: [decamelizeKeys, data => JSON.stringify(data)], // TODO: Perform decamelizing on backend
-    transformResponse: [fixResponseDataIfJsonParsingFailed, camelizeKeys], // TODO: Perform camelizing on backend and send nulls instead of NaNs
     baseURL: '/',
     validateStatus: statusCode => (statusCode >= 200 && statusCode < 300) || (statusCode >= 400 && statusCode < 500),
   });
@@ -85,7 +61,7 @@ export default class HttpService {
 
 
   private static async performRequestFn<TResponse, TResult>(axiosRequestFn: AxiosRequestFn<TResponse | ErrorResponse<never>>, url: string, successFn: (response: TResponse) => TResult, failureFn?: (response: ErrorResult<never>) => TResult): Promise<TResult> {
-    const response = await axiosRequestFn(url);
+    const response = camelizeKeys(await axiosRequestFn(url));
     return this.processResponse(response, successFn, failureFn);
   }
 
@@ -95,7 +71,7 @@ export default class HttpService {
         'X-CSRFToken': this.getCsrfToken(),
       },
     };
-    const response = await axiosDataRequestFn(url, data, config);
+    const response = camelizeKeys(await axiosDataRequestFn(url, decamelizeKeys(data), config));
 
     return this.processResponse(response, successFn, failureFn);
   }
