@@ -302,7 +302,7 @@ class AnimeAdmin(admin.ModelAdmin):
             if is_removed or is_added:
                 survey_response_count = survey.response_set.count()
                 if survey_response_count > 0:
-                    results_cache.delete('survey_results_%i' % survey.id, version=7)
+                    results_cache.delete('survey_results_%i' % survey.id, version=8)
 
                     SurveyAdditionRemoval(
                         survey=survey,
