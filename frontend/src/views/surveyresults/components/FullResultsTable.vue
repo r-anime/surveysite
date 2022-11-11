@@ -23,10 +23,10 @@
             #{{ entryIdx + 1 }}
           </td>
           <td role="cell" aria-colindex="2" class="table-col-image border-end-0" style="height:5em;">
-            <AnimeImages :animeImages="entry.anime.images" maxHeight="5em"/>
+            <AnimeImagesComponent :animeImages="entry.anime.images" maxHeight="5em"/>
           </td>
           <td role="cell" aria-colindex="3" class="table-col-name border-start-0">
-            <AnimeNames :animeNames="entry.anime.names"/>
+            <AnimeNamesComponent :animeNames="entry.anime.names"/>
           </td>
           <td role="cell" :aria-colindex="columnIdx + 4" class="table-col-result" v-for="(column, columnIdx) in columns" :key="column.resultType">
             {{ getResultTypeFormatter(column.resultType)(entry.data[column.resultType]) }}
@@ -38,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import AnimeImages from '@/components/AnimeImages.vue';
-import AnimeNames from '@/components/AnimeNames.vue';
+import AnimeImagesComponent from '@/components/AnimeImagesComponent.vue';
+import AnimeNamesComponent from '@/components/AnimeNamesComponent.vue';
 import { getAnimeName, getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import { AnimeNameType, ResultType } from '@/util/data';
 import type { AnimeTableEntryData } from '../data/anime-table-entry-data';

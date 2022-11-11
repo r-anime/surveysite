@@ -4,7 +4,7 @@
     <div class="row">
       <!-- Card image -->
       <div class="col-lg-3 col-md-4 col-sm-3 col-4">
-        <AnimeImages :animeImages="animeData.images" enableCarouselControls alignStart imgClass="rounded-start"/>
+        <AnimeImagesComponent :animeImages="animeData.images" enableCarouselControls alignStart imgClass="rounded-start"/>
       </div>
 
       <!-- Card info -->
@@ -68,7 +68,7 @@
             <option value="2">2/5</option>
             <option value="1">1/5 - Bad</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeData.id}-score-invalid`" :validationErrors="validationErrors?.score"/>
+          <FormValidationErrorsComponent :id="`input-anime-${animeData.id}-score-invalid`" :validationErrors="validationErrors?.score"/>
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
@@ -79,7 +79,7 @@
             <option value="S">Surprise</option>
             <option value="D">Disappointment</option>
           </select>
-          <FormValidationErrors :id="`input-anime-${animeData.id}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
+          <FormValidationErrorsComponent :id="`input-anime-${animeData.id}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
         </div>
       </div></div>
     </div>
@@ -87,8 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import AnimeImages from '@/components/AnimeImages.vue';
-import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import AnimeImagesComponent from '@/components/AnimeImagesComponent.vue';
+import FormValidationErrorsComponent from '@/components/FormValidationErrorsComponent.vue';
 import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';

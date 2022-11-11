@@ -1,7 +1,7 @@
 <template>
   <h1 class="page-title">{{ surveyName }}!</h1>
 
-  <Spinner v-if="!surveyFormData" center/>
+  <SpinnerComponent v-if="!surveyFormData" center/>
 
   <template v-else>
     <div class="row mb-5">
@@ -10,7 +10,7 @@
           <div class="col-12 mb-3">
             <label class="form-label" for="input-age">How old are you?</label>
             <input class="form-control" id="input-age" :class="{'is-invalid': validationErrors?.responseData?.age}" v-model.number="surveyFormData.responseData.age" @blur="clampAge()" min="10" max="80" type="number" placeholder="Enter your age" aria-describedby="input-age-invalid">
-            <FormValidationErrors id="input-age-invalid" :validationErrors="validationErrors?.responseData?.age"/>
+            <FormValidationErrorsComponent id="input-age-invalid" :validationErrors="validationErrors?.responseData?.age"/>
           </div>
           <div class="col-12 mb-3">
             <label class="form-label" for="input-gender">Which gender do you identify as?</label>
@@ -20,7 +20,7 @@
               <option value="F">Female</option>
               <option value="O">Other</option>
             </select>
-            <FormValidationErrors id="input-gender-invalid" :validationErrors="validationErrors?.responseData?.gender"/>
+            <FormValidationErrorsComponent id="input-gender-invalid" :validationErrors="validationErrors?.responseData?.gender"/>
           </div>
         </div>
       </div>
@@ -85,8 +85,8 @@
 </template>
 
 <script setup lang="ts">
-import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import Spinner from '@/components/Spinner.vue';
+import FormValidationErrorsComponent from '@/components/FormValidationErrorsComponent.vue';
+import SpinnerComponent from '@/components/SpinnerComponent.vue';
 import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
 

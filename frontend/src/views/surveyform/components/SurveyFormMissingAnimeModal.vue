@@ -28,19 +28,19 @@
         <div class="mb-2">
           <label class="form-label" :for="`input-missinganime-${modalId}-name`">Anime name:</label>
           <input class="form-control" :id="`input-missinganime-${modalId}-name`" :class="{'is-invalid': validationErrors?.name}" maxlength="128" type="text" v-model="data.missingAnimeData.name" :aria-describedby="`input-missinganime-${modalId}-name-errors`">
-          <FormValidationErrors :id="`input-missinganime-${modalId}-name-errors`" :validationErrors="validationErrors?.name"/>
+          <FormValidationErrorsComponent :id="`input-missinganime-${modalId}-name-errors`" :validationErrors="validationErrors?.name"/>
         </div>
 
         <div class="mb-2">
           <label class="form-label" :for="`input-missinganime-${modalId}-link`">Link to anime:</label>
           <input class="form-control" :id="`input-missinganime-${modalId}-link`" :class="{'is-invalid': validationErrors?.link}" maxlength="200" type="url" v-model="data.missingAnimeData.link" :aria-describedby="`input-missinganime-${modalId}-link-errors`">
-          <FormValidationErrors :id="`input-missinganime-${modalId}-link-errors`" :validationErrors="validationErrors?.link"/>
+          <FormValidationErrorsComponent :id="`input-missinganime-${modalId}-link-errors`" :validationErrors="validationErrors?.link"/>
         </div>
 
         <div class="mb-2">
           <label class="form-label" :for="`input-missinganime-${modalId}-description`">Extra information (optional):</label>
           <textarea class="form-control" :id="`input-missinganime-${modalId}-description`" :class="{'is-invalid': validationErrors?.description}" rows="3" v-model="data.missingAnimeData.description" :aria-describedby="`input-missinganime-${modalId}-description-errors`"></textarea>
-          <FormValidationErrors :id="`input-missinganime-${modalId}-description-errors`" :validationErrors="validationErrors?.description"/>
+          <FormValidationErrorsComponent :id="`input-missinganime-${modalId}-description-errors`" :validationErrors="validationErrors?.description"/>
         </div>
       </div>
 
@@ -56,7 +56,7 @@
 /* eslint-disable vue/no-mutating-props */
 import NotificationService from "@/util/notification-service";
 import type { ValidationErrorData, SurveyViewModel } from "@/util/data";
-import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import FormValidationErrorsComponent from '@/components/FormValidationErrorsComponent.vue';
 import type { MissingAnimeData } from "../data/missing-anime-data";
 import HttpService from "@/util/http-service";
 import { ref } from 'vue';

@@ -1,20 +1,20 @@
 <template>
   <div class="mb-5">
-    <TheNavbar />
+    <TheNavbarComponent />
   </div>
   <div class="container-md mb-5">
     <RouterView />
   </div>
   <div>
-    <TheModals />
+    <TheModalsComponent />
   </div>
   <div>
-    <TheNotifications />
+    <TheNotificationsComponent />
   </div>
 </template>
 
 <script setup lang="ts">
-import TheNavbar from '@/components/TheNavbar.vue';
-import TheNotifications from '@/components/TheNotifications.vue';
-import TheModals from './components/TheModals.vue';
+import TheNavbarComponent from '@/components/TheNavbarComponent.vue';
+import TheNotificationsComponent from '@/components/TheNotificationsComponent.vue';
+import TheModalsComponent from './components/TheModalsComponent.vue';
 </script>

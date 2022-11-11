@@ -5,15 +5,15 @@
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
     <h3 class="section-title" id="tableSeries">Anime Series</h3>
-    <DropdownMultiSelect :items="tableDataOfSeries.columnsAsSelectorItems" v-model="tableDataOfSeries.visibleColumnTypes">
+    <DropdownMultiSelectComponent :items="tableDataOfSeries.columnsAsSelectorItems" v-model="tableDataOfSeries.visibleColumnTypes">
       Columns
-    </DropdownMultiSelect>
+    </DropdownMultiSelectComponent>
     <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
-    <DropdownMultiSelect :items="tableDataOfSpecial.columnsAsSelectorItems" v-model="tableDataOfSpecial.visibleColumnTypes">
+    <DropdownMultiSelectComponent :items="tableDataOfSpecial.columnsAsSelectorItems" v-model="tableDataOfSpecial.visibleColumnTypes">
       Columns
-    </DropdownMultiSelect>
+    </DropdownMultiSelectComponent>
     <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
+import DropdownMultiSelectComponent from '@/components/DropdownMultiSelectComponent.vue';
 import { ResultType, type SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { inject, ref, watch, type Ref } from 'vue';

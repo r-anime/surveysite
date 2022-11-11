@@ -1,13 +1,13 @@
 <template>
   <h1 class="page-title">{{ pageTitle }}</h1>
 
-  <Spinner v-if="!surveyResultsData" center/>
+  <SpinnerComponent v-if="!surveyResultsData" center/>
 
   <router-view v-else/>
 </template>
 
 <script setup lang="ts">
-import Spinner from '@/components/Spinner.vue';
+import SpinnerComponent from '@/components/SpinnerComponent.vue';
 import { getSurveyApiUrl, getSurveyNameFromRoute } from '@/util/helpers';
 import HttpService from '@/util/http-service';
 import NotificationService from '@/util/notification-service';

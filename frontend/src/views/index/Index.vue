@@ -1,6 +1,6 @@
 <template>
   <div class="row row-cols-1">
-    <Spinner v-if="!surveyData.length" center/>
+    <SpinnerComponent v-if="!surveyData.length" center/>
     
     <div class="col" v-for="(surveysInYear, idx0) in surveyData" :key="idx0">
 
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import IndexSurvey from './components/IndexSurvey.vue';
-import Spinner from '@/components/Spinner.vue';
+import SpinnerComponent from '@/components/SpinnerComponent.vue';
 
 import { AnimeSeason, type SurveyViewModel } from '@/util/data';
 import { getSeasonName } from '@/util/helpers';

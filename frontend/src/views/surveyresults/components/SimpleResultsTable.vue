@@ -16,12 +16,12 @@
             {{ animeResult ? `#${animeResult.rank}` : '' }}
           </td>
           <td role="cell" aria-colindex="2" class="table-col-image" :style="animeResult ? { 'height': '7.5em' } : {}">
-            <AnimeImages v-if="animeResult" :animeImages="animeResult.anime.images" maxHeight="7.5em"/>
+            <AnimeImagesComponent v-if="animeResult" :animeImages="animeResult.anime.images" maxHeight="7.5em"/>
           </td>
           <td role="cell" aria-colindex="3" class="table-col-name">
             <template v-if="animeResult">
               <div class="mx-2">
-                <AnimeNames :animeNames="animeResult.anime.names" showShortName/>
+                <AnimeNamesComponent :animeNames="animeResult.anime.names" showShortName/>
               </div>
               <div class="progress-bar table-row-progress-bar" :style="{ width: (animeResult.progressBarValue * 100).toFixed(1) + '%' }"></div>
             </template>
@@ -45,8 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import AnimeNames from '@/components/AnimeNames.vue';
-import AnimeImages from '@/components/AnimeImages.vue';
+import AnimeNamesComponent from '@/components/AnimeNamesComponent.vue';
+import AnimeImagesComponent from '@/components/AnimeImagesComponent.vue';
 import { type AnimeViewModel, ResultType } from '@/util/data';
 import { getResultTypeFormatter, getResultTypeName } from '@/util/helpers';
 import type { RouteLocationNormalized } from 'vue-router';
