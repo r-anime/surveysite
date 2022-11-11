@@ -11,8 +11,8 @@ from typing import Any, Callable, Optional, Tuple, Type
 
 def json_encoder_factory(fields_per_model: dict[Type[Model], list[str]] = {}, excluded_fields_per_model: dict[Type[Model], list[str]] = {}):
     class JsonEncoder(JSONEncoder):
-        def __init__(self, *, skipkeys: bool, ensure_ascii: bool, check_circular: bool, allow_nan: bool, sort_keys: bool, indent: Optional[int], separators: Optional[Tuple[str, str]], default: Optional[Callable[..., Any]]) -> None:
-            super().__init__(skipkeys=skipkeys, ensure_ascii=ensure_ascii, check_circular=check_circular, allow_nan=allow_nan, sort_keys=sort_keys, indent=indent, separators=separators, default=default)
+        def __init__(self, *, ensure_ascii: bool, check_circular: bool, sort_keys: bool, separators: Optional[Tuple[str, str]], default: Optional[Callable[..., Any]], **kwargs) -> None:
+            super().__init__(allow_nan=False, skipkeys=False, indent=None, ensure_ascii=ensure_ascii, check_circular=check_circular, sort_keys=sort_keys, separators=separators, default=default)
 
             self.fields_per_model = fields_per_model
             self.excluded_fields_per_model = excluded_fields_per_model
