@@ -112,22 +112,20 @@ const processedRanking: ({ anime: AnimeViewModel, result: number, extraResult?: 
   };
 
   for (let rowIdx = 0; rowIdx < Math.min(props.top, props.ranking.length); rowIdx++) {
-    const row = props.ranking[rowIdx];
     processedRanking.push(Object.assign({
-      progressBarValue: calcProgressBarValue(row.result),
+      progressBarValue: calcProgressBarValue(props.ranking[rowIdx].result),
       rank: rowIdx + 1,
-    }, row));
+    }, props.ranking[rowIdx]));
   }
 
   if (props.bottom != null) {
     processedRanking.push(null);
 
     for (let rowIdx = Math.max(props.ranking.length - props.bottom, 0); rowIdx < props.ranking.length; rowIdx++) {
-      const row = props.ranking[rowIdx];
       processedRanking.push(Object.assign({
-        progressBarValue: calcProgressBarValue(row.result),
+        progressBarValue: calcProgressBarValue(props.ranking[rowIdx].result),
         rank: rowIdx + 1,
-      }, row));
+      }, props.ranking[rowIdx]));
     }
   }
 }
