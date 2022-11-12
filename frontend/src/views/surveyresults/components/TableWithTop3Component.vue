@@ -35,13 +35,13 @@
       </div>
     </div>
     <div class="col-md col-12">
-      <SimpleResultsTable :ranking="ranking" :resultTypes="resultTypes" :isAnimeSeries="isAnimeSeries" :top="top" :bottom="bottom"/>
+      <SimpleResultsTableComponent :ranking="ranking" :resultTypes="resultTypes" :isAnimeSeries="isAnimeSeries" :top="top" :bottom="bottom"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SimpleResultsTable from './SimpleResultsTable.vue';
+import SimpleResultsTableComponent from './SimpleResultsTableComponent.vue';
 import AnimeImagesComponent from '@/components/AnimeImagesComponent.vue';
 import AnimeNamesComponent from '@/components/AnimeNamesComponent.vue';
 import type { AnimeViewModel, ResultType } from '@/util/data';

@@ -51,7 +51,7 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
   }, {
     path: '/survey/:year/:season/:preOrPost/',
     name: 'SurveyResults',
-    component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResults.vue'),
+    component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsPage.vue'),
     beforeEnter: confirmValidSurveyRouteParams,
     meta: {
       subtitleFn: (params: RouteParams) => getSurveyName({
@@ -63,11 +63,11 @@ const routes: Array<RouteRecordRaw & { meta?: SurveyRouteMeta }> = [
     children: [{
       path: 'results/',
       name: 'SurveyResultsSummary',
-      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsSummary.vue'),
+      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsSummaryPage.vue'),
     }, {
       path: 'fullresults/',
       name: 'SurveyResultsFull',
-      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsFull.vue'),
+      component: () => import(/* webpackChunkName: "group-surveyresults" */ '../views/surveyresults/SurveyResultsFullPage.vue'),
     }],
   }, {
     path: '/:paramMatch(.*)*',

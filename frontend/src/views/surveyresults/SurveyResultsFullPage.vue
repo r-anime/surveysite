@@ -8,13 +8,13 @@
     <DropdownMultiSelectComponent :items="tableDataOfSeries.columnsAsSelectorItems" v-model="tableDataOfSeries.visibleColumnTypes">
       Columns
     </DropdownMultiSelectComponent>
-    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
+    <FullResultsTableComponent :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
     <DropdownMultiSelectComponent :items="tableDataOfSpecial.columnsAsSelectorItems" v-model="tableDataOfSpecial.visibleColumnTypes">
       Columns
     </DropdownMultiSelectComponent>
-    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
+    <FullResultsTableComponent :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
       <div class="col-auto pe-1">
@@ -33,7 +33,7 @@ import DropdownMultiSelectComponent from '@/components/DropdownMultiSelectCompon
 import { ResultType, type SelectorItem } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { inject, ref, watch, type Ref } from 'vue';
-import FullResultsTable from './components/FullResultsTable.vue';
+import FullResultsTableComponent from './components/FullResultsTableComponent.vue';
 import type { AnimeTableColumnData } from './data/anime-table-column-data';
 import type { AnimeTableEntryData } from './data/anime-table-entry-data';
 import type { SurveyResultsData } from './data/survey-results-data';

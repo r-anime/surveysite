@@ -12,16 +12,16 @@
           </p>
         </div></div>
         <div class="row mt-2"><div class="col">
-          <AgeDistributionChart :ageDistribution="surveyResultsData.miscellaneous.ageDistribution"/>
+          <AgeDistributionChartComponent :ageDistribution="surveyResultsData.miscellaneous.ageDistribution"/>
         </div></div>
       </div>
       <div class="col-md-4">
-        <GenderDistributionChart :genderDistribution="surveyResultsData.miscellaneous.genderDistribution"/>
+        <GenderDistributionChartComponent :genderDistribution="surveyResultsData.miscellaneous.genderDistribution"/>
       </div>
     </div>
 
     <h3 class="section-title">Popularity</h3>
-    <TableWithTop3
+    <TableWithTop3Component
       :ranking="getRanking(resultType.popularity)"
       :resultTypes="resultType.popularity.resultTypes"
       isAnimeSeries
@@ -42,7 +42,7 @@
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-gender">
           <div class="col-12">
-            <TablePair
+            <TablePairComponent
               :leftRanking="getRanking(resultType.popularityMale)"
               :leftResultTypes="resultType.popularityMale.resultTypes"
               :rightRanking="getRanking(resultType.popularityFemale)"
@@ -53,7 +53,7 @@
             />
           </div>
           <div class="col-12">
-            <TablePair
+            <TablePairComponent
               :leftRanking="getRanking(resultType.popularityRatio)"
               :leftResultTypes="resultType.popularityRatio.resultTypes"
               isAnimeSeries
@@ -79,7 +79,7 @@
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-popularity-miscellaneous">
           <div class="col-12" v-if="!surveyIsPreseason">
-            <TableWithTop3
+            <TableWithTop3Component
               :ranking="getRanking(resultType.underwatched)"
               :resultTypes="resultType.underwatched.resultTypes"
               isAnimeSeries
@@ -88,7 +88,7 @@
             />
           </div>
           <div class="col-12">
-            <TablePair
+            <TablePairComponent
               :leftRanking="getRanking(resultType.age)"
               :leftResultTypes="resultType.age.resultTypes"
               isAnimeSeries
@@ -101,7 +101,7 @@
     </div>
 
     <h3 class="section-title">Impressions</h3>
-    <TableWithTop3
+    <TableWithTop3Component
       :ranking="getRanking(resultType.score)"
       :resultTypes="resultType.score.resultTypes"
       isAnimeSeries
@@ -123,7 +123,7 @@
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-score-gender">
           <div class="col-12">
-            <TablePair
+            <TablePairComponent
               :leftRanking="getRanking(resultType.scoreMale)"
               :leftResultTypes="resultType.scoreMale.resultTypes"
               :rightRanking="getRanking(resultType.scoreFemale)"
@@ -134,7 +134,7 @@
             />
           </div>
           <div class="col-12">
-            <TablePair
+            <TablePairComponent
               :leftRanking="getRanking(resultType.scoreDiff)"
               :leftResultTypes="resultType.scoreDiff.resultTypes"
               isAnimeSeries
@@ -160,7 +160,7 @@
         </div>
         <div class="row collapse text-smaller border rounded" id="collapsable-score-expectations">
           <div class="col-12">
-            <TableWithTop3
+            <TableWithTop3Component
               :ranking="getRanking(resultType.surprise)"
               :resultTypes="resultType.surprise.resultTypes"
               isAnimeSeries
@@ -169,7 +169,7 @@
             />
           </div>
           <div class="col-12">
-            <TableWithTop3
+            <TableWithTop3Component
               :ranking="getRanking(resultType.disappointment)"
               :resultTypes="resultType.disappointment.resultTypes"
               isAnimeSeries
@@ -182,14 +182,14 @@
     </div>
 
     <h3 class="section-title">Anime OVAs / ONAs / Movies / Specials</h3>
-    <TableWithTop3
+    <TableWithTop3Component
       :ranking="getRanking(resultType.popularity, true)"
       :resultTypes="resultType.popularity.resultTypes"
       :top="5"
       title="Most Popular Anime OVAs / ONAs / Movies / Specials"
     />
 
-    <TableWithTop3
+    <TableWithTop3Component
       v-if="!surveyIsPreseason"
       :ranking="getRanking(resultType.score, true)"
       :resultTypes="resultType.score.resultTypes"
@@ -212,10 +212,10 @@
 <script setup lang="ts">
 import { type AnimeViewModel, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
-import AgeDistributionChart from './components/AgeDistributionChart.vue';
-import GenderDistributionChart from './components/GenderDistributionChart.vue';
-import TableWithTop3 from './components/TableWithTop3.vue';
-import TablePair from './components/TablePair.vue';
+import AgeDistributionChartComponent from './components/AgeDistributionChartComponent.vue';
+import GenderDistributionChartComponent from './components/GenderDistributionChartComponent.vue';
+import TableWithTop3Component from './components/TableWithTop3Component.vue';
+import TablePairComponent from './components/TablePairComponent.vue';
 import type { SurveyResultsData } from './data/survey-results-data';
 import { inject, type Ref } from 'vue';
 
