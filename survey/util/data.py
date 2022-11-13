@@ -57,7 +57,7 @@ class ViewModelBase:
             raise KeyError('Field ' + str(e) + ' was not found (class ' + cls.__name__ + ')')
         return cls(**kwargs)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         fields = self.get_fields()
         return { field: value.to_dict() if isinstance(value := getattr(self, field), ViewModelBase) else value for field in fields }
 
@@ -68,9 +68,9 @@ class ViewModelBase:
 @dataclass
 class ImageViewModel(ViewModelBase):
     name: str
-    url_small: str
-    url_medium: str
-    url_large: str
+    url_small: Optional[str]
+    url_medium: Optional[str]
+    url_large: Optional[str]
 
     @staticmethod
     def from_model(model: Image) -> ImageViewModel:
@@ -118,8 +118,8 @@ class SurveyViewModel(ViewModelBase):
     year: int
     season: int
     is_preseason: bool
-    opening_epoch_time: int
-    closing_epoch_time: int
+    opening_epoch_time: float
+    closing_epoch_time: float
 
     @staticmethod
     def from_model(model: Survey) -> SurveyViewModel:

@@ -1,7 +1,9 @@
+from typing import Any, Union
 from django.core.cache import caches
 from django.db.models import Avg
+from django.db.models.manager import BaseManager
 import math
-from survey.models import AnimeResponse, Response, Survey, SurveyAdditionRemoval
+from survey.models import Anime, AnimeResponse, Response, Survey, SurveyAdditionRemoval
 from survey.util.data import ResultType
 from survey.util.survey import get_survey_anime, get_survey_cache_timeout
 
@@ -51,7 +53,7 @@ class ResultsGenerator:
         }
 
     # Returns a dict of data values for an anime
-    def __get_data_for_anime(self, anime, animeresponse_queryset, surveyadditionsremovals_queryset, total_response_count, total_male_response_count, total_female_response_count) -> dict[ResultType, float]:
+    def __get_data_for_anime(self, anime: Anime, animeresponse_queryset: BaseManager[AnimeResponse], surveyadditionsremovals_queryset: BaseManager[SurveyAdditionRemoval], total_response_count: int, total_male_response_count: int, total_female_response_count: int) -> dict[ResultType, float]:
         survey = self.survey
 
         anime_animeresponse_qs = animeresponse_queryset.filter(anime=anime)
@@ -127,7 +129,7 @@ class ResultsGenerator:
 def div0(a: float, b: float) -> float:
     return a / b if b != 0 else float('NaN')
 
-def replace_nans(val):
+def replace_nans(val: Union[dict[Any, Any], list[Any], float, Any]) -> Any:
     if isinstance(val, dict):
         return { k: replace_nans(v) for k, v in val.items() }
     elif isinstance(val, list):

@@ -4,7 +4,6 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
-import math
 from survey.models import Anime, Image, Survey
 from survey.util.data import ViewModelBase, ImageViewModel, ResultType, SurveyViewModel, json_encoder_factory, AnimeViewModel
 from survey.util.results import ResultsGenerator
@@ -27,7 +26,7 @@ class IndexApi(View):
         jsonEncoder = json_encoder_factory()
 
         resulttype_list = [ResultType.POPULARITY, ResultType.SCORE]
-        response = []
+        response: list[IndexSurveyViewModel] = []
         for survey in survey_list:
             anime_results = None
             anime_images = None

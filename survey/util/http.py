@@ -1,10 +1,10 @@
 from http import HTTPStatus
 from django.http import HttpResponse, JsonResponse
 from json import JSONEncoder
-from typing import Optional, Type, Union
+from typing import Any, Optional, Type, Union
 
 class JsonErrorResponse(JsonResponse):
-    def __init__(self, data: Union[str, list, dict], status: Union[HTTPStatus, int], encoder: Type[JSONEncoder] = None, safe: bool = True, *args, **kwargs) -> None:
+    def __init__(self, data: Union[str, list[Any], dict[Any, Any]], status: Union[HTTPStatus, int], encoder: Optional[Type[JSONEncoder]] = None, safe: bool = True, *args, **kwargs) -> None:
         if isinstance(data, str):
             error_data = {'global': [data]}
         elif isinstance(data, list):

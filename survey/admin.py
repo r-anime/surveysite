@@ -3,12 +3,13 @@ from django.core.cache import BaseCache, caches
 from django.core.files.base import ContentFile
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
+from django.db.models.query import QuerySet
 from django.forms.models import BaseInlineFormSet
 from django.utils import timezone
 from datetime import datetime
 from io import BytesIO
 from survey.models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
-from survey.util.anime import anime_is_series, anime_series_filter, annotate_year_season, combine_year_season, increment_year_season, is_ongoing_filter_func, special_anime_filter
+from survey.util.anime import YearSeason, anime_is_series, anime_series_filter, annotate_year_season, combine_year_season, increment_year_season, is_ongoing_filter_func, special_anime_filter
 import uuid
 import PIL
 
@@ -23,7 +24,7 @@ class YearSeasonListFilter(admin.SimpleListFilter):
             (str(year) + str(season.value), season.label + ' ' + str(year)) for (year, season) in self.year_season_list
         ]
     
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset: QuerySet[Anime]):
         if self.value():
             return annotate_year_season(queryset).filter(is_ongoing_filter_func(int(self.value())))
         else:
@@ -40,7 +41,7 @@ class YearSeasonEmptyFilter(admin.SimpleListFilter):
             ('subbed', 'Subbed year/season'),
         ]
     
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset: QuerySet[Anime]):
         if self.value() == 'start':
             return queryset.filter(Q(start_year__isnull =True) | Q(start_season__isnull =True))
         elif self.value() == 'end':
@@ -60,7 +61,7 @@ class CondensedAnimeTypeFilter(admin.SimpleListFilter):
             ('special', 'Special anime'),
         ]
     
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset: QuerySet[Anime]):
         if self.value() == 'series':
             return queryset.filter(anime_series_filter)
         elif self.value() == 'special':
@@ -78,7 +79,7 @@ class HasImageFilter(admin.SimpleListFilter):
             ('false', 'No images'),
         ]
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset: QuerySet[Anime]):
         if self.value() == 'true':
             return queryset.annotate(image_count=Count('image')).filter(image_count__gt=0)
         if self.value() == 'false':
@@ -222,32 +223,32 @@ class AnimeAdmin(admin.ModelAdmin):
     ]
 
     @admin.display(ordering=Concat('start_year', 'start_season'), description='Start')
-    def get_start_year_season(self, anime):
+    def get_start_year_season(self, anime: Anime):
         if anime.start_year is not None and anime.start_season is not None:
             return str(anime.start_year) + ' Q' + str(anime.start_season + 1)
         else:
             return None
 
     @admin.display(ordering=Concat('end_year', 'end_season'), description='End')
-    def get_end_year_season(self, anime):
+    def get_end_year_season(self, anime: Anime):
         if anime.end_year is not None and anime.end_season is not None:
             return str(anime.end_year) + ' Q' + str(anime.end_season + 1)
         else:
             return None
 
     @admin.display(ordering=Concat('subbed_year', 'subbed_season'), description='Subbed')
-    def get_subbed_year_season(self, anime):
+    def get_subbed_year_season(self, anime: Anime):
         if anime.subbed_year is not None and anime.subbed_season is not None:
             return str(anime.subbed_year) + ' Q' + str(anime.subbed_season + 1)
         else:
             return None
 
     @admin.display(boolean=True, description='Has Image')
-    def has_image(self, anime):
+    def has_image(self, anime: Anime):
         return anime.image_set.count() > 0
 
     def get_survey_validity_list(self, anime: Anime):
-        survey_validity_list = []
+        survey_validity_list: list[tuple[YearSeason, bool]] = []
 
         # Only get if start year/season is something
         if anime.start_year is not None and anime.start_season is not None:

@@ -43,8 +43,10 @@ class Anime(models.Model):
         blank=True,
     )
 
-    def get_year(): return datetime.now().year
-    def get_season(): return Anime.AnimeSeason(datetime.now().month // 4)
+    @staticmethod
+    def get_year() -> int: return datetime.now().year
+    @staticmethod
+    def get_season() -> AnimeSeason: return Anime.AnimeSeason(datetime.now().month // 4)
 
     start_year = models.SmallIntegerField(
         blank=True,
@@ -114,7 +116,7 @@ class AnimeName(models.Model):
 
     # Relation fields
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
     )
 
@@ -132,7 +134,7 @@ class Video(models.Model):
 
     # Relation fields
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
     )
 
@@ -172,7 +174,7 @@ class Image(models.Model):
 
     # Relation fields
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
     )
 
@@ -180,7 +182,7 @@ class Image(models.Model):
         for storage, path in [(f.storage, f.path) for f in [self.file_large, self.file_medium, self.file_small]]:
             storage.delete(path)
 
-        super().delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     def __str__(self):
         return str(self.anime) + ' - ' + self.name
@@ -199,8 +201,10 @@ class Survey(models.Model):
     opening_time = models.DateTimeField()
     closing_time = models.DateTimeField()
 
-    def get_relevant_year(): return datetime.now().year + (1 if datetime.now().month // 4 + 1 == 4 else 0),
-    def get_relevant_season(): return Anime.AnimeSeason((datetime.now().month // 4 + 1) % 4)
+    @staticmethod
+    def get_relevant_year() -> int: return datetime.now().year + (1 if datetime.now().month // 4 + 1 == 4 else 0)
+    @staticmethod
+    def get_relevant_season() -> Anime.AnimeSeason: return Anime.AnimeSeason((datetime.now().month // 4 + 1) % 4)
 
     year = models.SmallIntegerField(
         validators=[MinValueValidator(1960), MaxValueValidator(2040)],
@@ -251,11 +255,11 @@ class SurveyAdditionRemoval(models.Model):
 
     # Relation fields
     survey = models.ForeignKey(
-        to='Survey',
+        to=Survey,
         on_delete=models.CASCADE,
     )
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
     )
 
@@ -290,7 +294,7 @@ class Response(models.Model):
 
     # Relation fields
     survey = models.ForeignKey(
-        to='Survey',
+        to=Survey,
         on_delete=models.CASCADE,
         editable=False,
     )
@@ -329,12 +333,12 @@ class AnimeResponse(models.Model):
 
     # Relation fields
     response = models.ForeignKey(
-        to='Response',
+        to=Response,
         on_delete=models.CASCADE,
         editable=False,
     )
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
         editable=False,
     )
@@ -356,12 +360,12 @@ class MtmUserResponse(models.Model):
         editable=False,
     )
     survey = models.ForeignKey(
-        to='Survey',
+        to=Survey,
         on_delete=models.CASCADE,
         editable=False,
     )
     response = models.ForeignKey(
-        to='Response',
+        to=Response,
         on_delete=models.CASCADE,
         null=True,
         editable=False,
@@ -396,7 +400,7 @@ class MissingAnime(models.Model):
 
     # Relation fields
     survey = models.ForeignKey(
-        to='Survey',
+        to=Survey,
         on_delete=models.CASCADE,
         editable=False,
     )
@@ -406,7 +410,7 @@ class MissingAnime(models.Model):
         editable=False,
     )
     anime = models.ForeignKey(
-        to='Anime',
+        to=Anime,
         on_delete=models.CASCADE,
         blank=True,
         null=True,

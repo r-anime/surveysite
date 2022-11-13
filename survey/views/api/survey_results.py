@@ -59,7 +59,7 @@ class SurveyResultsApi(View):
         return gender_distribution
 
     def __get_age_distribution(self, survey_responses: QuerySet[Response]):
-        age_distribution = [0]*81
+        age_distribution = [0.0]*81
         age_list = survey_responses.filter(age__isnull=False, age__gt=0).values_list('age', flat=True)
         age_count = len(age_list)
 
