@@ -144,10 +144,10 @@ const missingAnimeData: MissingAnimeData = {
     const groupedAnime = groupBy(surveyFormData.value.animeDataDict, isAnimeSeries);
 
     const animeSeries = groupedAnime.true;
-    animeSeriesIds.value = map(orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    animeSeriesIds.value = map(orderBy(animeSeries, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase()], ['asc']), anime => anime.id);
 
     const specialAnime = groupedAnime.false;
-    specialAnimeIds.value = map(orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)], ['asc']), anime => anime.id);
+    specialAnimeIds.value = map(orderBy(specialAnime, [anime => getAnimeName(anime, AnimeNameType.JAPANESE_NAME)?.toLowerCase()], ['asc']), anime => anime.id);
   }, failureResponse => {
     if (failureResponse.status === 401) { // Unauthorized (not logged in)
       ModalService.show(LogInModal, {
