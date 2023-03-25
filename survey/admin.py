@@ -7,10 +7,10 @@ from django.forms.models import BaseInlineFormSet
 from django.utils import timezone
 from datetime import datetime
 from io import BytesIO
+from PIL import Image as PILImage
 from survey.models import Anime, AnimeName, Video, Image, Survey, Response, AnimeResponse, SurveyAdditionRemoval, MissingAnime
 from survey.util.anime import anime_is_series, anime_series_filter, annotate_year_season, combine_year_season, increment_year_season, is_ongoing_filter_func, special_anime_filter
 import uuid
-import PIL
 
 
 class YearSeasonListFilter(admin.SimpleListFilter):
@@ -93,14 +93,14 @@ class AnimeNameInline(admin.TabularInline):
 
 class ImageInlineFormSet(BaseInlineFormSet):
     def save_new(self, form, commit=True):
-        model = super().save_new(form, False)
+        model: Image = super().save_new(form, False)
 
-        image_org = PIL.Image.open(model.file_original)
+        image_org = PILImage.open(model.file_original)
 
         # Try to remove alpha channel - not all non-RGB modes have an alpha channel, but this should not affect the output
         if image_org.mode !='RGB':
-            bg = PIL.Image.new('RGBA', image_org.size, (255, 255, 255, 255))
-            image_org_noalpha = PIL.Image.alpha_composite(bg, image_org.convert('RGBA')).convert('RGB')
+            white_image = PILImage.new('RGBA', image_org.size, (255, 255, 255, 255))
+            image_org_noalpha = PILImage.alpha_composite(white_image, image_org.convert('RGBA')).convert('RGB')
 
             if self.request:
                 messages.info(self.request, 'Removed alpha channel from image.')
@@ -111,22 +111,15 @@ class ImageInlineFormSet(BaseInlineFormSet):
             'jpg': {
                 'format': 'JPEG',
                 'extension': 'jpg',
-                'kwargs': {'quality': 80},
-                'alpha': False,
+                'kwargs': {'quality': 90},
             },
             'png': {
                 'format': 'PNG',
                 'extension': 'png',
                 'kwargs': {},
-                'alpha': True,
             },
         }
         image_types = {
-            'original': {
-                'width': None,
-                'model_field': model.file_original,
-                'format': image_formats['png'],
-            },
             'large': {
                 'width': 600,
                 'model_field': model.file_large,
@@ -148,20 +141,17 @@ class ImageInlineFormSet(BaseInlineFormSet):
         for image_type, image_values in image_types.items():
             image_format = image_values['format']
 
-            if image_format['alpha']:
-                image = image_org.copy()
-            else:
-                image = image_org_noalpha.copy()
+            image = image_org_noalpha.copy()
 
             image_width = image_values['width']
             if image_width:
                 image.thumbnail((image_width, image_width * 2))
 
-            content = BytesIO()
-            image.save(fp=content, format=image_format['format'], **image_format['kwargs'])
+            image_content = BytesIO()
+            image.save(fp=image_content, format=image_format['format'], **image_format['kwargs'])
 
             image_name = f'{image_base_name}-{image_type}.{image_format["extension"]}'
-            image_values['model_field'].save(image_name, ContentFile(content.getvalue()))
+            image_values['model_field'].save(image_name, ContentFile(image_content.getvalue()))
 
         return model
 
