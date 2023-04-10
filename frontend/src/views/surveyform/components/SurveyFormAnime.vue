@@ -22,13 +22,18 @@
         <!-- Watching checkbox -->
         <div class="mb-3">
           <span class="mb-1">
-            {{
-              isSurveyPreseason ?
-                isAnimeNew ?
-                  'Will you watch this?' :
-                  'Did you watch this and will you continue watching this?' :
-                'Did you watch this?'
-            }}
+            <template v-if="isSurveyPreseason">
+              <template v-if="isAnimeNew">
+                Will you watch this?
+              </template>
+              <template v-else>
+                Have you watched this and will you continue watching this?
+              </template>
+            </template>
+            <template v-else>
+              <BsTooltip v-if="isAnimeSeries" text="At least one episode" />
+              Have you watched this?
+            </template>
           </span>
           <br/>
           <input type="checkbox" class="btn-check" :id="`input-anime-${animeData.id}-watching`" autocomplete="off" v-model="animeResponseData.watching">
@@ -88,6 +93,7 @@
 
 <script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
+import BsTooltip from '@/components/BsTooltip.vue';
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
 import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
