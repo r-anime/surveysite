@@ -31,7 +31,7 @@
               </template>
             </template>
             <template v-else>
-              <BsTooltip v-if="isAnimeSeries" text="At least one episode" />
+              <BsTooltip v-if="isAnimeSeries" text="At least one episode (of the last cour for multi-cour anime)" />
               Have you watched this?
             </template>
           </span>
