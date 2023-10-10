@@ -14,7 +14,7 @@
     "axios": "^1.5.1",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.1",
-    "chart.js": "^3.9.1",
+    "chart.js": "^4.4.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "dayjs": "^1.11.10",
     "js-cookie": "^3.0.5",
