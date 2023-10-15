@@ -1,7 +1,6 @@
-from allauth.socialaccount.providers import registry as auth_provider_registry
 from dataclasses import dataclass, field
-from typing import Optional
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import View
@@ -14,8 +13,7 @@ class UserApi(View):
         jsonEncoder = json_encoder_factory()
 
         if not request.user or not request.user.is_authenticated:
-            auth_provider = auth_provider_registry.by_id('reddit', request)
-            auth_url = auth_provider.get_login_url(request)
+            auth_url = reverse('reddit_login') # Get allauth's Reddit provider login URL (allauth.socialaccount.providers.RedditProvider.get_login_url(..))
             return JsonResponse(AnonymousUserViewModel(
                 authentication_url=auth_url,
             ), encoder=jsonEncoder, safe=False)
