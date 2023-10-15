@@ -4,8 +4,8 @@ Website for carrying out seasonal surveys for [/r/anime](https://www.reddit.com/
 
 ## Requirements
 
-* Python 3.9+.
-* Node.js v14+.
+* Python 3.11+.
+* Node.js v16+.
 
 ## Setup
 
