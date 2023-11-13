@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="card shadow-sm h-100">
     <div class="row">
@@ -91,15 +90,29 @@ import DropdownFormControl from '@/components/DropdownFormControl.vue';
 import type { AnimeViewModel, SelectInputOption, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
+import { computed } from 'vue';
 import type { AnimeResponseData } from '../data/survey-form-data';
 
 const props = defineProps<{
+  modelValue: AnimeResponseData;
   animeData: AnimeViewModel;
-  animeResponseData: AnimeResponseData;
   isSurveyPreseason: boolean;
   isAnimeNew: boolean;
   validationErrors?: ValidationErrorData<AnimeResponseData>;
 }>();
+
+const emits = defineEmits<{
+  (e: 'update:modelValue', value: AnimeResponseData): void;
+}>();
+
+const animeResponseData = computed<AnimeResponseData>({
+  get() {
+    return props.modelValue;
+  },
+  set(newValue) {
+    emits('update:modelValue', newValue);
+  },
+});
 
 const nullOption: SelectInputOption<null> = {
   id: 'null',

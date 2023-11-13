@@ -38,11 +38,11 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeResponseData="surveyFormData.animeResponseDataDict[animeId]"
-                           :animeData="surveyFormData.animeDataDict[animeId]"
+          <SurveyFormAnime :animeData="surveyFormData.animeDataDict[animeId]"
                            :isAnimeNew="surveyFormData.isAnimeNewDict[animeId]"
                            :isSurveyPreseason="isSurveyPreseason"
-                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"
+                           v-model="surveyFormData.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -59,11 +59,11 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeResponseData="surveyFormData.animeResponseDataDict[animeId]"
-                           :animeData="surveyFormData.animeDataDict[animeId]"
+          <SurveyFormAnime :animeData="surveyFormData.animeDataDict[animeId]"
                            :isAnimeNew="surveyFormData.isAnimeNewDict[animeId]"
                            :isSurveyPreseason="isSurveyPreseason"
-                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"
+                           v-model="surveyFormData.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
