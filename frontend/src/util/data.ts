@@ -104,3 +104,12 @@ export interface SelectorItem {
   id: number;
   name: string;
 }
+
+export interface SelectInputOption<T> {
+  /** Used to identify the option in the input component, and thus must be unique */
+  id: string;
+  /** Option value, objects currently not supported */
+  value: T extends object ? never : T;
+  /** Option name */
+  displayName: string;
+}

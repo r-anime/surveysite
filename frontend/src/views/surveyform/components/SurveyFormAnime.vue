@@ -56,7 +56,10 @@
 
         <!-- Score input -->
         <div class="mb-3">
-          <label class="form-label" :for="`input-anime-${animeData.id}-score`">
+          <DropdownFormControl :id="`input-anime-${animeData.id}-score`"
+                               :validationErrors="validationErrors?.score"
+                               :options="scoreOptions"
+                               v-model="animeResponseData.score">
             {{
               isSurveyPreseason ?
                 isAnimeNew ?
@@ -64,27 +67,17 @@
                   'How good do you expect the remainder to be?' :
                 'What did you think of this?'
             }}
-          </label>
-          <select class="form-select" :id="`input-anime-${animeData.id}-score`" :class="{'is-invalid': validationErrors?.score}" autocomplete="off" v-model.number="animeResponseData.score" :aria-describedby="`input-anime-${animeData.id}-score-invalid`">
-            <option :value="(null)">-----</option>
-            <option value="5">5/5 - Great</option>
-            <option value="4">4/5</option>
-            <option value="3">3/5 - Average</option>
-            <option value="2">2/5</option>
-            <option value="1">1/5 - Bad</option>
-          </select>
-          <FormValidationErrors :id="`input-anime-${animeData.id}-score-invalid`" :validationErrors="validationErrors?.score"/>
+          </DropdownFormControl>
         </div>
 
         <!-- If post-season && series: Expectations selectbox -->
         <div class="mb-3" v-if="!isSurveyPreseason && isAnimeSeries">
-          <label class="form-label" :for="`input-anime-${animeData.id}-expectations`">Was this a surprise or disappointment?</label>
-          <select class="form-select" :id="`input-anime-${animeData.id}-expectations`" :class="{'is-invalid': validationErrors?.expectations}" autocomplete="off" v-model="animeResponseData.expectations" :aria-describedby="`input-anime-${animeData.id}-expectations-invalid`">
-            <option :value="(null)">-----</option>
-            <option value="S">Surprise</option>
-            <option value="D">Disappointment</option>
-          </select>
-          <FormValidationErrors :id="`input-anime-${animeData.id}-expectations-invalid`" :validationErrors="validationErrors?.expectations"/>
+          <DropdownFormControl :id="`input-anime-${animeData.id}-expectations`"
+                               :validationErrors="validationErrors?.expectations"
+                               :options="expectationOptions"
+                               v-model="animeResponseData.expectations">
+            Was this a surprise or disappointment?
+          </DropdownFormControl>
         </div>
       </div></div>
     </div>
@@ -94,8 +87,8 @@
 <script setup lang="ts">
 import AnimeImages from '@/components/AnimeImages.vue';
 import BsTooltip from '@/components/BsTooltip.vue';
-import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
+import DropdownFormControl from '@/components/DropdownFormControl.vue';
+import type { AnimeViewModel, SelectInputOption, ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
 import type { AnimeResponseData } from '../data/survey-form-data';
@@ -107,6 +100,55 @@ const props = defineProps<{
   isAnimeNew: boolean;
   validationErrors?: ValidationErrorData<AnimeResponseData>;
 }>();
+
+const nullOption: SelectInputOption<null> = {
+  id: 'null',
+  displayName: '-----',
+  value: null,
+};
+
+const scoreOptions: SelectInputOption<number | null>[] = [
+  nullOption,
+  {
+    id: '5',
+    displayName: '5/5 - Great',
+    value: 5,
+  },
+  {
+    id: '4',
+    displayName: '4/5',
+    value: 4,
+  },
+  {
+    id: '3',
+    displayName: '3/5 - Average',
+    value: 3,
+  },
+  {
+    id: '2',
+    displayName: '2/5',
+    value: 2,
+  },
+  {
+    id: '1',
+    displayName: '1/5 - Bad',
+    value: 1,
+  },
+];
+
+const expectationOptions: SelectInputOption<'S' | 'D' | null>[] = [
+  nullOption,
+  {
+    id: 'S',
+    displayName: 'Surprise',
+    value: 'S',
+  },
+  {
+    id: 'D',
+    displayName: 'Disappointment',
+    value: 'D',
+  },
+];
 
 const isAnimeSeries = isAnimeSeriesFn(props.animeData);
 
