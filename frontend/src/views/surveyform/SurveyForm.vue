@@ -38,7 +38,11 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in animeSeriesIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+          <SurveyFormAnime :animeResponseData="surveyFormData.animeResponseDataDict[animeId]"
+                           :animeData="surveyFormData.animeDataDict[animeId]"
+                           :isAnimeNew="surveyFormData.isAnimeNewDict[animeId]"
+                           :isSurveyPreseason="isSurveyPreseason"
+                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -55,7 +59,11 @@
 
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col mb-4" v-for="animeId in specialAnimeIds" :key="animeId">
-          <SurveyFormAnime :animeData="getAnimeData(animeId)" :animeResponseData="getAnimeResponseData(animeId)" :isSurveyPreseason="isSurveyPreseason" :isAnimeNew="isAnimeNew(animeId)" :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
+          <SurveyFormAnime :animeResponseData="surveyFormData.animeResponseDataDict[animeId]"
+                           :animeData="surveyFormData.animeDataDict[animeId]"
+                           :isAnimeNew="surveyFormData.isAnimeNewDict[animeId]"
+                           :isSurveyPreseason="isSurveyPreseason"
+                           :validationErrors="validationErrors?.animeResponseDataDict[animeId]"/>
         </div>
       </div>
     </template>
@@ -86,25 +94,22 @@
 
 <script setup lang="ts">
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
+import LogInModal from '@/components/LogInModal.vue';
 import Spinner from '@/components/Spinner.vue';
-import SurveyFormAnime from './components/SurveyFormAnime.vue';
-import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
-
+import type { ValidationErrorData } from '@/util/data';
 import { AnimeNameType } from '@/util/data';
-import type { AnimeViewModel, ValidationErrorData } from '@/util/data';
 import { getAnimeName, getSurveyApiUrl, getSurveyNameFromRoute, isAnimeSeries } from '@/util/helpers';
 import HttpService from '@/util/http-service';
-import NotificationService from '@/util/notification-service';
-
-import type { AnimeResponseData, SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
-import type { MissingAnimeData } from './data/missing-anime-data';
-
-import { groupBy, isNumber, map, orderBy } from 'lodash-es';
-import { useRouter } from 'vue-router';
-import { ref } from 'vue';
 import { ModalService } from '@/util/modal-service';
+import NotificationService from '@/util/notification-service';
+import { groupBy, isNumber, map, orderBy } from 'lodash-es';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import SurveyFormAnime from './components/SurveyFormAnime.vue';
 import SurveyFormLinkModal from './components/SurveyFormLinkModal.vue';
-import LogInModal from '@/components/LogInModal.vue';
+import SurveyFormMissingAnimeModal from './components/SurveyFormMissingAnimeModal.vue';
+import type { MissingAnimeData } from './data/missing-anime-data';
+import type { SurveyFormData, SurveyFormSubmitData } from './data/survey-form-data';
 
 
 
@@ -211,16 +216,6 @@ async function submit(): Promise<void> {
   });
 }
 
-function getAnimeData(id: number): AnimeViewModel {
-  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
-  return surveyFormData.value.animeDataDict[id];
-}
-
-function getAnimeResponseData(id: number): AnimeResponseData {
-  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
-  return surveyFormData.value.animeResponseDataDict[id];
-}
-
 // Not-so-pretty special workaround for when a user inputs an invalid age, 
 // scrolls down the page and hits 'Submit' only to be greeted with a generic error message,
 // while the error is all the way up on the page
@@ -233,11 +228,6 @@ function clampAge(): void {
       surveyFormData.value.responseData.age = null;
     }
   }
-}
-
-function isAnimeNew(id: number): boolean {
-  if (!surveyFormData?.value) throw new TypeError('Failed to get surveyFormData');
-  return surveyFormData.value.isAnimeNewDict[id];
 }
 
 
