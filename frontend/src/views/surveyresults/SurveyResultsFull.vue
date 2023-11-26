@@ -5,15 +5,15 @@
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
     <h3 class="section-title" id="tableSeries">Anime Series</h3>
-    <DropdownMultiSelect :items="tableDataOfSeries.columnsAsSelectorItems" v-model="tableDataOfSeries.visibleColumnTypes">
+    <DropdownMultiSelectButton :options="(tableDataOfSeries.columnsAsSelectorItems as SelectInputOptions<ResultType>)" v-model="tableDataOfSeries.visibleColumnTypes">
       Columns
-    </DropdownMultiSelect>
+    </DropdownMultiSelectButton>
     <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
-    <DropdownMultiSelect :items="tableDataOfSpecial.columnsAsSelectorItems" v-model="tableDataOfSpecial.visibleColumnTypes">
+    <DropdownMultiSelectButton :options="(tableDataOfSpecial.columnsAsSelectorItems as SelectInputOptions<ResultType>)" v-model="tableDataOfSpecial.visibleColumnTypes">
       Columns
-    </DropdownMultiSelect>
+    </DropdownMultiSelectButton>
     <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
@@ -29,8 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue';
-import { ResultType, type SelectorItem } from '@/util/data';
+import DropdownMultiSelectButton from '@/components/DropdownMultiSelectButton.vue';
+import { ResultType, SelectInputOptions } from '@/util/data';
 import { getResultTypeName, isAnimeSeries } from '@/util/helpers';
 import { inject, ref, watch, type Ref } from 'vue';
 import FullResultsTable from './components/FullResultsTable.vue';
@@ -47,8 +47,11 @@ class TableData {
     return this.columns.filter(column => this.isColumnVisible[column.resultType]);
   }
 
-  get columnsAsSelectorItems(): SelectorItem[] {
-    return this.columns.map(column => ({ id: column.resultType, name: getResultTypeName(column.resultType, true) }));
+  get columnsAsSelectorItems(): SelectInputOptions<ResultType> {
+    return new SelectInputOptions<ResultType>(this.columns.map(column => ({
+      displayName: getResultTypeName(column.resultType, true),
+      value: column.resultType,
+    })));
   }
 
   get visibleColumnTypes(): ResultType[] {
