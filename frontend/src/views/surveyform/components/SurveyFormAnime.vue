@@ -87,8 +87,7 @@
 import AnimeImages from '@/components/AnimeImages.vue';
 import BsTooltip from '@/components/BsTooltip.vue';
 import DropdownFormControl from '@/components/DropdownFormControl.vue';
-import type { AnimeViewModel, SelectInputOption, ValidationErrorData } from '@/util/data';
-import { AnimeNameType } from '@/util/data';
+import { AnimeNameType, SelectInputOptions, type AnimeViewModel, type SelectInputOption, type ValidationErrorData } from '@/util/data';
 import { getAnimeName, isAnimeSeries as isAnimeSeriesFn } from '@/util/helpers';
 import { computed } from 'vue';
 import type { AnimeResponseData } from '../data/survey-form-data';
@@ -115,53 +114,25 @@ const animeResponseData = computed<AnimeResponseData>({
 });
 
 const nullOption: SelectInputOption<null> = {
-  id: 'null',
   displayName: '-----',
   value: null,
 };
 
-const scoreOptions: SelectInputOption<number | null>[] = [
+const scoreOptions = new SelectInputOptions<number | null>([
   nullOption,
-  {
-    id: '5',
-    displayName: '5/5 - Great',
-    value: 5,
-  },
-  {
-    id: '4',
-    displayName: '4/5',
-    value: 4,
-  },
-  {
-    id: '3',
-    displayName: '3/5 - Average',
-    value: 3,
-  },
-  {
-    id: '2',
-    displayName: '2/5',
-    value: 2,
-  },
-  {
-    id: '1',
-    displayName: '1/5 - Bad',
-    value: 1,
-  },
-];
+  { displayName: '5/5 - Great', value: 5 },
+  { displayName: '4/5', value: 4 },
+  { displayName: '3/5 - Average', value: 3 },
+  { displayName: '2/5', value: 2 },
+  { displayName: '1/5 - Bad', value: 1 },
+]);
 
-const expectationOptions: SelectInputOption<'S' | 'D' | null>[] = [
+
+const expectationOptions = new SelectInputOptions<'S' | 'D' | null>([
   nullOption,
-  {
-    id: 'S',
-    displayName: 'Surprise',
-    value: 'S',
-  },
-  {
-    id: 'D',
-    displayName: 'Disappointment',
-    value: 'D',
-  },
-];
+  { displayName: 'Surprise', value: 'S' },
+  { displayName: 'Disappointment', value: 'D' },
+]);
 
 const isAnimeSeries = isAnimeSeriesFn(props.animeData);
 

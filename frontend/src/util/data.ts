@@ -105,11 +105,65 @@ export interface SelectorItem {
   name: string;
 }
 
-export interface SelectInputOption<T> {
+export class SelectInputOptions<TValue> implements Iterable<SelectInputOptionWithId<TValue>> {
+
+  get length(): number {
+    return this.options.length;
+  }
+
+  private readonly options: SelectInputOptionWithId<TValue>[];
+  private readonly optionsMap: Map<string, SelectInputOptionWithId<TValue>>;
+
+  /**
+   * Create a collection of options
+   * @param options Array of options, may not be empty and may not contain options with duplicate values
+   */
+  constructor(options: readonly SelectInputOption<TValue>[]) {
+    const mappedOptions = options.map(option => Object.assign({ id: SelectInputOptions.calcIdFromValue(option.value) }, option));
+
+    this.options = mappedOptions;
+    this.optionsMap = new Map(mappedOptions.map(option => [option.id, option]));
+  }
+
+  [Symbol.iterator]() {
+    return this.options[Symbol.iterator]();
+  }
+
+  map<TResult>(callbackfn: (value: SelectInputOptionWithId<TValue>, index: number, array: SelectInputOptionWithId<TValue>[]) => TResult) {
+    return this.options.map(callbackfn);
+  }
+
+ 
+  getOptionById(id: string): SelectInputOptionWithId<TValue> | undefined {
+    return this.optionsMap.get(id);
+  }
+
+  getOptionByIdOrFirst(id: string): SelectInputOptionWithId<TValue> {
+    return this.getOptionById(id) ?? this.options[0];
+  }
+ 
+
+  getOptionByValue(value: unknown): SelectInputOptionWithId<TValue> | undefined {
+    return this.optionsMap.get(SelectInputOptions.calcIdFromValue(value));
+  }
+
+  getOptionByValueOrFirst(value: unknown): SelectInputOptionWithId<TValue> {
+    return this.getOptionByValue(value) ?? this.options[0];
+  }
+
+  private static calcIdFromValue(value: unknown): string {
+    return JSON.stringify(value);
+  }
+}
+
+interface SelectInputOptionWithId<TValue> extends SelectInputOption<TValue> {
   /** Used to identify the option in the input component, and thus must be unique */
   id: string;
+}
+
+export interface SelectInputOption<TValue> {
   /** Option value, objects currently not supported */
-  value: T extends object ? never : T;
+  value: TValue extends object ? never : TValue;
   /** Option name */
   displayName: string;
 }

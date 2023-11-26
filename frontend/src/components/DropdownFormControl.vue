@@ -19,14 +19,14 @@
 
 <script setup lang="ts" generic="T">
 import FormValidationErrors from '@/components/FormValidationErrors.vue';
-import type { SelectInputOption } from '@/util/data';
+import type { SelectInputOptions } from '@/util/data';
 import { computed } from 'vue';
 
 const props = defineProps<{
   id: string;
   modelValue: T | null | undefined;
   validationErrors?: string[];
-  options: SelectInputOption<T>[];
+  options: SelectInputOptions<T>;
 }>();
 
 const emits = defineEmits<{
@@ -35,11 +35,11 @@ const emits = defineEmits<{
 
 const selectedOptionId = computed<string>({
   get() {
-    const selectedOption = props.options.find(option => option.value === props.modelValue) ?? props.options[0];
+    const selectedOption = props.options.getOptionByValueOrFirst(props.modelValue);
     return selectedOption.id;
   },
   set(optionId: string) {
-    const selectedOption = props.options.find(option => option.id === optionId) ?? props.options[0];
+    const selectedOption = props.options.getOptionByIdOrFirst(optionId);
     emits('update:modelValue', selectedOption.value);
   },
 });
