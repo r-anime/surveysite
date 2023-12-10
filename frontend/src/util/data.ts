@@ -100,10 +100,6 @@ export type ReplaceAllValues<T, TValue> = T extends Record<string, any> ? {[K in
  */
 export type ValidationErrorData<T> = ReplaceAllValues<T, string[] | undefined>;
 
-export interface SelectorItem {
-  id: number;
-  name: string;
-}
 
 export class SelectInputOptions<TValue> implements Iterable<SelectInputOptionWithId<TValue>> {
 
