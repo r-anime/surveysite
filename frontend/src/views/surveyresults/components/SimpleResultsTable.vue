@@ -55,7 +55,7 @@ import type { RouteLocationNormalized } from 'vue-router';
 
 const props = defineProps<{
   ranking: { anime: AnimeViewModel, result: number, extraResult?: number }[];
-  resultTypes: ResultType[]; // Must have either length 1 or 2
+  resultTypes: [ResultType] | [ResultType, ResultType]; // Must have either length 1 or 2
   isAnimeSeries?: boolean;
 
   top: number;

@@ -5,16 +5,16 @@
       <label class="form-check-label" for="filterBelowPopularityThreshold">Filter away anime below the popularity threshold (2%)</label>
     </div>
     <h3 class="section-title" id="tableSeries">Anime Series</h3>
-    <DropdownMultiSelectButton :options="(tableDataOfSeries.columnsAsSelectorItems as SelectInputOptions<ResultType>)" v-model="tableDataOfSeries.visibleColumnTypes">
+    <DropdownMultiSelectButton :options="(tableDataOfSeries.columnsAsSelectInputOptions as SelectInputOptions<ResultType>)" v-model="tableDataOfSeries.visibleColumnTypes">
       Columns
     </DropdownMultiSelectButton>
-    <FullResultsTable :columns="tableDataOfSeries.processedColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
+    <FullResultsTable :columns="tableDataOfSeries.visibleColumns" :entries="tableDataOfSeries.entries" isAnimeSeries/>
 
     <h3 class="section-title" id="tableSpecial">Anime OVAs / ONAs / Movies / Specials</h3>
-    <DropdownMultiSelectButton :options="(tableDataOfSpecial.columnsAsSelectorItems as SelectInputOptions<ResultType>)" v-model="tableDataOfSpecial.visibleColumnTypes">
+    <DropdownMultiSelectButton :options="(tableDataOfSpecial.columnsAsSelectInputOptions as SelectInputOptions<ResultType>)" v-model="tableDataOfSpecial.visibleColumnTypes">
       Columns
     </DropdownMultiSelectButton>
-    <FullResultsTable :columns="tableDataOfSpecial.processedColumns" :entries="tableDataOfSpecial.entries"/>
+    <FullResultsTable :columns="tableDataOfSpecial.visibleColumns" :entries="tableDataOfSpecial.entries"/>
 
     <div class="row g-0">
       <div class="col-auto pe-1">
@@ -43,11 +43,11 @@ class TableData {
   entries: AnimeTableEntryData[] = [];
   isColumnVisible: Partial<Record<ResultType, boolean>> = {};
 
-  get processedColumns(): AnimeTableColumnData[] {
+  get visibleColumns(): AnimeTableColumnData[] {
     return this.columns.filter(column => this.isColumnVisible[column.resultType]);
   }
 
-  get columnsAsSelectorItems(): SelectInputOptions<ResultType> {
+  get columnsAsSelectInputOptions(): SelectInputOptions<ResultType> {
     return new SelectInputOptions<ResultType>(this.columns.map(column => ({
       displayName: getResultTypeName(column.resultType, true),
       value: column.resultType,
@@ -55,7 +55,7 @@ class TableData {
   }
 
   get visibleColumnTypes(): ResultType[] {
-    return this.processedColumns.map(column => column.resultType);
+    return this.visibleColumns.map(column => column.resultType);
   }
   set visibleColumnTypes(value: ResultType[]) {
     this.columns.forEach(column => this.isColumnVisible[column.resultType] = value.includes(column.resultType));

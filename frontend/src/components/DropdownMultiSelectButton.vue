@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import type { ResultType, SelectInputOptions } from "@/util/data";
 import IdGenerator from "@/util/id-generator";
+import _ from "lodash";
 import { computed } from "vue";
 
 const props = withDefaults(defineProps<{
@@ -61,8 +62,8 @@ const emit = defineEmits<{
 
 
 const dropdownId = IdGenerator.generateUniqueId('dropdownMultiSelect');
+const originalModelValues = _.clone(props.modelValue);
 
-const originalModelValues = props.modelValue;
 
 function isNotNil<T>(value: T | null | undefined): value is T {
   return value != null;
@@ -81,12 +82,7 @@ const selectAll = computed<boolean>({
     return props.options.length === props.modelValue.length;
   },
   set(value) {
-    onSelectionChanged(value ? props.options.map(option => option.value) : originalModelValues);
+    emit('update:modelValue', value ? props.options.map(option => option.value) : originalModelValues);
   },
 });
-
-
-function onSelectionChanged(newSelectedOptionIds: number[]): void {
-  emit('update:modelValue', newSelectedOptionIds);
-}
 </script>
