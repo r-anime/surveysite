@@ -10,7 +10,7 @@
 		"configurations": [
 			{
 				"name": "Back-end (Django)",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\manage.py",
 				"args": [
