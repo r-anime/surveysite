@@ -201,7 +201,7 @@ async function submit(): Promise<void> {
   }, failureResponse => {
     NotificationService.pushMsgList(failureResponse.errors?.global ?? [], 'danger');
 
-    if (failureResponse.errors) {
+    if (failureResponse.errors?.validation) {
       validationErrors.value = failureResponse.errors.validation ?? null;
       NotificationService.push({
         message: 'One or more of your responses are invalid',
