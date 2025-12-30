@@ -23,7 +23,7 @@ def is_ongoing_filter_func(current_year_season: int) -> Q:
     )
 
 
-def annotate_year_season(queryset: BaseManager) -> BaseManager:
+def annotate_year_season(queryset: BaseManager[Anime]):
     """Annotates an anime queryset with their year-season value (i.e. year and season combined into one value)."""
     return queryset.annotate(
         start_year_season  = combine_year_season(F('start_year') , F('start_season') ),
