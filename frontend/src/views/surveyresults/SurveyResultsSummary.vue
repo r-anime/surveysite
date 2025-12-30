@@ -8,7 +8,11 @@
             and the average age of everyone who answered was {{ averageAge }}.
           </p>
           <p>
-            Anime with a popularity of less than 2% will not be displayed here, as their data may be inaccurate.
+            Anime with a popularity of less than 2% will not be displayed on this page, as their data may be inaccurate.
+          </p>
+          <p v-if="useScoreResponseCountMinimum">
+            <b v-if="isFirstWithScoreResponseCountMinimum">NEW:</b>
+            Average scores for an anime will only be calculated if there are at least 10 scores. This applies to an anime's overall average score and its average score per gender.
           </p>
         </div></div>
         <div class="row mt-2"><div class="col">
@@ -210,20 +214,33 @@
 </template>
 
 <script setup lang="ts">
-import { type AnimeViewModel, ResultType } from '@/util/data';
+import { AnimeSeason, type AnimeViewModel, ResultType } from '@/util/data';
 import { isAnimeSeries } from '@/util/helpers';
+import { inject, type Ref } from 'vue';
 import AgeDistributionChart from './components/AgeDistributionChart.vue';
 import GenderDistributionChart from './components/GenderDistributionChart.vue';
-import TableWithTop3 from './components/TableWithTop3.vue';
 import TablePair from './components/TablePair.vue';
+import TableWithTop3 from './components/TableWithTop3.vue';
 import type { SurveyResultsData } from './data/survey-results-data';
-import { inject, type Ref } from 'vue';
 
 
 const surveyResultsData = inject<Ref<SurveyResultsData>>('surveyResultsData');
 if (surveyResultsData == null) {
   throw new TypeError('Failed to inject surveyResultsData');
 }
+
+const surveyData = surveyResultsData.value.survey;
+
+const isFirstWithScoreResponseCountMinimum = (
+  surveyData.year === 2025
+  && surveyData.season === AnimeSeason.FALL
+  && !surveyData.isPreseason
+) || (
+  surveyData.year === 2026
+  && surveyData.season === AnimeSeason.WINTER
+  && surveyData.isPreseason
+);
+const useScoreResponseCountMinimum = surveyData.year >= 2026 || isFirstWithScoreResponseCountMinimum;
 
 // TODO: Super scuffed, please change how this works
 const resultType: Record<string, { value: ResultType, resultTypes: [ResultType] | [ResultType, ResultType] }> = {
@@ -241,7 +258,7 @@ const resultType: Record<string, { value: ResultType, resultTypes: [ResultType] 
   disappointment: { value: ResultType.DISAPPOINTMENT, resultTypes: [ResultType.DISAPPOINTMENT, ResultType.SCORE] },
 };
 
-const surveyIsPreseason = surveyResultsData.value.survey.isPreseason;
+const surveyIsPreseason = surveyData.isPreseason;
 const averageAge = Object.entries(surveyResultsData.value.miscellaneous.ageDistribution)
   .reduce((prevResult, [ageStr, percentage]) => Number(ageStr) * percentage / 100 + prevResult, 0)
   .toFixed(2);

@@ -10,6 +10,8 @@ from survey.util.survey import get_survey_anime, get_survey_cache_timeout
 class ResultsGenerator:
     """Class for generating survey results."""
     survey: Survey
+    use_score_response_count_minumum: bool
+    score_response_count_minimum = 10
 
     def __init__(self, survey: Survey):
         """Creates a survey results generator.
@@ -20,6 +22,7 @@ class ResultsGenerator:
             The survey for which results have to be generated.
         """
         self.survey = survey
+        self.use_score_response_count_minumum = survey.year >= 2026 or (survey.year == 2025 and survey.season == Anime.AnimeSeason.FALL and not survey.is_preseason)
 
     def get_anime_results_data(self) -> dict[int, dict[ResultType, float]]:
         """Obtains the results for the survey provided when initializing, either from the cache or generated from database data.
@@ -33,7 +36,7 @@ class ResultsGenerator:
             return self.__get_anime_results_data_internal()
         else:
             cache_timeout = get_survey_cache_timeout(self.survey)
-            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=8, timeout=cache_timeout)
+            return caches['long'].get_or_set('survey_results_%i' % self.survey.id, self.__get_anime_results_data_internal, version=9, timeout=cache_timeout)
 
     def __get_anime_results_data_internal(self) -> dict[int, dict[ResultType, float]]:
         survey = self.survey
@@ -71,10 +74,17 @@ class ResultsGenerator:
         female_popularity = div0(female_watcher_response_count, total_female_response_count)
 
         score_animeresponse_qs = anime_animeresponse_qs.filter(score__isnull=False) if survey.is_preseason else watchers_animeresponse_qs.filter(score__isnull=False)
+        male_score_animeresponse_qs = score_animeresponse_qs.filter(response__gender=Response.Gender.MALE)
+        female_score_animeresponse_qs = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE)
+
+        score_valid = not self.use_score_response_count_minumum or score_animeresponse_qs.count() >= self.score_response_count_minimum
+        male_score_valid = not self.use_score_response_count_minumum or male_score_animeresponse_qs.count() >= self.score_response_count_minimum
+        female_score_valid = not self.use_score_response_count_minumum or female_score_animeresponse_qs.count() >= self.score_response_count_minimum
+
         # The aggregate becomes None when there are no scores which causes errors, hence "or NaN" being necessary
-        average_score = score_animeresponse_qs.aggregate(Avg('score'))['score__avg'] or float('NaN')
-        male_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.MALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
-        female_average_score = score_animeresponse_qs.filter(response__gender=Response.Gender.FEMALE).aggregate(Avg('score'))['score__avg'] or float('NaN')
+        average_score = (score_animeresponse_qs.aggregate(Avg('score'))['score__avg'] if score_valid else None) or float('NaN')
+        male_average_score = (male_score_animeresponse_qs.aggregate(Avg('score'))['score__avg'] if male_score_valid else None) or float('NaN')
+        female_average_score = (female_score_animeresponse_qs.aggregate(Avg('score'))['score__avg'] if female_score_valid else None) or float('NaN')
 
         results_data = {
             ResultType.POPULARITY:                  div0(watcher_response_count, scaled_total_response_count),
